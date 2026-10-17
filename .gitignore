@@ -1,0 +1,23 @@
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+dist/
+*.egg-info/
+
+# Secrets — never commit
+.env
+.streamlit/secrets.toml
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Generated data / outputs
+data/cache/
+data/raw/
+outputs/
+
+# OS
+.DS_Store
+Thumbs.db
