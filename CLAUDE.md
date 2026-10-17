@@ -55,3 +55,7 @@ Longer write-ups go in `docs/PROGRESS.md`.
 - `UV_NATIVE_TLS` deprecation warning in the cloud sandbox is harmless noise.
 - usda.gov, iastate.edu and cmegroup.com may be blocked from cloud sandboxes. Build API clients
   against recorded fixtures in `tests/fixtures/` and verify live calls on a real machine.
+- LibreOffice headless won't recalculate xlsxwriter files (it keeps the cached 0s) unless the profile
+  sets `OOXMLRecalcMode=0`. See `tests/test_excel.py::recalc`.
+- Excel formulas use named ranges (`HeadPlaced`, `CornCash`...). When a model formula changes,
+  change `excel.py` too. `test_excel.py` compares the two.
