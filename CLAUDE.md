@@ -59,3 +59,7 @@ Longer write-ups go in `docs/PROGRESS.md`.
   sets `OOXMLRecalcMode=0`. See `tests/test_excel.py::recalc`.
 - Excel formulas use named ranges (`HeadPlaced`, `CornCash`...). When a model formula changes,
   change `excel.py` too. `test_excel.py` compares the two.
+- Never pipe checks through `tail` inside an `&&` chain: the pipe hides the exit code (a red
+  pyright got committed once). Chain `uv run pyright >/dev/null && ...` instead.
+- pandas 3's type hints make pyright fail on groupby/rolling chains. For small aggregations,
+  use plain dicts or `.to_dict("records")` (see `data/leanhog.py::cme_index`).

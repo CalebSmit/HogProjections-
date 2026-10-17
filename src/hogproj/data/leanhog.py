@@ -71,16 +71,21 @@ def parse_lm_hg201(results: list[dict]) -> pd.DataFrame:
 
 def cme_index(rows: pd.DataFrame) -> pd.Series:
     """Two-day weighted Lean Hog Index ($/cwt carcass), indexed by report date."""
-    df = rows.copy()
-    pre = pd.to_datetime(df["report_date"]) < pd.Timestamp(NEG_FORMULA_START)
-    df = df[~(pre & (df["bucket"] == "negotiated_formula"))]
-    df["lbs"] = df["head"] * df["carcass_lb"]
-    df["value"] = df["lbs"] * df["net_price_cwt"]
-    daily = df.groupby("report_date")[["lbs", "value"]].sum().sort_index()
-    two_day = daily.rolling(2).sum().dropna()
-    out = two_day["value"] / two_day["lbs"]
-    out.index = pd.to_datetime(out.index)
-    return out.rename("cme_index_cwt")
+    lbs: dict[date, float] = {}
+    value: dict[date, float] = {}
+    for r in rows.to_dict("records"):
+        day: date = r["report_date"]
+        if r["bucket"] == "negotiated_formula" and day < NEG_FORMULA_START:
+            continue
+        w = float(r["head"]) * float(r["carcass_lb"])
+        lbs[day] = lbs.get(day, 0.0) + w
+        value[day] = value.get(day, 0.0) + w * float(r["net_price_cwt"])
+    days = sorted(lbs)
+    index = {
+        pd.Timestamp(d): (value[prev] + value[d]) / (lbs[prev] + lbs[d])
+        for prev, d in zip(days, days[1:], strict=False)
+    }
+    return pd.Series(index, name="cme_index_cwt", dtype="float64")
 
 
 def fetch_lm_hg201(start: date, end: date) -> pd.DataFrame:
@@ -107,9 +112,9 @@ def parse_yahoo_chart(data: dict) -> pd.Series:
     except (KeyError, IndexError, TypeError) as e:
         raise FetchError(f"unexpected Yahoo response: {e}") from e
     idx = pd.to_datetime(pd.Series(ts), unit="s").dt.normalize()
-    s = pd.Series(close, index=idx, dtype="float64").dropna()
-    s.index.name = "date"
-    return s[~s.index.duplicated(keep="last")]
+    s = pd.Series(close, index=pd.DatetimeIndex(idx, name="date"), dtype="float64").dropna()
+    keep = ~s.index.duplicated(keep="last")
+    return pd.Series(s.to_numpy()[keep], index=s.index[keep], name="close")
 
 
 def fetch_yahoo_daily(symbol: str, start: date, end: date) -> pd.Series:
