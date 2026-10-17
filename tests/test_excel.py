@@ -78,7 +78,8 @@ def costs_by_line(wb: openpyxl.Workbook) -> dict[str, float]:
             "wean_pig_manual_usd_hd": 55.0,
             "labor_mode": LaborCostMode.PER_PIG_PLACED,
             "labor_usd_pig_placed": 3.0,
-            "lean_hog_futures_cwt": {"2026-05": 100.0, "2026-06": 104.0},
+            "lean_hog_futures_cwt": {"2026-06": 100.0, "2026-07": 104.0},
+            "hog_basis_cwt_by_period": {10: -2.0, 12: 1.5},
             "marketing": [
                 MarketingCut(days_after_placement=140, pct_of_marketed=40, live_weight_lb=280),
                 MarketingCut(days_after_placement=165, pct_of_marketed=60, live_weight_lb=290),

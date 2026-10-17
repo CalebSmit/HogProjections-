@@ -1,10 +1,11 @@
 """Wean-to-finish group projection: costs, revenue, breakeven. Pure functions, no I/O."""
 
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import timedelta
 
 import pandas as pd
 
+from hogproj.basis import basis_period, lean_hog_contract_for
 from hogproj.inputs import (
     CORN_LB_PER_BU,
     LB_PER_TON,
@@ -12,16 +13,6 @@ from hogproj.inputs import (
     LaborCostMode,
     Projection,
 )
-
-# CME Lean Hog (HE) listed contract months. A sale month is priced off the first listed
-# contract month on or after it (Jan->Feb, Mar->Apr, Sep->Oct, Nov->Dec).
-LEAN_HOG_CONTRACT_MONTHS = (2, 4, 5, 6, 7, 8, 10, 12)
-
-
-def lean_hog_contract_for(d: date) -> str:
-    """Contract code 'YYYY-MM' used to price hogs sold on date d."""
-    month = next(m for m in LEAN_HOG_CONTRACT_MONTHS if m >= d.month)
-    return f"{d.year}-{month:02d}"
 
 
 def corn_cash_usd_bu(p: Projection) -> float:
@@ -88,7 +79,8 @@ def marketing_table(p: Projection) -> pd.DataFrame:
         if contract not in p.lean_hog_futures_cwt:
             raise KeyError(f"no lean hog futures price for contract {contract}")
         futures = p.lean_hog_futures_cwt[contract]
-        basis = p.hog_basis_cwt_by_month.get(sale_date.month, 0.0)
+        period = basis_period(sale_date)
+        basis = p.hog_basis_cwt_by_period.get(period, 0.0)
         price = futures + basis + p.carcass_premium_cwt
         head = sold * cut.pct_of_marketed / 100
         carcass_lb = cut.live_weight_lb * p.carcass_yield_pct / 100
@@ -96,6 +88,7 @@ def marketing_table(p: Projection) -> pd.DataFrame:
             {
                 "sale_date": sale_date,
                 "contract": contract,
+                "basis_period": period,
                 "head": head,
                 "live_weight_lb": cut.live_weight_lb,
                 "carcass_weight_lb": carcass_lb,

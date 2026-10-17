@@ -11,6 +11,7 @@ import pandas as pd
 import xlsxwriter
 from xlsxwriter.utility import xl_rowcol_to_cell
 
+from hogproj.basis import PERIODS, period_label
 from hogproj.inputs import BarnCostMode, LaborCostMode, Location, Projection, WeanPigPriceSource
 
 MAX_LOCATIONS = 40
@@ -402,28 +403,31 @@ def _market_data_sheet(wb, ws, p: Projection, basis_history, wean_hist, f) -> No
     wb.define_name("FutContracts", f"='Market Data'!$A$3:$A${MAX_CONTRACTS + 2}")
     wb.define_name("FutPrices", f"='Market Data'!$B$3:$B${MAX_CONTRACTS + 2}")
 
-    ws.write("D1", "Avg hog basis (Index − futures)", f["sub"])
-    ws.write("D2", "Month", f["h"])
-    ws.write("E2", "$/cwt carcass", f["h"])
-    for m in range(1, 13):
-        ws.write(m + 1, 3, m, f["int"])
-        ws.write(m + 1, 4, p.hog_basis_cwt_by_month.get(m, 0.0), f["in_num"])
-    wb.define_name("BasisByMonth", "='Market Data'!$E$3:$E$14")
+    ws.set_column("F:F", 14)
+    ws.write("D1", "Avg hog basis (CME Index − nearby futures)", f["sub"])
+    ws.write("D2", "Period", f["h"])
+    ws.write("E2", "Half-month", f["h"])
+    ws.write("F2", "$/cwt carcass", f["h"])
+    for period in PERIODS:
+        ws.write(period + 1, 3, period, f["int"])
+        ws.write(period + 1, 4, period_label(period), f["txt"])
+        ws.write(period + 1, 5, p.hog_basis_cwt_by_period.get(period, 0.0), f["in_num"])
+    wb.define_name("BasisByPeriod", "='Market Data'!$F$3:$F$26")
 
-    row = 17
+    row = 28
     if basis_history is not None and not basis_history.empty:
         ws.write(row, 3, "Basis history by year (CME Index − nearby futures, $/cwt)", f["sub"])
         row += 1
         ws.write(row, 3, "Year", f["h"])
-        for m in range(1, 13):
-            ws.write(row, 3 + m, m, f["h"])
+        for period in PERIODS:
+            ws.write(row, 3 + period, period_label(period), f["h"])
         for year, vals in basis_history.iterrows():
             row += 1
             ws.write(row, 3, int(year), f["int"])  # type: ignore[arg-type]
-            for m in range(1, 13):
-                v = vals.get(m)
+            for period in PERIODS:
+                v = vals.get(period)
                 if v is not None and pd.notna(v):
-                    ws.write(row, 3 + m, float(v), f["num"])
+                    ws.write(row, 3 + period, float(v), f["num"])
         row += 2
 
     if wean_hist is not None and not wean_hist.empty:
@@ -447,6 +451,7 @@ def _marketing_sheet(wb, ws, p: Projection, f) -> None:
         "Live wt lb",
         "Sale date",
         "Contract",
+        "Basis period",
         "Futures $/cwt",
         "Basis $/cwt",
         "Premium $/cwt",
@@ -457,7 +462,7 @@ def _marketing_sheet(wb, ws, p: Projection, f) -> None:
     ]
     for c, h in enumerate(headers):
         ws.write(0, c, h, f["h"])
-    ws.set_column(0, 11, 15)
+    ws.set_column(0, 12, 15)
     for i in range(MAX_CUTS):
         r = i + 1
         x = r + 1
@@ -471,33 +476,37 @@ def _marketing_sheet(wb, ws, p: Projection, f) -> None:
                 ws.write_blank(r, c, None, f["in_num"])
         on = f'A{x}<>""'
         ws.write_formula(r, 3, f'=IF({on},PlacementDate+A{x},"")', f["date"])
-        month = f"MONTH(D{x})"
-        cm = f"IF({month}<=2,2,IF({month}<=4,4,IF({month}<=8,{month},IF({month}<=10,10,12))))"
-        ws.write_formula(r, 4, f'=IF({on},YEAR(D{x})&"-"&TEXT({cm},"00"),"")', f["txt"])
-        ws.write_formula(r, 5, f"=IF({on},INDEX(FutPrices,MATCH(E{x},FutContracts,0)),0)", f["num"])
-        ws.write_formula(r, 6, f"=IF({on},INDEX(BasisByMonth,{month}),0)", f["num"])
-        ws.write_formula(r, 7, f"=IF({on},Premium,0)", f["num"])
-        ws.write_formula(r, 8, f"=F{x}+G{x}+H{x}", f["usd2"])
-        ws.write_formula(r, 9, f"=HeadSold*N(B{x})/100", f["num"])
-        ws.write_formula(r, 10, f"=N(C{x})*YieldPct/100", f["num"])
-        ws.write_formula(r, 11, f"=J{x}*K{x}/100*I{x}", f["usd"])
+        m, dd = f"MONTH(D{x})", f"DAY(D{x})"
+        listed = f"ISNUMBER(MATCH({m},{{2,4,5,6,7,8,10,12}},0))"
+        nxt = f"IF({m}<2,2,IF({m}<4,4,IF({m}<8,{m}+1,IF({m}<10,10,IF({m}<12,12,14)))))"
+        cm = f"IF(AND({listed},{dd}<=14),{m},{nxt})"
+        code = f'(YEAR(D{x})+({cm}>12))&"-"&TEXT({cm}-12*({cm}>12),"00")'
+        ws.write_formula(r, 4, f'=IF({on},{code},"")', f["txt"])
+        ws.write_formula(r, 5, f"=IF({on},({m}-1)*2+IF({dd}<=14,1,2),0)", f["int"])
+        ws.write_formula(r, 6, f"=IF({on},INDEX(FutPrices,MATCH(E{x},FutContracts,0)),0)", f["num"])
+        ws.write_formula(r, 7, f"=IF({on},INDEX(BasisByPeriod,F{x}),0)", f["num"])
+        ws.write_formula(r, 8, f"=IF({on},Premium,0)", f["num"])
+        ws.write_formula(r, 9, f"=G{x}+H{x}+I{x}", f["usd2"])
+        ws.write_formula(r, 10, f"=HeadSold*N(B{x})/100", f["num"])
+        ws.write_formula(r, 11, f"=N(C{x})*YieldPct/100", f["num"])
+        ws.write_formula(r, 12, f"=K{x}*L{x}/100*J{x}", f["usd"])
     tr = MAX_CUTS + 1
     end = tr  # last data row number in excel terms is tr
     ws.write(tr, 0, "Total", f["sub"])
     ws.write_formula(tr, 1, f"=SUM(B2:B{end})", f["num"])
-    ws.write_formula(tr, 9, f"=SUM(J2:J{end})", f["num"])
-    ws.write_formula(tr, 11, f"=SUM(L2:L{end})", f["total"])
-    wb.define_name("GrossRevenue", f"=Marketing!$L${tr + 1}")
+    ws.write_formula(tr, 10, f"=SUM(K2:K{end})", f["num"])
+    ws.write_formula(tr, 12, f"=SUM(M2:M{end})", f["total"])
+    wb.define_name("GrossRevenue", f"=Marketing!$M${tr + 1}")
     wb.define_name(
-        "CarcassCwt", f"=SUMPRODUCT(Marketing!$J$2:$J${end},Marketing!$K$2:$K${end})/100"
+        "CarcassCwt", f"=SUMPRODUCT(Marketing!$K$2:$K${end},Marketing!$L$2:$L${end})/100"
     )
-    wb.define_name("LiveCwt", f"=SUMPRODUCT(Marketing!$J$2:$J${end},Marketing!$C$2:$C${end})/100")
+    wb.define_name("LiveCwt", f"=SUMPRODUCT(Marketing!$K$2:$K${end},Marketing!$C$2:$C${end})/100")
     wb.define_name("AvgDays", f"=SUMPRODUCT(Marketing!$A$2:$A${end},Marketing!$B$2:$B${end})/100")
     ws.write(
         tr + 2,
         0,
-        "% of marketed must total 100. Contract = first CME lean hog month "
-        "(Feb, Apr, May, Jun, Jul, Aug, Oct, Dec) on/after the sale month.",
+        "% of marketed must total 100. Contract: days 1-14 of a contract month (Feb Apr May "
+        "Jun Jul Aug Oct Dec) use that month; otherwise the next contract (ISU B2-41).",
         f["note"],
     )
     ws.conditional_format(

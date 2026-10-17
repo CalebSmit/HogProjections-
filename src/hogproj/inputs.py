@@ -110,7 +110,7 @@ class Projection(BaseModel):
     # Revenue
     marketing: list[MarketingCut]
     lean_hog_futures_cwt: dict[str, float]  # contract code "2027-04" -> $/cwt carcass
-    hog_basis_cwt_by_month: dict[int, float]  # calendar month 1-12 -> avg historical basis
+    hog_basis_cwt_by_period: dict[int, float]  # half-month period 1-24 -> avg historical basis
     carcass_premium_cwt: float = 0.0  # lean/grade merit premium, $/cwt carcass
     checkoff_pct: float = 0.35  # National Pork Checkoff, % of gross
 

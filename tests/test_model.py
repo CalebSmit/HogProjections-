@@ -4,9 +4,16 @@ from typing import Any
 import pandas as pd
 import pytest
 
-from hogproj.basis import average_basis_by_month, basis_by_year_month, daily_basis
+from hogproj.basis import (
+    average_basis_by_period,
+    basis_by_year_period,
+    basis_period,
+    daily_basis,
+    lean_hog_contract_for,
+    period_label,
+)
 from hogproj.inputs import FeedPhase, Location, MarketingCut, Projection
-from hogproj.model import lean_hog_contract_for, project
+from hogproj.model import project
 
 
 def make(**overrides) -> Projection:
@@ -40,8 +47,8 @@ def make(**overrides) -> Projection:
         barn_days_occupied=200,
         labor_hr_per_pig=0.1,
         marketing=[MarketingCut(days_after_placement=150, pct_of_marketed=100, live_weight_lb=300)],
-        lean_hog_futures_cwt={"2026-05": 100.0},
-        hog_basis_cwt_by_month={5: -2.0},
+        lean_hog_futures_cwt={"2026-06": 100.0},
+        hog_basis_cwt_by_period={10: -2.0},
         checkoff_pct=0.0,
     )
     base.update(overrides)
@@ -49,19 +56,32 @@ def make(**overrides) -> Projection:
 
 
 def test_contract_mapping():
+    # ISU B2-41 convention: days 1-14 of a contract month use it, the 15th on uses the next
     assert lean_hog_contract_for(date(2027, 1, 15)) == "2027-02"
+    assert lean_hog_contract_for(date(2027, 2, 14)) == "2027-02"
+    assert lean_hog_contract_for(date(2027, 2, 15)) == "2027-04"
     assert lean_hog_contract_for(date(2027, 3, 1)) == "2027-04"
-    assert lean_hog_contract_for(date(2027, 5, 30)) == "2027-05"
+    assert lean_hog_contract_for(date(2027, 5, 30)) == "2027-06"
+    assert lean_hog_contract_for(date(2027, 8, 20)) == "2027-10"
     assert lean_hog_contract_for(date(2027, 9, 9)) == "2027-10"
     assert lean_hog_contract_for(date(2027, 11, 2)) == "2027-12"
+    assert lean_hog_contract_for(date(2027, 12, 20)) == "2028-02"
+
+
+def test_basis_periods():
+    assert basis_period(date(2027, 1, 1)) == 1
+    assert basis_period(date(2027, 1, 15)) == 2
+    assert basis_period(date(2027, 12, 31)) == 24
+    assert period_label(3) == "Feb 1-14"
+    assert period_label(24) == "Dec 15-end"
 
 
 def test_hand_calculated_group():
-    # 900 sold; sale 2026-05-31 -> May contract 100 + May basis -2 = 98/cwt carcass
+    # 900 sold; sale 2026-05-31 -> Jun contract 100 + "May 15-end" basis -2 = 98/cwt carcass
     r = project(make())
     s = r.summary
     assert s["head_sold"] == pytest.approx(900)
-    assert r.marketing.loc[0, "contract"] == "2026-05"
+    assert r.marketing.loc[0, "contract"] == "2026-06"
     revenue = 900 * 225 / 100 * 98
     assert s["gross_revenue_usd"] == pytest.approx(revenue)
 
@@ -102,18 +122,19 @@ def test_marketing_must_sum_to_100():
 
 def test_missing_futures_contract_is_explicit():
     with pytest.raises(KeyError):
-        project(make(lean_hog_futures_cwt={"2026-06": 100.0}))
+        project(make(lean_hog_futures_cwt={"2026-07": 100.0}))
 
 
 def test_basis_average_across_years():
     dates = pd.to_datetime(["2024-06-03", "2024-06-04", "2025-06-02", "2025-07-01"])
     index = pd.Series([100.0, 102.0, 90.0, 95.0], index=dates)
     fut = pd.Series([104.0, 104.0, 91.0, 95.0], index=dates)
-    table = basis_by_year_month(daily_basis(index, fut))
-    assert table.loc[2024, 6] == pytest.approx(-3.0)
-    assert table.loc[2025, 6] == pytest.approx(-1.0)
-    avg = average_basis_by_month(table)
-    assert avg[6] == pytest.approx(-2.0)
-    assert avg[7] == pytest.approx(0.0)
+    table = basis_by_year_period(daily_basis(index, fut))
+    jun_early = 11
+    assert table.loc[2024, jun_early] == pytest.approx(-3.0)
+    assert table.loc[2025, jun_early] == pytest.approx(-1.0)
+    avg = average_basis_by_period(table)
+    assert avg[jun_early] == pytest.approx(-2.0)
+    assert avg[13] == pytest.approx(0.0)  # Jul 1-14
     assert avg[1] == 0.0  # no data
-    assert average_basis_by_month(table, years=[2025])[6] == pytest.approx(-1.0)
+    assert average_basis_by_period(table, years=[2025])[jun_early] == pytest.approx(-1.0)
