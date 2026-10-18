@@ -204,3 +204,78 @@ def sensitivity(p: Projection, corn_steps: list[float], hog_steps: list[float]) 
             col.append(project(q).summary["net_usd_per_head_sold"])
         out[f"{dh:+g}"] = col
     return pd.DataFrame(out, index=[f"{dc:+g}" for dc in corn_steps])
+
+
+def cash_flow(p: Projection, r: Result) -> pd.DataFrame:
+    """Monthly cash out (by cost line) and cash in, reconciling to `project()` totals.
+
+    Timing assumptions:
+    - Weaned pigs, freight and vet/med are paid in the placement month (vaccines up front).
+    - Feed is spread by daily intake, taken as proportional to live weight x head on feed.
+      Weight grows linearly from wean weight to the average sale weight.
+    - Barn is spread over placement to last sale plus downtime.
+    - Labor, utilities and insurance are spread evenly over the feeding period.
+    - Revenue, trucking and checkoff fall on each sale date.
+    - Interest is paid at the last sale.
+    """
+    costs = dict(zip(r.costs["line"], r.costs["total_usd"], strict=True))
+    last_sale = max(c.days_after_placement for c in p.marketing)
+    feeding = range(last_sale + 1)
+    barn_days = range(p.barn_days_occupied)
+    avg_wt = sum(c.live_weight_lb * c.pct_of_marketed / 100 for c in p.marketing)
+    sold_frac = {c.days_after_placement: 0.0 for c in p.marketing}
+    for c in p.marketing:
+        sold_frac[c.days_after_placement] += c.pct_of_marketed / 100
+
+    # Head on feed each day: deaths spread evenly to the average sale day, sales leave on
+    # their day. Intake weight = head x weight.
+    avg_day = sum(c.days_after_placement * c.pct_of_marketed / 100 for c in p.marketing)
+    mort = p.mortality_pct / 100
+    intake: list[float] = []
+    sold_so_far = 0.0
+    for d in feeding:
+        alive = 1 - mort * min(d / avg_day, 1) if avg_day else 1 - mort
+        head = max(alive * (1 - sold_so_far), 0.0)
+        weight = p.wean_weight_lb + (avg_wt - p.wean_weight_lb) * d / max(avg_day, 1)
+        intake.append(head * weight)
+        sold_so_far += sold_frac.get(d, 0.0)
+    total_intake = sum(intake) or 1.0
+
+    out: dict[str, dict[str, float]] = {}
+
+    def add(day: int, line: str, usd: float) -> None:
+        month = (p.placement_date + timedelta(days=day)).strftime("%Y-%m")
+        out.setdefault(month, {})
+        out[month][line] = out[month].get(line, 0.0) + usd
+
+    for line in ("Weaned pigs", "Vet / med"):
+        add(0, line, costs[line])
+    for d in feeding:
+        add(d, "Feed", costs["Feed"] * intake[d] / total_intake)
+        for line in ("Labor", "Utilities", "Insurance / misc"):
+            add(d, line, costs[line] / len(feeding))
+    for d in barn_days:
+        add(d, "Barn / facilities", costs["Barn / facilities"] / len(barn_days))
+    gross = float(r.marketing["revenue_usd"].to_numpy().sum())
+    head_total = float(r.marketing["head"].to_numpy().sum())
+    for cut, row in zip(p.marketing, r.marketing.to_dict("records"), strict=True):
+        day = cut.days_after_placement
+        add(day, "Revenue", float(row["revenue_usd"]))
+        if head_total:
+            add(day, "Trucking to market", costs["Trucking to market"] * row["head"] / head_total)
+        if gross:
+            add(day, "Checkoff", costs["Checkoff"] * float(row["revenue_usd"]) / gross)
+    add(last_sale, "Interest", costs["Interest"])
+
+    lines = list(costs)
+    rows = []
+    for month in sorted(out):
+        rec: dict[str, float | str] = {"month": month}
+        rec.update({line: out[month].get(line, 0.0) for line in lines})
+        rec["cash_out_usd"] = sum(out[month].get(line, 0.0) for line in lines)
+        rec["cash_in_usd"] = out[month].get("Revenue", 0.0)
+        rec["net_usd"] = rec["cash_in_usd"] - rec["cash_out_usd"]  # type: ignore[operator]
+        rows.append(rec)
+    df = pd.DataFrame(rows)
+    df["cumulative_usd"] = df["net_usd"].cumsum()
+    return df

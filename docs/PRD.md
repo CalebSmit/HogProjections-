@@ -53,6 +53,7 @@ and earn from placement to market, before or right after placement. Today that m
 | F8 | Dashboard: Summary, Inputs, Locations comparison, Markets & basis, Excel download | ✅ |
 | F9 | Excel workbook with named-range formulas, dropdowns (location, weaned pig source, barn and labor mode), verified against the model by LibreOffice recalculation in tests | ✅ |
 | F10 | Corn × hog price "what-if" grid | ✅ |
+| F12 | Monthly cash flow (cash out by line, cash in by sale, cumulative) on the dashboard. Timing rules are in `model.cash_flow`. Dashboard only; the Excel workbook stays at the group-total level | ✅ |
 | F11 | Auto-pull regional corn/SBM basis and DDGS from USDA grain reports (2850 Iowa bids, 3618 co-products) | ⏳ Phase 5 |
 
 ## 6. Success criteria
@@ -75,3 +76,4 @@ and earn from placement to market, before or right after placement. Today that m
 - 2026-10-18: Rewritten for the owner's idea (W2F group projection). Scope, goals, features
   and open questions as above. Basis moved to half-month periods (from monthly) after
   research showed large within-month jumps at contract expiry.
+- 2026-10-18: Added F12 monthly cash flow (for the accountant user).

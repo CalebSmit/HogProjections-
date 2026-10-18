@@ -154,3 +154,29 @@ def test_roll_gap_days_dropped_from_basis():
     dates = pd.to_datetime(["2027-02-12", "2027-02-13", "2027-02-16"])
     s = daily_basis(pd.Series([90.0, 90.0, 90.0], dates), pd.Series([89.0, 99.0, 95.0], dates))
     assert [str(d)[5:10] for d in s.index] == ["02-12", "02-16"]
+
+
+def test_cash_flow_reconciles_to_projection():
+    from hogproj.model import cash_flow
+
+    p = make(
+        checkoff_pct=0.35,
+        interest_rate_pct=7.0,
+        vet_med_usd_hd=5.0,
+        trucking_usd_hd_sold=4.0,
+        lean_hog_futures_cwt={"2026-05": 90.0, "2026-06": 100.0},
+        marketing=[
+            MarketingCut(days_after_placement=130, pct_of_marketed=40, live_weight_lb=280),
+            MarketingCut(days_after_placement=150, pct_of_marketed=60, live_weight_lb=300),
+        ],
+    )
+    r = project(p)
+    cf = cash_flow(p, r)
+    assert cf["cash_out_usd"].sum() == pytest.approx(r.summary["total_cost_usd"])
+    assert cf["cash_in_usd"].sum() == pytest.approx(r.summary["gross_revenue_usd"])
+    assert cf["cumulative_usd"].iloc[-1] == pytest.approx(r.summary["net_usd"])
+    assert list(cf["month"])[0] == "2026-01"  # placement month first
+    # weaned pigs are paid for in the placement month
+    assert cf.loc[0, "Weaned pigs"] == pytest.approx(40_000)
+    # most feed is eaten late: the last full month on feed costs more than the first
+    assert cf.loc[4, "Feed"] > cf.loc[0, "Feed"]

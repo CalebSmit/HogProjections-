@@ -32,7 +32,7 @@ from hogproj.inputs import (
     Projection,
     WeanPigPriceSource,
 )
-from hogproj.model import project, sensitivity
+from hogproj.model import cash_flow, project, sensitivity
 
 st.set_page_config(page_title="Hog Projections", page_icon="🐖", layout="wide")
 
@@ -503,6 +503,34 @@ with tab_sum:
         hide_index=True,
         use_container_width=True,
     )
+
+    st.markdown("#### Cash flow by month")
+    st.caption(
+        "Weaned pigs and vet/med are paid at placement. Feed follows daily intake (heavier pigs "
+        "eat more). Barn, labor and utilities are spread evenly. Sales, trucking and checkoff "
+        "fall on each sale date; interest at closeout."
+    )
+    cf = cash_flow(proj, result)
+    st.plotly_chart(charts.cash_flow_chart(cf), use_container_width=True)
+    with st.expander("Monthly detail"):
+        show = cf.copy()
+        show["month"] = pd.to_datetime(show["month"]).dt.strftime("%b %Y")
+        money_cols = [c for c in show.columns if c != "month"]
+        for col in money_cols:
+            show[col] = show[col].map(lambda v: money(v, 0))
+        st.dataframe(
+            show.rename(
+                columns={
+                    "month": "Month",
+                    "cash_out_usd": "Total cash out",
+                    "cash_in_usd": "Cash in",
+                    "net_usd": "Net",
+                    "cumulative_usd": "Cumulative",
+                }
+            ),
+            hide_index=True,
+            use_container_width=True,
+        )
 
     grid = sensitivity(proj, [-0.50, -0.25, 0.0, 0.25, 0.50], [-10, -5, 0, 5, 10])
     st.plotly_chart(charts.sensitivity_heatmap(grid), use_container_width=True)

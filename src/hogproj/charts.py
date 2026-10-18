@@ -185,3 +185,39 @@ def price_history(df: pd.DataFrame, x: str, y: str, title: str, unit: str) -> go
     fig = _layout(fig, title, 340)
     fig.update_layout(hovermode="x unified")
     return fig
+
+
+ORANGE = "#eb6834"
+
+
+def cash_flow_chart(cf: pd.DataFrame) -> go.Figure:
+    """Cash out vs cash in by month (two series, legend + direct identity by color)."""
+    months = pd.to_datetime(cf["month"]).dt.strftime("%b %Y")
+    fig = go.Figure(
+        [
+            go.Bar(
+                x=months,
+                y=cf["cash_out_usd"],
+                name="Cash out",
+                marker={"color": ORANGE, "cornerradius": 4},
+                hovertemplate="%{x}<br>Cash out $%{y:,.0f}<extra></extra>",
+            ),
+            go.Bar(
+                x=months,
+                y=cf["cash_in_usd"],
+                name="Cash in (hog sales)",
+                marker={"color": BLUE, "cornerradius": 4},
+                hovertemplate="%{x}<br>Cash in $%{y:,.0f}<extra></extra>",
+            ),
+        ]
+    )
+    fig.update_yaxes(tickprefix="$")
+    fig = _layout(fig, "Cash out and cash in by month", 360)
+    fig.update_layout(
+        showlegend=True,
+        barmode="group",
+        bargap=0.3,
+        bargroupgap=0.08,
+        legend={"orientation": "h", "y": 1.08, "x": 1, "xanchor": "right"},
+    )
+    return fig

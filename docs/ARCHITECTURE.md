@@ -46,7 +46,7 @@ flowchart LR
 |---|---|
 | `app.py` | Streamlit UI. Builds a `Projection` from widgets, calls `project()`, renders the tabs. No business math. |
 | `src/hogproj/inputs.py` | `Projection`, `Location`, `FeedPhase`, `MarketingCut`, enums. Units are in field names. List limits match the Excel slots. |
-| `src/hogproj/model.py` | `project(p) -> Result` (summary dict, costs/feed/marketing DataFrames) and `sensitivity()`. Pure. |
+| `src/hogproj/model.py` | `project(p) -> Result` (summary dict, costs/feed/marketing DataFrames), `sensitivity()` and `cash_flow()` (monthly; reconciles to `project`). Pure. |
 | `src/hogproj/basis.py` | Lean hog contract calendar (`lean_hog_contract_for`, `lean_hog_expiry`, `in_roll_gap`) and half-month basis aggregation. Pure. |
 | `src/hogproj/excel.py` | `build_workbook()`. Every number is a formula over named input cells, so the workbook mirrors `model.py`. |
 | `src/hogproj/charts.py` | Plotly figure builders (dataviz reference palette). Pure. |
@@ -73,3 +73,4 @@ flowchart LR
 - 2026-10-18: Replaced the generic herd/finance/markets/risk plan with the W2F group design
   above (`inputs`/`model`/`basis`/`excel`/`charts` + `data/*`). Monte Carlo and the herd
   simulator are dropped from scope (PRD non-goals). See ADR 0002.
+- 2026-10-18: Added `model.cash_flow` and `charts.cash_flow_chart`.
