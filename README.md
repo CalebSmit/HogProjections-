@@ -14,6 +14,12 @@ market. The default is a **2,400-head** wean-to-finish group.
 - **Two outputs:** an easy-to-read **dashboard**, and an **Excel workbook** whose inputs you
   can change.
 
+## Just want the spreadsheet?
+
+Open **`W2F_Projection.xlsx`** in the project folder. Pick a feeding location from the dropdown
+on the **Inputs** sheet and change any yellow cell; the whole workbook recalculates. The app's
+**Excel** tab downloads the same workbook filled in with your current dashboard inputs.
+
 ## Quick start (no programming needed)
 
 1. **Get the code.** Either:

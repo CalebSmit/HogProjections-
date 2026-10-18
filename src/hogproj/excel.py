@@ -62,6 +62,10 @@ def build_workbook(
     _costs_sheet(wb, costs, f)
     _dashboard_sheet(wb, dash, f)
 
+    for ws in (dash, inp, loc, feed, mkt, prices, costs):
+        ws.set_paper(1)  # US letter
+        ws.set_landscape()
+        ws.fit_to_pages(1, 0)  # one page wide, as many tall as needed
     dash.activate()
     wb.close()
     return buf.getvalue()
@@ -144,7 +148,7 @@ def _inputs_sheet(wb, ws, p: Projection, f) -> dict[str, str]:
             p.wean_pig_source.value,
             "in_txt",
             "",
-            "USDA cash = open market, lots of 2,400+ head",
+            "USDA cash = open market; 2,400+ head lots if reported, else the largest lot",
         ),
         (
             "WeanCash",
@@ -152,7 +156,7 @@ def _inputs_sheet(wb, ws, p: Projection, f) -> dict[str, str]:
             p.wean_pig_usda_cash_usd_hd,
             "in_num",
             "$/head",
-            "USDA AMS National Direct Delivered Feeder Pig Report (NW_LS255)",
+            "USDA AMS National Direct Feeder Pig Report (weekly, report 2810), early weaned",
         ),
         (
             "WeanFormula",
