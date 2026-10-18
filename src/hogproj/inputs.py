@@ -7,7 +7,7 @@ cwt_carcass = $/100 lb carcass, lb_live = live weight in pounds.
 from datetime import date
 from enum import StrEnum
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 CORN_LB_PER_BU = 56.0
 MAX_PHASES = 12  # Excel workbook row slots
@@ -31,7 +31,12 @@ class LaborCostMode(StrEnum):
     PER_PIG_PLACED = "$/pig placed"
 
 
-class Location(BaseModel):
+class Strict(BaseModel):
+    # A cleared spreadsheet cell arrives as NaN; refuse it instead of computing "$nan".
+    model_config = ConfigDict(allow_inf_nan=False)
+
+
+class Location(Strict):
     """Local prices for one feeding location. Basis is local cash minus CBOT futures."""
 
     name: str
@@ -44,7 +49,7 @@ class Location(BaseModel):
     source: str = ""
 
 
-class FeedPhase(BaseModel):
+class FeedPhase(Strict):
     name: str
     feed_lb_per_pig: float = Field(ge=0)
     corn_pct: float = Field(ge=0, le=100)
@@ -63,7 +68,7 @@ class FeedPhase(BaseModel):
         return max(0.0, 100.0 - self.corn_pct - self.sbm_pct - self.ddgs_pct)
 
 
-class MarketingCut(BaseModel):
+class MarketingCut(Strict):
     """One marketing event: share of the pigs that reach market, sold N days after placement."""
 
     days_after_placement: int = Field(ge=1)
@@ -71,7 +76,7 @@ class MarketingCut(BaseModel):
     live_weight_lb: float = Field(gt=0)
 
 
-class Projection(BaseModel):
+class Projection(Strict):
     # Group
     head_placed: int = Field(default=2400, gt=0)
     placement_date: date

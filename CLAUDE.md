@@ -69,3 +69,10 @@ Longer write-ups go in `docs/PROGRESS.md`.
   pyright got committed once). Chain `uv run pyright >/dev/null && ...` instead.
 - pandas 3's type hints make pyright fail on groupby/rolling chains. For small aggregations,
   use plain dicts or `.to_dict("records")` (see `data/leanhog.py::cme_index`).
+- Streamlit `st.data_editor`: never assign its output back to its input (`ss.x = st.data_editor(ss.x)`).
+  The widget identity changes and the user's next edit is silently dropped. Keep a fixed base frame
+  and parse the output (`tables.py`). Regression tests in `tests/test_smoke.py` send real edits.
+- A cleared cell arrives as NaN, and pydantic accepts NaN floats by default. Models use
+  `allow_inf_nan=False` (`inputs.Strict`).
+- A long-running `streamlit run` keeps old `hogproj` modules imported. Restart it after
+  changing package code before taking screenshots.

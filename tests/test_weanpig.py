@@ -55,3 +55,10 @@ def test_weekly_cash_prefers_2400_else_largest_lot():
 def test_weekly_formula():
     w = weekly_price(parse_feeder_pig(ROWS), "formula")
     assert list(w["price_usd_hd"]) == pytest.approx([35.00])
+
+
+def test_negotiated_formula_is_formula():
+    df = parse_feeder_pig(
+        [rec("10/09/2026", "Early Weaned", "Negotiated Formula", "1,200 Head and Over", "10", "30")]
+    )
+    assert list(df["purchase"]) == ["formula"]

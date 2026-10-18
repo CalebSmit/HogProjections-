@@ -1,4 +1,9 @@
-"""Wean-to-finish group projection dashboard. Run with: uv run streamlit run app.py"""
+"""Wean-to-finish group projection dashboard. Run with: uv run streamlit run app.py
+
+State rule (Streamlit data_editor): an editor's *input* frame is fixed in session state and
+never replaced by its own output. Replacing it changes the widget's identity and silently drops
+the user's next edit. Reset buttons bump `ss.ver`, which is part of every editor key.
+"""
 
 from datetime import date, timedelta
 
@@ -25,14 +30,13 @@ from hogproj.data.market import (
 from hogproj.excel import build_workbook
 from hogproj.inputs import (
     BarnCostMode,
-    FeedPhase,
     LaborCostMode,
     Location,
-    MarketingCut,
     Projection,
     WeanPigPriceSource,
 )
 from hogproj.model import cash_flow, project, sensitivity
+from hogproj.tables import fill_curve, parse_basis, parse_cuts, parse_locations, parse_phases
 
 st.set_page_config(page_title="Hog Projections", page_icon="🐖", layout="wide")
 
@@ -68,20 +72,91 @@ def md_money(v: float, dec: int = 2) -> str:
     return money(v, dec).replace("$", r"\$")
 
 
-# ---------------------------------------------------------------- session defaults
+def frame(models: list) -> pd.DataFrame:
+    return pd.DataFrame([m.model_dump() for m in models])
+
+
+def reset_inputs() -> None:
+    start = defaults.default_projection(defaults.load_locations()[0])
+    ss.phases_base = frame(start.feed_phases)
+    ss.cuts_base = frame(start.marketing)
+    ss.ver = ss.get("ver", 0) + 1
+
+
+# ---------------------------------------------------------------- session state
 
 ss = st.session_state
-if "locations" not in ss:
-    ss.locations = defaults.load_locations()
+if "ver" not in ss:
     ss.refresh = 0
-    start = defaults.default_projection(ss.locations[0])
-    ss.phases = pd.DataFrame([ph.model_dump() for ph in start.feed_phases])
-    ss.cuts = pd.DataFrame([c.model_dump() for c in start.marketing])
-    ss.hog_futures = dict(start.lean_hog_futures_cwt)
-    ss.base = start
-base: Projection = ss.base
-locations: list[Location] = ss.locations
+    ss.loc_base = frame(defaults.load_locations())
+    ss.locations_ok = defaults.load_locations()
+    ss.curve_base = dict(defaults.DEFAULT_LEAN_HOG_FUTURES_CWT)
+    reset_inputs()
+base = defaults.default_projection(ss.locations_ok[0])
+problems: list[str] = []
+
+st.title("Wean-to-Finish Group Projection")
+header = st.empty()
+tab_sum, tab_in, tab_loc, tab_mkt, tab_xl = st.tabs(
+    ["📊 Summary", "⚙️ Inputs", "📍 Locations", "📈 Markets & basis", "⬇️ Excel"]
+)
+
+# ---------------------------------------------------------------- locations (read first)
+
+with tab_loc:
+    st.markdown(
+        "Every location runs with the same group, feed budget and hog prices, so the "
+        "difference is local feed prices, barn and labor."
+    )
+    comparison_slot = st.container()
+    st.subheader("Edit locations")
+    st.caption(
+        "Corn basis in \\$/bu (−0.40 = 40¢ under futures). SBM basis = delivered premium over "
+        "CBOT meal futures, \\$/ton. Add a row for a new location, or rename one for your own "
+        "barn. **Save** keeps changes on this computer (in `data/user/`)."
+    )
+    edited_locs = st.data_editor(
+        ss.loc_base,
+        num_rows="dynamic",
+        use_container_width=True,
+        column_config={
+            "name": "Location",
+            "state": "State",
+            "corn_basis_usd_bu": st.column_config.NumberColumn("Corn basis $/bu", format="%.2f"),
+            "sbm_basis_usd_ton": st.column_config.NumberColumn("SBM basis $/ton", format="%.0f"),
+            "ddgs_usd_ton": st.column_config.NumberColumn("DDGS $/ton", format="%.0f"),
+            "barn_rent_usd_space_yr": st.column_config.NumberColumn("Barn $/space/yr"),
+            "labor_wage_usd_hr": st.column_config.NumberColumn("Wage $/hr", format="%.2f"),
+            "source": st.column_config.TextColumn("Source / notes", width="large"),
+        },
+        key=f"loc_editor_{ss.ver}",
+    )
+    new_locs, loc_problems = parse_locations(edited_locs)
+    if loc_problems:
+        st.error("Not applied yet: " + " · ".join(loc_problems))
+    else:
+        old_names = [lo.name for lo in ss.locations_ok]
+        new_names = [lo.name for lo in new_locs]
+        if ss.get("loc_name") not in new_names and ss.get("loc_name") in old_names:
+            i = old_names.index(ss.loc_name)
+            if len(old_names) == len(new_names):  # a rename: follow the renamed row
+                ss.loc_name = new_names[i]
+        ss.locations_ok = new_locs
+    b1, b2, _ = st.columns([1, 1, 4])
+    if b1.button("💾 Save locations", disabled=bool(loc_problems)):
+        defaults.save_locations(ss.locations_ok)
+        st.toast("Locations saved on this computer.")
+    if b2.button("↩️ Reset to defaults"):
+        defaults.reset_locations()
+        ss.loc_base = frame(defaults.load_locations())
+        ss.locations_ok = defaults.load_locations()
+        ss.ver += 1
+        st.rerun()
+
+locations: list[Location] = ss.locations_ok
 loc_names = [lo.name for lo in locations]
+if ss.get("loc_name") not in loc_names:
+    ss.loc_name = loc_names[0]
 
 # ---------------------------------------------------------------- sidebar: the group
 
@@ -125,8 +200,15 @@ with st.sidebar:
         ss.refresh += 1
         st.cache_data.clear()
         st.rerun()
+    if st.button("↩️ Reset inputs to defaults", use_container_width=True):
+        reset_inputs()
+        st.rerun()
 
 location = locations[loc_names.index(loc_name)]
+header.caption(
+    f"{head_placed:,} head placed at **{loc_name}** on {placement:%b %d, %Y}. "
+    f"Costs and revenue from wean to market. v{__version__}"
+)
 
 # ---------------------------------------------------------------- market data
 
@@ -136,16 +218,6 @@ basis_loaded = hog_basis(ss.refresh)
 basis_daily = basis_loaded.data if isinstance(basis_loaded.data, pd.Series) else pd.Series()
 by_year = basis_by_year_period(basis_daily) if not basis_daily.empty else pd.DataFrame()
 years_available = [int(y) for y in by_year.index] if not by_year.empty else []
-
-st.title("Wean-to-Finish Group Projection")
-st.caption(
-    f"{head_placed:,} head placed at **{loc_name}** on {placement:%b %d, %Y}. "
-    f"Costs and revenue from wean to market. v{__version__}"
-)
-
-tab_sum, tab_in, tab_loc, tab_mkt, tab_xl = st.tabs(
-    ["📊 Summary", "⚙️ Inputs", "📍 Locations", "📈 Markets & basis", "⬇️ Excel"]
-)
 
 # ---------------------------------------------------------------- inputs tab
 
@@ -164,12 +236,15 @@ with tab_in:
             value=round(grain_data.get("sbm_usd_ton", base.sbm_futures_usd_ton), 2),
             step=1.0,
         )
-        st.caption(grain.note if grain.live else "Defaults: Dec '26 settles on Oct 16, 2026.")
+        if not grain.live:
+            st.caption(grain.note + " Defaults are Dec '26 settles on Oct 16, 2026.")
+        else:
+            st.caption(grain.note)
         st.markdown(
             f"**{loc_name}**: corn {md_money(corn_fut + location.corn_basis_usd_bu)}/bu "
-            f"(basis {location.corn_basis_usd_bu * 100:+.0f}¢) · SBM "
+            f"(basis {location.corn_basis_usd_bu * 100:+.0f}¢/bu) · SBM "
             f"{md_money(sbm_fut + location.sbm_basis_usd_ton)}/ton "
-            f"(basis {location.sbm_basis_usd_ton:+.0f}) · "
+            f"(basis {md_money(location.sbm_basis_usd_ton, 0)}/ton) · "
             f"DDGS {md_money(location.ddgs_usd_ton)}/ton. Edit basis on the Locations tab."
         )
         feed_mill = st.number_input(
@@ -179,7 +254,7 @@ with tab_in:
         st.subheader("Production")
         wean_wt = st.number_input("Weaned pig weight (lb)", value=base.wean_weight_lb)
         mortality = st.number_input(
-            "Mortality wean to market (%)", value=base.mortality_pct, step=0.5
+            "Mortality wean to market (%)", value=base.mortality_pct, step=0.5, max_value=99.0
         )
         dead_share = st.slider(
             "Feed eaten by a dead pig (share of a full budget)",
@@ -227,8 +302,8 @@ with tab_in:
         "Feed per pig marketed. Other % = premix, fat, amino acids and specialty ingredients, "
         "priced per ton of that portion."
     )
-    ss.phases = st.data_editor(
-        ss.phases,
+    phases_df = st.data_editor(
+        ss.phases_base,
         num_rows="dynamic",
         use_container_width=True,
         column_config={
@@ -239,88 +314,94 @@ with tab_in:
             "ddgs_pct": st.column_config.NumberColumn("DDGS %", min_value=0, max_value=100),
             "other_usd_ton": st.column_config.NumberColumn("Other $/ton", min_value=0),
         },
-        key="phases_editor",
+        key=f"phases_{ss.ver}",
     )
-    st.caption(f"Total feed: {ss.phases['feed_lb_per_pig'].sum():,.0f} lb per pig marketed.")
+    phases, phase_problems = parse_phases(phases_df)
+    problems += phase_problems
+    st.caption(f"Total feed: {sum(p.feed_lb_per_pig for p in phases):,.0f} lb per pig marketed.")
 
     st.subheader("Marketing (when the pigs sell)")
     st.caption(
         "Pigs sell 4 to 6 months after placement. Each cut is priced at the lean hog futures "
         "contract for its sale date plus the average historical basis for that half-month."
     )
-    ss.cuts = st.data_editor(
-        ss.cuts,
+    cuts_df = st.data_editor(
+        ss.cuts_base,
         num_rows="dynamic",
         use_container_width=True,
         column_config={
             "days_after_placement": st.column_config.NumberColumn(
-                "Days after placement", min_value=1
+                "Days after placement", min_value=1, step=1
             ),
             "pct_of_marketed": st.column_config.NumberColumn(
                 "% of pigs", min_value=0, max_value=100
             ),
             "live_weight_lb": st.column_config.NumberColumn("Live wt lb", min_value=1),
         },
-        key="cuts_editor",
+        key=f"cuts_{ss.ver}",
     )
+    cuts, cut_problems = parse_cuts(cuts_df)
+    problems += cut_problems
 
-# ---------------------------------------------------------------- hog futures & basis inputs
+# ---------------------------------------------------------------- hog futures & basis
 
-cuts_clean = ss.cuts.dropna()
-needed = sorted(
-    {
-        lean_hog_contract_for(placement + timedelta(days=int(d)))
-        for d in cuts_clean["days_after_placement"]
-    }
-)
+sale_dates = [placement + timedelta(days=c.days_after_placement) for c in cuts if c.pct_of_marketed]
+needed = sorted({lean_hog_contract_for(d) for d in sale_dates})
 live_curve = hog_futures(tuple(needed), ss.refresh)
-if isinstance(live_curve.data, dict):
-    for k, v in live_curve.data.items():
-        ss.hog_futures[k] = v
+if (
+    isinstance(live_curve.data, dict)
+    and live_curve.data
+    and ss.get("curve_token")
+    != (
+        ss.refresh,
+        tuple(needed),
+    )
+):
+    ss.curve_base = {**ss.curve_base, **live_curve.data}
+    ss.curve_token = (ss.refresh, tuple(needed))
 
 with tab_in:
     st.subheader("Lean hog futures ($/cwt carcass)")
-    curve_df = pd.DataFrame(
-        {"contract": needed, "price_cwt": [ss.hog_futures.get(c) for c in needed]}
-    )
-    edited_curve = st.data_editor(
-        curve_df,
+    curve_df = st.data_editor(
+        pd.DataFrame({"contract": needed, "price_cwt": [ss.curve_base.get(c) for c in needed]}),
         disabled=["contract"],
         hide_index=True,
         column_config={
             "contract": "Contract (year-month)",
             "price_cwt": st.column_config.NumberColumn("Futures $/cwt", format="%.3f"),
         },
-        key=f"curve_{'_'.join(needed)}",
+        key=f"curve_{ss.ver}_{ss.refresh}_{'_'.join(needed)}",
     )
-    for rec in edited_curve.to_dict("records"):
-        if pd.notna(rec["price_cwt"]):
-            ss.hog_futures[str(rec["contract"])] = float(rec["price_cwt"])
-    st.caption(live_curve.note if live_curve.note else "")
-    missing = [c for c in needed if c not in ss.hog_futures]
+    typed = {str(r["contract"]): r["price_cwt"] for r in curve_df.to_dict("records")}
+    curve, filled = fill_curve({**ss.curve_base, **typed}, needed)
+    st.caption(
+        (live_curve.note + " " if live_curve.note else "")
+        + "Typed prices reset if the sale months change."
+    )
+    if filled:
+        st.warning(
+            "No price for "
+            + ", ".join(f"{c} (using {src})" for c, src in filled.items())
+            + ". Type the real futures price above.",
+            icon="⚠️",
+        )
 
     st.subheader("Hog basis (CME Lean Hog Index − futures)")
     years = st.multiselect(
         "Years to average", years_available, default=years_available, key="basis_years"
     )
     hist_avg = average_basis_by_period(by_year, years) if years else {p: 0.0 for p in PERIODS}
-    sale_periods = sorted(
-        {
-            basis_period(placement + timedelta(days=int(d)))
-            for d in cuts_clean["days_after_placement"]
-        }
-    )
-    basis_df = pd.DataFrame(
-        {
-            "period": list(PERIODS),
-            "half_month": [period_label(p) for p in PERIODS],
-            "basis_cwt": [round(hist_avg[p], 2) for p in PERIODS],
-            "used": ["✔ sale" if p in sale_periods else "" for p in PERIODS],
-        }
-    )
-    st.caption(basis_loaded.note + " You can type over any value.")
-    edited_basis = st.data_editor(
-        basis_df,
+    sale_periods = {basis_period(d) for d in sale_dates}
+    st.caption(basis_loaded.note + " Type over any value; changing the years resets typed values.")
+    basis_df = st.data_editor(
+        pd.DataFrame(
+            {
+                "period": list(PERIODS),
+                "half_month": [period_label(p) for p in PERIODS],
+                "basis_cwt": [round(hist_avg[p], 2) for p in PERIODS],
+                "used": ["✔ sale" if p in sale_periods else "" for p in PERIODS],
+            }
+        ),
         disabled=["period", "half_month", "used"],
         hide_index=True,
         column_config={
@@ -329,12 +410,10 @@ with tab_in:
             "basis_cwt": st.column_config.NumberColumn("Avg basis $/cwt", format="%.2f"),
             "used": "Sales in",
         },
-        key=f"basis_{'_'.join(map(str, years))}_{ss.refresh}",
+        key=f"basis_{ss.ver}_{ss.refresh}_{'_'.join(map(str, years))}",
         height=300,
     )
-    basis_used = {
-        int(r["period"]): float(r["basis_cwt"] or 0) for r in edited_basis.to_dict("records")
-    }
+    basis_used = parse_basis(basis_df)
     premium = st.number_input("Carcass merit premium $/cwt", value=base.carcass_premium_cwt)
 
 # ---------------------------------------------------------------- build the projection
@@ -356,7 +435,7 @@ def build(loc: Location) -> Projection:
         location=loc,
         corn_futures_usd_bu=corn_fut,
         sbm_futures_usd_ton=sbm_fut,
-        feed_phases=[FeedPhase(**r) for r in ss.phases.dropna().to_dict("records")],  # type: ignore[arg-type]
+        feed_phases=phases,
         feed_mill_usd_ton=feed_mill,
         barn_mode=barn_mode,
         barn_usd_pig_placed=barn_per_pig,
@@ -369,31 +448,37 @@ def build(loc: Location) -> Projection:
         trucking_usd_hd_sold=truck,
         insurance_misc_usd_hd=ins,
         interest_rate_pct=interest,
-        marketing=[
-            MarketingCut(
-                **{k: (int(v) if k == "days_after_placement" else v) for k, v in r.items()}
-            )  # type: ignore[arg-type]
-            for r in cuts_clean.to_dict("records")
-        ],
-        lean_hog_futures_cwt=dict(ss.hog_futures),
+        marketing=cuts,
+        lean_hog_futures_cwt=curve,
         hog_basis_cwt_by_period=basis_used,
         carcass_premium_cwt=premium,
         checkoff_pct=checkoff,
     )
 
 
-try:
-    proj = build(location)
-    result = project(proj)
-except (ValidationError, KeyError, ValueError) as e:
-    msg = str(e)
-    if isinstance(e, ValidationError):
-        msg = "; ".join(err["msg"] for err in e.errors())
+if not needed and cuts:
+    problems.append("At least one marketing row needs a % of pigs above 0.")
+if needed and not curve:
+    problems.append(f"Enter a lean hog futures price for {', '.join(needed)} (Inputs tab).")
+proj: Projection | None = None
+result = None
+if not problems:
+    try:
+        proj = build(location)
+        result = project(proj)
+    except (ValidationError, KeyError, ValueError) as e:
+        if isinstance(e, ValidationError):
+            problems += [f"{'.'.join(map(str, err['loc']))}: {err['msg']}" for err in e.errors()]
+        else:
+            problems.append(str(e.args[0]) if e.args else str(e))
+if problems:
     with tab_sum:
-        if missing:
-            st.error(f"Enter a lean hog futures price for: {', '.join(missing)} (Inputs tab).")
-        st.error(f"Can't run the projection yet: {msg}")
+        st.error(
+            "**Can't run the projection yet.** Fix these on the Inputs or Locations tab:\n\n"
+            + "\n".join(f"- {p}" for p in problems)
+        )
     st.stop()
+assert proj is not None and result is not None
 
 s = result.summary
 
@@ -406,7 +491,13 @@ with tab_sum:
             "Inputs tab. Click **Refresh market data** with an internet connection.",
             icon="⚠️",
         )
-    profit = s["net_usd"] >= 0
+    if filled:
+        st.warning(
+            "Some sales use a copied futures price: "
+            + ", ".join(f"{c} ← {src}" for c, src in filled.items())
+            + ". See Inputs → Lean hog futures.",
+            icon="⚠️",
+        )
     k = st.columns(5)
     k[0].metric("Net profit (group)", money(s["net_usd"], 0))
     k[1].metric("Net per head sold", money(s["net_usd_per_head_sold"]))
@@ -419,7 +510,7 @@ with tab_sum:
     k[4].metric("Revenue per head sold", money(s["revenue_usd_per_head_sold"]))
     avg_px = md_money(s["avg_price_cwt_carcass"])
     gap = md_money(abs(s["avg_price_cwt_carcass"] - s["breakeven_cwt_carcass"]))
-    if profit:
+    if s["net_usd"] >= 0:
         st.success(
             f"✅ **Projected profit.** Average sale price {avg_px}/cwt carcass is {gap} "
             "above breakeven."
@@ -515,8 +606,7 @@ with tab_sum:
     with st.expander("Monthly detail"):
         show = cf.copy()
         show["month"] = pd.to_datetime(show["month"]).dt.strftime("%b %Y")
-        money_cols = [c for c in show.columns if c != "month"]
-        for col in money_cols:
+        for col in [c for c in show.columns if c != "month"]:
             show[col] = show[col].map(lambda v: money(v, 0))
         st.dataframe(
             show.rename(
@@ -535,13 +625,9 @@ with tab_sum:
     grid = sensitivity(proj, [-0.50, -0.25, 0.0, 0.25, 0.50], [-10, -5, 0, 5, 10])
     st.plotly_chart(charts.sensitivity_heatmap(grid), use_container_width=True)
 
-# ---------------------------------------------------------------- locations tab
+# ---------------------------------------------------------------- locations comparison
 
-with tab_loc:
-    st.markdown(
-        "Every location runs with the same group, feed budget and hog prices, so the "
-        "difference is local feed prices, barn and labor."
-    )
+with comparison_slot:
     rows = []
     for lo in locations:
         r = project(build(lo)).summary
@@ -550,59 +636,9 @@ with tab_loc:
                 "location": lo.name,
                 "net_usd_per_head_sold": r["net_usd_per_head_sold"],
                 "cost_usd_per_head_sold": r["cost_usd_per_head_sold"],
-                "feed_cost_usd_per_head_sold": r["feed_cost_usd_per_head_sold"],
-                "breakeven_cwt_carcass": r["breakeven_cwt_carcass"],
             }
         )
-    comp = pd.DataFrame(rows)
-    st.plotly_chart(charts.net_by_location(comp, loc_name), use_container_width=True)
-
-    st.subheader("Edit locations")
-    st.caption(
-        "Corn basis in \\$/bu (−0.40 = 40¢ under futures). SBM basis = delivered premium over "
-        "CBOT meal futures, \\$/ton. Add a row for a new location. Changes apply right away; "
-        "**Save** keeps them for next time."
-    )
-    loc_df = pd.DataFrame([lo.model_dump() for lo in locations])
-    edited_locs = st.data_editor(
-        loc_df,
-        num_rows="dynamic",
-        use_container_width=True,
-        column_config={
-            "name": "Location",
-            "state": "State",
-            "corn_basis_usd_bu": st.column_config.NumberColumn("Corn basis $/bu", format="%.2f"),
-            "sbm_basis_usd_ton": st.column_config.NumberColumn("SBM basis $/ton", format="%.0f"),
-            "ddgs_usd_ton": st.column_config.NumberColumn("DDGS $/ton", format="%.0f"),
-            "barn_rent_usd_space_yr": st.column_config.NumberColumn("Barn $/space/yr"),
-            "labor_wage_usd_hr": st.column_config.NumberColumn("Wage $/hr", format="%.2f"),
-            "source": st.column_config.TextColumn("Source / notes", width="large"),
-        },
-        key="loc_editor",
-    )
-    b1, b2, _ = st.columns([1, 1, 4])
-    try:
-        new_locs = [
-            Location.model_validate(
-                {k: ("" if pd.isna(v) and k in ("state", "source") else v) for k, v in r.items()}
-            )
-            for r in edited_locs.dropna(subset=["name"]).to_dict("records")
-        ]
-    except ValidationError:
-        new_locs = None
-        st.error("Fill in every number for each location before it can be used.")
-    if new_locs is not None and [lo.model_dump() for lo in new_locs] != [
-        lo.model_dump() for lo in locations
-    ]:
-        ss.locations = new_locs
-        st.rerun()
-    if b1.button("💾 Save locations"):
-        defaults.save_locations(ss.locations)
-        st.toast("Locations saved.")
-    if b2.button("↩️ Reset to defaults"):
-        defaults.reset_locations()
-        ss.locations = defaults.load_locations()
-        st.rerun()
+    st.plotly_chart(charts.net_by_location(pd.DataFrame(rows), loc_name), use_container_width=True)
 
 # ---------------------------------------------------------------- markets tab
 
@@ -611,9 +647,7 @@ with tab_mkt:
         f"Local cash price = CBOT futures + basis. Corn futures {md_money(corn_fut)}/bu, "
         f"soybean meal futures {md_money(sbm_fut)}/ton."
     )
-    loc_table = pd.DataFrame([lo.model_dump() for lo in locations]).rename(
-        columns={"name": "location"}
-    )
+    loc_table = frame(locations).rename(columns={"name": "location"})
     a, b = st.columns(2)
     a.plotly_chart(
         charts.basis_bars(loc_table, "corn_basis_usd_bu", "Corn basis vs CBOT", "¢/bu", loc_name),
@@ -629,15 +663,18 @@ with tab_mkt:
         ),
         use_container_width=True,
     )
-    cash_tbl = pd.DataFrame(
-        {
-            "Location": loc_table["location"],
-            "Corn cash $/bu": (corn_fut + loc_table["corn_basis_usd_bu"]).round(2),
-            "SBM cash $/ton": (sbm_fut + loc_table["sbm_basis_usd_ton"]).round(2),
-            "DDGS $/ton": loc_table["ddgs_usd_ton"],
-        }
+    st.dataframe(
+        pd.DataFrame(
+            {
+                "Location": loc_table["location"],
+                "Corn cash $/bu": (corn_fut + loc_table["corn_basis_usd_bu"]).round(2),
+                "SBM cash $/ton": (sbm_fut + loc_table["sbm_basis_usd_ton"]).round(2),
+                "DDGS $/ton": loc_table["ddgs_usd_ton"],
+            }
+        ),
+        hide_index=True,
+        use_container_width=True,
     )
-    st.dataframe(cash_tbl, hide_index=True, use_container_width=True)
 
     st.subheader("Hog basis history")
     if by_year.empty:
@@ -677,16 +714,20 @@ with tab_xl:
         "other number is a live formula, so you can change prices, location, feed budget or "
         "marketing in Excel and it recalculates."
     )
-    xlsx = build_workbook(
-        proj,
-        locations,
-        basis_history=by_year if not by_year.empty else None,
-        wean_pig_history=wean_df if not wean_df.empty else None,
-    )
-    st.download_button(
-        "⬇️ Download Excel workbook",
-        data=xlsx,
-        file_name=f"W2F projection {loc_name} {placement:%Y-%m-%d}.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        type="primary",
-    )
+    try:
+        xlsx = build_workbook(
+            proj,
+            locations,
+            basis_history=by_year if not by_year.empty else None,
+            wean_pig_history=wean_df if not wean_df.empty else None,
+        )
+    except ValueError as e:
+        st.error(f"Couldn't build the workbook: {e}")
+    else:
+        st.download_button(
+            "⬇️ Download Excel workbook",
+            data=xlsx,
+            file_name=f"W2F projection {loc_name} {placement:%Y-%m-%d}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            type="primary",
+        )

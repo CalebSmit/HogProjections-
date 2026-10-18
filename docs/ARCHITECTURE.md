@@ -49,6 +49,7 @@ flowchart LR
 | `src/hogproj/model.py` | `project(p) -> Result` (summary dict, costs/feed/marketing DataFrames), `sensitivity()` and `cash_flow()` (monthly; reconciles to `project`). Pure. |
 | `src/hogproj/basis.py` | Lean hog contract calendar (`lean_hog_contract_for`, `lean_hog_expiry`, `in_roll_gap`) and half-month basis aggregation. Pure. |
 | `src/hogproj/excel.py` | `build_workbook()`. Every number is a formula over named input cells, so the workbook mirrors `model.py`. |
+| `src/hogproj/tables.py` | Edited dashboard tables → validated models, with plain-English problems; blank basis = 0; missing futures contracts filled from the nearest one (flagged). Pure. |
 | `src/hogproj/charts.py` | Plotly figure builders (dataviz reference palette). Pure. |
 | `src/hogproj/data/http.py` | The only module that opens sockets. Retries 5xx only; transport errors raise `FetchError(unreachable=True)`. |
 | `src/hogproj/data/leanhog.py` | LM_HG201 → CME Lean Hog Index (with coverage check); Yahoo chart parsing; futures curve. |
@@ -66,7 +67,9 @@ flowchart LR
 3. **One contract rule everywhere.** `lean_hog_contract_for` decides which futures contract prices a sale date. The historical basis drops roll-gap days so it is measured against that same contract. The Excel formula implements the same rule.
 4. **Units in names.** `_usd_bu`, `_usd_ton`, `_cwt` (carcass unless it says `live`), `_lb`, `_pct`.
 5. **Offline first.** With `OFFLINE=true` and no network, every page renders from defaults. Every loader returns a human-readable `note` that the UI shows.
-6. **No silent truncation.** Input list sizes are capped by the pydantic models to the workbook's row slots. `build_workbook` raises if the locations or contracts exceed their slots.
+6. **No silent changes to user input.** Partly blank rows are reported, never dropped. Editor
+   outputs are never fed back as editor inputs (see the app.py docstring). Models reject NaN.
+7. **No silent truncation.** Input list sizes are capped by the pydantic models to the workbook's row slots. `build_workbook` raises if the locations or contracts exceed their slots.
 
 ## Changelog
 - 2026-10-17: Initial scaffold and proposed target design.
@@ -74,3 +77,4 @@ flowchart LR
   above (`inputs`/`model`/`basis`/`excel`/`charts` + `data/*`). Monte Carlo and the herd
   simulator are dropped from scope (PRD non-goals). See ADR 0002.
 - 2026-10-18: Added `model.cash_flow` and `charts.cash_flow_chart`.
+- 2026-10-18: Added `tables.py` and the editor-state rule after the second review.

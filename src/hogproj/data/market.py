@@ -81,6 +81,11 @@ def load_hog_basis_daily(years: int = 10, refresh: bool = False) -> Loaded:
         except FetchError as e:
             fail = f"Live download failed ({e}). "
 
+    if cached.exists():  # a failed refresh must not throw away good history
+        s = _read_series(cached)
+        return Loaded(
+            s, fail + f"Using cached history ({s.index.min():%Y}–{s.index.max():%Y}).", False
+        )
     sample = SAMPLE_DIR / BASIS_FILE
     if sample.exists():
         s = _read_series(sample)

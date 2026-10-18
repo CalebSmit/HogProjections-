@@ -24,3 +24,22 @@ def test_futures_curve_stops_after_first_unreachable(monkeypatch):
     monkeypatch.setattr("hogproj.data.leanhog.fetch_yahoo_daily", boom)
     assert fetch_futures_curve(["2026-12", "2027-02", "2027-04"]) == {}
     assert len(calls) == 1
+
+
+def test_failed_refresh_keeps_cached_basis(tmp_path, monkeypatch):
+    import pandas as pd
+
+    from hogproj.data import market
+
+    cached = tmp_path / "hog_basis_daily.csv"
+    pd.DataFrame({"date": ["2025-03-03"], "basis_cwt": [-2.0]}).to_csv(cached, index=False)
+    monkeypatch.setattr(market, "cache_path", lambda name: cached)
+
+    def offline(years):
+        raise FetchError("offline", unreachable=True)
+
+    monkeypatch.setattr(market, "_download_hog_basis", offline)
+    monkeypatch.delenv("OFFLINE", raising=False)
+    got = market.load_hog_basis_daily(refresh=True)
+    assert list(got.data) == [-2.0]  # type: ignore[arg-type]
+    assert "cached" in got.note

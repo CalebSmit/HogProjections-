@@ -78,6 +78,8 @@ own numbers on the Inputs and Locations tabs.
   downloaded a ZIP, run `xattr -d com.apple.quarantine run.command` in Terminal.
 - **Windows SmartScreen warning:** click **More info → Run anyway**.
 - **"Port already in use":** the app is already running. Open <http://localhost:8501>.
+- **Saved locations** live in `data/user/` on your computer. A fresh ZIP download won't have
+  them, so copy that folder across if you move to a new copy.
 - **Numbers say "basis history isn't loaded":** connect to the internet and click
   **Refresh market data**.
 

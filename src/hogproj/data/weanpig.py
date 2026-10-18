@@ -23,7 +23,7 @@ _KEYS = {
     "date": ("report_end_date", "report_date", "report_begin_date", "published_date"),
     "class": ("class", "pig_class", "commodity", "category", "description"),
     "type": ("purchase_type", "price_type", "trans_type", "sale_type", "type"),
-    "lot": ("lot_desc", "lot_size", "lot", "volume", "head_range"),
+    "lot": ("lot_desc", "lot_size", "lot", "head_range"),
     "price": ("wtd_avg", "weighted_avg", "avg_price", "weighted_average", "price_avg"),
     "head": ("head_count", "head", "receipts", "quantity"),
 }
@@ -62,9 +62,9 @@ def parse_feeder_pig(results: list[dict]) -> pd.DataFrame:
             continue
         kind = str(_pick(rec, "type") or "").lower()
         purchase = (
-            "cash"
-            if ("cash" in kind or "negotiated" in kind)
-            else ("formula" if "formula" in kind else "")
+            "formula"  # check first: "negotiated formula" is a formula trade
+            if "formula" in kind
+            else ("cash" if ("cash" in kind or "negotiated" in kind) else "")
         )
         price = _num(_pick(rec, "price"))
         raw_date = str(_pick(rec, "date") or "")

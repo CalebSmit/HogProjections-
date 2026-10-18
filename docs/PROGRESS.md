@@ -38,3 +38,24 @@ Newest at the bottom.
     notice (PRD open question 1).
 - **Next:** Phase 4 live verification on a real machine, then Phase 6 (USDA grain basis pull,
   standalone workbook).
+
+## 2026-10-18 — Second review pass (dashboard)
+- **Done:** fixed 14 findings:
+  - every other table edit dropped
+  - a half-blank phase silently dropped
+  - location editor rerun loop on NaN
+  - offline error for placements after Oct 21 (missing contracts are now filled from the
+    nearest contract, with a warning)
+  - NaN basis turning numbers into "$nan" and crashing the Excel export
+  - deleting every location crashed the app
+  - renaming the selected location switched sites
+  - a failed refresh discarded cached basis
+  - `data/user/` not gitignored
+  - typed futures reverting
+  - vague error messages
+  - hidden grain fetch reason
+  - weaned-pig parser edge cases
+  - Excel slot overflow
+- **Verified:** 46 tests green. The 7 new regression tests drive the real app with editor
+  edits; 6 of them fail on the previous app.py and pass now.
+- **Next:** live data verification (PLAN Phase 4) on a machine with internet.
