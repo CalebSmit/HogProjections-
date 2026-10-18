@@ -44,7 +44,7 @@ def make(**overrides) -> Projection:
                 other_usd_ton=500,
             )
         ],
-        barn_days_occupied=200,
+        barn_downtime_days=50,  # 150-day closeout + 50 = 200 barn days
         labor_hr_per_pig=0.1,
         marketing=[MarketingCut(days_after_placement=150, pct_of_marketed=100, live_weight_lb=300)],
         lean_hog_futures_cwt={"2026-06": 100.0},
@@ -138,3 +138,19 @@ def test_basis_average_across_years():
     assert avg[13] == pytest.approx(0.0)  # Jul 1-14
     assert avg[1] == 0.0  # no data
     assert average_basis_by_period(table, years=[2025])[jun_early] == pytest.approx(-1.0)
+
+
+def test_roll_gap_days_dropped_from_basis():
+    from hogproj.basis import in_roll_gap, lean_hog_expiry
+
+    assert lean_hog_expiry(2026, 12) == date(2026, 12, 14)  # Dec26 expires Mon Dec 14
+    assert lean_hog_expiry(2026, 8) == date(2026, 8, 14)
+    assert lean_hog_expiry(2027, 2) == date(2027, 2, 12)
+    assert not in_roll_gap(date(2027, 2, 12))
+    assert in_roll_gap(date(2027, 2, 13))  # after expiry, still priced off Feb
+    assert not in_roll_gap(date(2027, 2, 15))  # priced off Apr, front month is Apr
+    assert not in_roll_gap(date(2027, 3, 13))  # not a contract month
+
+    dates = pd.to_datetime(["2027-02-12", "2027-02-13", "2027-02-16"])
+    s = daily_basis(pd.Series([90.0, 90.0, 90.0], dates), pd.Series([89.0, 99.0, 95.0], dates))
+    assert [str(d)[5:10] for d in s.index] == ["02-12", "02-16"]

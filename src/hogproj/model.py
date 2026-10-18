@@ -76,12 +76,16 @@ def marketing_table(p: Projection) -> pd.DataFrame:
     for cut in p.marketing:
         sale_date = p.placement_date + timedelta(days=cut.days_after_placement)
         contract = lean_hog_contract_for(sale_date)
-        if contract not in p.lean_hog_futures_cwt:
-            raise KeyError(f"no lean hog futures price for contract {contract}")
-        futures = p.lean_hog_futures_cwt[contract]
         period = basis_period(sale_date)
-        basis = p.hog_basis_cwt_by_period.get(period, 0.0)
-        price = futures + basis + p.carcass_premium_cwt
+        if cut.pct_of_marketed == 0:  # nothing sold: no price needed
+            futures = basis = premium = 0.0
+        else:
+            if contract not in p.lean_hog_futures_cwt:
+                raise KeyError(f"no lean hog futures price for contract {contract}")
+            futures = p.lean_hog_futures_cwt[contract]
+            basis = p.hog_basis_cwt_by_period.get(period, 0.0)
+            premium = p.carcass_premium_cwt
+        price = futures + basis + premium
         head = sold * cut.pct_of_marketed / 100
         carcass_lb = cut.live_weight_lb * p.carcass_yield_pct / 100
         rows.append(
@@ -94,7 +98,7 @@ def marketing_table(p: Projection) -> pd.DataFrame:
                 "carcass_weight_lb": carcass_lb,
                 "futures_cwt": futures,
                 "basis_cwt": basis,
-                "premium_cwt": p.carcass_premium_cwt,
+                "premium_cwt": premium,
                 "price_cwt_carcass": price,
                 "revenue_usd": head * carcass_lb / 100 * price,
             }
@@ -178,7 +182,7 @@ def project(p: Projection) -> Result:
         "breakeven_cwt_carcass": breakeven_carcass,
         "breakeven_cwt_live": breakeven_carcass * p.carcass_yield_pct / 100,
         "feed_cost_usd_per_head_sold": feed_cost / sold,
-        "feed_conversion": total_feed_lb / lb_gain if lb_gain > 0 else 0.0,
+        "feed_conversion": total_feed_lb / lb_gain if lb_gain > 0 else float("nan"),
         "carcass_cwt_sold": carcass_cwt,
     }
     return Result(summary=summary, costs=costs, feed=feed, marketing=mkt)
@@ -198,5 +202,5 @@ def sensitivity(p: Projection, corn_steps: list[float], hog_steps: list[float]) 
                 }
             )
             col.append(project(q).summary["net_usd_per_head_sold"])
-        out[f"{dh:+.0f}"] = col
-    return pd.DataFrame(out, index=[f"{dc:+.2f}" for dc in corn_steps])
+        out[f"{dh:+g}"] = col
+    return pd.DataFrame(out, index=[f"{dc:+g}" for dc in corn_steps])

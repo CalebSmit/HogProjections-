@@ -18,16 +18,20 @@ USER_AGENT = (
 class FetchError(RuntimeError):
     """A data source could not be reached or returned something unusable."""
 
+    def __init__(self, message: str, unreachable: bool = False):
+        super().__init__(message)
+        self.unreachable = unreachable  # no network / host down: callers should stop trying
+
 
 def get_json(
     url: str,
     params: dict[str, str] | None = None,
     auth: tuple[str, str] | None = None,
-    retries: int = 3,
-    timeout: float = 30.0,
+    retries: int = 2,
+    timeout: float = 20.0,
 ) -> Any:
-    last: Exception | None = None
-    for attempt in range(retries):
+    """GET JSON. Retries only server errors (5xx); a 4xx or no connection fails at once."""
+    for attempt in range(retries + 1):
         try:
             r = httpx.get(
                 url,
@@ -37,12 +41,20 @@ def get_json(
                 timeout=timeout,
                 follow_redirects=True,
             )
-            r.raise_for_status()
-            return r.json()
-        except (httpx.HTTPError, ValueError) as e:
-            last = e
+        except httpx.TransportError as e:  # connect/timeout/proxy/network: no point retrying
+            raise FetchError(f"cannot reach {httpx.URL(url).host}: {e}", unreachable=True) from e
+        except httpx.HTTPError as e:
+            raise FetchError(f"{url}: {e}") from e
+        if r.status_code >= 500 and attempt < retries:
             time.sleep(1.5 * (attempt + 1))
-    raise FetchError(f"{url}: {last}") from last
+            continue
+        if r.status_code >= 400:
+            raise FetchError(f"{url}: HTTP {r.status_code}")
+        try:
+            return r.json()
+        except ValueError as e:
+            raise FetchError(f"{url}: response is not JSON") from e
+    raise FetchError(f"{url}: gave up after {retries + 1} tries")
 
 
 def cache_path(name: str) -> Path:

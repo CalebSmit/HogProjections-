@@ -6,6 +6,7 @@ LibreOffice isn't installed; CI installs it on Linux.
 
 import shutil
 import subprocess
+from datetime import date
 from pathlib import Path
 
 import openpyxl
@@ -65,7 +66,10 @@ def costs_by_line(wb: openpyxl.Workbook) -> dict[str, float]:
     }
 
 
-@pytest.mark.skipif(SOFFICE is None, reason="LibreOffice not installed")
+needs_lo = pytest.mark.skipif(SOFFICE is None, reason="LibreOffice not installed")
+
+
+@needs_lo
 @pytest.mark.parametrize(
     "overrides",
     [
@@ -89,8 +93,40 @@ def costs_by_line(wb: openpyxl.Workbook) -> dict[str, float]:
 )
 def test_workbook_matches_model(tmp_path, overrides):
     p = make(**overrides)
+    check_workbook(p, [p.location], tmp_path)
+
+
+@needs_lo
+def test_workbook_edge_cases(tmp_path):
+    """Stale copy of the selected location in the list, an unselected location sorted first,
+    a 0% cut with no futures price, and a Dec 20 sale rolling to next year's Feb contract."""
+    p = make(
+        placement_date=date(2026, 7, 23),
+        marketing=[
+            MarketingCut(days_after_placement=150, pct_of_marketed=100, live_weight_lb=285),
+            MarketingCut(days_after_placement=200, pct_of_marketed=0, live_weight_lb=300),
+        ],
+        lean_hog_futures_cwt={"2027-02": 90.0},
+        hog_basis_cwt_by_period={24: 4.0},
+    )
+    assert project(p).marketing.loc[0, "contract"] == "2027-02"
+    stale = p.location.model_copy(update={"corn_basis_usd_bu": -9.0})
+    other = p.location.model_copy(update={"name": "AAA first", "ddgs_usd_ton": 999.0})
+    check_workbook(p, [other, stale], tmp_path)
+
+
+@needs_lo
+def test_default_projection_workbook(tmp_path):
+    from hogproj.data.defaults import default_projection, load_locations
+
+    locs = load_locations()
+    p = default_projection(locs[1], placement_date=date(2026, 10, 19))
+    check_workbook(p, locs, tmp_path)
+
+
+def check_workbook(p, locations, tmp_path):
     expected = project(p)
-    wb = recalc(build_workbook(p, [p.location]), tmp_path)
+    wb = recalc(build_workbook(p, locations), tmp_path)
 
     got = costs_by_line(wb)
     for line, total in expected.costs.set_index("line")["total_usd"].items():

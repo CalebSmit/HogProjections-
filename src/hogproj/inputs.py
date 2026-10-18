@@ -10,6 +10,8 @@ from enum import StrEnum
 from pydantic import BaseModel, Field, model_validator
 
 CORN_LB_PER_BU = 56.0
+MAX_PHASES = 12  # Excel workbook row slots
+MAX_CUTS = 8
 LB_PER_TON = 2000.0
 
 
@@ -91,13 +93,13 @@ class Projection(BaseModel):
     location: Location
     corn_futures_usd_bu: float
     sbm_futures_usd_ton: float
-    feed_phases: list[FeedPhase]
+    feed_phases: list[FeedPhase] = Field(min_length=1, max_length=MAX_PHASES)
     feed_mill_usd_ton: float = 0.0  # grind/mix/delivery charge on every ton
 
     # Facilities, labor, other $/head placed
     barn_mode: BarnCostMode = BarnCostMode.PER_SPACE_YEAR
     barn_usd_pig_placed: float = 0.0
-    barn_days_occupied: int = 190  # feeding days + clean/wash/fill downtime
+    barn_downtime_days: int = Field(default=10, ge=0)  # wash/dry/fill between groups
     labor_mode: LaborCostMode = LaborCostMode.HOURLY
     labor_hr_per_pig: float = 0.15
     labor_usd_pig_placed: float = 0.0
@@ -108,7 +110,7 @@ class Projection(BaseModel):
     interest_rate_pct: float = 0.0  # annual, on the pig + half the feed for the feeding period
 
     # Revenue
-    marketing: list[MarketingCut]
+    marketing: list[MarketingCut] = Field(min_length=1, max_length=MAX_CUTS)
     lean_hog_futures_cwt: dict[str, float]  # contract code "2027-04" -> $/cwt carcass
     hog_basis_cwt_by_period: dict[int, float]  # half-month period 1-24 -> avg historical basis
     carcass_premium_cwt: float = 0.0  # lean/grade merit premium, $/cwt carcass
@@ -120,6 +122,11 @@ class Projection(BaseModel):
         if abs(total - 100.0) > 0.01:
             raise ValueError(f"marketing cuts must sum to 100% (got {total:.1f}%)")
         return self
+
+    @property
+    def barn_days_occupied(self) -> int:
+        """Placement to last pig out, plus downtime before the next group."""
+        return max(c.days_after_placement for c in self.marketing) + self.barn_downtime_days
 
     @property
     def wean_pig_usd_hd(self) -> float:

@@ -79,3 +79,17 @@ def test_yahoo_chart_parse():
 def test_yahoo_contract_symbol():
     assert yahoo_contract_symbol("2027-04") == "HEJ27.CME"
     assert yahoo_contract_symbol("2026-12") == "HEZ26.CME"
+
+
+def test_coverage_check_catches_missing_bucket():
+    from hogproj.data.http import FetchError
+    from hogproj.data.leanhog import check_index_coverage
+
+    check_index_coverage(
+        parse_lm_hg201(
+            ROWS + [row("10/15/2026", "Prod. Sold Negotiated Formula", "900", "200.00", "74.00")]
+        )
+    )
+    only_negotiated = [r for r in ROWS if r["purchase_type"] == "Prod. Sold Negotiated"]
+    with pytest.raises(FetchError):
+        check_index_coverage(parse_lm_hg201(only_negotiated))

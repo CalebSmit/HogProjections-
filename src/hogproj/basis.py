@@ -40,11 +40,37 @@ def period_label(period: int) -> str:
     return f"{month} 1-14" if period % 2 == 1 else f"{month} 15-end"
 
 
+def lean_hog_expiry(year: int, month: int) -> date:
+    """Last trading day of a HE contract: 10th business day (Mon-Fri; exchange holidays
+    are ignored, so in a holiday month the real expiry is a day later)."""
+    d, count = date(year, month, 1), 0
+    while True:
+        if d.weekday() < 5:
+            count += 1
+            if count == 10:
+                return d
+        d = date.fromordinal(d.toordinal() + 1)
+
+
+def in_roll_gap(d: date) -> bool:
+    """True after a contract's expiry but still on/before the 14th. On those days a front-month
+    series already quotes the next contract, while lean_hog_contract_for still maps sales to
+    the expiring one. Those days are dropped so basis and pricing use the same contract."""
+    return (
+        d.month in LEAN_HOG_CONTRACT_MONTHS and d.day <= 14 and d > lean_hog_expiry(d.year, d.month)
+    )
+
+
 def daily_basis(index_cwt: pd.Series, nearby_futures_cwt: pd.Series) -> pd.Series:
-    """Both inputs are indexed by date. Only dates present in both series are used."""
+    """Index minus front-month futures on each date both series have, excluding roll-gap days.
+    The front-month series must roll at expiry (Yahoo HE=F does [VERIFY])."""
     df = pd.concat({"index": index_cwt, "futures": nearby_futures_cwt}, axis=1).dropna()
     df.index = pd.to_datetime(df.index)
-    return (df["index"] - df["futures"]).rename("basis_cwt")
+    keep = [not in_roll_gap(ts.date()) for ts in df.index]
+    df = df.loc[keep]
+    return pd.Series(
+        (df["index"] - df["futures"]).to_numpy(), index=df.index, name="basis_cwt", dtype="float64"
+    )
 
 
 def basis_by_year_period(daily: pd.Series) -> pd.DataFrame:

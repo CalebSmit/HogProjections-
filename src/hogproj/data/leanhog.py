@@ -69,6 +69,28 @@ def parse_lm_hg201(results: list[dict]) -> pd.DataFrame:
     )
 
 
+def check_index_coverage(rows: pd.DataFrame) -> None:
+    """Raise if purchase-type labels didn't parse: every report day must have negotiated and
+    swine/pork market formula rows (and negotiated formula from 2016-10-12). Without this, a
+    renamed label would silently turn the index into a single-bucket price."""
+    if rows.empty:
+        raise FetchError("LM_HG201 returned no producer-sold barrow/gilt rows")
+    by_day: dict[date, set[str]] = {}
+    for r in rows.to_dict("records"):
+        by_day.setdefault(r["report_date"], set()).add(r["bucket"])
+    bad = [
+        d
+        for d, buckets in by_day.items()
+        if not {"negotiated", "spmf"} <= buckets
+        or (d >= NEG_FORMULA_START and "negotiated_formula" not in buckets)
+    ]
+    if len(bad) > 0.05 * len(by_day):
+        raise FetchError(
+            f"LM_HG201 purchase types missing on {len(bad)} of {len(by_day)} days "
+            f"(first {min(bad)}); labels may have changed"
+        )
+
+
 def cme_index(rows: pd.DataFrame) -> pd.Series:
     """Two-day weighted Lean Hog Index ($/cwt carcass), indexed by report date."""
     lbs: dict[date, float] = {}
@@ -140,7 +162,9 @@ def fetch_futures_curve(codes: list[str]) -> dict[str, float]:
     for code in codes:
         try:
             s = fetch_yahoo_daily(yahoo_contract_symbol(code), today - timedelta(days=10), today)
-        except FetchError:
+        except FetchError as e:
+            if e.unreachable:
+                break  # offline: don't wait out a timeout for every contract
             continue
         if not s.empty:
             out[code] = float(s.iloc[-1])

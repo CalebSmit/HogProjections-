@@ -1,0 +1,7 @@
+name,feed_lb_per_pig,corn_pct,sbm_pct,ddgs_pct,other_usd_ton
+Nursery 1 (12-25 lb),20,45,22,0,1600
+Nursery 2 (25-50 lb),35,58,25,10,1000
+Grower 1 (50-100 lb),120,58,20,20,1200
+Grower 2 (100-160 lb),160,63,14,20,1200
+Finisher 1 (160-220 lb),180,67,10,20,1200
+Finisher 2 (220-285 lb),195,74,8,15,1200

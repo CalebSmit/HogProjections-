@@ -12,12 +12,19 @@ import xlsxwriter
 from xlsxwriter.utility import xl_rowcol_to_cell
 
 from hogproj.basis import PERIODS, period_label
-from hogproj.inputs import BarnCostMode, LaborCostMode, Location, Projection, WeanPigPriceSource
+from hogproj.inputs import (
+    MAX_CUTS,
+    MAX_PHASES,
+    BarnCostMode,
+    LaborCostMode,
+    Location,
+    Projection,
+    WeanPigPriceSource,
+)
 
-MAX_LOCATIONS = 40
-MAX_PHASES = 12
-MAX_CUTS = 8
+MAX_LOCATIONS = 60
 MAX_CONTRACTS = 24
+LOC_END = MAX_LOCATIONS + 1  # last Locations row in Excel numbering
 
 
 def build_workbook(
@@ -37,6 +44,15 @@ def build_workbook(
     mkt = wb.add_worksheet("Marketing")
     prices = wb.add_worksheet("Market Data")
     costs = wb.add_worksheet("Costs")
+
+    # The workbook looks up the selected location by name, so the exact values the app used
+    # must be in the list (the app may have edited them).
+    locations = [lo for lo in locations if lo.name != p.location.name] + [p.location]
+    locations = sorted(locations, key=lambda lo: lo.name)
+    if len(locations) > MAX_LOCATIONS:
+        raise ValueError(f"workbook holds at most {MAX_LOCATIONS} locations")
+    if len(p.lean_hog_futures_cwt) > MAX_CONTRACTS:
+        raise ValueError(f"workbook holds at most {MAX_CONTRACTS} futures contracts")
 
     _inputs_sheet(wb, inp, p, f)
     _locations_sheet(wb, loc, locations, f)
@@ -68,7 +84,7 @@ def _formats(wb: xlsxwriter.Workbook) -> dict:
         "in_int": wb.add_format({**inp, "num_format": "#,##0"}),
         "in_pct": wb.add_format({**inp, "num_format": "0.00"}),
         "in_date": wb.add_format({**inp, "num_format": "yyyy-mm-dd"}),
-        "in_txt": wb.add_format(inp),
+        "in_txt": wb.add_format({**inp, "num_format": "@"}),  # keep "2027-04" as text
         "num": wb.add_format({**base, "num_format": "#,##0.00"}),
         "int": wb.add_format({**base, "num_format": "#,##0"}),
         "usd": wb.add_format({**base, "num_format": "$#,##0"}),
@@ -155,12 +171,12 @@ def _inputs_sheet(wb, ws, p: Projection, f) -> dict[str, str]:
         ("Barn, labor and other", None),
         ("BarnMode", "Barn cost method", p.barn_mode.value, "in_txt", "", ""),
         (
-            "BarnDays",
-            "Barn days occupied (feeding + downtime)",
-            p.barn_days_occupied,
+            "BarnDowntime",
+            "Barn downtime between groups",
+            p.barn_downtime_days,
             "in_int",
             "days",
-            "Used with $/space/year",
+            "Wash/dry/fill. Barn days = last marketing day + downtime",
         ),
         ("BarnPerPig", "Barn cost if $/pig placed", p.barn_usd_pig_placed, "in_num", "$/pig", ""),
         ("LaborMode", "Labor cost method", p.labor_mode.value, "in_txt", "", ""),
@@ -238,12 +254,17 @@ def _inputs_sheet(wb, ws, p: Projection, f) -> dict[str, str]:
     ws.write(r, 1, "From selected location (edit on Locations sheet)", f["sub"])
     r += 1
     derived = [
-        ("LocRow", "Location row", "=MATCH(Location,Locations!$A$2:$A$41,0)", "int"),
-        ("CornBasis", "Corn basis", "=INDEX(Locations!$C$2:$C$41,LocRow)", "num"),
-        ("SbmBasis", "Soybean meal basis", "=INDEX(Locations!$D$2:$D$41,LocRow)", "num"),
-        ("DdgsPrice", "DDGS price", "=INDEX(Locations!$E$2:$E$41,LocRow)", "num"),
-        ("BarnRent", "Barn rent $/space/year", "=INDEX(Locations!$F$2:$F$41,LocRow)", "num"),
-        ("LaborWage", "Labor wage $/hr", "=INDEX(Locations!$G$2:$G$41,LocRow)", "num"),
+        ("LocRow", "Location row", f"=MATCH(Location,Locations!$A$2:$A${LOC_END},0)", "int"),
+        ("CornBasis", "Corn basis", f"=INDEX(Locations!$C$2:$C${LOC_END},LocRow)", "num"),
+        ("SbmBasis", "Soybean meal basis", f"=INDEX(Locations!$D$2:$D${LOC_END},LocRow)", "num"),
+        ("DdgsPrice", "DDGS price", f"=INDEX(Locations!$E$2:$E${LOC_END},LocRow)", "num"),
+        (
+            "BarnRent",
+            "Barn rent $/space/year",
+            f"=INDEX(Locations!$F$2:$F${LOC_END},LocRow)",
+            "num",
+        ),
+        ("LaborWage", "Labor wage $/hr", f"=INDEX(Locations!$G$2:$G${LOC_END},LocRow)", "num"),
         ("CornCash", "Corn cash price (futures + basis)", "=CornFutures+CornBasis", "num"),
         ("SbmCash", "Soybean meal cash price (futures + basis)", "=SbmFutures+SbmBasis", "num"),
         (
@@ -254,6 +275,12 @@ def _inputs_sheet(wb, ws, p: Projection, f) -> dict[str, str]:
             "num",
         ),
         ("HeadSold", "Head sold", "=HeadPlaced*(1-MortalityPct/100)", "num"),
+        (
+            "BarnDays",
+            "Barn days occupied",
+            f"=MAX(Marketing!$A$2:$A${MAX_CUTS + 1})+BarnDowntime",
+            "int",
+        ),
         (
             "PigsFed",
             "Full-feed-budget pig equivalents",
@@ -483,9 +510,12 @@ def _marketing_sheet(wb, ws, p: Projection, f) -> None:
         code = f'(YEAR(D{x})+({cm}>12))&"-"&TEXT({cm}-12*({cm}>12),"00")'
         ws.write_formula(r, 4, f'=IF({on},{code},"")', f["txt"])
         ws.write_formula(r, 5, f"=IF({on},({m}-1)*2+IF({dd}<=14,1,2),0)", f["int"])
-        ws.write_formula(r, 6, f"=IF({on},INDEX(FutPrices,MATCH(E{x},FutContracts,0)),0)", f["num"])
-        ws.write_formula(r, 7, f"=IF({on},INDEX(BasisByPeriod,F{x}),0)", f["num"])
-        ws.write_formula(r, 8, f"=IF({on},Premium,0)", f["num"])
+        sold = f"AND({on},N(B{x})>0)"  # a 0% cut needs no price (matches model.py)
+        ws.write_formula(
+            r, 6, f"=IF({sold},INDEX(FutPrices,MATCH(E{x},FutContracts,0)),0)", f["num"]
+        )
+        ws.write_formula(r, 7, f"=IF({sold},INDEX(BasisByPeriod,F{x}),0)", f["num"])
+        ws.write_formula(r, 8, f"=IF({sold},Premium,0)", f["num"])
         ws.write_formula(r, 9, f"=G{x}+H{x}+I{x}", f["usd2"])
         ws.write_formula(r, 10, f"=HeadSold*N(B{x})/100", f["num"])
         ws.write_formula(r, 11, f"=N(C{x})*YieldPct/100", f["num"])
@@ -605,7 +635,8 @@ def _dashboard_sheet(wb, ws, f) -> None:
         ("Head sold", "=HeadSold", "int"),
         (
             "Feed conversion (lb feed / lb gain)",
-            "=FeedTons*2000/(LiveCwt*100-HeadPlaced*WeanWeight)",
+            '=IF(LiveCwt*100-HeadPlaced*WeanWeight<=0,"n/a",'
+            "FeedTons*2000/(LiveCwt*100-HeadPlaced*WeanWeight))",
             "num",
         ),
     ]
