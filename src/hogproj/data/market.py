@@ -20,6 +20,7 @@ from hogproj.data.leanhog import (
     fetch_lm_hg201,
     fetch_yahoo_daily,
 )
+from hogproj.data.weanpig import fetch_feeder_pig, lot_min_head, weekly_price
 
 BASIS_FILE = "hog_basis_daily.csv"
 
@@ -103,3 +104,50 @@ def load_hog_futures_curve(codes: list[str]) -> Loaded:
     if missing:
         note += f" Not found: {', '.join(missing)}. Enter those by hand."
     return Loaded(curve, note, True)
+
+
+def load_wean_pig_prices(min_lot_head: int = 2400) -> Loaded:
+    """Weekly USDA early-weaned prices: DataFrame date, cash_usd_hd, formula_usd_hd, cash_lot."""
+    settings = get_settings()
+    if settings.offline:
+        return Loaded(pd.DataFrame(), "Offline mode: enter the weaned pig price by hand.", False)
+    try:
+        rows = fetch_feeder_pig(settings.usda_mmn_api_key)
+    except FetchError as e:
+        return Loaded(
+            pd.DataFrame(),
+            f"USDA weaned pig report not loaded ({e}). Using the price on screen.",
+            False,
+        )
+    cash = weekly_price(rows, "cash", min_lot_head)
+    formula = weekly_price(rows, "formula", min_lot_head)
+    df = cash.rename(columns={"price_usd_hd": "cash_usd_hd", "lot": "cash_lot"})[
+        ["date", "cash_usd_hd", "cash_lot"]
+    ].merge(
+        formula.rename(columns={"price_usd_hd": "formula_usd_hd"})[["date", "formula_usd_hd"]],
+        on="date",
+        how="outer",
+    )
+    lot = str(cash["lot"].iloc[-1]) if not cash.empty else "n/a"
+    note = f"Live: USDA National Direct Feeder Pig Report (2810), early weaned. Cash lot: {lot}."
+    if not cash.empty and cash["lot"].iloc[-1] and lot_min_head(lot) < min_lot_head:
+        note += f" The report has no {min_lot_head:,}+ head bucket, so the largest lot is used."
+    return Loaded(df.sort_values("date"), note, True)
+
+
+def load_grain_futures() -> Loaded:
+    """Front-month CBOT corn ($/bu) and soybean meal ($/ton) from Yahoo (ZC=F is in cents)."""
+    if get_settings().offline:
+        return Loaded({}, "Offline mode: enter corn and soybean meal futures by hand.", False)
+    end = date.today()
+    out: dict[str, float] = {}
+    try:
+        corn = fetch_yahoo_daily("ZC=F", end - timedelta(days=10), end)
+        meal = fetch_yahoo_daily("ZM=F", end - timedelta(days=10), end)
+    except FetchError as e:
+        return Loaded({}, f"Grain futures not loaded ({e}); using the prices on screen.", False)
+    if not corn.empty:
+        out["corn_usd_bu"] = float(corn.iloc[-1]) / 100
+    if not meal.empty:
+        out["sbm_usd_ton"] = float(meal.iloc[-1])
+    return Loaded(out, "Live: CBOT front-month corn and soybean meal (Yahoo, delayed).", bool(out))

@@ -6,3 +6,6 @@ headless = false
 
 [theme]
 base = "light"
+
+[client]
+toolbarMode = "viewer"

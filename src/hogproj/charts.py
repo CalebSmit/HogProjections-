@@ -20,6 +20,11 @@ GRID = "#e6e5e0"
 SURFACE = "#fcfcfb"
 
 
+def _usd(v: float, dec: int = 2) -> str:
+    v = round(v, dec) + 0.0  # + 0.0 turns -0.0 into 0.0
+    return f"-${abs(v):,.{dec}f}" if v < 0 else f"${v:,.{dec}f}"
+
+
 def _layout(fig: go.Figure, title: str, height: int = 380) -> go.Figure:
     fig.update_layout(
         title={"text": title, "font": {"size": 16, "color": INK}, "x": 0, "xanchor": "left"},
@@ -71,7 +76,7 @@ def net_by_location(df: pd.DataFrame, selected: str) -> go.Figure:
             y=df["location"],
             orientation="h",
             marker={"color": colors, "line": {"color": INK, "width": widths}, "cornerradius": 4},
-            text=[f"${v:,.2f}" for v in df["net_usd_per_head_sold"]],
+            text=[_usd(v) for v in df["net_usd_per_head_sold"]],
             textposition="outside",
             textfont={"color": INK_2},
             cliponaxis=False,
@@ -83,20 +88,21 @@ def net_by_location(df: pd.DataFrame, selected: str) -> go.Figure:
 
 
 def basis_bars(df: pd.DataFrame, value_col: str, title: str, unit: str, selected: str) -> go.Figure:
-    """One basis per location (e.g. corn ¢/bu under futures); selected location darker."""
-    df = df.sort_values(value_col)
+    """One basis per location (e.g. corn ¢/bu under futures); selected location darker.
+    Values sit inside the bars so negative bars never run into the location names."""
+    df = df.sort_values(by=value_col)
+    scale = 100 if unit == "¢/bu" else 1
     colors = [BLUE_DARK if n == selected else BLUE for n in df["location"]]
-    fmt = (lambda v: f"{v * 100:+.0f}¢") if unit == "¢/bu" else (lambda v: f"{v:+,.0f}")
     fig = go.Figure(
         go.Bar(
-            x=df[value_col] * (100 if unit == "¢/bu" else 1),
+            x=df[value_col] * scale,
             y=df["location"],
             orientation="h",
             marker={"color": colors, "cornerradius": 4},
-            text=[fmt(v) for v in df[value_col]],
-            textposition="outside",
-            textfont={"color": INK_2},
-            cliponaxis=False,
+            text=[f"{v * scale:+,.0f}" for v in df[value_col]],
+            textposition="inside",
+            insidetextanchor="middle",
+            textfont={"color": "white"},
             hovertemplate="%{y}<br>%{x:+,.1f} " + unit + "<extra></extra>",
         )
     )
@@ -151,7 +157,7 @@ def sensitivity_heatmap(grid: pd.DataFrame) -> go.Figure:
             zmin=-lim,
             zmax=lim,
             colorscale=[[0, RED], [0.5, NEUTRAL], [1, BLUE]],
-            text=[[f"${v:,.0f}" for v in row] for row in z],
+            text=[[_usd(float(v), 0) for v in row] for row in z],
             texttemplate="%{text}",
             textfont={"color": INK},
             xgap=2,
@@ -160,7 +166,7 @@ def sensitivity_heatmap(grid: pd.DataFrame) -> go.Figure:
             hovertemplate="Corn %{y}, hogs %{x}<br>Net %{text}/head sold<extra></extra>",
         )
     )
-    fig.update_xaxes(title="Change in lean hog futures", showgrid=False, side="top")
+    fig.update_xaxes(title="Change in lean hog futures", showgrid=False)
     fig.update_yaxes(title="Change in corn futures", showgrid=False, autorange="reversed")
     return _layout(fig, "What if prices move? Net $/head sold", 420)
 
