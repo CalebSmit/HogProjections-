@@ -156,3 +156,65 @@ def headline(plan: Plan) -> dict[str, float]:
         "profit_usd_per_head": margin_usd_per_head(plan.cost),
         "gap_cwt_carcass": plan.cost.lean_hog_usd_per_cwt_carcass - be["price_cwt_carcass"],
     }
+
+
+class Adjustments(BaseModel):
+    """A what-if expressed as changes from the current plan (all zero = no change)."""
+
+    name: str = "Scenario"
+    hog_usd_per_cwt: float = 0.0
+    corn_usd_per_bu: float = 0.0
+    sbm_usd_per_ton: float = 0.0
+    sows_pct: float = 0.0  # herd size change starting this week (shows up after the lags)
+    pigs_weaned_per_sow: float = 0.0
+    nonfeed_usd_per_head: float = 0.0
+    weight_lb: float = 0.0
+
+
+def apply(plan: Plan, adj: Adjustments) -> Plan:
+    h, c = plan.herd, plan.cost
+    herd = h.model_copy(
+        update={
+            "sows_target": max(0.0, h.sows_target * (1 + adj.sows_pct / 100)),
+            "weight_lb_live_market": max(1.0, h.weight_lb_live_market + adj.weight_lb),
+        }
+    )
+    if adj.pigs_weaned_per_sow:
+        herd = _with_weaned_change(herd, adj.pigs_weaned_per_sow)
+    cost = c.model_copy(
+        update={
+            "lean_hog_usd_per_cwt_carcass": max(0.0, c.lean_hog_usd_per_cwt_carcass
+                                                + adj.hog_usd_per_cwt),
+            "corn_usd_per_bu": max(0.0, c.corn_usd_per_bu + adj.corn_usd_per_bu),
+            "sbm_usd_per_ton": max(0.0, c.sbm_usd_per_ton + adj.sbm_usd_per_ton),
+            "nonfeed_usd_per_head": max(0.0, c.nonfeed_usd_per_head + adj.nonfeed_usd_per_head),
+        }
+    )  # fmt: skip
+    return plan.model_copy(update={"herd": herd, "cost": cost})
+
+
+def compare(
+    plan: Plan, scenarios: list[Adjustments], factors: pd.DataFrame, start: date, weeks: int
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """(one row per scenario with totals, weekly cumulative profit per scenario).
+
+    The first row is always the current plan, named "Current plan".
+    """
+    rows, paths = [], {}
+    for adj in [Adjustments(name="Current plan"), *scenarios]:
+        p = synced(apply(plan, adj))
+        r = project(p, factors, start)
+        s = summary(r, weeks)
+        rows.append(
+            {
+                "scenario": adj.name,
+                **s,
+                "breakeven_cwt_carcass": breakeven(p.cost)["price_cwt_carcass"],
+            }
+        )
+        paths[adj.name] = r["margin_usd"].iloc[:weeks].cumsum().to_numpy()
+    table = pd.DataFrame(rows)
+    table["profit_vs_current_usd"] = table["profit_usd"] - table["profit_usd"].iloc[0]
+    cum = pd.DataFrame(paths)
+    cum.insert(0, "date", pd.to_datetime(start) + pd.to_timedelta(cum.index * 7, unit="D"))
+    return table, cum

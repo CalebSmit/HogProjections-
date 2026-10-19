@@ -9,7 +9,7 @@ st.set_page_config(page_title="Hog Projections", page_icon="🐖", layout="wide"
 
 # Streamlit drops a widget's value when its page isn't shown. Re-assigning the keyed inputs
 # on every run keeps them, so switching pages doesn't reset the user's assumptions.
-for key in [k for k in st.session_state if str(k).startswith(("herd_", "cost_"))]:
+for key in [k for k in st.session_state if str(k).startswith(("herd_", "cost_", "scn_", "risk_"))]:
     if key not in ("herd_inputs", "cost_inputs"):
         st.session_state[key] = st.session_state[key]
 
@@ -21,6 +21,9 @@ page = st.navigation(
         "Your farm": [
             st.Page("views/1_Herd_flow.py", title="Herd flow", icon="🐷"),
             st.Page("views/2_Costs_and_returns.py", title="Costs & returns", icon="💵"),
+        ],
+        "Decide": [
+            st.Page("views/4_Scenarios.py", title="Scenarios", icon="🔀"),
         ],
         "Markets": [
             st.Page("views/3_Market_prices.py", title="Market prices", icon="📈"),

@@ -50,7 +50,8 @@ Phase 1 (2026-10-19) because every candidate idea in the PRD needs them.
   profit by month, profit-driver tornado. verify: smoke test through the router; screenshot
 - [x] Cost per pig responds to sow productivity (ISU farrow-to-wean $43.91/weaned pig spread
   over pigs sold per sow). verify: `test_more_pigs_per_sow_spreads_sow_costs`
-- [ ] Scenarios page (compare what-ifs side by side)
+- [x] Scenarios page: 3 editable what-ifs vs current plan over 12/24 months (cards, bars,
+  running total, side-by-side table). verify: `test_compare_*`, smoke test, screenshot
 - [ ] Risk page (probability of profit)
 - [ ] Excel / PDF report for clients
 

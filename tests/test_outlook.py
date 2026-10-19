@@ -78,3 +78,37 @@ def test_default_herd_matches_cost_reference_productivity():
     assert pigs_sold_per_sow_yr(HerdInputs()) == pytest.approx(
         CostInputs().ref_pigs_sold_per_sow_yr, abs=0.01
     )
+
+
+def test_apply_zero_adjustment_is_identity():
+    from hogproj.outlook import Adjustments, apply
+
+    plan = flat_plan()
+    assert apply(plan, Adjustments()) == plan
+
+
+def test_compare_current_first_and_hog_price_delta():
+    from hogproj.outlook import Adjustments, compare
+
+    plan = flat_plan()
+    table, cum = compare(
+        plan, [Adjustments(name="Hogs +$10", hog_usd_per_cwt=10)], NO_SEASON, START, 52
+    )
+    assert list(table["scenario"]) == ["Current plan", "Hogs +$10"]
+    pigs = table.loc[0, "pigs_sold"]
+    assert table.loc[1, "profit_vs_current_usd"] == pytest.approx(10 * plan.cost.cwt_carcass * pigs)
+    assert table.loc[0, "profit_vs_current_usd"] == 0
+    assert len(cum) == 52
+    assert cum["Hogs +$10"].iloc[-1] == pytest.approx(table.loc[1, "profit_usd"])
+
+
+def test_expansion_shows_up_after_lags():
+    from hogproj.outlook import Adjustments, compare
+
+    table, cum = compare(
+        flat_plan(), [Adjustments(name="Grow", sows_pct=20)], NO_SEASON, START, 104
+    )
+    # no extra pigs until bred sows farrow and grow out (~41 weeks)
+    first_year = (cum["Grow"] - cum["Current plan"]).iloc[:40]
+    assert first_year.abs().max() == pytest.approx(0, abs=1e-6)
+    assert table.loc[1, "pigs_sold"] > table.loc[0, "pigs_sold"]
