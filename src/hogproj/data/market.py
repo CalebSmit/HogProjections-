@@ -21,7 +21,7 @@ from hogproj.data.leanhog import (
     fetch_lm_hg201,
     fetch_yahoo_daily,
 )
-from hogproj.data.weanpig import fetch_feeder_pig, lot_min_head, weekly_price
+from hogproj.data.weanpig import cached_feeder_pig, fetch_feeder_pig, lot_min_head, weekly_price
 
 BASIS_FILE = "hog_basis_daily.csv"
 
@@ -159,6 +159,13 @@ def load_wean_pig_prices(min_lot_head: int = 2400) -> Loaded:
             reason = f"USDA report not loaded ({e})."
         else:
             return _usda_weekly(rows, min_lot_head)
+    cached = cached_feeder_pig()
+    if not cached.empty:  # the last good USDA report beats no report
+        last = _usda_weekly(cached, min_lot_head)
+        df = last.data if isinstance(last.data, pd.DataFrame) else pd.DataFrame()
+        latest = pd.to_datetime(df["date"]).max() if not df.empty else None
+        when = f" (latest week {latest:%b %d, %Y})" if latest is not None else ""
+        return Loaded(df, f"{reason} Using the last saved USDA report{when}.", False)
     if not bc.empty:
         return Loaded(
             bc_df,

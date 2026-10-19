@@ -68,3 +68,20 @@ def test_exact_contract_basis_overlays_base_history(tmp_path, monkeypatch):
     assert s[pd.Timestamp("2025-06-02")] == -1.0  # base history kept
     assert s[pd.Timestamp("2026-02-02")] == -5.0  # exact contract wins on its dates
     assert "exact basis" in got.note
+
+
+def test_failed_usda_fetch_uses_the_last_saved_report(tmp_path, monkeypatch):
+    from hogproj.data import market
+    from hogproj.data.weanpig import parse_feeder_pig
+    from tests.test_weanpig import ROWS
+
+    def down(api_key, weeks=104):
+        raise FetchError("cannot reach mpr.datamart.ams.usda.gov", unreachable=True)
+
+    monkeypatch.setattr(market, "fetch_feeder_pig", down)
+    monkeypatch.setattr(market, "cached_feeder_pig", lambda: parse_feeder_pig(ROWS))
+    monkeypatch.setattr(market.barchart, "STORE", tmp_path / "no_imports")
+    monkeypatch.delenv("OFFLINE", raising=False)
+    got = market.load_wean_pig_prices(2400)
+    assert "last saved USDA report" in got.note and "Oct 16, 2026" in got.note
+    assert got.data["cash_usd_hd"].iloc[-1] == 21.0  # type: ignore[index]

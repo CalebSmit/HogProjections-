@@ -254,7 +254,8 @@ def cash_flow(p: Projection, r: Result) -> pd.DataFrame:
     # Head on feed each day: deaths spread evenly to the average sale day, sales leave on
     # their day. Intake weight = head x weight.
     avg_day = sum(c.days_after_placement * c.pct_of_marketed / 100 for c in p.marketing)
-    mort = p.mortality_pct / 100
+    # In $-per-pig mode every pig placed counts as sold, so none die off the feed curve.
+    mort = 0.0 if p.mortality_mode is MortalityMode.USD_PER_PIG else p.mortality_pct / 100
     intake: list[float] = []
     sold_so_far = 0.0
     for d in feeding:

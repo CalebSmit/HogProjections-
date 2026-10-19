@@ -15,7 +15,7 @@ from datetime import date, timedelta
 
 import pandas as pd
 
-from hogproj.data.http import FetchError, get_json, write_cached_json
+from hogproj.data.http import FetchError, get_json, read_cached_json, write_cached_json
 
 MARS = "https://marsapi.ams.usda.gov/services/v1.2/reports/2810"
 
@@ -108,6 +108,27 @@ def weekly_price(df: pd.DataFrame, purchase: str, min_lot_head: int = 2400) -> p
     return pd.DataFrame(out, columns=["date", "lot", "head", "price_usd_hd"])
 
 
+RAW_CACHE = "usda_2810_raw.json"
+
+
+def rows_from_raw(data: object) -> pd.DataFrame:
+    """Parsed early-weaned rows from a MARS response (one block, or one per section)."""
+    results: list[dict] = []
+    if isinstance(data, dict):
+        results = data.get("results", [])
+    elif isinstance(data, list):  # allSections returns one block per section
+        for block in data:
+            if isinstance(block, dict):
+                results.extend(block.get("results", []))
+    return parse_feeder_pig(results)
+
+
+def cached_feeder_pig() -> pd.DataFrame:
+    """The last report saved by fetch_feeder_pig, any age (empty if none)."""
+    data = read_cached_json(RAW_CACHE, max_age_hours=float("inf"))
+    return rows_from_raw(data) if data is not None else pd.DataFrame()
+
+
 def fetch_feeder_pig(api_key: str, weeks: int = 104) -> pd.DataFrame:
     if not api_key:
         raise FetchError("no USDA MyMarketNews API key (USDA_MMN_API_KEY in .env)")
@@ -118,15 +139,8 @@ def fetch_feeder_pig(api_key: str, weeks: int = 104) -> pd.DataFrame:
         params={"q": f"report_begin_date={start:%m/%d/%Y}:{end:%m/%d/%Y}", "allSections": "true"},
         auth=(api_key, ""),
     )
-    write_cached_json("usda_2810_raw.json", data)
-    results: list[dict] = []
-    if isinstance(data, dict):
-        results = data.get("results", [])
-    elif isinstance(data, list):  # allSections returns one block per section
-        for block in data:
-            if isinstance(block, dict):
-                results.extend(block.get("results", []))
-    df = parse_feeder_pig(results)
+    write_cached_json(RAW_CACHE, data)
+    df = rows_from_raw(data)
     if df.empty:
         raise FetchError(
             "report 2810 returned no early-weaned rows (see data/cache/usda_2810_raw.json)"
