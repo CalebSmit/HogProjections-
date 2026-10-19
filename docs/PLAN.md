@@ -45,6 +45,12 @@ Phase 1 (2026-10-19) because every candidate idea in the PRD needs them.
   (ISU publishes $/head, not quantities; current values are [VERIFY] estimates)
 - [ ] NASS Hogs & Pigs inventory (needs `NASS_API_KEY`)
 
+## Phase 5 — Price outlook + scenarios ⏳ (started)
+- [x] Seasonal hog price path for projected returns (monthly factors from USDA history,
+  interpolated by day of year). verify: tests; Dec path ≈ $67.9 vs Dec futures ≈ $66.9
+- [ ] Futures curve as the expected path (no free futures API; user-entered strip?)
+- [ ] Scenarios + Monte Carlo margin distribution
+
 | Phase | Deliverable | verify |
 |---|---|---|
 | 4 | Market data (AMS/NASS clients + cache + offline sample) | fixture tests; app runs with `OFFLINE=true` |

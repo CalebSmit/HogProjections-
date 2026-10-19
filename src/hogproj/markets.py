@@ -7,6 +7,8 @@ The index is dated by the first of its two slaughter days. Checked: slaughter da
 2026 give 75.75, CME's published index for Oct 12, 2026.
 """
 
+from datetime import date, timedelta
+
 import numpy as np
 import pandas as pd
 
@@ -67,3 +69,22 @@ def seasonal_factors(index: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(
         {"month": range(1, 13), "factor": np.mean(per_year, axis=0), "years": len(per_year)}
     )
+
+
+def seasonal_price_path(
+    start: date, weeks: int, price_now: float, factors: pd.DataFrame
+) -> np.ndarray:
+    """Weekly hog price that follows the typical seasonal pattern from today's price.
+
+    price(week) = price_now × factor(date) / factor(start). Monthly factors sit at mid-month
+    and are interpolated by day of year (wrapping Dec -> Jan) so the path has no monthly steps.
+    """
+    if factors.empty:
+        return np.full(weeks, price_now)
+    mid_month_day = np.array([date(2001, m, 15).timetuple().tm_yday for m in range(1, 13)])
+    f = factors.sort_values("month")["factor"].to_numpy(dtype=float)
+    xp = np.concatenate([mid_month_day - 365, mid_month_day, mid_month_day + 365])
+    fp = np.tile(f, 3)
+    days = [(start + timedelta(weeks=w)).timetuple().tm_yday for w in range(weeks)]
+    factor = np.interp(np.array(days, dtype=float), xp, fp)
+    return price_now * factor / float(np.interp(start.timetuple().tm_yday, xp, fp))

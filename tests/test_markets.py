@@ -2,12 +2,13 @@ import json
 from datetime import date
 
 import httpx
+import numpy as np
 import pandas as pd
 import pytest
 
 from hogproj.config import ROOT
 from hogproj.data import ams
-from hogproj.markets import lean_hog_index, seasonal_factors
+from hogproj.markets import lean_hog_index, seasonal_factors, seasonal_price_path
 
 FIXTURE = ROOT / "tests" / "fixtures" / "lm_hg201_barrows_gilts.json"
 
@@ -131,3 +132,23 @@ def test_seasonal_factors_ignore_partial_years():
     f = seasonal_factors(idx)
     assert f["years"].max() == 1
     assert f["factor"].to_numpy() == pytest.approx(1.0)
+
+
+def test_seasonal_price_path_starts_at_today_and_follows_pattern():
+    factors = pd.DataFrame(
+        {"month": range(1, 13), "factor": [0.9] * 5 + [1.1] * 3 + [1.0] * 4, "years": 2}
+    )
+    start = date(2026, 1, 15)
+    path = seasonal_price_path(start, 52, 80.0, factors)
+    assert len(path) == 52
+    assert path[0] == pytest.approx(80.0)
+    # mid-July factor 1.1 vs mid-Jan 0.9
+    july = (date(2026, 7, 16) - start).days // 7
+    assert float(path[july]) == pytest.approx(80 * 1.1 / 0.9, rel=0.02)
+    # the May->June step (+17.8) is spread over ~a month instead of one jump
+    assert np.abs(np.diff(path)).max() < 17.8 / 3
+
+
+def test_seasonal_price_path_flat_without_factors():
+    empty = pd.DataFrame(columns=["month", "factor", "years"])
+    assert (seasonal_price_path(date(2026, 10, 19), 10, 70.0, empty) == 70.0).all()

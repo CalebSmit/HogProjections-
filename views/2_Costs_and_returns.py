@@ -1,5 +1,7 @@
 """Cost of production, breakeven and projected returns."""
 
+from datetime import date
+
 import numpy as np
 import plotly.graph_objects as go
 import streamlit as st
@@ -13,6 +15,7 @@ from hogproj.finance import (
     weekly_returns,
 )
 from hogproj.herd import HerdInputs, simulate
+from hogproj.markets import seasonal_factors, seasonal_price_path
 from hogproj.ui import hog_index, usd
 
 st.title("Costs & returns")
@@ -167,17 +170,49 @@ with right:
     st.plotly_chart(heat, use_container_width=True)
 
 st.subheader("Projected returns")
+path_choice = st.radio(
+    "Hog price over the projection",
+    ["Seasonal", "Flat"],
+    horizontal=True,
+    key="cost_price_path",
+    help="Seasonal starts at your hog price and follows the typical monthly pattern in USDA "
+    "data (see Market prices). Flat keeps today's price for every week.",
+)
 herd = simulate(herd_inp)
-r = weekly_returns(herd, c)
+path = (
+    seasonal_price_path(date.today(), len(herd), hog, seasonal_factors(idx))
+    if path_choice == "Seasonal"
+    else None
+)
+r = weekly_returns(herd, c, path)
 change = herd_inp.sows_target - herd_inp.sows_start
 herd_note = f"{herd_inp.sows_start:,.0f} sows" + (
     f", {change:+,.0f} from week {herd_inp.change_week}" if change else ""
 )
 st.caption(
-    f"Marketings from the Herd flow page ({herd_note}), at a flat hog price. "
+    f"Marketings from the Herd flow page ({herd_note}); week 0 is this week. "
     "Costs are booked when the pigs are sold."
 )
-g1, g2 = st.columns(2)
+g0, g1, g2 = st.columns(3)
+price_fig = go.Figure(
+    go.Scatter(
+        x=r["week"],
+        y=r["hog_usd_per_cwt_carcass"],
+        mode="lines",
+        hovertemplate="Week %{x}<br>$%{y:.2f}/cwt<extra></extra>",
+    )
+)
+price_fig.add_hline(
+    y=be["price_cwt_carcass"],
+    line_dash="dot",
+    line_color="#c62828",
+    annotation_text="breakeven",
+    annotation_position="top left",
+)
+price_fig.update_layout(
+    title="Hog price used ($/cwt carcass)", xaxis_title="Week", margin={"t": 50, "b": 40}
+)
+g0.plotly_chart(price_fig, use_container_width=True)
 weekly = go.Figure(
     go.Bar(
         x=r["week"],

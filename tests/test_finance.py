@@ -108,3 +108,13 @@ def test_weekly_returns_tie_to_per_head_margin():
     per_head = r["margin_usd"] / r["marketed_head"]
     assert per_head.to_numpy() == pytest.approx(margin_usd_per_head(c))
     assert r["cumulative_margin_usd"].iloc[-1] == pytest.approx(r["margin_usd"].sum())
+
+
+def test_weekly_returns_with_price_path():
+    c = CostInputs()
+    herd = simulate(HerdInputs(weeks=52))
+    path = np.linspace(60, 100, 52)
+    r = weekly_returns(herd, c, path)
+    assert r["hog_usd_per_cwt_carcass"].to_numpy() == pytest.approx(path)
+    flat = weekly_returns(herd, c.model_copy(update={"lean_hog_usd_per_cwt_carcass": 100}))
+    assert r["margin_usd"].iloc[-1] == pytest.approx(flat["margin_usd"].iloc[-1])

@@ -55,3 +55,10 @@ Newest at the bottom.
 - **Notes:** ISU publishes $/head, not feed quantities, so corn 10.2 bu/pig and SBM 104 lb/pig
   are estimates at ~$4 corn / $300 SBM [VERIFY]. The $5.25 corn default is futures; cash runs
   lower. Both get fixed with USDA cash prices once a My Market News key is in `.env`.
+
+## 2026-10-19 (cont.) — Seasonal price path
+- **Done:** `markets.seasonal_price_path`; Costs & returns can project at a seasonal or flat hog
+  price, with a chart of the price used against breakeven.
+- **Verified:** 45 tests pass, pyright clean; browser check. From $73.40 today the path reaches
+  ~$67.9 in mid-December, near Dec 2026 futures (~$66.9).
+- **Notes:** factors come from only 2 full years (2024–25); they firm up as history accrues.

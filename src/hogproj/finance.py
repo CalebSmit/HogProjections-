@@ -131,14 +131,22 @@ def sensitivity(
     )
 
 
-def weekly_returns(herd: pd.DataFrame, c: CostInputs) -> pd.DataFrame:
+def weekly_returns(
+    herd: pd.DataFrame, c: CostInputs, hog_usd_per_cwt_carcass: np.ndarray | None = None
+) -> pd.DataFrame:
     """Revenue, cost and margin for each week's marketings (from `herd.simulate`).
 
-    Revenue uses the herd's carcass pounds sold; costs are per pig sold, net of the manure
-    credit, and are booked when the pigs are sold.
+    Revenue uses the herd's carcass pounds sold at a flat price (`c`) or a weekly price path;
+    costs are per pig sold, net of the manure credit, and are booked when the pigs are sold.
     """
     out = pd.DataFrame(herd, columns=["week", "marketed_head", "sold_lb_carcass"])
-    out["revenue_usd"] = out["sold_lb_carcass"] / 100 * c.lean_hog_usd_per_cwt_carcass
+    price = (
+        np.full(len(out), c.lean_hog_usd_per_cwt_carcass)
+        if hog_usd_per_cwt_carcass is None
+        else np.asarray(hog_usd_per_cwt_carcass, dtype=float)
+    )
+    out["hog_usd_per_cwt_carcass"] = price
+    out["revenue_usd"] = out["sold_lb_carcass"] / 100 * price
     out["cost_usd"] = out["marketed_head"] * cost_usd_per_head(c)["net"]
     out["margin_usd"] = out["revenue_usd"] - out["cost_usd"]
     out["cumulative_margin_usd"] = out["margin_usd"].cumsum()
