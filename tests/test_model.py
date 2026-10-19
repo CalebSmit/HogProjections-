@@ -180,3 +180,18 @@ def test_cash_flow_reconciles_to_projection():
     assert cf.loc[0, "Weaned pigs"] == pytest.approx(40_000)
     # most feed is eaten late: the last full month on feed costs more than the first
     assert cf.loc[4, "Feed"] > cf.loc[0, "Feed"]
+
+
+def test_basis_from_exact_contracts():
+    from hogproj.basis import basis_from_contracts
+
+    index = pd.Series(
+        [90.0, 91.0, 92.0], pd.to_datetime(["2027-02-12", "2027-02-16", "2027-03-01"])
+    )
+    contracts = {
+        "2027-02": pd.Series([89.0, 99.0], pd.to_datetime(["2027-02-12", "2027-02-16"])),
+        "2027-04": pd.Series([95.0, 96.0], pd.to_datetime(["2027-02-16", "2027-03-01"])),
+    }
+    s = basis_from_contracts(index, contracts)
+    # Feb 12 -> Feb contract; Feb 16 (15th+) -> Apr contract, not the Feb price; Mar 1 -> Apr
+    assert list(s.round(2)) == [1.0, -4.0, -4.0]

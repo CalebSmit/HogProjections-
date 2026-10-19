@@ -35,9 +35,10 @@ def test_failed_refresh_keeps_cached_basis(tmp_path, monkeypatch):
     pd.DataFrame({"date": ["2025-03-03"], "basis_cwt": [-2.0]}).to_csv(cached, index=False)
     monkeypatch.setattr(market, "cache_path", lambda name: cached)
 
-    def offline(years):
+    def offline(years, index=None):
         raise FetchError("offline", unreachable=True)
 
+    monkeypatch.setattr(market.barchart, "STORE", tmp_path / "no_imports")
     monkeypatch.setattr(market, "_download_hog_basis", offline)
     monkeypatch.delenv("OFFLINE", raising=False)
     got = market.load_hog_basis_daily(refresh=True)

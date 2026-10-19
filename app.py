@@ -20,7 +20,7 @@ from hogproj.basis import (
     lean_hog_contract_for,
     period_label,
 )
-from hogproj.data import defaults, profiles
+from hogproj.data import barchart, defaults, profiles
 from hogproj.data.market import (
     load_grain_futures,
     load_hog_basis_daily,
@@ -108,8 +108,8 @@ problems: list[str] = []
 
 st.title("Wean-to-Finish Group Projection")
 header = st.empty()
-tab_sum, tab_in, tab_loc, tab_mkt, tab_xl = st.tabs(
-    ["📊 Summary", "⚙️ Inputs", "📍 Locations", "📈 Markets & basis", "⬇️ Excel"]
+tab_sum, tab_in, tab_loc, tab_mkt, tab_data, tab_xl = st.tabs(
+    ["📊 Summary", "⚙️ Inputs", "📍 Locations", "📈 Markets & basis", "📥 Data", "⬇️ Excel"]
 )
 
 # ---------------------------------------------------------------- locations (read first)
@@ -387,6 +387,85 @@ basis_loaded = hog_basis(ss.refresh)
 basis_daily = basis_loaded.data if isinstance(basis_loaded.data, pd.Series) else pd.Series()
 by_year = basis_by_year_period(basis_daily) if not basis_daily.empty else pd.DataFrame()
 years_available = [int(y) for y in by_year.index] if not by_year.empty else []
+
+# ---------------------------------------------------------------- data tab (before any st.stop)
+
+with tab_data:
+    st.markdown(
+        "**Import Barchart downloads.** Upload CSV or Excel files from Barchart (the website "
+        "*Download* button or Barchart for Excel). A workbook with one series per sheet works "
+        "too. Imported data stays on this computer (`data/cache/barchart/`) and is used ahead "
+        "of the free USDA and Yahoo sources."
+    )
+    st.caption(
+        "Useful series: CME Lean Hog Index; lean hog futures by contract (e.g. HEJ27, HEM27) for "
+        "exact basis; USDA weaned pig (LS255 early weaned); corn; soybean meal."
+    )
+    uploads = st.file_uploader(
+        "Barchart files",
+        type=["csv", "xlsx", "xlsm", "xls"],
+        accept_multiple_files=True,
+        key=f"uploads_{ss.get('upload_ver', 0)}",
+    )
+    found = []
+    for up in uploads or []:
+        try:
+            found += barchart.read_upload(up.name, up.getvalue())
+        except Exception as e:  # noqa: BLE001 - show any unreadable file, keep the app running
+            st.error(f"Couldn't read {up.name}: {e}")
+    if uploads and not found:
+        st.warning("No price history found. Is there a Date/Time column and a Close/Latest column?")
+    plan = []
+    for i, series in enumerate(found):
+        c = st.columns([4, 3, 2])
+        c[0].markdown(
+            f"**{series.name}** {series.symbol}  \n"
+            f"{len(series.data):,} rows, {series.data.index.min():%b %d, %Y} – "
+            f"{series.data.index.max():%b %d, %Y} · last {series.data.iloc[-1]:,.2f}"
+        )
+        options = [None, *barchart.Kind]
+        kind = c[1].selectbox(
+            "Series",
+            options,
+            index=options.index(series.kind),
+            format_func=lambda k: "Skip" if k is None else str(k),
+            key=f"kind_{i}_{series.name}",
+        )
+        contract = None
+        if kind is barchart.Kind.HOG_FUTURES:
+            contract = c[2].text_input(
+                "Contract (YYYY-MM)", value=series.contract or "", key=f"ct_{i}_{series.name}"
+            )
+        plan.append((series, kind, contract))
+    if plan and st.button("📥 Import", type="primary"):
+        done = []
+        for series, kind, contract in plan:
+            if kind is None:
+                continue
+            try:
+                barchart.save(series.data, kind, contract or None)
+                done.append(f"{kind}{' ' + contract if contract else ''}")
+            except ValueError as e:
+                st.error(f"{series.name}: {e}")
+        if done:
+            ss.upload_ver = ss.get("upload_ver", 0) + 1
+            ss.refresh += 1
+            st.cache_data.clear()
+            st.toast("Imported: " + ", ".join(done))
+            st.rerun()
+
+    st.subheader("Imported on this computer")
+    inv = barchart.inventory()
+    if inv.empty:
+        st.caption("Nothing imported yet.")
+    else:
+        st.dataframe(inv, hide_index=True, use_container_width=True)
+        drop = st.selectbox("Remove a series", [None, *inv["file"]], key="bc_drop")
+        if drop and st.button("Remove"):
+            barchart.delete(drop)
+            ss.refresh += 1
+            st.cache_data.clear()
+            st.rerun()
 
 # ---------------------------------------------------------------- inputs tab
 

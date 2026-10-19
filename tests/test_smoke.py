@@ -11,6 +11,16 @@ from hogproj.inputs import InterestMode, MortalityMode, WeanPigPriceSource
 PLACED = date(2026, 10, 19)
 
 
+@pytest.fixture(autouse=True)
+def isolated_user_data(tmp_path, monkeypatch):
+    """Tests never see this machine's Barchart imports, saved profiles or locations."""
+    from hogproj.data import barchart, defaults, profiles
+
+    monkeypatch.setattr(barchart, "STORE", tmp_path / "barchart")
+    monkeypatch.setattr(profiles, "PROFILE_DIR", tmp_path / "profiles")
+    monkeypatch.setattr(defaults, "USER_DIR", tmp_path / "user")
+
+
 @pytest.fixture
 def app(monkeypatch) -> AppTest:
     monkeypatch.setenv("OFFLINE", "true")  # never touch the network in tests

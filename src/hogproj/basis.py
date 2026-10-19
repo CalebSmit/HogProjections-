@@ -98,3 +98,25 @@ def average_basis_by_period(
         v = means.get(period)
         out[period] = float(v) if v is not None and pd.notna(v) else 0.0
     return out
+
+
+def basis_from_contracts(index_cwt: pd.Series, contracts: dict[str, pd.Series]) -> pd.Series:
+    """Index minus the exact contract `lean_hog_contract_for` picks for each date.
+
+    Use this when per-contract histories are available (e.g. Barchart imports). It needs no
+    roll-gap rule, because the contract always matches the one the projection prices off.
+    """
+
+    def by_day(s: pd.Series) -> dict[pd.Timestamp, float]:
+        days = pd.DatetimeIndex(pd.to_datetime(pd.Series(s.index)).dt.normalize())
+        return dict(zip(days, s.to_numpy(dtype=float), strict=True))
+
+    out: dict[pd.Timestamp, float] = {}
+    lookup = {c: by_day(s) for c, s in contracts.items()}
+    for ts, idx in by_day(index_cwt).items():
+        fut = lookup.get(lean_hog_contract_for(ts.date()), {}).get(ts)
+        if fut is not None:
+            out[ts] = float(idx) - fut
+    s = pd.Series(out, dtype="float64", name="basis_cwt").sort_index()
+    s.index.name = "date"
+    return s

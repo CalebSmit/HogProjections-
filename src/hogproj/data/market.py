@@ -10,8 +10,9 @@ from pathlib import Path
 
 import pandas as pd
 
-from hogproj.basis import daily_basis
+from hogproj.basis import basis_from_contracts, daily_basis
 from hogproj.config import SAMPLE_DIR, get_settings
+from hogproj.data import barchart
 from hogproj.data.http import FetchError, cache_path
 from hogproj.data.leanhog import (
     check_index_coverage,
@@ -43,14 +44,15 @@ def _write_series(s: pd.Series, path: Path) -> None:
     pd.DataFrame({"date": s.index, "basis_cwt": s.to_numpy()}).to_csv(path, index=False)
 
 
-def _download_hog_basis(years: int) -> pd.Series:
-    # Yahoo's HE=F rolls at expiry (10th business day), which matches the contract the
-    # projection uses for a sale on that day to within a day or two (basis.lean_hog_contract_for).
+def _download_hog_basis(years: int, index: pd.Series | None = None) -> pd.Series:
+    # Yahoo's HE=F rolls at expiry (10th business day). daily_basis drops the days where that
+    # differs from the contract the projection prices off (basis.in_roll_gap).
     end = date.today()
     start = end - timedelta(days=365 * years)
-    rows = fetch_lm_hg201(start, end)
-    check_index_coverage(rows)
-    index = cme_index(rows)
+    if index is None or index.empty:
+        rows = fetch_lm_hg201(start, end)
+        check_index_coverage(rows)
+        index = cme_index(rows)
     futures = fetch_yahoo_daily("HE=F", start, end)
     s = daily_basis(index, futures)
     if s.empty:
@@ -59,7 +61,22 @@ def _download_hog_basis(years: int) -> pd.Series:
 
 
 def load_hog_basis_daily(years: int = 10, refresh: bool = False) -> Loaded:
-    """Daily CME Lean Hog Index minus front-month futures, as far back as `years`."""
+    """Daily CME Lean Hog Index minus nearby futures, as far back as `years`.
+
+    Order: the user's Barchart imports (index + per-contract futures, exact contract match),
+    then the cache, then a live rebuild (Barchart or USDA index, Yahoo front month).
+    """
+    bc_index = barchart.load(barchart.Kind.CME_INDEX)
+    bc_contracts = barchart.hog_contracts()
+    if not bc_index.empty and bc_contracts:
+        s = basis_from_contracts(bc_index, bc_contracts)
+        if not s.empty:
+            return Loaded(
+                s,
+                f"Your Barchart imports: CME Index − the exact lean hog contract for each date "
+                f"({len(bc_contracts)} contracts, {s.index.min():%b %Y}–{s.index.max():%b %Y}).",
+                False,
+            )
     cached = cache_path(BASIS_FILE)
     if cached.exists() and not refresh:
         s = _read_series(cached)
@@ -70,12 +87,13 @@ def load_hog_basis_daily(years: int = 10, refresh: bool = False) -> Loaded:
     fail = "Offline mode. "
     if not get_settings().offline:
         try:
-            s = _download_hog_basis(years)
+            s = _download_hog_basis(years, bc_index)
             _write_series(s, cached)
+            source = "your Barchart CME Index" if not bc_index.empty else "USDA LM_HG201"
             return Loaded(
                 s,
-                f"Live: CME Lean Hog Index rebuilt from USDA LM_HG201 minus HE front-month "
-                f"futures, {s.index.min():%b %Y}–{s.index.max():%b %Y}.",
+                f"Live: CME Lean Hog Index ({source}) minus HE front-month futures (Yahoo), "
+                f"{s.index.min():%b %Y}–{s.index.max():%b %Y}.",
                 True,
             )
         except FetchError as e:
@@ -114,16 +132,29 @@ def load_hog_futures_curve(codes: list[str]) -> Loaded:
 def load_wean_pig_prices(min_lot_head: int = 2400) -> Loaded:
     """Weekly USDA early-weaned prices: DataFrame date, cash_usd_hd, formula_usd_hd, cash_lot."""
     settings = get_settings()
-    if settings.offline:
-        return Loaded(pd.DataFrame(), "Offline mode: enter the weaned pig price by hand.", False)
-    try:
-        rows = fetch_feeder_pig(settings.usda_mmn_api_key)
-    except FetchError as e:
+    bc = barchart.load(barchart.Kind.WEAN_PIG)
+    bc_df = pd.DataFrame(
+        {"date": bc.index, "cash_usd_hd": bc.to_numpy(), "cash_lot": "Barchart series"}
+    )
+    bc_df["formula_usd_hd"] = float("nan")
+    reason = "Offline mode."
+    if not settings.offline:
+        try:
+            rows = fetch_feeder_pig(settings.usda_mmn_api_key)
+        except FetchError as e:
+            reason = f"USDA report not loaded ({e})."
+        else:
+            return _usda_weekly(rows, min_lot_head)
+    if not bc.empty:
         return Loaded(
-            pd.DataFrame(),
-            f"USDA weaned pig report not loaded ({e}). Using the price on screen.",
+            bc_df,
+            f"{reason} Using your Barchart weaned pig series (latest {bc.index.max():%b %d, %Y}).",
             False,
         )
+    return Loaded(pd.DataFrame(), f"{reason} Enter the weaned pig price by hand.", False)
+
+
+def _usda_weekly(rows: pd.DataFrame, min_lot_head: int) -> Loaded:
     cash = weekly_price(rows, "cash", min_lot_head)
     formula = weekly_price(rows, "formula", min_lot_head)
     df = cash.rename(columns={"price_usd_hd": "cash_usd_hd", "lot": "cash_lot"})[
