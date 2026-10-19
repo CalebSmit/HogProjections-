@@ -116,3 +116,35 @@ def test_whole_group_ration_round_trip():
     assert phase.feed_lb_per_pig * phase.other_pct / 100 == pytest.approx(30)
     _, problems = parse_ration_lbs(df.assign(corn_lb=NAN))
     assert problems == ["Whole-group ration is missing: corn_lb"]
+
+
+def test_location_names_differing_only_by_case_are_duplicates():
+    import pandas as pd
+
+    from hogproj.data.defaults import load_locations
+    from hogproj.tables import parse_locations
+
+    base = load_locations()[0].model_dump()
+    df = pd.DataFrame([{**base, "name": "Farm A"}, {**base, "name": "farm a"}])
+    _, problems = parse_locations(df)
+    assert any("unique" in p for p in problems)
+
+
+def test_saved_location_names_stay_text(tmp_path, monkeypatch):
+    from hogproj.data import defaults
+
+    monkeypatch.setattr(defaults, "USER_DIR", tmp_path)
+    loc = defaults.load_locations()[0]
+    odd = [loc.model_copy(update={"name": n}) for n in ("NA", "None", "101")]
+    defaults.save_locations(odd)
+    assert [lo.name for lo in defaults.load_locations()] == ["NA", "None", "101"]
+    assert defaults.user_locations_problem() is None
+
+
+def test_unreadable_saved_locations_fall_back_with_a_message(tmp_path, monkeypatch):
+    from hogproj.data import defaults
+
+    monkeypatch.setattr(defaults, "USER_DIR", tmp_path)
+    (tmp_path / "locations.csv").write_text("name,corn_basis_usd_bu\nX,not a number\n")
+    assert "couldn't be read" in (defaults.user_locations_problem() or "")
+    assert len(defaults.load_locations()) > 1  # the bundled list

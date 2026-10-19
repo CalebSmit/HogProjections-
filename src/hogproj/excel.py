@@ -330,24 +330,45 @@ def _headers(ws, row: int, headers: list[str], f, first_left: bool = True) -> No
         ws.write(row, c, h, f["h_l"] if c == 0 and first_left else f["h"])
 
 
-def _tip(ws, row: int, col: int, title: str, message: str) -> None:
-    """Hover help on an input cell (Excel shows it when the cell is selected)."""
-    if message:
-        ws.data_validation(
-            row,
-            col,
-            row,
-            col,
-            {
-                "validate": "any",
-                "input_title": title[:32],
-                "input_message": message[:255],
-            },
-        )
+def _text(ws, row: int, col: int, value: object, fmt) -> None:
+    """User text as text: write() would turn "=Q4 site" into a formula (#NAME?)."""
+    if value is None or value == "":
+        ws.write_blank(row, col, None, fmt)
+    else:
+        ws.write_string(row, col, str(value), fmt)
+
+
+def _tip(ws, row: int, col: int, title: str, message: str, fmt: str = "") -> None:
+    """Hover help on an input cell (shown when the cell is selected), plus a range check on
+    percentages (0-100) and whole numbers. One validation per cell: Excel flags overlaps."""
+    rule: dict = {"validate": "any"}
+    if fmt == "in_pct":
+        rule = {"validate": "decimal", "criteria": "between", "minimum": 0, "maximum": 100}
+        message = (message + " " if message else "") + "Enter 0 to 100."
+    elif fmt == "in_int":
+        rule = {"validate": "integer", "criteria": ">=", "value": 0}
+        message = (message + " " if message else "") + "Whole number, 0 or more."
+    if not message:
+        return
+    ws.data_validation(
+        row,
+        col,
+        row,
+        col,
+        {
+            **rule,
+            "input_title": title[:32],
+            "input_message": message[:255],
+            "error_title": "Check this value",
+            "error_message": message[:255],
+        },
+    )
 
 
 # --------------------------------------------------------------------------------------
 # Inputs sheet: one named cell per scalar input
+
+LISTS = {"WeanSource", "BarnMode", "LaborMode", "MortMode", "InterestMode", "Location"}
 
 
 def _inputs_sheet(wb, ws, p: Projection, f, scenario: str = "") -> dict[str, str]:
@@ -560,6 +581,8 @@ def _inputs_sheet(wb, ws, p: Projection, f, scenario: str = "") -> dict[str, str
         ws.write(r, 1, label, f["label"])
         if fmt == "in_date":
             ws.write_datetime(r, 2, pd.Timestamp(value).to_pydatetime(), f[fmt])
+        elif fmt == "in_txt":
+            _text(ws, r, 2, value, f[fmt])
         else:
             ws.write(r, 2, value, f[fmt])
         ws.write(r, 3, unit, f["unit"])
@@ -567,7 +590,8 @@ def _inputs_sheet(wb, ws, p: Projection, f, scenario: str = "") -> dict[str, str
         ref = f"=Inputs!$C${r + 1}"
         wb.define_name(name, ref)
         names[name] = ref
-        _tip(ws, r, 2, label, note or (f"Units: {unit}" if unit else ""))
+        if name not in LISTS:  # dropdown cells get their own (list) validation below
+            _tip(ws, r, 2, label, note or (f"Units: {unit}" if unit else ""), fmt)
         r += 1
 
     def validate(name: str, options: list[str], note: str) -> None:
@@ -611,7 +635,13 @@ def _inputs_sheet(wb, ws, p: Projection, f, scenario: str = "") -> dict[str, str
     ws.write(r, 1, "FROM THE SELECTED LOCATION AND THE RATION (FORMULAS)", f["section"])
     r += 1
     derived = [
-        ("LocRow", "Location row", "=MATCH(Location,LocNames,0)", "calc_int"),
+        (
+            "LocRow",
+            "Location row",
+            # EXACT: MATCH alone ignores case and treats ? * ~ in names as wildcards.
+            "=MATCH(TRUE,INDEX(EXACT(LocNames,Location),0),0)",
+            "calc_int",
+        ),
         ("CornBasis", "Corn basis", "=INDEX(LocCornBasis,LocRow)", "calc_num"),
         ("SbmBasis", "Soybean meal basis", "=INDEX(LocSbmBasis,LocRow)", "calc_num"),
         ("DdgsPrice", "DDGS price", "=INDEX(LocDdgs,LocRow)", "calc_num"),
@@ -701,11 +731,12 @@ def _locations_sheet(wb, ws, locations: Sequence[Location], f) -> None:
         else:
             vals = [None] * 8
         for c, v in enumerate(vals):
-            fmt = f["in_txt"] if c in (0, 1, 7) else f["in_num"]
-            if v is None:
-                ws.write_blank(r, c, None, fmt)
+            if c in (0, 1, 7):
+                _text(ws, r, c, v, f["in_txt"])
+            elif v is None:
+                ws.write_blank(r, c, None, f["in_num"])
             else:
-                ws.write(r, c, v, fmt)
+                ws.write(r, c, v, f["in_num"])
     last = FIRST + MAX_LOCATIONS - 1
     for name, col in [
         ("LocNames", "A"),
@@ -754,7 +785,7 @@ def _feed_sheet(wb, ws, p: Projection, f) -> None:
         x = r + 1  # excel row number
         if i < len(p.feed_phases):
             ph = p.feed_phases[i]
-            ws.write(r, 0, ph.name, f["in_txt"])
+            _text(ws, r, 0, ph.name, f["in_txt"])
             for c, v in enumerate(
                 [ph.feed_lb_per_pig, ph.corn_pct, ph.sbm_pct, ph.ddgs_pct], start=1
             ):

@@ -221,3 +221,12 @@ def test_summary_sections_and_guide(app):
     assert "How to use it" in bodies  # Guide tab
     assert "Average margin $/pig" in metrics(app)  # weekly crush summary
     assert "Ranking" in bodies  # locations ranking
+
+
+def test_cleared_crush_price_is_reported_not_a_crash(app):
+    app.number_input(key="cr_back").set_value(1).run(timeout=60)
+    app.number_input(key="cr_fwd").set_value(0).run(timeout=60)
+    at = edit(app, "crush_", {"edited_rows": {"0": {"wean": None}}})
+    assert not at.exception, at.exception
+    bodies = " ".join(h.proto.body for h in at.get("html"))
+    assert "Left out: a blank price" in bodies and "No complete weeks" in bodies

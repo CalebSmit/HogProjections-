@@ -5,6 +5,7 @@ Sources for every default are in docs/research/w2f-inputs.md. Values tagged [EST
 """
 
 from datetime import date
+from pathlib import Path
 
 import pandas as pd
 
@@ -28,13 +29,30 @@ DEFAULT_LEAN_HOG_FUTURES_CWT = {
 DEFAULT_WEAN_PIG_USD_HD = 24.81
 
 
-def load_locations() -> list[Location]:
-    """User-saved locations if present, else the bundled Midwest list."""
+def _read_locations(path: Path) -> list[Location]:
+    # All text, no NA guessing: a site called "NA", "None" or "101" must stay that string.
+    df = pd.read_csv(path, dtype=str, keep_default_na=False)
+    return [Location(**rec) for rec in df.to_dict("records")]  # type: ignore[arg-type]
+
+
+def user_locations_problem() -> str | None:
+    """Why the saved locations file can't be read (the app then shows the bundled list)."""
     path = USER_DIR / "locations.csv"
     if not path.exists():
-        path = DEFAULTS_DIR / "locations.csv"
-    df = pd.read_csv(path).fillna({"state": "", "source": ""})
-    return [Location(**rec) for rec in df.to_dict("records")]  # type: ignore[arg-type]
+        return None
+    try:
+        _read_locations(path)
+    except (ValueError, KeyError) as e:  # pydantic's ValidationError is a ValueError
+        return f"Your saved locations ({path}) couldn't be read, so the defaults are shown: {e}"
+    return None
+
+
+def load_locations() -> list[Location]:
+    """User-saved locations if present and readable, else the bundled Midwest list."""
+    path = USER_DIR / "locations.csv"
+    if path.exists() and user_locations_problem() is None:
+        return _read_locations(path)
+    return _read_locations(DEFAULTS_DIR / "locations.csv")
 
 
 def save_locations(locations: list[Location]) -> None:

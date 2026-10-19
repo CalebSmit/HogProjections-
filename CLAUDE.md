@@ -85,5 +85,10 @@ Longer write-ups go in `docs/PROGRESS.md`.
   Stop the server in a separate command first.
 - Excel charts with date categories become a day-by-day date axis (bars turn into lines). Use
   `text_axis: True`. Read workbook results by defined name in tests, never by cell address.
+- Excel `MATCH(x,range,0)` ignores case and treats `? * ~` as wildcards: look up user-typed names
+  with `MATCH(TRUE,INDEX(EXACT(range,x),0),0)`. Write user text with `write_string` (a leading
+  `=` becomes a formula). One data validation per cell, or Excel reports a damaged file.
+- `pd.read_csv` turns names like "NA", "None" into NaN and "101" into a number. Read text
+  columns with `dtype=str, keep_default_na=False`.
 - Company figures (e.g. Pipestone costs) never go in the repo, tests or docs. Use synthetic
   numbers; real ones live in local profiles (`data/user/`).

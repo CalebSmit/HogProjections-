@@ -161,6 +161,10 @@ with tab_guide, card("guide"):
 
 # ---------------------------------------------------------------- locations (read first)
 
+if loc_problem := defaults.user_locations_problem():
+    for tab in (tab_sum, tab_loc):
+        tab.html(ui.notice(ui.esc(loc_problem) + " Fix the file or use Reset to defaults.", "warn"))
+
 with tab_loc:
     comparison_slot = card("loc_compare")
     st.write("")
@@ -1057,9 +1061,10 @@ with tab_sum:
                 "debt",
             )
         )
-    sales = pd.to_datetime(result.marketing["sale_date"])
+    sold_cuts = result.marketing.loc[result.marketing["head"] > 0]
+    sales = pd.to_datetime(sold_cuts["sale_date"])
     first_sale, last_sale = f"{sales.min():%b %Y}", f"{sales.max():%b %Y}"
-    window = first_sale if first_sale == last_sale else f"{first_sale} to {last_sale}"
+    window = f"in {first_sale}" if first_sale == last_sale else f"from {first_sale} to {last_sale}"
     net_hd = s["net_usd_per_head_sold"]
     gap = s["avg_price_cwt_carcass"] - s["breakeven_cwt_carcass"]
     outcome = "profit" if net_hd >= 0 else "loss"
@@ -1275,7 +1280,8 @@ with tab_crush:
         corn=corn_hist,
         sbm=ghd.get("sbm"),
         fallback_wean=float(wean_cash),
-        fallback_corn=float(corn_fut),
+        # A cash corn series already includes basis, so its fallback must too.
+        fallback_corn=float(corn_fut + (location.corn_basis_usd_bu if corn_is_cash else 0.0)),
         fallback_sbm=float(sbm_fut),
         ddgs_usd_ton=location.ddgs_usd_ton,
         hog_curve={**ss.curve_base, **curve},
@@ -1324,103 +1330,118 @@ with tab_crush:
         },
         key=f"crush_{ss.ver}_{ss.refresh}_{anchor}_{weeks_back}_{weeks_fwd}_{lag}_{dtm}",
     )
-    edited_weeks = []
+    edited_weeks, skipped = [], []
     for rec in week_df.to_dict("records"):
         vals = [rec[k] for k in ("wean", "corn", "sbm", "ddgs", "hog", "basis")]
-        if any(v is None or pd.isna(v) for v in vals):
-            continue
         report = date.fromisoformat(str(rec["report_date"])[:10])
+        if any(v is None or pd.isna(v) for v in vals):
+            skipped.append(report)
+            continue
         edited_weeks.append(Week(report, *map(float, vals)))
     table = crush_table(proj, edited_weeks, int(lag), int(dtm), float(sale_wt), corn_is_cash)
     crush_spec = CrushSpec(edited_weeks, int(lag), int(dtm), float(sale_wt), corn_is_cash)
     with results:
-        st.write("")
-        no_history = wean_hist is None and (corn_hist is None or corn_hist.empty)
-        if no_history:
+        if skipped:
             st.html(
                 ui.notice(
-                    "<b>No price history to look back on.</b> Every week uses today's weaned pig, "
-                    "corn and meal prices, so only the hog contract changes from week to week. "
-                    "Refresh market data with internet (and a USDA key), or import Barchart "
-                    "history on the Data tab, to see real past weeks.",
+                    "<b>Left out: a blank price</b> in the week(s) of "
+                    + ui.esc(", ".join(f"{d:%b %d}" for d in skipped))
+                    + ". Fill the cell in Weekly prices below to include them.",
                     "warn",
                 )
             )
-        if basis_daily.empty:
+        if not edited_weeks:
+            st.html(ui.notice("<b>No complete weeks to show.</b>", "warn"))
+        else:
+            st.write("")
+            no_history = (
+                wean_hist is None
+                and (corn_hist is None or corn_hist.empty)
+                and (ghd.get("sbm") is None or ghd["sbm"].empty)
+            )
+            if no_history:
+                st.html(
+                    ui.notice(
+                        "<b>No price history to look back on.</b> Every week uses today's weaned "
+                        "pig, corn and meal prices, so only the hog contract changes from week to "
+                        "week. "
+                        "Refresh market data with internet (and a USDA key), or import Barchart "
+                        "history on the Data tab, to see real past weeks.",
+                        "warn",
+                    )
+                )
+            if basis_daily.empty:
+                st.html(
+                    ui.notice(
+                        "<b>No hog basis history yet</b>, so basis is $0 unless typed in Weekly "
+                        "prices below. Import Barchart lean hog contract histories (Data tab) or "
+                        "refresh with internet.",
+                        "warn",
+                    )
+                )
+            show_after_debt = bool(proj.principal_usd_hd or proj.term_interest_usd_hd)
+            key_row = "Margin after debt service $/pig" if show_after_debt else "Margin $/pig"
+            margins = {
+                pd.Timestamp(str(table.loc["USDA report date", c])): float(table.loc[key_row, c])  # type: ignore[arg-type]
+                for c in table.columns
+            }
+            best = max(margins, key=lambda d: margins[d])
+            worst = min(margins, key=lambda d: margins[d])
+            avg_margin = sum(margins.values()) / len(margins)
+            past = [d for d in margins if d <= pd.Timestamp(date.today())]
+            latest = max(past) if past else min(margins)
             st.html(
-                ui.notice(
-                    "<b>No hog basis history yet</b>, so basis is $0 unless typed in Weekly "
-                    "prices below. Import Barchart lean hog contract histories (Data tab) or "
-                    "refresh with internet.",
-                    "warn",
+                ui.kpi_cards(
+                    [
+                        ui.Kpi(
+                            "Average margin $/pig",
+                            ui.usd(avg_margin),
+                            f"{len(margins)} weekly placements",
+                            ui.tone(avg_margin),
+                            "Average of the margin row across every week shown.",
+                        ),
+                        ui.Kpi(
+                            "Latest week",
+                            ui.usd(margins[latest]),
+                            f"USDA report {latest:%b %d}",
+                            ui.tone(margins[latest]),
+                        ),
+                        ui.Kpi(
+                            "Best week",
+                            ui.usd(margins[best]),
+                            f"{best:%b %d, %Y}",
+                            ui.tone(margins[best]),
+                        ),
+                        ui.Kpi(
+                            "Worst week",
+                            ui.usd(margins[worst]),
+                            f"{worst:%b %d, %Y}",
+                            ui.tone(margins[worst]),
+                        ),
+                        ui.Kpi(
+                            "Weeks profitable",
+                            f"{sum(v > 0 for v in margins.values())} of {len(margins)}",
+                            help="Weeks whose margin per pig is above zero.",
+                        ),
+                    ],
+                    "five",
                 )
             )
-        show_after_debt = bool(proj.principal_usd_hd or proj.term_interest_usd_hd)
-        key_row = "Margin after debt service $/pig" if show_after_debt else "Margin $/pig"
-        margins = {
-            pd.Timestamp(str(table.loc["USDA report date", c])): float(table.loc[key_row, c])  # type: ignore[arg-type]
-            for c in table.columns
-        }
-        best = max(margins, key=lambda d: margins[d])
-        worst = min(margins, key=lambda d: margins[d])
-        avg_margin = sum(margins.values()) / len(margins)
-        latest = max(margins)
-        st.html(
-            ui.kpi_cards(
-                [
-                    ui.Kpi(
-                        "Average margin $/pig",
-                        ui.usd(avg_margin),
-                        f"{len(margins)} weekly placements",
-                        ui.tone(avg_margin),
-                        "Average of the margin row across every week shown.",
-                    ),
-                    ui.Kpi(
-                        "Latest week",
-                        ui.usd(margins[latest]),
-                        f"USDA report {latest:%b %d}",
-                        ui.tone(margins[latest]),
-                    ),
-                    ui.Kpi(
-                        "Best week",
-                        ui.usd(margins[best]),
-                        f"{best:%b %d, %Y}",
-                        ui.tone(margins[best]),
-                    ),
-                    ui.Kpi(
-                        "Worst week",
-                        ui.usd(margins[worst]),
-                        f"{worst:%b %d, %Y}",
-                        ui.tone(margins[worst]),
-                    ),
-                    ui.Kpi(
-                        "Weeks profitable",
-                        f"{sum(v > 0 for v in margins.values())} of {len(margins)}",
-                        help="Weeks whose margin per pig is above zero.",
-                    ),
-                ],
-                "five",
-            )
-        )
-        st.write("")
-        with card("crush_chart"):
-            chart(
-                charts.crush_margin_chart(
-                    table, "Margin after debt service $/pig" if show_after_debt else "Margin $/pig"
+            st.write("")
+            with card("crush_chart"):
+                chart(charts.crush_margin_chart(table, key_row))
+            st.write("")
+            money_rows = {label for label, _, _ in CRUSH_ROWS} | {"USDA weaned pig $/hd"}
+            with card("crush_table"):
+                st.html(ui.card_title("Crush sheet", f"{len(table.columns)} weekly placements"))
+                st.html(
+                    ui.crush_table(
+                        table
+                        if show_after_debt
+                        else table.drop(index="Margin after debt service $/pig"),
+                        money_rows,
+                    )
                 )
-            )
-        st.write("")
-        money_rows = {label for label, _, _ in CRUSH_ROWS} | {"USDA weaned pig $/hd"}
-        with card("crush_table"):
-            st.html(ui.card_title("Crush sheet", f"{len(table.columns)} weekly placements"))
-            st.html(
-                ui.crush_table(
-                    table
-                    if show_after_debt
-                    else table.drop(index="Margin after debt service $/pig"),
-                    money_rows,
-                )
-            )
 
 # ---------------------------------------------------------------- locations comparison
 

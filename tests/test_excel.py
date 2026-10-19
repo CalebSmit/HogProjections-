@@ -219,8 +219,42 @@ def test_weekly_crush_sheet_matches_crush_table(tmp_path, corn_is_cash):
 @needs_lo
 def test_scenario_name_reaches_the_dashboard(tmp_path):
     p = make()
-    wb = recalc(build_workbook(p, [p.location], scenario='Smith\'s "north" site'), tmp_path)
-    assert str(wb["Dashboard"]["B2"].value).startswith('Smith\'s "north" site')
+    wb = recalc(build_workbook(p, [p.location], scenario='=Smith\'s "north" site'), tmp_path)
+    assert str(wb["Dashboard"]["B2"].value).startswith(
+        '=Smith\'s "north" site'
+    )  # text, not a formula
     (tmp_path / "b").mkdir()
     blank = recalc(build_workbook(p, [p.location]), tmp_path / "b")
     assert str(blank["Dashboard"]["B2"].value).startswith(p.location.name)
+
+
+def test_no_cell_has_two_validations():
+    """Excel reports a damaged file when data validations overlap on one cell."""
+    import io as _io
+
+    from openpyxl.worksheet.cell_range import CellRange
+
+    from hogproj.crush import CrushSpec, Week
+
+    p = make()
+    spec = CrushSpec([Week(date(2026, 9, 13), 40.0, 4.5, 330.0, 160.0, 80.0, -3.0)])
+    wb = openpyxl.load_workbook(_io.BytesIO(build_workbook(p, [p.location], crush=spec)))
+    for ws in wb.worksheets:
+        seen: set[tuple[int, int]] = set()
+        for dv in ws.data_validations.dataValidation:
+            for rng in dv.sqref.ranges:
+                cr = CellRange(str(rng))
+                for cell in cr.cells:
+                    assert cell not in seen, (ws.title, cell)
+                    seen.add(cell)
+
+
+@needs_lo
+def test_location_lookup_is_exact_not_wildcard_or_case_blind(tmp_path):
+    """Excel MATCH treats ? * as wildcards and ignores case; the lookup must not."""
+    p = make()
+    picked = p.location.model_copy(update={"name": "Farm ?", "ddgs_usd_ton": 150.0})
+    decoy = p.location.model_copy(update={"name": "Farm 1", "ddgs_usd_ton": 400.0})
+    upper = p.location.model_copy(update={"name": "FARM ?", "ddgs_usd_ton": 500.0})
+    q = p.model_copy(update={"location": picked})
+    check_workbook(q, [decoy, upper, picked], tmp_path)

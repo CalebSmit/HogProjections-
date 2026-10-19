@@ -131,3 +131,20 @@ Newest at the bottom.
   workbook rendered to PDF via LibreOffice and reviewed page by page; app screenshots of every
   changed tab; no console errors; no horizontal overflow at 390 px; download checked.
 - **Next:** live data check on a real machine (Phase 4).
+
+## 2026-10-19 — Fourth review + laptop handoff
+- **Done:**
+  - `scripts/check_live.py` runs every live-data check (PLAN Phase 4) and can bundle the
+    sample basis; `docs/NEXT-STEPS.md` is the checklist for a real machine.
+  - Optional scenario name (header, Excel Dashboard, file name).
+  - Independent review fixes: saved locations named "NA"/"None"/numbers no longer crash the
+    app (and an unreadable file falls back with a notice); Excel location lookup is exact
+    (no wildcards, case-sensitive) and case-only duplicate names are rejected; cash-corn crush
+    fallback includes basis; a cleared weekly price is reported instead of crashing or
+    vanishing; "Latest week" is the newest past report; the summary's sale window ignores 0%
+    cuts; text inputs starting with "=" stay text in Excel; no cell has two validations;
+    percent and whole-number inputs are range-checked in Excel.
+  - Fresh-clone first run checked end to end (no imports, offline): renders, font served.
+- **Verified:** full suite green; each fix has a regression test (the Excel lookup test fails
+  on the old formula).
+- **Next:** on a real machine, `uv run python scripts/check_live.py --write-sample`.

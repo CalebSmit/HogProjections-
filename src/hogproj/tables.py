@@ -82,8 +82,9 @@ def parse_locations(df: pd.DataFrame) -> tuple[list[Location], list[str]]:
             locs.append(Location.model_validate(clean))
         except ValidationError as e:
             problems.append(f"Location '{label}': {_err_text(e)}")
-    names = [lo.name for lo in locs]
-    dupes = sorted({n for n in names if names.count(n) > 1})
+    # Excel matches names exactly, but people read "Farm A" and "farm a" as the same place.
+    names = [lo.name.strip().casefold() for lo in locs]
+    dupes = sorted({lo.name for lo in locs if names.count(lo.name.strip().casefold()) > 1})
     if dupes:
         problems.append(f"Location names must be unique: {', '.join(dupes)}")
     if not locs and not problems:
