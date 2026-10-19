@@ -37,6 +37,8 @@
   3. With `USDA_MMN_API_KEY` set: `load_wean_pig_prices()`. Record `data/cache/usda_2810_raw.json`
      into `tests/fixtures/` and fix the field names in `weanpig.py` if needed. Confirm the lot buckets.
   4. Commit a bundled `data/sample/hog_basis_daily.csv` so offline users get a real basis.
+  All four in one command: `uv run python scripts/check_live.py --write-sample` (see
+  `docs/NEXT-STEPS.md`).
 
 ## Phase 5 — Dashboard ✅
 - [x] Summary / Inputs / Locations / Markets / Excel tabs.

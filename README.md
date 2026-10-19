@@ -88,8 +88,8 @@ own numbers on the Inputs and Locations tabs.
 - **"Port already in use":** the app is already running. Open <http://localhost:8501>.
 - **Saved locations** live in `data/user/` on your computer. A fresh ZIP download won't have
   them, so copy that folder across if you move to a new copy.
-- **Numbers say "basis history isn't loaded":** connect to the internet and click
-  **Refresh market data**.
+- **"No hog basis history yet":** connect to the internet and click **Refresh market data**,
+  or import Barchart CME Index and lean hog contract histories on the **Data** tab.
 
 ---
 
@@ -111,5 +111,6 @@ Source-of-truth docs for the build:
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Code map, data flow, invariants |
 | [`docs/PLAN.md`](docs/PLAN.md) | Phased plan with verification checks |
 | [`docs/PROGRESS.md`](docs/PROGRESS.md) | Session-by-session log |
+| [`docs/NEXT-STEPS.md`](docs/NEXT-STEPS.md) | Checklist for a real machine: live-data check (`scripts/check_live.py`), owner questions |
 | [`docs/research/`](docs/research/) | Domain, data-source and tooling research |
 | [`docs/decisions/`](docs/decisions/) | Architecture decision records |
