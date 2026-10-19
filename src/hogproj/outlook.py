@@ -67,7 +67,11 @@ def summary(r: pd.DataFrame, weeks: int = 52) -> dict[str, float]:
 
 
 def monthly(r: pd.DataFrame, months: int = 12) -> pd.DataFrame:
-    """Projection rolled up by calendar month (first `months` months)."""
+    """Projection rolled up by calendar month (first `months` months).
+
+    Months hold 4 or 5 sale weeks and the first one is usually partial, so compare months by
+    `profit_usd_per_head`, not by total profit. `partial` flags a month cut short by `r`.
+    """
     m = (
         r.assign(month=r["date"].dt.to_period("M").dt.to_timestamp())
         .groupby("month", as_index=False)
@@ -77,9 +81,13 @@ def monthly(r: pd.DataFrame, months: int = 12) -> pd.DataFrame:
             cost_usd=("cost_usd", "sum"),
             profit_usd=("margin_usd", "sum"),
             hog_usd_per_cwt_carcass=("hog_usd_per_cwt_carcass", "mean"),
+            first_day=("date", "min"),
         )
     )
-    return pd.DataFrame(m.head(months))
+    out = pd.DataFrame(m)
+    out["profit_usd_per_head"] = out["profit_usd"] / out["pigs_sold"].where(out["pigs_sold"] > 0)
+    out["partial"] = out["first_day"].dt.day > 7  # first sale week starts after the 7th
+    return pd.DataFrame(out.drop(columns="first_day").head(months))
 
 
 def _with_weaned_change(h: HerdInputs, pigs_per_sow_yr: float) -> HerdInputs:

@@ -50,7 +50,7 @@ def build_report(
         "day": wb.add_format({"num_format": "yyyy-mm-dd", "border": 1, "border_color": GRID}),
         "text": wb.add_format({"border": 1, "border_color": GRID}),
         "verdict": wb.add_format(
-            {"bold": True, "font_size": 12, "font_color": GREEN if hl["gap_cwt_carcass"] >= 0
+            {"bold": True, "font_size": 12, "font_color": GREEN if hl["profit_usd_per_head"] >= 0
              else RED, "text_wrap": True}
         ),
     }  # fmt: skip
@@ -102,10 +102,11 @@ def build_report(
 
     # --- Monthly --------------------------------------------------------------------------
     wm = wb.add_worksheet("Monthly")
-    heads = ["Month", "Pigs sold", "Hog price ($/cwt carcass)", "Revenue", "Costs", "Profit"]
+    heads = ["Month", "Pigs sold", "Hog price ($/cwt carcass)", "Revenue", "Costs", "Profit",
+             "Profit per pig", "Note"]  # fmt: skip
     wm.write_row(0, 0, heads, f["h"])
     wm.set_column(0, 0, 12)
-    wm.set_column(1, 5, 18)
+    wm.set_column(1, 7, 18)
     for i, m in enumerate(months.to_dict("records"), start=1):
         wm.write_datetime(i, 0, _dt(m["month"]), f["date"])
         wm.write(i, 1, m["pigs_sold"], f["num"])
@@ -113,6 +114,8 @@ def build_report(
         wm.write(i, 3, m["revenue_usd"], f["usd0"])
         wm.write(i, 4, m["cost_usd"], f["usd0"])
         wm.write(i, 5, m["profit_usd"], f["usd0"])
+        wm.write(i, 6, m["profit_usd_per_head"], f["usd"])
+        wm.write(i, 7, "partial month" if m["partial"] else "", f["text"])
     n = len(months)
     chart = wb.add_chart({"type": "column"})
     assert chart is not None

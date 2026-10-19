@@ -85,3 +85,6 @@ Newest at the bottom.
   date), bordered cards and date axes. Costs & returns and Market prices get the same card and
   panel styling; projection charts use dates; "-0%" share fixed.
 - **Verified:** ruff, format, pyright clean; 67 tests; screenshots of all pages.
+- **Review fixes:** verdict now follows profit (incl. manure credit), with a third "profitable
+  only thanks to the manure credit" case; months are ranked and charted per pig sold (months
+  have 4 or 5 sale weeks and the first is partial), and the Excel Monthly sheet flags it.

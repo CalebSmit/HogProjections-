@@ -112,3 +112,20 @@ def test_expansion_shows_up_after_lags():
     first_year = (cum["Grow"] - cum["Current plan"]).iloc[:40]
     assert first_year.abs().max() == pytest.approx(0, abs=1e-6)
     assert table.loc[1, "pigs_sold"] > table.loc[0, "pigs_sold"]
+
+
+def test_monthly_per_pig_flat_price_is_level_and_partial_flagged():
+    m = monthly(project(flat_plan(), NO_SEASON, START), months=12)
+    # identical economics every week -> identical profit per pig every month
+    assert m["profit_usd_per_head"].nunique() == 1 or (
+        m["profit_usd_per_head"].max() - m["profit_usd_per_head"].min() < 1e-6
+    )
+    assert bool(m["partial"].iloc[0])  # starts Oct 19
+    assert not m["partial"].iloc[1:].any()
+
+
+def test_headline_profit_can_be_positive_just_below_breakeven():
+    plan = flat_plan()
+    be = headline(plan)["breakeven_cwt_carcass"]
+    hl = headline(flat_plan(lean_hog_usd_per_cwt_carcass=be - 1.5))
+    assert hl["gap_cwt_carcass"] < 0 < hl["profit_usd_per_head"]  # manure credit band

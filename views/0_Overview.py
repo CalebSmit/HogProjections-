@@ -36,9 +36,11 @@ months = monthly(r)
 hog = plan.cost.lean_hog_usd_per_cwt_carcass
 
 # --- The takeaway, in words -------------------------------------------------------------
-best = months.loc[months["profit_usd"].idxmax()]
-worst = months.loc[months["profit_usd"].idxmin()]
-profit_months = int((months["profit_usd"] >= 0).sum())
+# Rank months per pig sold: months have 4 or 5 sale weeks, so totals mostly track week count.
+per_pig = months["profit_usd_per_head"].fillna(0)
+best = months.loc[per_pig.idxmax()]
+worst = months.loc[per_pig.idxmin()]
+profit_months = int((per_pig >= 0).sum())
 if profit_months == len(months):
     months_note = f"Every month is profitable; strongest is {best['month']:%B}."
 elif profit_months == 0:
@@ -58,12 +60,22 @@ outlook = (
     f"{year['pigs_sold']:,.0f} pigs, {usd(abs(year['profit_usd_per_head']))} per pig. "
     f"{months_note}"
 )
-if hl["gap_cwt_carcass"] >= 0:
+# Good/bad follows profit (which includes the manure credit). Breakeven follows ISU and
+# leaves the credit out, so a price just under breakeven can still be profitable.
+if hl["profit_usd_per_head"] >= 0 and hl["gap_cwt_carcass"] >= 0:
     kind = "good"
     title = f"Making {usd(hl['profit_usd_per_head'])} per pig at today's hog price."
     detail = (
         f"Hogs could fall {usd(hl['gap_cwt_carcass'])}/cwt (to "
-        f"{usd(hl['breakeven_cwt_carcass'])}) before you lose money. {outlook}"
+        f"{usd(hl['breakeven_cwt_carcass'])}) before you stop covering costs. {outlook}"
+    )
+elif hl["profit_usd_per_head"] >= 0:
+    kind = "neutral"
+    title = f"Making {usd(hl['profit_usd_per_head'])} per pig, thanks to the manure credit."
+    detail = (
+        f"The hog price alone is {usd(-hl['gap_cwt_carcass'])}/cwt short of covering costs "
+        f"({usd(hl['breakeven_cwt_carcass'])}); the manure's fertilizer value makes up the "
+        f"difference. {outlook}"
     )
 else:
     kind = "bad"
@@ -154,18 +166,21 @@ with left, st.container(border=True):
     )
     st.plotly_chart(fig, width="stretch")
 with right, st.container(border=True):
-    st.markdown("**Profit by month**")
+    st.markdown("**Profit per pig sold, by month**")
     bars = go.Figure(
         go.Bar(
             x=labels,
-            y=months["profit_usd"],
-            marker_color=[GOOD if v >= 0 else BAD for v in months["profit_usd"]],
-            text=[usd_short(v) for v in months["profit_usd"]],
+            y=per_pig,
+            marker_color=[GOOD if v >= 0 else BAD for v in per_pig],
+            text=[usd(v, 0) for v in per_pig],
             textposition="outside",
-            hovertemplate="%{x}: %{text}<extra></extra>",
+            customdata=[usd_short(v) for v in months["profit_usd"]],
+            hovertemplate="%{x}: %{text} per pig (%{customdata} total)<extra></extra>",
         )
     )
     bars.update_layout(height=320, margin={"t": 10, "b": 10, "l": 10, "r": 10}, showlegend=False)
+    if bool(months["partial"].iloc[0]):
+        st.caption(f"{labels[0]} is a partial month (the projection starts {today:%b %d}).")
     st.plotly_chart(bars, width="stretch")
 
 # --- What moves profit ------------------------------------------------------------------
