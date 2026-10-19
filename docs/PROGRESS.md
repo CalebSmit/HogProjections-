@@ -59,3 +59,24 @@ Newest at the bottom.
 - **Verified:** 46 tests green. The 7 new regression tests drive the real app with editor
   edits; 6 of them fail on the previous app.py and pass now.
 - **Next:** live data verification (PLAN Phase 4) on a machine with internet.
+
+## 2026-10-19 — Phase 7: merged the owner's crush workbook
+- **Done:**
+  - Reviewed the owner's workbook; the app reproduced its margin column to the cent.
+  - Model + Excel:
+    - weaned pig price adder, corn carry, corn/SBM/hog hedges
+    - mortality %/$ and interest rate/$ toggles
+    - G&A and other/(premiums) lines
+    - debt service, with net after debt service
+  - Settings profiles (local only), whole-group ration mode.
+  - Barchart import (both layouts, whole workbooks; the owner's file parsed correctly).
+  - Exact-contract basis from imported contract histories.
+  - Weekly crush tab and Excel sheet. ADR 0003.
+- **Verified:**
+  - 74 tests green: crush parity vs the workbook formulas, Excel crush parity, profile round
+    trip, toggles, Barchart parsing.
+  - Owner's file imported through the browser; weekly crush and Excel crush screenshots reviewed.
+- **Notes:**
+  - Black's/ruff's reformatting broke two string-replace edits (they silently didn't apply).
+    Logged in CLAUDE.md.
+- **Next:** independent review of Phase 7; live data check on a real machine (Phase 4).

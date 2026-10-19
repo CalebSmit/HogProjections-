@@ -42,11 +42,18 @@ Python and the app's libraries into the project folder. Later launches take seco
 
 | Tab | What it's for |
 |---|---|
-| **Summary** | Profit or loss, breakeven $/cwt, cost and revenue per head, cost breakdown, each sale, and a corn × hog price "what if" grid |
+| **Summary** | Profit or loss, breakeven $/cwt, cost and revenue per head, cost breakdown, each sale, monthly cash flow, and a corn × hog price "what if" grid |
+| **Weekly crush** | Margin per pig for each weekly USDA report: the last 12 weeks plus weeks ahead, side by side, like a crush sheet. Every week's prices are editable |
 | **Inputs** | Futures prices, feed budget by phase, death loss, yield, barn and labor method, other costs, when pigs sell, hog futures and basis |
 | **Locations** | Net per head at every location side by side. Edit corn basis, meal basis, DDGS, barn rent and wage; add your own locations; **Save** |
 | **Markets & basis** | Corn and meal basis by location vs CBOT, cash prices, hog basis history by year, USDA weaned pig prices |
-| **Excel** | Download the projection as a workbook. Yellow cells are inputs; everything else is formulas |
+| **Data** | Import Barchart downloads (CSV or Excel, even a whole workbook). They're used ahead of the free USDA/Yahoo data |
+| **Excel** | Download the projection as a workbook (with the Weekly Crush sheet). Yellow cells are inputs; everything else is formulas |
+
+**Your own numbers:** set your costs, ration and toggles on the Inputs tab, then use
+**Settings profiles** in the sidebar to save them under a name (e.g. "My system 2026 Q2"). Profiles
+are saved only on your computer (`data/user/profiles/`) and are never uploaded to GitHub, so
+company figures stay private. Load a profile any time to get them back.
 
 The left sidebar sets the group: location, head placed, placement date and the weaned pig price
 source (USDA cash, USDA formula or manual). Click **Refresh market data** to pull the latest prices.

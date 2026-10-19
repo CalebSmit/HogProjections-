@@ -76,3 +76,8 @@ Longer write-ups go in `docs/PROGRESS.md`.
   `allow_inf_nan=False` (`inputs.Strict`).
 - A long-running `streamlit run` keeps old `hogproj` modules imported. Restart it after
   changing package code before taking screenshots.
+- The format-on-save hook reflows code, so a later `str.replace`/sed edit written against the old
+  text silently misses. Re-read the file (or use the Edit tool, which fails loudly) and check
+  that the edit landed.
+- Company figures (e.g. Pipestone costs) never go in the repo, tests or docs. Use synthetic
+  numbers; real ones live in local profiles (`data/user/`).

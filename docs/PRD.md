@@ -54,6 +54,12 @@ and earn from placement to market, before or right after placement. Today that m
 | F9 | Excel workbook with named-range formulas, dropdowns (location, weaned pig source, barn and labor mode), verified against the model by LibreOffice recalculation in tests | ✅ |
 | F10 | Corn × hog price "what-if" grid | ✅ |
 | F12 | Monthly cash flow (cash out by line, cash in by sale, cumulative) on the dashboard. Timing rules are in `model.cash_flow`. Dashboard only; the Excel workbook stays at the group-total level | ✅ |
+| F13 | Crush-sheet inputs: weaned pig price adder; corn carry; corn/SBM/hog hedges; mortality as % of head or $/pig; interest as rate or $/pig; G&A; other/(sales premiums); debt service with net after debt service. Model + Excel | ✅ |
+| F14 | **Settings profiles:** save/load named settings (costs, ration, toggles) on this computer only (`data/user/profiles/`, gitignored). This is how a company's own numbers are used without being committed | ✅ |
+| F15 | Whole-group ration entry (lb per pig of each ingredient; other at $/lb), alongside phases | ✅ |
+| F16 | **Barchart import** (CSV/Excel, both download layouts, whole workbooks). Used ahead of the USDA/Yahoo pulls; exact-contract hog basis when contract histories are imported | ✅ |
+| F17 | **Weekly crush** tab: margin per pig for the last N + next M weekly placements (owner's layout), each week editable, using the full model and the group's settings | ✅ |
+| F18 | Weekly Crush sheet in the Excel workbook (live formulas, parity-tested) | ✅ |
 | F11 | Auto-pull regional corn/SBM basis and DDGS from USDA grain reports (2850 Iowa bids, 3618 co-products) | ⏳ Phase 5 |
 
 ## 6. Success criteria
@@ -71,13 +77,12 @@ and earn from placement to market, before or right after placement. Today that m
 3. **Feed budget.** The default six-phase program is an industry-typical estimate. Can Pipestone's nutritionist provide the real phase lbs and inclusion rates?
 4. **Merit premium** ($1.50/cwt) and **yield** (75%): use Pipestone's actual packer grid?
 
-5. **Pipestone figures in the repo?** The owner's workbook carries Pipestone cost settings (by
-   quarter), a weaned pig price adder, and a ration. Can these be committed as defaults (is the
-   GitHub repo private?), or should they live only in a local, gitignored settings file?
-6. **Barchart.** The owner's data comes from Barchart downloads. Is Barchart the preferred
-   source (import their CSVs), with the free USDA/Yahoo pulls as the fallback?
-7. **Mortality.** The workbook charges mortality as $/pig; the app reduces head sold by a %.
-   Which should be the default?
+Answered 2026-10-19:
+5. ~~Company figures in the repo?~~ **No.** The app is a template with generic defaults.
+   Each user saves their own figures as a local settings profile (F14).
+6. ~~Barchart?~~ **Both sources.** Barchart imports come first; free USDA/Yahoo pulls are the fallback (F16).
+7. ~~Mortality?~~ **Both**, as a toggle. The default is % of head (fewer pigs sold); $/pig is
+   available as the crush-sheet convention.
 
 ## Changelog
 - 2026-10-17: Draft skeleton created from research, before the product idea.
@@ -86,3 +91,5 @@ and earn from placement to market, before or right after placement. Today that m
   research showed large within-month jumps at contract expiry.
 - 2026-10-18: Added F12 monthly cash flow (for the accountant user).
 - 2026-10-19: Reviewed the owner's crush workbook; added open questions 5–7. Merge plan is PLAN Phase 7.
+- 2026-10-19: The owner answered 5–7 (template with local profiles; both data sources; both
+  mortality modes). Added F13–F18.

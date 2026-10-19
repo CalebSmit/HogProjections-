@@ -58,35 +58,35 @@
 Ordered so each step ships something usable. Steps 7.1–7.5 are small and change the single-group
 projection. 7.6 is the big new view. 7.7 is about data.
 
-- [ ] **7.1 Parity test.** Lock in "the app reproduces the workbook": `tests/test_crush_parity.py`
+- [x] **7.1 Parity test.** Lock in "the app reproduces the workbook": `tests/test_crush_parity.py`
   rebuilds Sheet5 column C and asserts margin −12.39/head (and revenue, feed, cost).
-  Uses the owner's numbers only if they can be committed (PRD Q5); otherwise synthetic numbers.
+  Synthetic numbers only (owner: no company figures in the repo).
   verify: the test is green.
-- [ ] **7.2 Pipestone adder.** Weaned pig cost = USDA price + adder ($/head), in the model, Excel
+- [x] **7.2 Weaned pig price adder** (generic, default $0). Weaned pig cost = USDA price + adder ($/head), in the model, Excel
   and the sidebar. verify: model + Excel parity tests.
-- [ ] **7.3 Closeout-style costs.**
+- [x] **7.3 Closeout-style costs.**
   - Add G&A and "other/sales premiums" lines.
   - Let interest be either a rate or $/pig.
   - Optional mortality $/pig. Mortality stays % of head by default; never both, to avoid
     double counting.
   - Cost "settings" can be saved per quarter (e.g. "2026 Q2") in `data/user/`.
   verify: model + Excel parity; reconciliation test.
-- [ ] **7.4 Debt service.** Principal + term interest per pig, giving "Margin after principal
+- [x] **7.4 Debt service.** Principal + term interest per pig, giving "Margin after principal
   payments" as a second bottom line (dashboard KPI, Excel, cash flow).
   verify: tests.
-- [ ] **7.5 Hedging + ration preset.**
+- [x] **7.5 Hedging + ration preset.**
   - Corn and SBM % hedged + hedged price: cash = (fut + basis)·(1 − h) + hedged·h.
   - Corn price mode: futures + basis, or cash + carry.
   - "Whole-group ration" preset (lb/pig per ingredient, other at $/lb).
   verify: hand-calc tests + Excel parity.
-- [ ] **7.6 Weekly crush view.** A new dashboard tab and Excel sheet laid out like the owner's:
+- [x] **7.6 Weekly crush view.** A new dashboard tab and Excel sheet laid out like the owner's:
   - Columns = the last N USDA report weeks (back-test) plus the next M weeks (projection).
   - Rows = the workbook's rows, each computed by `model.project()` for a single 160-day sale.
     Days and weight are editable.
   - Contract per the ISU rule; basis = multi-year average, or "last year only" (owner's method).
   - Excel: live formulas; one column per week.
   verify: column C parity inside the weekly table; screenshot review.
-- [ ] **7.7 Barchart CSV import.** Upload the owner's Barchart downloads (CME Index,
+- [x] **7.7 Barchart CSV import.** Upload the owner's Barchart downloads (CME Index,
   `CORN$.5328`, `@SM`, `LS255_CPEW10_12LTC_PR`, plus lean hog contract histories if available).
   They're parsed into `data/cache/` and used ahead of the API sources.
   - Handles `---` rows and the "Downloaded from Barchart" footer.
@@ -99,3 +99,6 @@ projection. 7.6 is the big new view. 7.7 is about data.
   verification pending (network-blocked sandbox); Phase 6 proposed.
 - 2026-10-18: Phase 6: standalone workbook and monthly cash flow done.
 - 2026-10-19: Phase 7 added: merge the owner's USDA Wean Pig Crush workbook.
+- 2026-10-19: Phase 7 done. Settings profiles (local, gitignored) carry company numbers.
+  Barchart imports come first, then the USDA/Yahoo pulls. The crush is also in Excel
+  (verified by parity test). See ADR 0003.
