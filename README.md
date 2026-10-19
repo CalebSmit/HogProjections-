@@ -17,7 +17,8 @@ market. The default is a **2,400-head** wean-to-finish group.
 ## Just want the spreadsheet?
 
 Open **`W2F_Projection.xlsx`** in the project folder. Pick a feeding location from the dropdown
-on the **Inputs** sheet and change any yellow cell; the whole workbook recalculates. The app's
+on the **Inputs** sheet and change any blue-on-cream cell; the whole workbook recalculates. A
+**How to use** sheet explains the steps, colours and terms; the **Dashboard** prints on one page. The app's
 **Excel** tab downloads the same workbook filled in with your current dashboard inputs.
 
 ## Quick start (no programming needed)
@@ -48,7 +49,7 @@ Python and the app's libraries into the project folder. Later launches take seco
 | **Locations** | Net per head at every location side by side. Edit corn basis, meal basis, DDGS, barn rent and wage; add your own locations; **Save** |
 | **Markets & basis** | Corn and meal basis by location vs CBOT, cash prices, hog basis history by year, USDA weaned pig prices |
 | **Data** | Import Barchart downloads (CSV or Excel, even a whole workbook). They're used ahead of the free USDA/Yahoo data |
-| **Excel** | Download the projection as a workbook (with the Weekly Crush sheet). Yellow cells are inputs; everything else is formulas |
+| **Excel** | Download the projection as a workbook (with the Weekly Crush sheet). Blue-on-cream cells are inputs; everything else is formulas. Includes a live what-if grid |
 
 **Your own numbers:** set your costs, ration and toggles on the Inputs tab, then use
 **Settings profiles** in the sidebar to save them under a name (e.g. "My system 2026 Q2"). Profiles

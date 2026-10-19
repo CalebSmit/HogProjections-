@@ -102,6 +102,15 @@ projection. 7.6 is the big new view. 7.7 is about data.
 - [x] Speed: the workbook is built when Download is clicked; location comparison and the
   sensitivity grid are cached by projection. verify: a rerun after an input change < 1 s.
 
+## Phase 9 — Second UI pass + workbook redesign (done)
+- [x] Workbook: How to use sheet; Dashboard with KPI tiles, verdict, P&L per head, key numbers,
+  cost chart and a live what-if grid; blue-on-cream inputs with hover help; accounting formats;
+  title bands, freeze panes, print setup (Dashboard = one portrait page).
+  verify: `tests/test_excel.py` (results by name; what-if grid = `model.sensitivity`); render to PDF.
+- [x] Dashboard: plain-English summary, P&L statement, crush KPIs (average, latest, best, worst,
+  weeks profitable), location ranking, Guide tab, footer, print styles.
+  verify: `tests/test_ui.py`, `tests/test_smoke.py::test_summary_sections_and_guide`.
+
 ## Changelog
 - 2026-10-17: Plan created; Phase 0 complete.
 - 2026-10-18: Re-cut after the idea: Phases 1–3 and 5 done; Phase 4 code done, live
@@ -112,3 +121,4 @@ projection. 7.6 is the big new view. 7.7 is about data.
   Barchart imports come first, then the USDA/Yahoo pulls. The crush is also in Excel
   (verified by parity test). See ADR 0003.
 - 2026-10-19: Phase 8 (UI/UX pass) added and done.
+- 2026-10-19: Phase 9 (second UI pass, workbook redesign) added and done.

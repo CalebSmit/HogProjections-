@@ -117,3 +117,17 @@ Newest at the bottom.
   rewrite needs the owner's explicit go-ahead). Nothing was pushed.
 - **Next:** live data check on a real machine (Phase 4).
 
+## 2026-10-19 — Phase 9: second UI pass + workbook redesign
+- **Done:**
+  - Workbook: How to use sheet (steps, colour key, sheet links, terms, sources); Dashboard
+    rebuilt (KPI tiles, plain-English verdict, P&L per head, key numbers, cost chart, live
+    what-if grid); every sheet has a title band, Arial, blue-on-cream inputs with hover help,
+    accounting formats (negatives in parentheses, zero as a dash), freeze panes, print headers
+    and footers; Weekly Crush has sections, summary stats and a margin chart.
+  - Results are named cells; tests read them by name, so layout can change safely.
+  - Dashboard: plain-English summary, P&L statement, crush KPIs, location ranking, Guide tab,
+    footer, print styles; crush results now sit above the editable weekly prices.
+- **Verified:** 87 tests green (new: what-if grid = `model.sensitivity` across 6 parameter sets);
+  workbook rendered to PDF via LibreOffice and reviewed page by page; app screenshots of every
+  changed tab; no console errors; no horizontal overflow at 390 px; download checked.
+- **Next:** live data check on a real machine (Phase 4).

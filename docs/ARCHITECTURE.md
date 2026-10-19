@@ -56,7 +56,7 @@ flowchart LR
 | `src/hogproj/inputs.py` | `Projection`, `Location`, `FeedPhase`, `MarketingCut`, enums. Units are in field names. List limits match the Excel slots. |
 | `src/hogproj/model.py` | `project(p) -> Result` (summary dict, costs/feed/marketing DataFrames), `sensitivity()` and `cash_flow()` (monthly; reconciles to `project`). Pure. |
 | `src/hogproj/basis.py` | Lean hog contract calendar (`lean_hog_contract_for`, `lean_hog_expiry`, `in_roll_gap`) and half-month basis aggregation. Pure. |
-| `src/hogproj/excel.py` | `build_workbook()`. Every number is a formula over named input cells, so the workbook mirrors `model.py`. |
+| `src/hogproj/excel.py` | `build_workbook()`. Every number is a formula over named input cells, so the workbook mirrors `model.py`. Sheets: How to use, Dashboard (KPI tiles, verdict, P&L, what-if grid), Inputs, Locations, Feed, Marketing, Market Data, Costs, Weekly Crush. Results are named cells (`KpiNet`, `SensGrid`, `Cost*`), which the tests read. |
 | `src/hogproj/crush.py` | Weekly crush: `Week`, `crush_table()` (one `project()` per week, single sale), `build_weeks()` (as-of prices from history; weeks after today use today's prices; fallbacks and stale prices noted), `CrushSpec` for Excel. Pure. |
 | `src/hogproj/tables.py` | Edited dashboard tables → validated models, with plain-English problems; blank basis = 0; missing futures contracts filled from the nearest one (flagged). Pure. |
 | `src/hogproj/charts.py` | Plotly figure builders (dataviz reference palette). Transparent, so the dashboard card is the surface. Pure. |
@@ -77,7 +77,7 @@ flowchart LR
 ## Invariants
 
 1. **Layering.** `inputs`, `model`, `basis` and `charts` never import `streamlit`, `httpx` or `hogproj.data`. Only `data/http.py` does network I/O.
-2. **Excel = model.** Every cost, revenue and summary formula in `excel.py` mirrors `model.py`. `tests/test_excel.py` recalculates real workbooks and compares to 1e-9. Change both, or neither.
+2. **Excel = model.** Every cost, revenue and summary formula in `excel.py` mirrors `model.py`. `tests/test_excel.py` recalculates real workbooks and compares to 1e-9 (including the what-if grid against `model.sensitivity`). Change both, or neither. Read results by name, never by cell address.
 3. **One contract rule everywhere.** `lean_hog_contract_for` decides which futures contract prices a sale date. The historical basis drops roll-gap days so it is measured against that same contract. The Excel formula implements the same rule.
 4. **Units in names.** `_usd_bu`, `_usd_ton`, `_cwt` (carcass unless it says `live`), `_lb`, `_pct`.
 5. **Offline first.** With `OFFLINE=true` and no network, every page renders from defaults. Every loader returns a human-readable `note` that the UI shows.
@@ -107,3 +107,5 @@ flowchart LR
   instead of replacing it; corn cash vs futures imports are separate kinds.
 - 2026-10-19: UI pass: `ui.py`/`ui.css`, theme + bundled Inter, card layout, HTML crush sheet,
   Excel built on click, cached comparison/sensitivity runs; invariant 10.
+- 2026-10-19: Workbook redesign (How to use sheet, Dashboard P&L + what-if grid, named result
+  cells); dashboard adds a P&L statement, plain-English summary, crush KPIs, ranking, Guide tab.

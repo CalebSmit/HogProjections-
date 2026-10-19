@@ -83,5 +83,7 @@ Longer write-ups go in `docs/PROGRESS.md`.
 - With `st.plotly_chart(theme=None)`, axes need `automargin=True` or tick labels vanish.
 - `pkill -f "streamlit run"` inside a command that also starts streamlit kills its own shell.
   Stop the server in a separate command first.
+- Excel charts with date categories become a day-by-day date axis (bars turn into lines). Use
+  `text_axis: True`. Read workbook results by defined name in tests, never by cell address.
 - Company figures (e.g. Pipestone costs) never go in the repo, tests or docs. Use synthetic
   numbers; real ones live in local profiles (`data/user/`).

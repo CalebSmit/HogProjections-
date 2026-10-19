@@ -151,9 +151,12 @@ problems: list[str] = []
 
 TITLE = "Wean-to-Finish Group Projection"
 header = st.empty()
-tab_sum, tab_crush, tab_in, tab_loc, tab_mkt, tab_data, tab_xl = st.tabs(
-    ["Summary", "Weekly crush", "Inputs", "Locations", "Markets & basis", "Data", "Excel"]
+tab_sum, tab_crush, tab_in, tab_loc, tab_mkt, tab_data, tab_xl, tab_guide = st.tabs(
+    ["Summary", "Weekly crush", "Inputs", "Locations", "Markets & basis", "Data", "Excel", "Guide"]
 )
+with tab_guide, card("guide"):
+    st.html(ui.card_title("Guide", "for clients and staff"))
+    st.html(ui.guide())
 
 # ---------------------------------------------------------------- locations (read first)
 
@@ -1007,21 +1010,27 @@ with tab_sum:
                     ui.usd(s["net_usd"], 0),
                     f"{s['head_sold']:,.0f} head sold",
                     ui.tone(s["net_usd"]),
+                    "Hog sales minus every cost, for the whole group.",
                 ),
                 ui.Kpi(
                     "Breakeven $/cwt carcass",
                     ui.usd(s["breakeven_cwt_carcass"]),
                     f"{ui.usd(s['breakeven_cwt_live'])}/cwt live",
+                    help="The carcass price that covers every cost after checkoff. Live = "
+                    "carcass × yield.",
                 ),
                 ui.Kpi(
                     "Cost per head sold",
                     ui.usd(s["cost_usd_per_head_sold"]),
                     f"{ui.usd(s['total_cost_usd'], 0)} total",
+                    help="Total cost divided by pigs sold (deads are spread over the survivors).",
                 ),
                 ui.Kpi(
                     "Revenue per head sold",
                     ui.usd(s["revenue_usd_per_head_sold"]),
                     f"{ui.usd(s['gross_revenue_usd'], 0)} total",
+                    help="Lean hog futures for each sale month + historical basis + premium, "
+                    "times carcass weight.",
                 ),
             ],
         )
@@ -1041,10 +1050,83 @@ with tab_sum:
                 "debt",
             )
         )
+    sales = pd.to_datetime(result.marketing["sale_date"])
+    first_sale, last_sale = f"{sales.min():%b %Y}", f"{sales.max():%b %Y}"
+    window = first_sale if first_sale == last_sale else f"{first_sale} to {last_sale}"
+    net_hd = s["net_usd_per_head_sold"]
+    gap = s["avg_price_cwt_carcass"] - s["breakeven_cwt_carcass"]
+    outcome = "profit" if net_hd >= 0 else "loss"
+    debt_line = (
+        f" After debt service it is <b>{ui.esc(ui.usd(s['net_after_debt_usd_per_head_sold']))}</b>"
+        " per head."
+        if s["debt_service_usd"]
+        else ""
+    )
+    st.html(
+        ui.lede(
+            f"<b>{proj.head_placed:,} pigs</b> placed at <b>{ui.esc(loc_name)}</b> on "
+            f"<b>{placement:%b %d, %Y}</b>; about <b>{s['head_sold']:,.0f}</b> sell "
+            f"{window}"
+            f" at an average of <b>{ui.esc(ui.usd(s['avg_price_cwt_carcass']))}/cwt carcass</b>. "
+            f"Costs come to <b>{ui.esc(ui.usd(s['cost_usd_per_head_sold']))}</b> per head sold, so "
+            f'the group shows a <span class="{ui.tone(net_hd) or "gain"}">projected {outcome} of '
+            f"{ui.esc(ui.usd(abs(net_hd)))} per head</span> ({ui.esc(ui.usd(s['net_usd'], 0))} in "
+            f"total). Breakeven is <b>{ui.esc(ui.usd(s['breakeven_cwt_carcass']))}</b>/cwt "
+            "carcass, "
+            f"{ui.esc(ui.usd(abs(gap)))} {'below' if gap >= 0 else 'above'} the expected sale "
+            f"price.{debt_line}"
+        )
+    )
+
     st.write("")
     left, right = st.columns([3, 2], gap="medium")
-    with left, card("costs"):
-        chart(charts.cost_breakdown(result.costs))
+    with left, card("pl"):
+        st.html(
+            ui.card_title(
+                "Profit and loss",
+                f"{s['head_sold']:,.0f} head sold · {s['avg_days_on_feed']:.0f} days",
+            )
+        )
+        st.html(
+            ui.pl_statement(
+                s["gross_revenue_usd"],
+                [
+                    ui.Line(str(r["line"]), float(r["total_usd"]))
+                    for r in result.costs.to_dict("records")
+                ],
+                s["head_sold"],
+                s["gross_revenue_usd"] / s["avg_price_cwt_carcass"]
+                if s["avg_price_cwt_carcass"]
+                else 0.0,
+                s["debt_service_usd"],
+            )
+        )
+        with st.expander("All cost columns (incl. $/head placed)"):
+            c = result.costs
+            st.dataframe(
+                pd.DataFrame(
+                    {
+                        "Cost line": c["line"],
+                        "Total": c["total_usd"],
+                        "$/head placed": c["usd_per_head_placed"],
+                        "$/head sold": c["usd_per_head_sold"],
+                        "$/cwt carcass": c["usd_per_cwt_carcass"],
+                        "% of cost": c["pct_of_total"],
+                    }
+                ),
+                hide_index=True,
+                width="stretch",
+                height="content",
+                column_config={
+                    "Total": st.column_config.NumberColumn(format="dollar"),
+                    "$/head placed": st.column_config.NumberColumn(format="dollar"),
+                    "$/head sold": st.column_config.NumberColumn(format="dollar"),
+                    "$/cwt carcass": st.column_config.NumberColumn(format="dollar"),
+                    "% of cost": st.column_config.ProgressColumn(
+                        format="%.1f%%", min_value=0.0, max_value=100.0
+                    ),
+                },
+            )
     with right, card("key"):
         st.html(ui.card_title("Key numbers", f"{s['avg_days_on_feed']:.0f} days on feed"))
         st.html(
@@ -1054,15 +1136,16 @@ with tab_sum:
                     ("Head sold", f"{s['head_sold']:,.0f}"),
                     ("Feed conversion", "n/a" if pd.isna(fc) else f"{fc:.2f}"),
                     ("Avg sale $/cwt carcass", ui.usd(s["avg_price_cwt_carcass"])),
+                    ("Breakeven $/cwt live", ui.usd(s["breakeven_cwt_live"])),
                     ("Weaned pig $/head", ui.usd(s["wean_pig_usd_hd"])),
                     ("Corn cash $/bu", ui.usd(s["corn_cash_usd_bu"])),
                     ("SBM cash $/ton", ui.usd(s["sbm_cash_usd_ton"])),
                     ("DDGS $/ton", ui.usd(s["ddgs_usd_ton"])),
-                    ("Total cost", ui.usd(s["total_cost_usd"], 0)),
                     ("Total revenue", ui.usd(s["gross_revenue_usd"], 0)),
                 ]
             )
         )
+        chart(charts.cost_breakdown(result.costs))
 
     st.write("")
     with card("sales"):
@@ -1093,35 +1176,6 @@ with tab_sum:
                 "Premium $/cwt": st.column_config.NumberColumn(format="dollar"),
                 "Price $/cwt carcass": st.column_config.NumberColumn(format="dollar"),
                 "Revenue": st.column_config.NumberColumn(format="dollar"),
-            },
-        )
-
-    st.write("")
-    with card("cost_detail"):
-        st.html(ui.card_title("Cost detail", f"{ui.usd(s['total_cost_usd'], 0)} total"))
-        c = result.costs
-        st.dataframe(
-            pd.DataFrame(
-                {
-                    "Cost line": c["line"],
-                    "Total": c["total_usd"],
-                    "$/head placed": c["usd_per_head_placed"],
-                    "$/head sold": c["usd_per_head_sold"],
-                    "$/cwt carcass": c["usd_per_cwt_carcass"],
-                    "% of cost": c["pct_of_total"],
-                }
-            ),
-            hide_index=True,
-            width="stretch",
-            height="content",
-            column_config={
-                "Total": st.column_config.NumberColumn(format="dollar"),
-                "$/head placed": st.column_config.NumberColumn(format="dollar"),
-                "$/head sold": st.column_config.NumberColumn(format="dollar"),
-                "$/cwt carcass": st.column_config.NumberColumn(format="dollar"),
-                "% of cost": st.column_config.ProgressColumn(
-                    format="%.1f%%", min_value=0.0, max_value=100.0
-                ),
             },
         )
 
@@ -1229,6 +1283,7 @@ with tab_crush:
         st.caption(f"Corn and meal: {gh.note}. Weaned pig: {wean.note}")
         for note in fallbacks:
             st.caption(f"• {note[0].upper()}{note[1:]}.")
+    results = st.container()  # filled below, once the weekly prices are read
     st.write("")
     prices_card = card("crush_prices")
     prices_card.html(ui.card_title("Weekly prices", "type over any cell"))
@@ -1271,33 +1326,83 @@ with tab_crush:
         edited_weeks.append(Week(report, *map(float, vals)))
     table = crush_table(proj, edited_weeks, int(lag), int(dtm), float(sale_wt), corn_is_cash)
     crush_spec = CrushSpec(edited_weeks, int(lag), int(dtm), float(sale_wt), corn_is_cash)
-
-    st.write("")
-    if basis_daily.empty:
+    with results:
+        st.write("")
+        if basis_daily.empty:
+            st.html(
+                ui.notice(
+                    "<b>No hog basis history yet</b>, so basis is $0 unless typed in Weekly "
+                    "prices below. Import Barchart lean hog contract histories (Data tab) or "
+                    "refresh with internet.",
+                    "warn",
+                )
+            )
+        show_after_debt = bool(proj.principal_usd_hd or proj.term_interest_usd_hd)
+        key_row = "Margin after debt service $/pig" if show_after_debt else "Margin $/pig"
+        margins = {
+            pd.Timestamp(str(table.loc["USDA report date", c])): float(table.loc[key_row, c])  # type: ignore[arg-type]
+            for c in table.columns
+        }
+        best = max(margins, key=lambda d: margins[d])
+        worst = min(margins, key=lambda d: margins[d])
+        avg_margin = sum(margins.values()) / len(margins)
+        latest = max(margins)
         st.html(
-            ui.notice(
-                "<b>No hog basis history yet</b>, so basis is $0 unless typed above. Import "
-                "Barchart lean hog contract histories (Data tab) or refresh with internet.",
-                "warn",
+            ui.kpi_cards(
+                [
+                    ui.Kpi(
+                        "Average margin $/pig",
+                        ui.usd(avg_margin),
+                        f"{len(margins)} weekly placements",
+                        ui.tone(avg_margin),
+                        "Average of the margin row across every week shown.",
+                    ),
+                    ui.Kpi(
+                        "Latest week",
+                        ui.usd(margins[latest]),
+                        f"USDA report {latest:%b %d}",
+                        ui.tone(margins[latest]),
+                    ),
+                    ui.Kpi(
+                        "Best week",
+                        ui.usd(margins[best]),
+                        f"{best:%b %d, %Y}",
+                        ui.tone(margins[best]),
+                    ),
+                    ui.Kpi(
+                        "Worst week",
+                        ui.usd(margins[worst]),
+                        f"{worst:%b %d, %Y}",
+                        ui.tone(margins[worst]),
+                    ),
+                    ui.Kpi(
+                        "Weeks profitable",
+                        f"{sum(v > 0 for v in margins.values())} of {len(margins)}",
+                        help="Weeks whose margin per pig is above zero.",
+                    ),
+                ],
+                "five",
             )
         )
-    show_after_debt = bool(proj.principal_usd_hd or proj.term_interest_usd_hd)
-    with card("crush_chart"):
-        chart(
-            charts.crush_margin_chart(
-                table, "Margin after debt service $/pig" if show_after_debt else "Margin $/pig"
+        st.write("")
+        with card("crush_chart"):
+            chart(
+                charts.crush_margin_chart(
+                    table, "Margin after debt service $/pig" if show_after_debt else "Margin $/pig"
+                )
             )
-        )
-    st.write("")
-    money_rows = {label for label, _, _ in CRUSH_ROWS} | {"USDA weaned pig $/hd"}
-    with card("crush_table"):
-        st.html(ui.card_title("Crush sheet", f"{len(table.columns)} weekly placements"))
-        st.html(
-            ui.crush_table(
-                table if show_after_debt else table.drop(index="Margin after debt service $/pig"),
-                money_rows,
+        st.write("")
+        money_rows = {label for label, _, _ in CRUSH_ROWS} | {"USDA weaned pig $/hd"}
+        with card("crush_table"):
+            st.html(ui.card_title("Crush sheet", f"{len(table.columns)} weekly placements"))
+            st.html(
+                ui.crush_table(
+                    table
+                    if show_after_debt
+                    else table.drop(index="Margin after debt service $/pig"),
+                    money_rows,
+                )
             )
-        )
 
 # ---------------------------------------------------------------- locations comparison
 
@@ -1310,9 +1415,27 @@ with comparison_slot:
                 "location": lo.name,
                 "net_usd_per_head_sold": r["net_usd_per_head_sold"],
                 "cost_usd_per_head_sold": r["cost_usd_per_head_sold"],
+                "corn_cash_usd_bu": r["corn_cash_usd_bu"],
+                "sbm_cash_usd_ton": r["sbm_cash_usd_ton"],
             }
         )
     chart(charts.net_by_location(pd.DataFrame(rows), loc_name))
+    st.html(ui.card_title("Ranking", "same group, ration and hog prices everywhere"))
+    st.html(
+        ui.rank_table(
+            [
+                {
+                    "location": r["location"],
+                    "net": r["net_usd_per_head_sold"],
+                    "cost": r["cost_usd_per_head_sold"],
+                    "corn": r["corn_cash_usd_bu"],
+                    "sbm": r["sbm_cash_usd_ton"],
+                }
+                for r in rows
+            ],
+            loc_name,
+        )
+    )
 
 # ---------------------------------------------------------------- markets tab
 
@@ -1397,11 +1520,24 @@ with tab_xl, card("excel"):
     st.html(
         ui.card_title(
             "Excel workbook",
-            sub="This projection as a workbook, including the Weekly Crush sheet. Yellow cells "
-            "are inputs and every other number is a live formula, so you can change prices, "
-            "location, feed budget, marketing or weekly prices in Excel and it recalculates.",
+            sub="This projection as a live workbook. Blue-on-cream cells are inputs and every "
+            "other number is a formula, so you can change prices, location, ration, marketing or "
+            "weekly prices in Excel and it recalculates. The Dashboard prints on one page.",
         )
     )
+    st.html(
+        ui.stat_list(
+            [
+                ("How to use", "Three steps, colour key, glossary and sources"),
+                ("Dashboard", "KPIs, verdict, P&L per head, what-if grid"),
+                ("Inputs · Locations · Feed", "Every assumption, with units and notes"),
+                ("Marketing · Market Data", "Sale timing, futures, basis by half-month"),
+                ("Costs", "Every cost line per head placed, per head sold and per cwt"),
+                ("Weekly Crush", "Margin per pig for each weekly placement, with a chart"),
+            ]
+        )
+    )
+    st.write("")
     if problem := workbook_problem(proj, locations):
         st.error(f"Couldn't build the workbook: {problem}")
     else:
@@ -1425,3 +1561,5 @@ with tab_xl, card("excel"):
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             type="primary",
         )
+
+st.html(ui.footer(__version__, status[1]))

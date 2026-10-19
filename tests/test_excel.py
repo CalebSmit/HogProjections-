@@ -12,9 +12,9 @@ from pathlib import Path
 import openpyxl
 import pytest
 
-from hogproj.excel import build_workbook
+from hogproj.excel import COST_NAMES, SENS_CORN, SENS_HOG, build_workbook
 from hogproj.inputs import InterestMode, LaborCostMode, MarketingCut, WeanPigPriceSource
-from hogproj.model import project
+from hogproj.model import project, sensitivity
 from tests.test_model import make
 
 SOFFICE = shutil.which("soffice") or shutil.which("libreoffice")
@@ -58,14 +58,21 @@ def recalc(xlsx_bytes: bytes, tmp_path: Path) -> openpyxl.Workbook:
     return openpyxl.load_workbook(out / "in.xlsx", data_only=True)
 
 
+def named(wb: openpyxl.Workbook, name: str):
+    """Value of a single-cell named range (results are read by name, not position)."""
+    dn = wb.defined_names[name]
+    sheet, coord = next(iter(dn.destinations))
+    return wb[sheet][coord.replace("$", "")].value  # type: ignore[union-attr]
+
+
+def named_grid(wb: openpyxl.Workbook, name: str) -> list[list[float]]:
+    sheet, coord = next(iter(wb.defined_names[name].destinations))
+    cells = wb[sheet][coord.replace("$", "")]
+    return [[float(c.value) for c in row] for row in cells]  # type: ignore[arg-type, union-attr]
+
+
 def costs_by_line(wb: openpyxl.Workbook) -> dict[str, float]:
-    ws = wb["Costs"]
-    out: dict[str, float] = {}
-    r = 2
-    while ws.cell(r, 1).value not in (None, "Total cost"):
-        out[str(ws.cell(r, 1).value)] = float(ws.cell(r, 2).value or 0)  # type: ignore[arg-type]
-        r += 1
-    return out
+    return {line: float(named(wb, n) or 0) for line, n in COST_NAMES.items()}
 
 
 needs_lo = pytest.mark.skipif(SOFFICE is None, reason="LibreOffice not installed")
@@ -161,13 +168,19 @@ def check_workbook(p, locations, tmp_path):
     for line, total in expected.costs.set_index("line")["total_usd"].items():
         assert got[str(line)] == pytest.approx(total, rel=1e-9, abs=1e-6), line
 
-    dash = wb["Dashboard"]
-    assert dash["C4"].value == pytest.approx(expected.summary["net_usd"])
-    assert dash["C6"].value == pytest.approx(expected.summary["gross_revenue_usd"])
-    assert dash["C10"].value == pytest.approx(expected.summary["debt_service_usd"])
-    assert dash["C11"].value == pytest.approx(expected.summary["net_after_debt_usd_per_head_sold"])
-    assert dash["F4"].value == pytest.approx(expected.summary["breakeven_cwt_carcass"])
-    assert dash["F9"].value == pytest.approx(expected.summary["feed_conversion"])
+    s = expected.summary
+    assert named(wb, "KpiNet") == pytest.approx(s["net_usd"])
+    assert named(wb, "KpiNetHd") == pytest.approx(s["net_usd_per_head_sold"])
+    assert named(wb, "KpiRevenue") == pytest.approx(s["gross_revenue_usd"])
+    assert named(wb, "KpiDebt") == pytest.approx(s["debt_service_usd"])
+    assert named(wb, "KpiNetAfterDebtHd") == pytest.approx(s["net_after_debt_usd_per_head_sold"])
+    assert named(wb, "KpiBreakeven") == pytest.approx(s["breakeven_cwt_carcass"])
+    assert named(wb, "KpiAvgPrice") == pytest.approx(s["avg_price_cwt_carcass"])
+    assert named(wb, "KpiCostHd") == pytest.approx(s["cost_usd_per_head_sold"])
+    assert named(wb, "KpiFeedConv") == pytest.approx(s["feed_conversion"])
+    grid = named_grid(wb, "SensGrid")
+    want = sensitivity(p, SENS_CORN, SENS_HOG).to_numpy()
+    assert [v for row in grid for v in row] == pytest.approx(want.ravel().tolist())
 
 
 @needs_lo
@@ -187,7 +200,7 @@ def test_weekly_crush_sheet_matches_crush_table(tmp_path, corn_is_cash):
     spec = CrushSpec(weeks, 1, 160, 290.0, corn_is_cash)
     expected = crush_table(p, weeks, 1, 160, 290.0, corn_is_cash)
     ws = recalc(build_workbook(p, [p.location], crush=spec), tmp_path)["Weekly Crush"]
-    labels = {str(ws.cell(r, 1).value): r for r in range(1, 60) if ws.cell(r, 1).value}
+    labels = {str(ws.cell(r, 1).value): r for r in range(1, 120) if ws.cell(r, 1).value}
     for j, col in enumerate(expected.columns):
         c = j + 2
         assert ws.cell(labels["CME contract"], c).value == expected.loc["CME contract", col]

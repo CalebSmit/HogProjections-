@@ -46,3 +46,30 @@ def test_crush_table_groups_and_flags_losses():
     assert "Sep 13" in out and "Average" in out
     margin = float(table.loc["Margin $/pig", "2026-09-13"])  # type: ignore[arg-type]
     assert ("pos" if margin > 0 else "neg") in out.split("Margin $/pig")[1].split("</tr>")[0]
+
+
+def test_pl_statement_totals_and_signs():
+    out = ui.pl_statement(
+        1000.0, [ui.Line("Feed", 700.0), ui.Line("G&A", 0.0), ui.Line("Barn", 400.0)], 10, 20, 50.0
+    )
+    assert "$1,100" in out  # total cost
+    assert "net neg" in out and "−$100" in out  # net margin is a loss
+    assert "−$150" in out  # after debt service
+    assert '<td class="dash">' in out  # a zero line shows dashes
+    assert "110.0%" in out  # total cost as % of revenue
+
+
+def test_rank_table_orders_and_marks_selected():
+    rows = [
+        {"location": "A <x>", "net": -2.0, "cost": 160, "corn": 4.3, "sbm": 380},
+        {"location": "B", "net": 1.5, "cost": 158, "corn": 4.1, "sbm": 390},
+    ]
+    out = ui.rank_table(rows, "A <x>")
+    assert out.index(">B<") < out.index("A &lt;x&gt;")  # best first, names escaped
+    assert "+$3.50" in out  # B vs the selected A
+    assert 'class="sel"' in out
+
+
+def test_guide_and_footer_render():
+    assert "Breakeven" in ui.guide() and "<script" not in ui.guide()
+    assert "v1.2.3" in ui.footer("1.2.3", "Offline")

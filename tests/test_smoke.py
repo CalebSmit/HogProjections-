@@ -31,7 +31,9 @@ def app(monkeypatch) -> AppTest:
     return at
 
 
-KPI = re.compile(r'hp-kpi-label">([^<]*)</div><div class="hp-kpi-value">([^<]*)')
+KPI = re.compile(
+    r'hp-kpi-label">([^<]*)(?:<span class="hp-q">\?</span>)?</div><div class="hp-kpi-value">([^<]*)'
+)
 
 
 def metrics(at: AppTest) -> dict[str, str]:
@@ -181,7 +183,7 @@ def test_profile_round_trip(app, tmp_path, monkeypatch):
 
 def test_weekly_crush_renders(app):
     assert not app.exception
-    tables = [h.proto.body for h in app.get("html") if "hp-table" in h.proto.body]
+    tables = [h.proto.body for h in app.get("html") if "CME contract" in h.proto.body]
     assert tables, "weekly crush table missing"
     assert "Margin $/pig" in tables[0]
     assert tables[0].count("<th>") >= 13  # row label + 12 weeks back (+ ahead)
@@ -210,3 +212,12 @@ def test_hedge_without_a_price_is_reported(app):
     assert "Corn is 50% hedged: enter the hedged price." in errors(app)
     app.number_input(key="in_corn_hedged").set_value(4.25).run(timeout=60)
     assert "hedged price" not in errors(app)
+
+
+def test_summary_sections_and_guide(app):
+    bodies = " ".join(h.proto.body for h in app.get("html"))
+    assert "Profit and loss" in bodies and "Net margin" in bodies
+    assert "pigs</b> placed at" in bodies  # plain-English summary
+    assert "How to use it" in bodies  # Guide tab
+    assert "Average margin $/pig" in metrics(app)  # weekly crush summary
+    assert "Ranking" in bodies  # locations ranking

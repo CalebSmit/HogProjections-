@@ -94,3 +94,4 @@ Answered 2026-10-19:
 - 2026-10-19: F17: the weekly crush leaves the group's hedges out (third review).
 - 2026-10-19: The owner answered 5–7 (template with local profiles; both data sources; both
   mortality modes). Added F13–F18.
+- 2026-10-19: Workbook gains a How to use sheet and a live what-if grid (corn × hogs), matching the dashboard's.
