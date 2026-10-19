@@ -221,3 +221,25 @@ def cash_flow_chart(cf: pd.DataFrame) -> go.Figure:
         legend={"orientation": "h", "y": 1.08, "x": 1, "xanchor": "right"},
     )
     return fig
+
+
+def crush_margin_chart(table: pd.DataFrame, row: str = "Margin $/pig") -> go.Figure:
+    """Margin per pig by placement week (oldest left), profit blue / loss red."""
+    cols = list(reversed(list(table.columns)))
+    labels = [pd.Timestamp(str(table.loc["Placement date", c])).strftime("%b %d") for c in cols]
+    vals = [float(table.loc[row, c]) for c in cols]  # type: ignore[arg-type]
+    fig = go.Figure(
+        go.Bar(
+            x=labels,
+            y=vals,
+            marker={"color": [BLUE if v >= 0 else RED for v in vals], "cornerradius": 4},
+            text=[_usd(v) for v in vals],
+            textposition="outside",
+            textfont={"color": INK_2},
+            cliponaxis=False,
+            hovertemplate="Placed %{x}<br>" + row + " %{y:$,.2f}<extra></extra>",
+        )
+    )
+    fig.update_yaxes(tickprefix="$", zerolinecolor=INK_2, zerolinewidth=1)
+    fig.update_xaxes(title="Placement week")
+    return _layout(fig, f"{row.replace(' $/pig', '')} per pig by placement week", 380)

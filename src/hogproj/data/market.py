@@ -187,3 +187,33 @@ def load_grain_futures() -> Loaded:
     if not meal.empty:
         out["sbm_usd_ton"] = float(meal.iloc[-1])
     return Loaded(out, "Live: CBOT front-month corn and soybean meal (Yahoo, delayed).", bool(out))
+
+
+def load_grain_history() -> Loaded:
+    """Daily corn ($/bu) and soybean meal ($/ton) history for the weekly crush.
+
+    Barchart imports win (and are flagged as possibly cash corn); otherwise ~1 year of Yahoo
+    front-month futures. data = {"corn": Series, "sbm": Series, "corn_source": "barchart"|...}.
+    """
+    corn = barchart.load(barchart.Kind.CORN)
+    sbm = barchart.load(barchart.Kind.SBM)
+    corn_source = "barchart" if not corn.empty else "futures"
+    sources = []
+    if not corn.empty:
+        sources.append("corn: your Barchart import")
+    if not sbm.empty:
+        sources.append("soybean meal: your Barchart import")
+    if (corn.empty or sbm.empty) and not get_settings().offline:
+        end = date.today()
+        start = end - timedelta(days=400)
+        try:
+            if corn.empty:
+                corn = fetch_yahoo_daily("ZC=F", start, end) / 100
+                sources.append("corn: Yahoo front-month futures")
+            if sbm.empty:
+                sbm = fetch_yahoo_daily("ZM=F", start, end)
+                sources.append("soybean meal: Yahoo front-month futures")
+        except FetchError as e:
+            sources.append(f"futures history not loaded ({e})")
+    note = "; ".join(sources) if sources else "No corn/meal history: today's prices are used."
+    return Loaded({"corn": corn, "sbm": sbm, "corn_source": corn_source}, note, False)

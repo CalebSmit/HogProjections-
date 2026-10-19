@@ -166,3 +166,11 @@ def test_profile_round_trip(app, tmp_path, monkeypatch):
     next(b for b in app.button if b.label == "Load").click().run(timeout=60)
     assert not app.exception
     assert app.number_input(key="in_ga").value == 2.5
+
+
+def test_weekly_crush_renders(app):
+    assert not app.exception
+    tables = [d for d in app.dataframe if "Margin $/pig" in list(getattr(d.value, "index", []))]
+    assert tables, "weekly crush table missing"
+    t = tables[0].value
+    assert t.shape[1] >= 12  # 12 weeks back (+ ahead) + Average

@@ -20,9 +20,19 @@ from hogproj.basis import (
     lean_hog_contract_for,
     period_label,
 )
+from hogproj.crush import ROWS as CRUSH_ROWS
+from hogproj.crush import (
+    Week,
+    build_weeks,
+    crush_table,
+    current_report_date,
+    latest_date,
+    report_dates,
+)
 from hogproj.data import barchart, defaults, profiles
 from hogproj.data.market import (
     load_grain_futures,
+    load_grain_history,
     load_hog_basis_daily,
     load_hog_futures_curve,
     load_wean_pig_prices,
@@ -68,6 +78,11 @@ def grain_futures(refresh_token: int):
     return load_grain_futures()
 
 
+@st.cache_data(ttl=6 * 3600, show_spinner="Loading corn and meal history…")
+def grain_history(refresh_token: int):
+    return load_grain_history()
+
+
 @st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA weaned pig report…")
 def wean_prices(min_lot: int, refresh_token: int):
     return load_wean_pig_prices(min_lot)
@@ -108,8 +123,16 @@ problems: list[str] = []
 
 st.title("Wean-to-Finish Group Projection")
 header = st.empty()
-tab_sum, tab_in, tab_loc, tab_mkt, tab_data, tab_xl = st.tabs(
-    ["📊 Summary", "⚙️ Inputs", "📍 Locations", "📈 Markets & basis", "📥 Data", "⬇️ Excel"]
+tab_sum, tab_crush, tab_in, tab_loc, tab_mkt, tab_data, tab_xl = st.tabs(
+    [
+        "📊 Summary",
+        "🗓️ Weekly crush",
+        "⚙️ Inputs",
+        "📍 Locations",
+        "📈 Markets & basis",
+        "📥 Data",
+        "⬇️ Excel",
+    ]
 )
 
 # ---------------------------------------------------------------- locations (read first)
@@ -979,6 +1002,148 @@ with tab_sum:
 
     grid = sensitivity(proj, [-0.50, -0.25, 0.0, 0.25, 0.50], [-10, -5, 0, 5, 10])
     st.plotly_chart(charts.sensitivity_heatmap(grid), use_container_width=True)
+
+# ---------------------------------------------------------------- weekly crush tab
+
+with tab_crush:
+    st.markdown(
+        "**Margin per pig for each weekly placement**, side by side, like a crush sheet. Each "
+        "column is one USDA weaned pig report: placed the next day, sold once at the average "
+        "marketing date. Costs, ration, hedges, mortality and debt come from the Inputs tab "
+        "(and your settings profile)."
+    )
+    cc = st.columns(6)
+    weeks_back = cc[0].number_input("Weeks back", 1, 52, 12, key="cr_back")
+    weeks_fwd = cc[1].number_input(
+        "Weeks ahead", 0, 26, 4, key="cr_fwd", help="Future placements, priced at today's prices."
+    )
+    lag = cc[2].number_input("Report → placement (days)", 0, 14, 1, key="cr_lag")
+    dtm = cc[3].number_input("Days to avg marketing", 100, 220, 160, key="cr_days")
+    sale_wt = cc[4].number_input("Sale weight (lb live)", 200.0, 350.0, 290.0, key="cr_wt")
+    gh = grain_history(ss.refresh)
+    ghd = gh.data if isinstance(gh.data, dict) else {}
+    corn_hist = ghd.get("corn")
+    corn_is_cash = (
+        cc[5]
+        .radio(
+            "Corn history is",
+            ["Futures (+ location basis)", "Cash (use as is)"],
+            index=1 if ghd.get("corn_source") == "barchart" else 0,
+            key="cr_corn_kind",
+            help="A cash corn series (e.g. Barchart CORN$) already includes basis.",
+        )
+        .startswith("Cash")
+    )
+
+    wean_hist = (
+        pd.Series(wean_df["cash_usd_hd"].to_numpy(), index=pd.to_datetime(wean_df["date"]))
+        if not wean_df.empty
+        else None
+    )
+    anchor = current_report_date(
+        latest_date(wean_hist) or placement - timedelta(days=lag), date.today()
+    )
+    dates = report_dates(anchor, int(weeks_back), int(weeks_fwd))
+    weeks, fallbacks = build_weeks(
+        dates,
+        int(lag),
+        int(dtm),
+        wean=wean_hist,
+        corn=corn_hist,
+        sbm=ghd.get("sbm"),
+        fallback_wean=float(wean_cash),
+        fallback_corn=float(corn_fut),
+        fallback_sbm=float(sbm_fut),
+        ddgs_usd_ton=location.ddgs_usd_ton,
+        hog_curve={**ss.curve_base, **curve},
+        hog_contract_history=barchart.hog_contracts(),
+        basis_by_period=basis_used,
+    )
+    st.caption(
+        f"Sources — {gh.note}. Weaned pig: {wean.note}"
+        + (
+            f" Using today's prices where history is missing: {', '.join(fallbacks)}."
+            if fallbacks
+            else ""
+        )
+    )
+    st.markdown("##### Weekly prices (type over any cell)")
+    week_df = st.data_editor(
+        pd.DataFrame(
+            [
+                {
+                    "report_date": w.report_date,
+                    "wean": round(w.wean_usd_hd, 2),
+                    "corn": round(w.corn_usd_bu, 4),
+                    "sbm": round(w.sbm_usd_ton, 2),
+                    "ddgs": round(w.ddgs_usd_ton, 2),
+                    "hog": round(w.hog_futures_cwt, 3),
+                    "basis": round(w.hog_basis_cwt, 2),
+                }
+                for w in weeks
+            ]
+        ),
+        disabled=["report_date"],
+        hide_index=True,
+        use_container_width=True,
+        column_config={
+            "report_date": st.column_config.DateColumn("USDA report", format="MMM D, YYYY"),
+            "wean": st.column_config.NumberColumn("USDA weaned pig $/hd", format="%.2f"),
+            "corn": st.column_config.NumberColumn("Corn $/bu", format="%.4f"),
+            "sbm": st.column_config.NumberColumn("SBM $/ton", format="%.2f"),
+            "ddgs": st.column_config.NumberColumn("DDGS $/ton", format="%.2f"),
+            "hog": st.column_config.NumberColumn("Lean hog futures $/cwt", format="%.3f"),
+            "basis": st.column_config.NumberColumn("Hog basis $/cwt", format="%.2f"),
+        },
+        key=f"crush_{ss.ver}_{ss.refresh}_{anchor}_{weeks_back}_{weeks_fwd}_{lag}_{dtm}",
+    )
+    edited_weeks = []
+    for rec in week_df.to_dict("records"):
+        vals = [rec[k] for k in ("wean", "corn", "sbm", "ddgs", "hog", "basis")]
+        if any(v is None or pd.isna(v) for v in vals):
+            continue
+        report = date.fromisoformat(str(rec["report_date"])[:10])
+        edited_weeks.append(Week(report, *map(float, vals)))
+    table = crush_table(proj, edited_weeks, int(lag), int(dtm), float(sale_wt), corn_is_cash)
+    ss.crush_inputs = (edited_weeks, int(lag), int(dtm), float(sale_wt), corn_is_cash)
+
+    if basis_daily.empty:
+        st.warning(
+            "No hog basis history loaded, so basis is 0 unless typed above. Import Barchart "
+            "lean hog contract histories (Data tab) or Refresh with internet.",
+            icon="⚠️",
+        )
+    show_after_debt = bool(proj.principal_usd_hd or proj.term_interest_usd_hd)
+    st.plotly_chart(
+        charts.crush_margin_chart(
+            table, "Margin after debt service $/pig" if show_after_debt else "Margin $/pig"
+        ),
+        use_container_width=True,
+    )
+    shown = table.copy()
+    shown.columns = [
+        f"{pd.Timestamp(str(table.loc['USDA report date', c])):%b %d}" for c in table.columns
+    ]
+    money_rows = [label for label, _, _ in CRUSH_ROWS] + ["USDA weaned pig $/hd"]
+
+    def fmt(row_label: str, v: object) -> str:
+        if row_label in ("USDA report date", "Placement date", "Avg marketing date"):
+            return f"{pd.Timestamp(str(v)):%b %d, %Y}"
+        if row_label == "CME contract":
+            return str(v)
+        if row_label in money_rows and isinstance(v, (int, float)):
+            return money(float(v))
+        return str(v)
+
+    shown = pd.DataFrame(
+        {c: [fmt(str(r), shown.loc[r, c]) for r in shown.index] for c in shown.columns},
+        index=shown.index,
+    )
+    shown["Average"] = [
+        money(float(table.loc[r].astype(float).mean())) if r in money_rows else ""
+        for r in table.index
+    ]
+    st.dataframe(shown, use_container_width=True, height=36 * (len(shown) + 1))
 
 # ---------------------------------------------------------------- locations comparison
 
