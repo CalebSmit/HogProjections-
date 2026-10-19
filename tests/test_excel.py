@@ -60,10 +60,12 @@ def recalc(xlsx_bytes: bytes, tmp_path: Path) -> openpyxl.Workbook:
 
 def costs_by_line(wb: openpyxl.Workbook) -> dict[str, float]:
     ws = wb["Costs"]
-    return {
-        str(ws.cell(r, 1).value): float(ws.cell(r, 2).value or 0)  # type: ignore[arg-type]
-        for r in range(2, 12)
-    }
+    out: dict[str, float] = {}
+    r = 2
+    while ws.cell(r, 1).value not in (None, "Total cost"):
+        out[str(ws.cell(r, 1).value)] = float(ws.cell(r, 2).value or 0)  # type: ignore[arg-type]
+        r += 1
+    return out
 
 
 needs_lo = pytest.mark.skipif(SOFFICE is None, reason="LibreOffice not installed")
@@ -124,6 +126,33 @@ def test_default_projection_workbook(tmp_path):
     check_workbook(p, locs, tmp_path)
 
 
+@needs_lo
+def test_workbook_matches_crush_layout_inputs(tmp_path):
+    """Every new input (adder, hedges, carry, $/pig mortality and interest, G&A, other, debt)."""
+    from tests.test_crush_parity import app_projection
+
+    p = app_projection()
+    check_workbook(p, [p.location], tmp_path)
+
+
+@needs_lo
+def test_workbook_rate_interest_and_pct_mortality_with_new_lines(tmp_path):
+    p = make(
+        ga_usd_hd=2.0,
+        other_usd_hd_sold=-1.5,
+        wean_pig_adder_usd_hd=6.0,
+        corn_carry_usd_bu=0.2,
+        corn_hedged_pct=30,
+        corn_hedged_usd_bu=4.1,
+        hog_hedged_pct=50,
+        hog_hedged_cwt=105.0,
+        interest_rate_pct=7.0,
+        principal_usd_hd=3.0,
+        term_interest_usd_hd=1.0,
+    )
+    check_workbook(p, [p.location], tmp_path)
+
+
 def check_workbook(p, locations, tmp_path):
     expected = project(p)
     wb = recalc(build_workbook(p, locations), tmp_path)
@@ -135,5 +164,7 @@ def check_workbook(p, locations, tmp_path):
     dash = wb["Dashboard"]
     assert dash["C4"].value == pytest.approx(expected.summary["net_usd"])
     assert dash["C6"].value == pytest.approx(expected.summary["gross_revenue_usd"])
+    assert dash["C10"].value == pytest.approx(expected.summary["debt_service_usd"])
+    assert dash["C11"].value == pytest.approx(expected.summary["net_after_debt_usd_per_head_sold"])
     assert dash["F4"].value == pytest.approx(expected.summary["breakeven_cwt_carcass"])
     assert dash["F9"].value == pytest.approx(expected.summary["feed_conversion"])

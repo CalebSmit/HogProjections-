@@ -31,6 +31,16 @@ class LaborCostMode(StrEnum):
     PER_PIG_PLACED = "$/pig placed"
 
 
+class MortalityMode(StrEnum):
+    PCT_OF_HEAD = "% of head"  # deads reduce head sold (and eat some feed)
+    USD_PER_PIG = "$ per pig"  # flat death-loss charge per pig placed; head sold = placed
+
+
+class InterestMode(StrEnum):
+    RATE = "annual rate"  # rate x (pig + half the feed) x days on feed
+    USD_PER_PIG = "$ per pig"
+
+
 class Strict(BaseModel):
     # A cleared spreadsheet cell arrives as NaN; refuse it instead of computing "$nan".
     model_config = ConfigDict(allow_inf_nan=False)
@@ -81,7 +91,9 @@ class Projection(Strict):
     head_placed: int = Field(default=2400, gt=0)
     placement_date: date
     wean_weight_lb: float = 12.0
+    mortality_mode: MortalityMode = MortalityMode.PCT_OF_HEAD
     mortality_pct: float = Field(default=5.0, ge=0, lt=100)
+    mortality_cost_usd_hd: float = 0.0  # used in $-per-pig mode, per pig placed
     dead_feed_share: float = Field(
         default=0.25, ge=0, le=1
     )  # deads eat this share of a full feed budget
@@ -92,6 +104,7 @@ class Projection(Strict):
     wean_pig_usda_cash_usd_hd: float = 0.0
     wean_pig_usda_formula_usd_hd: float = 0.0
     wean_pig_manual_usd_hd: float = 0.0
+    wean_pig_adder_usd_hd: float = 0.0  # system premium over the USDA price (not on Manual)
     wean_pig_freight_usd_hd: float = 0.0
 
     # Feed
@@ -100,6 +113,11 @@ class Projection(Strict):
     sbm_futures_usd_ton: float
     feed_phases: list[FeedPhase] = Field(min_length=1, max_length=MAX_PHASES)
     feed_mill_usd_ton: float = 0.0  # grind/mix/delivery charge on every ton
+    corn_carry_usd_bu: float = 0.0  # storage/carry added to local cash corn
+    corn_hedged_pct: float = Field(default=0.0, ge=0, le=100)
+    corn_hedged_usd_bu: float = 0.0  # all-in cash price on the hedged/contracted share
+    sbm_hedged_pct: float = Field(default=0.0, ge=0, le=100)
+    sbm_hedged_usd_ton: float = 0.0
 
     # Facilities, labor, other $/head placed
     barn_mode: BarnCostMode = BarnCostMode.PER_SPACE_YEAR
@@ -112,13 +130,23 @@ class Projection(Strict):
     utilities_usd_hd: float = 0.0
     trucking_usd_hd_sold: float = 0.0
     insurance_misc_usd_hd: float = 0.0
+    ga_usd_hd: float = 0.0  # general & administrative, per pig placed
+    other_usd_hd_sold: float = 0.0  # other costs; negative = sales premiums received
+    interest_mode: InterestMode = InterestMode.RATE
     interest_rate_pct: float = 0.0  # annual, on the pig + half the feed for the feeding period
+    interest_usd_hd: float = 0.0  # used in $-per-pig mode, per pig placed
+
+    # Debt service (below the operating margin): per head sold
+    principal_usd_hd: float = 0.0
+    term_interest_usd_hd: float = 0.0
 
     # Revenue
     marketing: list[MarketingCut] = Field(min_length=1, max_length=MAX_CUTS)
     lean_hog_futures_cwt: dict[str, float]  # contract code "2027-04" -> $/cwt carcass
     hog_basis_cwt_by_period: dict[int, float]  # half-month period 1-24 -> avg historical basis
     carcass_premium_cwt: float = 0.0  # lean/grade merit premium, $/cwt carcass
+    hog_hedged_pct: float = Field(default=0.0, ge=0, le=100)
+    hog_hedged_cwt: float = 0.0  # futures level locked on the hedged share; basis still applies
     checkoff_pct: float = 0.35  # National Pork Checkoff, % of gross
 
     @model_validator(mode="after")
@@ -135,8 +163,12 @@ class Projection(Strict):
 
     @property
     def wean_pig_usd_hd(self) -> float:
-        return {
-            WeanPigPriceSource.USDA_CASH: self.wean_pig_usda_cash_usd_hd,
-            WeanPigPriceSource.USDA_FORMULA: self.wean_pig_usda_formula_usd_hd,
-            WeanPigPriceSource.MANUAL: self.wean_pig_manual_usd_hd,
-        }[self.wean_pig_source]
+        """Price paid per weaned pig: USDA price + adder, or the manual price as typed."""
+        if self.wean_pig_source is WeanPigPriceSource.MANUAL:
+            return self.wean_pig_manual_usd_hd
+        usda = (
+            self.wean_pig_usda_cash_usd_hd
+            if self.wean_pig_source is WeanPigPriceSource.USDA_CASH
+            else self.wean_pig_usda_formula_usd_hd
+        )
+        return usda + self.wean_pig_adder_usd_hd

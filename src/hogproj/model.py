@@ -10,17 +10,27 @@ from hogproj.inputs import (
     CORN_LB_PER_BU,
     LB_PER_TON,
     BarnCostMode,
+    InterestMode,
     LaborCostMode,
+    MortalityMode,
     Projection,
 )
 
 
+def _blend(open_price: float, hedged_price: float, hedged_pct: float) -> float:
+    """Price paid when hedged_pct of the need is locked at hedged_price."""
+    h = hedged_pct / 100
+    return open_price * (1 - h) + hedged_price * h
+
+
 def corn_cash_usd_bu(p: Projection) -> float:
-    return p.corn_futures_usd_bu + p.location.corn_basis_usd_bu
+    open_price = p.corn_futures_usd_bu + p.location.corn_basis_usd_bu + p.corn_carry_usd_bu
+    return _blend(open_price, p.corn_hedged_usd_bu, p.corn_hedged_pct)
 
 
 def sbm_cash_usd_ton(p: Projection) -> float:
-    return p.sbm_futures_usd_ton + p.location.sbm_basis_usd_ton
+    open_price = p.sbm_futures_usd_ton + p.location.sbm_basis_usd_ton
+    return _blend(open_price, p.sbm_hedged_usd_ton, p.sbm_hedged_pct)
 
 
 @dataclass(frozen=True)
@@ -32,6 +42,8 @@ class Result:
 
 
 def head_sold(p: Projection) -> float:
+    if p.mortality_mode is MortalityMode.USD_PER_PIG:
+        return float(p.head_placed)
     return p.head_placed * (1 - p.mortality_pct / 100)
 
 
@@ -82,7 +94,7 @@ def marketing_table(p: Projection) -> pd.DataFrame:
         else:
             if contract not in p.lean_hog_futures_cwt:
                 raise KeyError(f"no lean hog futures price for contract {contract}")
-            futures = p.lean_hog_futures_cwt[contract]
+            futures = _blend(p.lean_hog_futures_cwt[contract], p.hog_hedged_cwt, p.hog_hedged_pct)
             basis = p.hog_basis_cwt_by_period.get(period, 0.0)
             premium = p.carcass_premium_cwt
         price = futures + basis + premium
@@ -127,9 +139,14 @@ def project(p: Projection) -> Result:
         labor = placed * p.labor_hr_per_pig * p.location.labor_wage_usd_hr
     else:
         labor = placed * p.labor_usd_pig_placed
-    interest = (
-        p.interest_rate_pct / 100 * avg_days / 365 * (pig_cost + 0.5 * feed_cost)
-    )  # pig capital outstanding the whole period, feed on average half of it
+    if p.interest_mode is InterestMode.RATE:
+        # pig capital is outstanding the whole period, feed on average half of it
+        interest = p.interest_rate_pct / 100 * avg_days / 365 * (pig_cost + 0.5 * feed_cost)
+    else:
+        interest = placed * p.interest_usd_hd
+    mortality = (
+        placed * p.mortality_cost_usd_hd if p.mortality_mode is MortalityMode.USD_PER_PIG else 0.0
+    )
     checkoff = gross * p.checkoff_pct / 100
 
     lines = {
@@ -141,6 +158,9 @@ def project(p: Projection) -> Result:
         "Utilities": placed * p.utilities_usd_hd,
         "Trucking to market": sold * p.trucking_usd_hd_sold,
         "Insurance / misc": placed * p.insurance_misc_usd_hd,
+        "G&A": placed * p.ga_usd_hd,
+        "Mortality ($/pig)": mortality,
+        "Other / (premiums)": sold * p.other_usd_hd_sold,
         "Interest": interest,
         "Checkoff": checkoff,
     }
@@ -160,6 +180,7 @@ def project(p: Projection) -> Result:
     costs_ex_checkoff = total - checkoff
     breakeven_carcass = costs_ex_checkoff / (carcass_cwt * (1 - p.checkoff_pct / 100))
     net = gross - total
+    debt_service = sold * (p.principal_usd_hd + p.term_interest_usd_hd)
     total_feed_lb = float(feed["tons"].to_numpy().sum()) * LB_PER_TON
     lb_gain = live_cwt * 100 - placed * p.wean_weight_lb
 
@@ -184,6 +205,9 @@ def project(p: Projection) -> Result:
         "feed_cost_usd_per_head_sold": feed_cost / sold,
         "feed_conversion": total_feed_lb / lb_gain if lb_gain > 0 else float("nan"),
         "carcass_cwt_sold": carcass_cwt,
+        "debt_service_usd": debt_service,
+        "net_after_debt_usd": net - debt_service,
+        "net_after_debt_usd_per_head_sold": (net - debt_service) / sold,
     }
     return Result(summary=summary, costs=costs, feed=feed, marketing=mkt)
 
@@ -214,8 +238,8 @@ def cash_flow(p: Projection, r: Result) -> pd.DataFrame:
     - Feed is spread by daily intake, taken as proportional to live weight x head on feed.
       Weight grows linearly from wean weight to the average sale weight.
     - Barn is spread over placement to last sale plus downtime.
-    - Labor, utilities and insurance are spread evenly over the feeding period.
-    - Revenue, trucking and checkoff fall on each sale date.
+    - Labor, utilities, insurance, G&A and $/pig mortality are spread evenly over feeding.
+    - Revenue, trucking, checkoff and other/(premiums) fall on each sale date.
     - Interest is paid at the last sale.
     """
     costs = dict(zip(r.costs["line"], r.costs["total_usd"], strict=True))
@@ -252,7 +276,7 @@ def cash_flow(p: Projection, r: Result) -> pd.DataFrame:
         add(0, line, costs[line])
     for d in feeding:
         add(d, "Feed", costs["Feed"] * intake[d] / total_intake)
-        for line in ("Labor", "Utilities", "Insurance / misc"):
+        for line in ("Labor", "Utilities", "Insurance / misc", "G&A", "Mortality ($/pig)"):
             add(d, line, costs[line] / len(feeding))
     for d in barn_days:
         add(d, "Barn / facilities", costs["Barn / facilities"] / len(barn_days))
@@ -265,6 +289,9 @@ def cash_flow(p: Projection, r: Result) -> pd.DataFrame:
             add(day, "Trucking to market", costs["Trucking to market"] * row["head"] / head_total)
         if gross:
             add(day, "Checkoff", costs["Checkoff"] * float(row["revenue_usd"]) / gross)
+        if head_total:
+            other = costs["Other / (premiums)"] * row["head"] / head_total
+            add(day, "Other / (premiums)", other)
     add(last_sale, "Interest", costs["Interest"])
 
     lines = list(costs)

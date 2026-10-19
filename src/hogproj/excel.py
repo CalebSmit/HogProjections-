@@ -16,8 +16,10 @@ from hogproj.inputs import (
     MAX_CUTS,
     MAX_PHASES,
     BarnCostMode,
+    InterestMode,
     LaborCostMode,
     Location,
+    MortalityMode,
     Projection,
     WeanPigPriceSource,
 )
@@ -59,8 +61,8 @@ def build_workbook(
     _feed_sheet(wb, feed, p, f)
     _market_data_sheet(wb, prices, p, basis_history, wean_pig_history, f)
     _marketing_sheet(wb, mkt, p, f)
-    _costs_sheet(wb, costs, f)
-    _dashboard_sheet(wb, dash, f)
+    n_cost_lines = _costs_sheet(wb, costs, f)
+    _dashboard_sheet(wb, dash, f, n_cost_lines)
 
     for ws in (dash, inp, loc, feed, mkt, prices, costs):
         ws.set_paper(1)  # US letter
@@ -123,7 +125,23 @@ def _inputs_sheet(wb, ws, p: Projection, f) -> dict[str, str]:
         ("HeadPlaced", "Head placed", p.head_placed, "in_int", "head", ""),
         ("PlacementDate", "Placement date", p.placement_date, "in_date", "date", ""),
         ("WeanWeight", "Weaned pig weight", p.wean_weight_lb, "in_num", "lb", ""),
+        (
+            "MortMode",
+            "Mortality method",
+            p.mortality_mode.value,
+            "in_txt",
+            "",
+            "% of head = fewer pigs sold; $ per pig = flat death-loss charge",
+        ),
         ("MortalityPct", "Mortality (wean to market)", p.mortality_pct, "in_pct", "%", ""),
+        (
+            "MortCost",
+            "Mortality charge if $ per pig",
+            p.mortality_cost_usd_hd,
+            "in_num",
+            "$/pig placed",
+            "",
+        ),
         (
             "DeadFeedShare",
             "Feed eaten by a dead pig (share of full budget)",
@@ -166,12 +184,39 @@ def _inputs_sheet(wb, ws, p: Projection, f) -> dict[str, str]:
             "$/head",
             "Same report, formula purchases",
         ),
+        (
+            "WeanAdder",
+            "Price adder over USDA",
+            p.wean_pig_adder_usd_hd,
+            "in_num",
+            "$/head",
+            "Your system's premium over the USDA price (not added to Manual)",
+        ),
         ("WeanManual", "Manual weaned pig price", p.wean_pig_manual_usd_hd, "in_num", "$/head", ""),
         ("WeanFreight", "Weaned pig freight", p.wean_pig_freight_usd_hd, "in_num", "$/head", ""),
         ("Feed prices", None),
         ("CornFutures", "CBOT corn futures", p.corn_futures_usd_bu, "in_num", "$/bu", ""),
         ("SbmFutures", "CBOT soybean meal futures", p.sbm_futures_usd_ton, "in_num", "$/ton", ""),
         ("FeedMill", "Feed mill grind/mix/delivery", p.feed_mill_usd_ton, "in_num", "$/ton", ""),
+        ("CornCarry", "Corn carry / storage adder", p.corn_carry_usd_bu, "in_num", "$/bu", ""),
+        ("CornHedgePct", "Corn % hedged", p.corn_hedged_pct, "in_pct", "%", ""),
+        (
+            "CornHedged",
+            "Corn hedged/contracted cash price",
+            p.corn_hedged_usd_bu,
+            "in_num",
+            "$/bu",
+            "All-in price on the hedged share",
+        ),
+        ("SbmHedgePct", "Soybean meal % hedged", p.sbm_hedged_pct, "in_pct", "%", ""),
+        (
+            "SbmHedged",
+            "Soybean meal hedged/contracted price",
+            p.sbm_hedged_usd_ton,
+            "in_num",
+            "$/ton",
+            "All-in price on the hedged share",
+        ),
         ("Barn, labor and other", None),
         ("BarnMode", "Barn cost method", p.barn_mode.value, "in_txt", "", ""),
         (
@@ -204,6 +249,24 @@ def _inputs_sheet(wb, ws, p: Projection, f) -> dict[str, str]:
         ("Utilities", "Utilities / fuel", p.utilities_usd_hd, "in_num", "$/head placed", ""),
         ("Trucking", "Trucking to market", p.trucking_usd_hd_sold, "in_num", "$/head sold", ""),
         ("InsMisc", "Insurance / misc", p.insurance_misc_usd_hd, "in_num", "$/head placed", ""),
+        ("GA", "G&A", p.ga_usd_hd, "in_num", "$/head placed", ""),
+        (
+            "OtherSold",
+            "Other / (sales premiums)",
+            p.other_usd_hd_sold,
+            "in_num",
+            "$/head sold",
+            "Negative = premiums received",
+        ),
+        ("InterestMode", "Interest method", p.interest_mode.value, "in_txt", "", ""),
+        (
+            "InterestPerPig",
+            "Interest if $ per pig",
+            p.interest_usd_hd,
+            "in_num",
+            "$/pig placed",
+            "",
+        ),
         (
             "InterestPct",
             "Operating interest rate",
@@ -215,6 +278,25 @@ def _inputs_sheet(wb, ws, p: Projection, f) -> dict[str, str]:
         ("Revenue", None),
         ("Premium", "Carcass merit premium", p.carcass_premium_cwt, "in_num", "$/cwt carcass", ""),
         ("CheckoffPct", "Pork checkoff", p.checkoff_pct, "in_pct", "% of gross", ""),
+        ("HogHedgePct", "Hogs % hedged", p.hog_hedged_pct, "in_pct", "%", ""),
+        (
+            "HogHedged",
+            "Hog hedged futures price",
+            p.hog_hedged_cwt,
+            "in_num",
+            "$/cwt carcass",
+            "Futures locked on the hedged share; basis still applies",
+        ),
+        ("Debt service (below the operating margin)", None),
+        ("Principal", "Principal payment", p.principal_usd_hd, "in_num", "$/head sold", ""),
+        (
+            "TermInterest",
+            "Term interest payment",
+            p.term_interest_usd_hd,
+            "in_num",
+            "$/head sold",
+            "",
+        ),
     ]
     names: dict[str, str] = {}
     r = 3
@@ -244,6 +326,8 @@ def _inputs_sheet(wb, ws, p: Projection, f) -> dict[str, str]:
     validate("WeanSource", [s.value for s in WeanPigPriceSource])
     validate("BarnMode", [m.value for m in BarnCostMode])
     validate("LaborMode", [m.value for m in LaborCostMode])
+    validate("MortMode", [m.value for m in MortalityMode])
+    validate("InterestMode", [m.value for m in InterestMode])
     loc_row = int(names["Location"].split("$")[-1]) - 1
     ws.data_validation(
         loc_row,
@@ -269,16 +353,33 @@ def _inputs_sheet(wb, ws, p: Projection, f) -> dict[str, str]:
             "num",
         ),
         ("LaborWage", "Labor wage $/hr", f"=INDEX(Locations!$G$2:$G${LOC_END},LocRow)", "num"),
-        ("CornCash", "Corn cash price (futures + basis)", "=CornFutures+CornBasis", "num"),
-        ("SbmCash", "Soybean meal cash price (futures + basis)", "=SbmFutures+SbmBasis", "num"),
+        (
+            "CornCash",
+            "Corn price paid (futures + basis + carry, blended with hedge)",
+            "=(CornFutures+CornBasis+CornCarry)*(1-CornHedgePct/100)+CornHedged*CornHedgePct/100",
+            "num",
+        ),
+        (
+            "SbmCash",
+            "Soybean meal price paid (futures + basis, blended with hedge)",
+            "=(SbmFutures+SbmBasis)*(1-SbmHedgePct/100)+SbmHedged*SbmHedgePct/100",
+            "num",
+        ),
         (
             "WeanPrice",
             "Weaned pig price used",
-            f'=IF(WeanSource="{WeanPigPriceSource.USDA_CASH.value}",WeanCash,'
-            f'IF(WeanSource="{WeanPigPriceSource.USDA_FORMULA.value}",WeanFormula,WeanManual))',
+            f'=IF(WeanSource="{WeanPigPriceSource.USDA_CASH.value}",WeanCash+WeanAdder,'
+            f'IF(WeanSource="{WeanPigPriceSource.USDA_FORMULA.value}",WeanFormula+WeanAdder,'
+            "WeanManual))",
             "num",
         ),
-        ("HeadSold", "Head sold", "=HeadPlaced*(1-MortalityPct/100)", "num"),
+        (
+            "HeadSold",
+            "Head sold",
+            f'=IF(MortMode="{MortalityMode.USD_PER_PIG.value}",HeadPlaced,'
+            "HeadPlaced*(1-MortalityPct/100))",
+            "num",
+        ),
         (
             "BarnDays",
             "Barn days occupied",
@@ -516,7 +617,11 @@ def _marketing_sheet(wb, ws, p: Projection, f) -> None:
         ws.write_formula(r, 5, f"=IF({on},({m}-1)*2+IF({dd}<=14,1,2),0)", f["int"])
         sold = f"AND({on},N(B{x})>0)"  # a 0% cut needs no price (matches model.py)
         ws.write_formula(
-            r, 6, f"=IF({sold},INDEX(FutPrices,MATCH(E{x},FutContracts,0)),0)", f["num"]
+            r,
+            6,
+            f"=IF({sold},INDEX(FutPrices,MATCH(E{x},FutContracts,0))*(1-HogHedgePct/100)"
+            "+HogHedged*HogHedgePct/100,0)",
+            f["num"],
         )
         ws.write_formula(r, 7, f"=IF({sold},INDEX(BasisByPeriod,F{x}),0)", f["num"])
         ws.write_formula(r, 8, f"=IF({sold},Premium,0)", f["num"])
@@ -557,7 +662,7 @@ def _marketing_sheet(wb, ws, p: Projection, f) -> None:
     )
 
 
-def _costs_sheet(wb, ws, f) -> None:
+def _costs_sheet(wb, ws, f) -> int:
     ws.set_column("A:A", 24)
     ws.set_column("B:F", 16)
     for c, h in enumerate(
@@ -581,7 +686,17 @@ def _costs_sheet(wb, ws, f) -> None:
         ("Utilities", "=HeadPlaced*Utilities"),
         ("Trucking to market", "=HeadSold*Trucking"),
         ("Insurance / misc", "=HeadPlaced*InsMisc"),
-        ("Interest", "=InterestPct/100*AvgDays/365*(B2+0.5*B3)"),
+        ("G&A", "=HeadPlaced*GA"),
+        (
+            "Mortality ($/pig)",
+            f'=IF(MortMode="{MortalityMode.USD_PER_PIG.value}",HeadPlaced*MortCost,0)',
+        ),
+        ("Other / (premiums)", "=HeadSold*OtherSold"),
+        (
+            "Interest",
+            f'=IF(InterestMode="{InterestMode.RATE.value}",'
+            "InterestPct/100*AvgDays/365*(B2+0.5*B3),HeadPlaced*InterestPerPig)",
+        ),
         ("Checkoff", "=GrossRevenue*CheckoffPct/100"),
     ]
     n = len(lines)
@@ -603,9 +718,10 @@ def _costs_sheet(wb, ws, f) -> None:
     ws.write_formula(r, 4, f"=B{tot}/CarcassCwt", f["total2"])
     wb.define_name("TotalCost", f"=Costs!$B${tot}")
     wb.define_name("CheckoffCost", f"=Costs!$B${n + 1}")
+    return n
 
 
-def _dashboard_sheet(wb, ws, f) -> None:
+def _dashboard_sheet(wb, ws, f, n_cost_lines: int) -> None:
     ws.set_column("A:A", 3)
     ws.set_column("B:B", 34)
     ws.set_column("C:C", 18)
@@ -626,6 +742,12 @@ def _dashboard_sheet(wb, ws, f) -> None:
         ("Total cost", "=TotalCost", "usd"),
         ("Revenue $/head sold", "=GrossRevenue/HeadSold", "usd2"),
         ("Cost $/head sold", "=TotalCost/HeadSold", "usd2"),
+        ("Debt service (principal + term interest)", "=HeadSold*(Principal+TermInterest)", "usd"),
+        (
+            "Net $/head sold after debt service",
+            "=(GrossRevenue-TotalCost)/HeadSold-(Principal+TermInterest)",
+            "usd2",
+        ),
     ]
     right = [
         (
@@ -651,25 +773,25 @@ def _dashboard_sheet(wb, ws, f) -> None:
         ws.write(3 + i, 4, label, f["kpi_label"])
         ws.write_formula(3 + i, 5, formula, f[fmt])
 
-    ws.write("B11", "Key prices", f["sub"])
+    ws.write("B13", "Key prices", f["sub"])
     prices = [
-        ("Corn cash $/bu (futures + basis)", "=CornCash"),
+        ("Corn $/bu paid (futures + basis + carry, hedge blend)", "=CornCash"),
         ("Corn basis $/bu", "=CornBasis"),
-        ("Soybean meal cash $/ton", "=SbmCash"),
+        ("Soybean meal $/ton paid (hedge blend)", "=SbmCash"),
         ("Soybean meal basis $/ton", "=SbmBasis"),
         ("DDGS $/ton", "=DdgsPrice"),
         ("Weaned pig $/head", "=WeanPrice"),
     ]
     for i, (label, formula) in enumerate(prices):
-        ws.write(11 + i, 1, label, f["label"])
-        ws.write_formula(11 + i, 2, formula, f["usd2"])
+        ws.write(13 + i, 1, label, f["label"])
+        ws.write_formula(13 + i, 2, formula, f["usd2"])
 
     chart = wb.add_chart({"type": "bar"})
     chart.add_series(
         {
             "name": "Cost $/head sold",
-            "categories": "=Costs!$A$2:$A$11",
-            "values": "=Costs!$D$2:$D$11",
+            "categories": f"=Costs!$A$2:$A${n_cost_lines + 1}",
+            "values": f"=Costs!$D$2:$D${n_cost_lines + 1}",
             "fill": {"color": "#2F5597"},
             "data_labels": {"value": True, "num_format": "$#,##0.00"},
         }
@@ -677,5 +799,5 @@ def _dashboard_sheet(wb, ws, f) -> None:
     chart.set_title({"name": "Cost per head sold"})
     chart.set_legend({"none": True})
     chart.set_y_axis({"reverse": True})
-    chart.set_size({"width": 620, "height": 360})
-    ws.insert_chart("E11", chart)
+    chart.set_size({"width": 620, "height": 420})
+    ws.insert_chart("E13", chart)
