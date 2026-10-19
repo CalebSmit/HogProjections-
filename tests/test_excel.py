@@ -13,7 +13,7 @@ import openpyxl
 import pytest
 
 from hogproj.excel import build_workbook
-from hogproj.inputs import LaborCostMode, MarketingCut, WeanPigPriceSource
+from hogproj.inputs import InterestMode, LaborCostMode, MarketingCut, WeanPigPriceSource
 from hogproj.model import project
 from tests.test_model import make
 
@@ -168,3 +168,36 @@ def check_workbook(p, locations, tmp_path):
     assert dash["C11"].value == pytest.approx(expected.summary["net_after_debt_usd_per_head_sold"])
     assert dash["F4"].value == pytest.approx(expected.summary["breakeven_cwt_carcass"])
     assert dash["F9"].value == pytest.approx(expected.summary["feed_conversion"])
+
+
+@needs_lo
+@pytest.mark.parametrize("corn_is_cash", [False, True])
+def test_weekly_crush_sheet_matches_crush_table(tmp_path, corn_is_cash):
+    from hogproj.crush import CrushSpec, Week, crush_table
+    from tests.test_crush_parity import app_projection
+
+    p = app_projection().model_copy(
+        update={"interest_mode": InterestMode.RATE, "interest_rate_pct": 7.0}
+    )
+    weeks = [
+        Week(date(2026, 9, 13), 40.0, 4.5, 330.0, 160.0, 80.0, -3.0),
+        Week(date(2026, 9, 6), 45.0, 4.3, 320.0, 170.0, 78.0, 1.0),
+        Week(date(2026, 12, 20), 30.0, 4.6, 340.0, 150.0, 85.0, 0.5),  # Dec 15+ -> next Feb
+    ]
+    spec = CrushSpec(weeks, 1, 160, 290.0, corn_is_cash)
+    expected = crush_table(p, weeks, 1, 160, 290.0, corn_is_cash)
+    ws = recalc(build_workbook(p, [p.location], crush=spec), tmp_path)["Weekly Crush"]
+    labels = {str(ws.cell(r, 1).value): r for r in range(1, 60) if ws.cell(r, 1).value}
+    for j, col in enumerate(expected.columns):
+        c = j + 2
+        assert ws.cell(labels["CME contract"], c).value == expected.loc["CME contract", col]
+        for label in (
+            "Revenue $/pig",
+            "Feed $/pig",
+            "Cost of production $/pig",
+            "Margin $/pig",
+            "Margin after debt service $/pig",
+            "Corn $/bu paid",
+        ):
+            got = ws.cell(labels[label], c).value
+            assert got == pytest.approx(float(expected.loc[label, col])), (label, col)

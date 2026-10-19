@@ -232,3 +232,14 @@ def current_report_date(latest_known: date, today: date) -> date:
     while d + timedelta(weeks=1) <= today:
         d += timedelta(weeks=1)
     return d
+
+
+@dataclass(frozen=True)
+class CrushSpec:
+    """Everything the weekly crush needs besides the group's settings (for Excel export)."""
+
+    weeks: list[Week]
+    placement_lag_days: int = 1
+    days_to_market: int = 160
+    sale_weight_lb: float = 290.0
+    corn_is_cash: bool = False

@@ -22,6 +22,7 @@ from hogproj.basis import (
 )
 from hogproj.crush import ROWS as CRUSH_ROWS
 from hogproj.crush import (
+    CrushSpec,
     Week,
     build_weeks,
     crush_table,
@@ -1105,7 +1106,7 @@ with tab_crush:
         report = date.fromisoformat(str(rec["report_date"])[:10])
         edited_weeks.append(Week(report, *map(float, vals)))
     table = crush_table(proj, edited_weeks, int(lag), int(dtm), float(sale_wt), corn_is_cash)
-    ss.crush_inputs = (edited_weeks, int(lag), int(dtm), float(sale_wt), corn_is_cash)
+    crush_spec = CrushSpec(edited_weeks, int(lag), int(dtm), float(sale_wt), corn_is_cash)
 
     if basis_daily.empty:
         st.warning(
@@ -1230,9 +1231,9 @@ with tab_mkt:
 
 with tab_xl:
     st.markdown(
-        "Download this projection as an Excel workbook. Yellow cells are inputs and every "
-        "other number is a live formula, so you can change prices, location, feed budget or "
-        "marketing in Excel and it recalculates."
+        "Download this projection as an Excel workbook, including the **Weekly Crush** sheet. "
+        "Yellow cells are inputs and every other number is a live formula, so you can change "
+        "prices, location, feed budget, marketing or weekly prices in Excel and it recalculates."
     )
     try:
         xlsx = build_workbook(
@@ -1240,6 +1241,7 @@ with tab_xl:
             locations,
             basis_history=by_year if not by_year.empty else None,
             wean_pig_history=wean_df if not wean_df.empty else None,
+            crush=crush_spec,
         )
     except ValueError as e:
         st.error(f"Couldn't build the workbook: {e}")

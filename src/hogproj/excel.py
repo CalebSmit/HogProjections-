@@ -12,6 +12,7 @@ import xlsxwriter
 from xlsxwriter.utility import xl_rowcol_to_cell
 
 from hogproj.basis import PERIODS, period_label
+from hogproj.crush import CrushSpec
 from hogproj.inputs import (
     MAX_CUTS,
     MAX_PHASES,
@@ -26,6 +27,21 @@ from hogproj.inputs import (
 
 MAX_LOCATIONS = 60
 MAX_CONTRACTS = 24
+COST_NAMES = {  # named cells on the Costs sheet, used by the weekly crush
+    "Weaned pigs": "CostPigs",
+    "Feed": "CostFeed",
+    "Barn / facilities": "CostBarn",
+    "Labor": "CostLabor",
+    "Vet / med": "CostVet",
+    "Utilities": "CostUtilities",
+    "Trucking to market": "CostTrucking",
+    "Insurance / misc": "CostInsMisc",
+    "G&A": "CostGA",
+    "Mortality ($/pig)": "CostMortality",
+    "Other / (premiums)": "CostOther",
+    "Interest": "CostInterest",
+    "Checkoff": "CostCheckoff",
+}
 LOC_END = MAX_LOCATIONS + 1  # last Locations row in Excel numbering
 
 
@@ -34,6 +50,7 @@ def build_workbook(
     locations: Sequence[Location],
     basis_history: pd.DataFrame | None = None,
     wean_pig_history: pd.DataFrame | None = None,
+    crush: CrushSpec | None = None,
 ) -> bytes:
     buf = io.BytesIO()
     wb = xlsxwriter.Workbook(buf, {"in_memory": True})
@@ -46,6 +63,7 @@ def build_workbook(
     mkt = wb.add_worksheet("Marketing")
     prices = wb.add_worksheet("Market Data")
     costs = wb.add_worksheet("Costs")
+    crush_ws = wb.add_worksheet("Weekly Crush") if crush and crush.weeks else None
 
     # The workbook looks up the selected location by name, so the exact values the app used
     # must be in the list (the app may have edited them).
@@ -63,8 +81,12 @@ def build_workbook(
     _marketing_sheet(wb, mkt, p, f)
     n_cost_lines = _costs_sheet(wb, costs, f)
     _dashboard_sheet(wb, dash, f, n_cost_lines)
+    if crush_ws is not None and crush is not None:
+        _crush_sheet(wb, crush_ws, crush, f)
 
-    for ws in (dash, inp, loc, feed, mkt, prices, costs):
+    for ws in (dash, inp, loc, feed, mkt, prices, costs, crush_ws):
+        if ws is None:
+            continue
         ws.set_paper(1)  # US letter
         ws.set_landscape()
         ws.fit_to_pages(1, 0)  # one page wide, as many tall as needed
@@ -98,6 +120,7 @@ def _formats(wb: xlsxwriter.Workbook) -> dict:
         "pct": wb.add_format({**base, "num_format": "0.0%"}),
         "date": wb.add_format({**base, "num_format": "yyyy-mm-dd"}),
         "txt": wb.add_format(base),
+        "txt_r": wb.add_format({**base, "align": "right"}),
         "kpi": wb.add_format(
             {**base, "bold": True, "font_size": 14, "num_format": "$#,##0.00", "border": 1}
         ),
@@ -505,6 +528,11 @@ def _feed_sheet(wb, ws, p: Projection, f) -> None:
     ws.write_formula(tr, 13, f"=IF(H{tr + 1}=0,0,M{tr + 1}/H{tr + 1})", f["usd2"])
     wb.define_name("FeedCost", f"=Feed!$M${tr + 1}")
     wb.define_name("FeedTons", f"=Feed!$H${tr + 1}")
+    # quantities for the weekly crush, which reprices the same ration every week
+    wb.define_name("FeedCornBu", f"=Feed!$I${tr + 1}")
+    wb.define_name("FeedSbmTons", f"=Feed!$J${tr + 1}")
+    wb.define_name("FeedDdgsTons", f"=Feed!$K${tr + 1}")
+    wb.define_name("FeedOtherUsd", f"=SUMPRODUCT(Feed!$L$2:$L${tr},Feed!$G$2:$G${tr})")
     ws.write(
         tr + 2,
         0,
@@ -704,6 +732,7 @@ def _costs_sheet(wb, ws, f) -> int:
     for i, (label, formula) in enumerate(lines):
         r = i + 1
         x = r + 1
+        wb.define_name(COST_NAMES[label], f"=Costs!$B${x}")
         ws.write(r, 0, label, f["label"])
         ws.write_formula(r, 1, formula, f["usd"])
         ws.write_formula(r, 2, f"=B{x}/HeadPlaced", f["usd2"])
@@ -801,3 +830,170 @@ def _dashboard_sheet(wb, ws, f, n_cost_lines: int) -> None:
     chart.set_y_axis({"reverse": True})
     chart.set_size({"width": 620, "height": 420})
     ws.insert_chart("E13", chart)
+
+
+def _crush_sheet(wb, ws, spec: CrushSpec, f) -> None:
+    """Weekly crush: yellow weekly price rows, every other row a formula over named inputs.
+
+    Mirrors crush.crush_table: same ration, settings and costs as the group, a single sale
+    CrDays after placement at CrWeight, the weaned pig at the USDA cash price + adder.
+    """
+    ws.set_column(0, 0, 34)
+    ws.set_column(1, len(spec.weeks) + 1, 13)
+    ws.write("A1", "Weekly Crush — margin per pig by weekly placement", f["title"])
+    ws.write(
+        "A2",
+        "Yellow cells are inputs. Costs, ration, hedges and debt come from the "
+        "Inputs/Feed/Costs sheets.",
+        f["note"],
+    )
+    settings = [
+        ("CrLag", "Report → placement (days)", spec.placement_lag_days, "in_int"),
+        ("CrDays", "Days to average marketing", spec.days_to_market, "in_int"),
+        ("CrWeight", "Sale weight (lb live)", spec.sale_weight_lb, "in_num"),
+        (
+            "CrCornCash",
+            "Corn prices are cash (Yes/No)",
+            "Yes" if spec.corn_is_cash else "No",
+            "in_txt",
+        ),
+    ]
+    for i, (name, label, value, fmt) in enumerate(settings):
+        ws.write(3 + i, 0, label, f["label"])
+        ws.write(3 + i, 1, value, f[fmt])
+        wb.define_name(name, f"='Weekly Crush'!$B${4 + i}")
+    ws.data_validation(6, 1, 6, 1, {"validate": "list", "source": ["Yes", "No"]})
+
+    inputs = [
+        "USDA report date",
+        "USDA weaned pig $/hd",
+        "Corn $/bu",
+        "Soybean meal $/ton",
+        "DDGS $/ton",
+        "Lean hog futures $/cwt",
+        "Hog basis $/cwt",
+    ]
+    top = 8  # 0-based row of the first input row
+    row = {label: top + i for i, label in enumerate(inputs)}
+    computed = [
+        ("Placement date", "date"),
+        ("Avg marketing date", "date"),
+        ("CME contract", "txt"),
+        ("Corn $/bu paid", "usd2"),
+        ("Soybean meal $/ton paid", "usd2"),
+        ("Price $/cwt carcass", "usd2"),
+        ("Revenue $/pig", "usd2"),
+        ("Weaned pig $/pig", "usd2"),
+        ("Feed $/pig", "usd2"),
+        ("Barn / facilities $/pig", "usd2"),
+        ("Other fixed costs $/pig", "usd2"),
+        ("Interest $/pig", "usd2"),
+        ("Checkoff $/pig", "usd2"),
+        ("Cost of production $/pig", "usd2"),
+        ("Margin $/pig", "usd2"),
+        ("Margin after debt service $/pig", "usd2"),
+    ]
+    first_calc = top + len(inputs) + 1
+    for i, (label, _) in enumerate(computed):
+        row[label] = first_calc + i
+    for label in inputs:
+        ws.write(row[label], 0, label, f["label"])
+    for label, _ in computed:
+        ws.write(row[label], 0, label, f["sub"] if label.startswith("Margin") else f["label"])
+
+    def ref(label: str, col: int) -> str:
+        return xl_rowcol_to_cell(row[label], col)
+
+    for j, w in enumerate(spec.weeks):
+        c = j + 1
+        ws.write_datetime(
+            row["USDA report date"], c, pd.Timestamp(w.report_date).to_pydatetime(), f["in_date"]
+        )
+        for label, v in zip(
+            inputs[1:],
+            [
+                w.wean_usd_hd,
+                w.corn_usd_bu,
+                w.sbm_usd_ton,
+                w.ddgs_usd_ton,
+                w.hog_futures_cwt,
+                w.hog_basis_cwt,
+            ],
+            strict=True,
+        ):
+            ws.write(row[label], c, v, f["in_num"])
+        place, sale = ref("Placement date", c), ref("Avg marketing date", c)
+        m, dd = f"MONTH({sale})", f"DAY({sale})"
+        listed = f"ISNUMBER(MATCH({m},{{2,4,5,6,7,8,10,12}},0))"
+        nxt = f"IF({m}<2,2,IF({m}<4,4,IF({m}<8,{m}+1,IF({m}<10,10,IF({m}<12,12,14)))))"
+        cm = f"IF(AND({listed},{dd}<=14),{m},{nxt})"
+        corn_open = f'({ref("Corn $/bu", c)}+IF(CrCornCash="Yes",0,CornBasis)+CornCarry)'
+        price = (
+            f"{ref('Lean hog futures $/cwt', c)}*(1-HogHedgePct/100)"
+            f"+HogHedged*HogHedgePct/100+{ref('Hog basis $/cwt', c)}+Premium"
+        )
+        revenue = f"HeadSold*CrWeight*YieldPct/100/100*{ref('Price $/cwt carcass', c)}"
+        pig = f"HeadPlaced*({ref('USDA weaned pig $/hd', c)}+WeanAdder+WeanFreight)"
+        corn_paid, sbm_paid = ref("Corn $/bu paid", c), ref("Soybean meal $/ton paid", c)
+        feed = (
+            f"(FeedCornBu*{corn_paid}+FeedSbmTons*{sbm_paid}"
+            f"+FeedDdgsTons*{ref('DDGS $/ton', c)}+FeedOtherUsd+FeedTons*FeedMill)"
+        )
+        barn = (
+            f'IF(BarnMode="{BarnCostMode.PER_SPACE_YEAR.value}",'
+            "HeadPlaced*BarnRent*(CrDays+BarnDowntime)/365,HeadPlaced*BarnPerPig)"
+        )
+        fixed = (
+            "(CostLabor+CostVet+CostUtilities+CostTrucking+CostInsMisc+CostGA"
+            "+CostMortality+CostOther)"
+        )
+        interest = (
+            f'IF(InterestMode="{InterestMode.RATE.value}",'
+            f"InterestPct/100*CrDays/365*({pig}+0.5*{feed}),HeadPlaced*InterestPerPig)"
+        )
+        per_pig_lines = [
+            "Weaned pig $/pig",
+            "Feed $/pig",
+            "Barn / facilities $/pig",
+            "Other fixed costs $/pig",
+            "Interest $/pig",
+            "Checkoff $/pig",
+        ]
+        cost_sum = "+".join(ref(x, c) for x in per_pig_lines)
+        formulas = {
+            "Placement date": (f"={ref('USDA report date', c)}+CrLag", "date"),
+            "Avg marketing date": (f"={place}+CrDays", "date"),
+            "CME contract": (
+                f'=(YEAR({sale})+({cm}>12))&"-"&TEXT({cm}-12*({cm}>12),"00")',
+                "txt_r",
+            ),
+            "Corn $/bu paid": (
+                f"={corn_open}*(1-CornHedgePct/100)+CornHedged*CornHedgePct/100",
+                "usd2",
+            ),
+            "Soybean meal $/ton paid": (
+                f"=({ref('Soybean meal $/ton', c)}+SbmBasis)*(1-SbmHedgePct/100)"
+                "+SbmHedged*SbmHedgePct/100",
+                "usd2",
+            ),
+            "Price $/cwt carcass": (f"={price}", "usd2"),
+            "Revenue $/pig": (f"={revenue}/HeadSold", "usd2"),
+            "Weaned pig $/pig": (f"={pig}/HeadSold", "usd2"),
+            "Feed $/pig": (f"={feed}/HeadSold", "usd2"),
+            "Barn / facilities $/pig": (f"={barn}/HeadSold", "usd2"),
+            "Other fixed costs $/pig": (f"={fixed}/HeadSold", "usd2"),
+            "Interest $/pig": (f"={interest}/HeadSold", "usd2"),
+            "Checkoff $/pig": (f"={ref('Revenue $/pig', c)}*CheckoffPct/100", "usd2"),
+            "Cost of production $/pig": (f"={cost_sum}", "usd2"),
+            "Margin $/pig": (
+                f"={ref('Revenue $/pig', c)}-{ref('Cost of production $/pig', c)}",
+                "usd2",
+            ),
+            "Margin after debt service $/pig": (
+                f"={ref('Margin $/pig', c)}-(Principal+TermInterest)",
+                "usd2",
+            ),
+        }
+        for label, (formula, fmt) in formulas.items():
+            ws.write_formula(row[label], c, formula, f[fmt])
+    ws.freeze_panes(top, 1)
