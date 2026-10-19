@@ -1,8 +1,9 @@
 """Design system + shared page helpers for views/. UI layer: may import streamlit and data.
 
-Tokens here mirror .streamlit/config.toml and docs/DESIGN.md. Pages should build from these
-components (page_header, insight, card, section, chart, kpi formatting) rather than styling
-things one by one; that consistency is most of what makes the app look finished.
+Direction "Field Report" (docs/DESIGN.md): an advisor's analysis, not generic software.
+Warm paper page, serif headlines that state the finding, one field-green accent, numbers in a
+quote-style hero and a hairline stat strip, charts labelled directly with a source line.
+Tokens here mirror .streamlit/config.toml; keep them in sync.
 """
 
 import html
@@ -25,48 +26,52 @@ from hogproj.markets import lean_hog_index
 from hogproj.outlook import Plan
 
 # --- Tokens ---------------------------------------------------------------------------------
-FONT = "Inter, 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif"
-INK = "#16181d"  # primary text
-INK_2 = "#4d535e"  # secondary text
-MUTED = "#8b909a"  # labels, axes
-LINE = "#e3e3de"  # hairline borders
-GRID = "#efefeb"  # chart gridlines
-SURFACE = "#ffffff"  # cards
-PAGE = "#f6f6f4"  # app background
-ACCENT = "#1f4e8c"  # brand / interactive
+SANS = "Inter, 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif"
+SERIF = "'Source Serif 4', 'Source Serif Pro', Georgia, 'Times New Roman', serif"
+FONT = SANS
+PAGE = "#f7f5f0"  # warm paper
+SURFACE = "#ffffff"  # panels
+INK = "#1d2520"  # primary text (green-black)
+INK_2 = "#4b554e"  # secondary text
+MUTED = "#7c847e"  # labels, axes
+LINE = "#e5e0d5"  # hairline rules and borders
+GRID = "#ece8de"  # chart gridlines
+ACCENT = "#1f5c45"  # field green: interaction, the headline series
+ACCENT_TINT = "#e7efe9"
 POS = "#178a6a"  # profit (validated vs NEG for colour-vision deficiency, ΔE 8.1)
 NEG = "#c8453a"  # loss
-CAUTION = "#b7791f"
-REFERENCE = "#5b616e"  # breakeven / reference lines
+CAUTION = "#b07a1f"
+REFERENCE = "#857f73"  # breakeven / reference lines
 SERIES = ["#2a78d6", "#eb6834", "#1baf7a"]  # categorical slots 1-3 (validated all-pairs)
-BASELINE_SERIES = "#3a3f47"  # "current plan" when compared with scenarios
+BASELINE_SERIES = INK  # "current plan" when compared with scenarios
+HISTORY = "#3a423d"  # actual (observed) series next to a projection
 BLUE_RAMP = ["#cde2fb", "#9ec5f4", "#5598e7", "#2a78d6", "#1c5cab"]
-DIVERGING = [[0.0, NEG], [0.5, "#f1f0ec"], [1.0, POS]]  # loss <-> neutral <-> profit
+DIVERGING = [[0.0, NEG], [0.5, "#f3f1ec"], [1.0, POS]]  # loss <-> neutral <-> profit
 
-# Back-compat aliases used by older page code.
-GOOD, BAD, NEUTRAL = POS, NEG, MUTED
+GOOD, BAD, NEUTRAL = POS, NEG, MUTED  # back-compat aliases
 
 Tone = Literal["good", "bad", "neutral", "caution"]
 _TONE = {
-    "good": (POS, "#e7f4ef", "#11704f"),
-    "bad": (NEG, "#fbecea", "#a8352b"),
-    "neutral": (MUTED, "#f1f1ee", INK_2),
-    "caution": (CAUTION, "#fbf3e4", "#8a5a12"),
+    "good": (POS, "#e6f3ee", "#11704f"),
+    "bad": (NEG, "#faebe8", "#a8352b"),
+    "neutral": (MUTED, "#f0eee8", INK_2),
+    "caution": (CAUTION, "#f8f0e0", "#8a5a12"),
 }
+TONE_TEXT = {k: v[2] for k, v in _TONE.items()}
 
 pio.templates["hogproj"] = go.layout.Template(
     layout=go.Layout(
-        font={"family": FONT, "size": 12, "color": INK_2},
+        font={"family": SANS, "size": 12, "color": INK_2},
         paper_bgcolor=SURFACE,
         plot_bgcolor=SURFACE,
         separators=".,",
-        colorway=SERIES,
+        colorway=[ACCENT, *SERIES],
         margin={"l": 4, "r": 8, "t": 8, "b": 4},
         hovermode="x unified",
         hoverlabel={
             "bgcolor": SURFACE,
             "bordercolor": LINE,
-            "font": {"family": FONT, "size": 12, "color": INK},
+            "font": {"family": SANS, "size": 12, "color": INK},
         },
         legend={
             "orientation": "h",
@@ -76,15 +81,14 @@ pio.templates["hogproj"] = go.layout.Template(
             "yanchor": "bottom",
             "font": {"size": 11.5, "color": INK_2},
             "bgcolor": "rgba(0,0,0,0)",
-            "itemwidth": 30,
         },
         xaxis={
             "showgrid": False,
             "zeroline": False,
             "showline": True,
-            "linecolor": "#d6d6d0",
+            "linecolor": "#d9d3c6",
             "ticks": "outside",
-            "tickcolor": "#d6d6d0",
+            "tickcolor": "#d9d3c6",
             "ticklen": 4,
             "tickfont": {"size": 11, "color": MUTED},
             "title": {"font": {"size": 11, "color": MUTED}, "standoff": 8},
@@ -100,93 +104,150 @@ pio.templates["hogproj"] = go.layout.Template(
             "title": {"font": {"size": 11, "color": MUTED}, "standoff": 8},
             "automargin": True,
         },
-        bargap=0.28,
+        bargap=0.3,
     )
+)
+
+_FONTS = (
+    "https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600"
+    "&display=swap"
 )
 
 _CSS = f"""
 <style>
-:root {{ --hp-ink:{INK}; --hp-ink2:{INK_2}; --hp-muted:{MUTED}; --hp-line:{LINE};
-         --hp-surface:{SURFACE}; --hp-accent:{ACCENT}; --hp-pos:{POS}; --hp-neg:{NEG};
-         --hp-shadow: 0 1px 2px rgba(16,24,40,.04), 0 1px 1px rgba(16,24,40,.02); }}
+@import url('{_FONTS}');
+:root {{ --ink:{INK}; --ink2:{INK_2}; --muted:{MUTED}; --line:{LINE}; --surface:{SURFACE};
+         --accent:{ACCENT}; --accent-tint:{ACCENT_TINT}; --pos:{POS}; --neg:{NEG};
+         --serif:{SERIF}; }}
 html, body, .stApp {{ -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
          font-feature-settings: "cv11", "ss01", "ss03"; }}
 [data-testid="stDecoration"] {{ display: none; }}
 header[data-testid="stHeader"] {{ background: transparent; }}
-[data-testid="stMainBlockContainer"] {{ padding-top: 2.4rem; padding-bottom: 5rem;
-         max-width: 1360px; }}
-h1 {{ letter-spacing: -0.022em; line-height: 1.15 !important; padding: 0 !important; }}
-h2, h3, h4 {{ letter-spacing: -0.012em; }}
-[data-testid="stHeadingWithActionElements"] [data-testid="stHeaderActionElements"] {{
-         display: none; }}
+[data-testid="stMainBlockContainer"] {{ padding-top: 2.6rem; padding-bottom: 5rem;
+         max-width: 1320px; }}
+h1 {{ font-family: var(--serif) !important; font-weight: 600 !important; letter-spacing: -0.012em;
+         line-height: 1.18 !important; padding: 0 !important; color: var(--ink); }}
+h2, h3, h4 {{ letter-spacing: -0.01em; }}
+[data-testid="stHeaderActionElements"] {{ display: none; }}
 p, li {{ line-height: 1.55; }}
 
-/* KPI cards (st.metric) */
-[data-testid="stMetric"] {{ background: var(--hp-surface); border: 1px solid var(--hp-line);
-         border-radius: 12px; padding: 16px 18px 15px; box-shadow: var(--hp-shadow);
-         height: 100%; }}
-[data-testid="stMetricLabel"] p {{ font-size: 12.5px !important; font-weight: 500;
-         color: var(--hp-muted); letter-spacing: .005em; }}
-[data-testid="stMetricValue"] {{ letter-spacing: -0.025em; color: var(--hp-ink);
-         line-height: 1.2; padding-top: 2px; }}
+/* Native KPI cards (pages not yet on stat_strip) */
+[data-testid="stMetric"] {{ background: var(--surface); border: 1px solid var(--line);
+         border-radius: 10px; padding: 15px 18px 14px; height: 100%; }}
+[data-testid="stMetricLabel"] p {{ font-size: 11px !important; font-weight: 600;
+         text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }}
+[data-testid="stMetricValue"] {{ letter-spacing: -0.02em; color: var(--ink); line-height: 1.2; }}
 [data-testid="stMetricDelta"] {{ font-size: 12px; font-weight: 500; }}
-[data-testid="stMetricDelta"] > div {{ font-size: 12px; }}
 
-/* Cards: st.container(key="card_*") */
-[class*="st-key-card_"] {{ background: var(--hp-surface); border: 1px solid var(--hp-line);
-         border-radius: 12px; padding: 18px 20px 14px; box-shadow: var(--hp-shadow); }}
-[class*="st-key-card_"] [data-testid="stPlotlyChart"] {{ margin-top: -2px; }}
+/* Panels: st.container(key="card_*") */
+[class*="st-key-card_"] {{ background: var(--surface); border: 1px solid var(--line);
+         border-radius: 10px; padding: 20px 22px 14px; }}
+[class*="st-key-hero"] {{ background: var(--surface); border: 1px solid var(--line);
+         border-radius: 12px; padding: 26px 28px 16px; }}
 
-/* Sidebar */
-[data-testid="stSidebarHeader"] {{ padding-top: 1.4rem; padding-bottom: .6rem; }}
+/* Sidebar: navigation only */
+[data-testid="stSidebar"] {{ border-right: 1px solid var(--line); }}
+[data-testid="stSidebarHeader"] {{ padding-top: 1.5rem; padding-bottom: .5rem; }}
 [data-testid="stNavSectionHeader"] {{ text-transform: uppercase; font-size: 10.5px !important;
-         letter-spacing: .08em; color: var(--hp-muted) !important; font-weight: 600;
-         margin-top: .9rem; }}
-[data-testid="stSidebarNavLink"] {{ border-radius: 8px; padding-top: .3rem;
-         padding-bottom: .3rem; }}
-[data-testid="stSidebarNavLink"] span {{ font-size: 13.5px; }}
-[data-testid="stSidebarNavLink"][aria-current="page"] {{ background: #eef2f8; }}
-[data-testid="stSidebarNavLink"][aria-current="page"] span {{ color: var(--hp-accent);
+         letter-spacing: .09em; color: var(--muted) !important; font-weight: 600;
+         margin-top: 1rem; }}
+[data-testid="stSidebarNavLink"] {{ border-radius: 7px; padding-top: .32rem;
+         padding-bottom: .32rem; }}
+[data-testid="stSidebarNavLink"] span {{ font-size: 13.5px; color: var(--ink2); }}
+[data-testid="stSidebarNavLink"][aria-current="page"] {{ background: var(--accent-tint); }}
+[data-testid="stSidebarNavLink"][aria-current="page"] span {{ color: var(--accent);
          font-weight: 600; }}
-[data-testid="stSidebarUserContent"] h2 {{ font-size: 11px !important; text-transform: uppercase;
-         letter-spacing: .08em; color: var(--hp-muted); font-weight: 600;
-         padding-top: .4rem !important; }}
-[data-testid="stSidebarUserContent"] label p {{ font-size: 13px; color: var(--hp-ink2); }}
+[data-testid="stSidebarUserContent"] h2 {{ font-size: 10.5px !important;
+         text-transform: uppercase; letter-spacing: .09em; color: var(--muted);
+         font-weight: 600; padding-top: .4rem !important; }}
 
-/* Expanders, inputs, tables */
-[data-testid="stExpander"] details {{ border-radius: 12px; background: var(--hp-surface);
-         border-color: var(--hp-line); }}
-[data-testid="stExpander"] summary p {{ font-weight: 500; }}
-[data-testid="stDataFrame"] {{ border-radius: 10px; }}
-[data-testid="stCaptionContainer"] p {{ color: var(--hp-muted); font-size: 12.5px; }}
+/* Assumption bar: popovers styled as chips */
+[class*="st-key-assume"] [data-testid="stPopover"] button {{ background: var(--surface);
+         border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px;
+         box-shadow: none; }}
+[class*="st-key-assume"] [data-testid="stPopover"] button p {{ font-size: 12.5px;
+         color: var(--ink2); }}
+[class*="st-key-assume"] [data-testid="stPopover"] button:hover {{ border-color: #cfc8b9; }}
+
+/* Expanders, tables, captions, buttons */
+[data-testid="stExpander"] details {{ border-radius: 10px; background: transparent;
+         border-color: var(--line); }}
+[data-testid="stExpander"] summary p {{ font-weight: 500; color: var(--ink2); }}
+[data-testid="stCaptionContainer"] p {{ color: var(--muted); font-size: 12px; }}
 [data-testid="stDownloadButton"] button, [data-testid="stBaseButton-secondary"] {{
-         font-weight: 500; box-shadow: var(--hp-shadow); }}
+         font-weight: 500; }}
 
-/* Custom components */
-.hp-eyebrow {{ font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
-         color: var(--hp-muted); margin-bottom: 2px; }}
-.hp-sub {{ color: var(--hp-ink2); font-size: 14px; margin: 4px 0 2px; max-width: 760px; }}
+/* Typography components */
+.hp-kicker {{ font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+         color: var(--accent); margin-bottom: 6px; }}
+.hp-dek {{ color: var(--ink2); font-size: 15.5px; line-height: 1.5; margin: 8px 0 0;
+         max-width: 760px; }}
 .hp-meta {{ display: flex; justify-content: flex-end; gap: 8px; align-items: center;
          flex-wrap: wrap; }}
 .hp-chip {{ display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500;
-         padding: 3px 10px 3px 8px; border-radius: 999px; border: 1px solid var(--hp-line);
-         background: var(--hp-surface); color: var(--hp-ink2); white-space: nowrap; }}
+         padding: 3px 10px 3px 8px; border-radius: 999px; border: 1px solid var(--line);
+         background: var(--surface); color: var(--ink2); white-space: nowrap; }}
 .hp-dot {{ width: 7px; height: 7px; border-radius: 50%; display: inline-block; }}
-.hp-insight {{ background: var(--hp-surface); border: 1px solid var(--hp-line); border-radius: 14px;
-         padding: 18px 22px 18px; box-shadow: var(--hp-shadow); margin: 6px 0 16px; }}
-.hp-insight-head {{ font-size: 19px; font-weight: 600; color: var(--hp-ink);
-         letter-spacing: -0.015em; margin: 10px 0 4px; line-height: 1.35; }}
+.hp-title {{ font-family: var(--serif); font-size: 19px; font-weight: 600; color: var(--ink);
+         letter-spacing: -0.005em; line-height: 1.3; margin: 0; }}
+.hp-title-sub {{ font-size: 12.5px; color: var(--muted); margin: 3px 0 8px; }}
+.hp-source {{ font-size: 11.5px; color: var(--muted); line-height: 1.5; margin: 2px 0 0; }}
+.hp-source b {{ color: var(--ink2); font-weight: 600; }}
+.hp-rule {{ border: 0; border-top: 1px solid var(--line); margin: 30px 0 26px; }}
+.hp-foot {{ font-size: 11.5px; color: var(--muted); line-height: 1.5; }}
+
+/* Quote hero */
+.hp-quote-label {{ font-size: 11px; font-weight: 600; letter-spacing: .09em; color: var(--muted);
+         text-transform: uppercase; }}
+.hp-quote {{ display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-top: 4px; }}
+.hp-quote-value {{ font-size: 46px; font-weight: 600; letter-spacing: -0.03em; color: var(--ink);
+         line-height: 1.05; }}
+.hp-quote-unit {{ font-size: 15px; color: var(--muted); font-weight: 500; }}
+.hp-quote-change {{ font-size: 18px; font-weight: 600; }}
+.hp-quote-sub {{ font-size: 12.5px; color: var(--muted); margin-top: 6px; }}
+
+/* Stat strip: one row split by hairlines */
+.hp-strip {{ display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+         border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+         margin: 20px 0 6px; }}
+.hp-stat {{ padding: 14px 18px 13px; border-left: 1px solid var(--line); }}
+.hp-stat:first-child {{ border-left: 0; padding-left: 0; }}
+.hp-stat-k {{ font-size: 10.5px; font-weight: 600; letter-spacing: .08em; color: var(--muted);
+         text-transform: uppercase; }}
+.hp-stat-v {{ font-size: 21px; font-weight: 600; color: var(--ink); letter-spacing: -0.02em;
+         margin-top: 3px; font-variant-numeric: tabular-nums; }}
+.hp-stat-d {{ font-size: 12px; font-weight: 500; margin-top: 1px; }}
+
+/* Key-value table */
+.hp-kv {{ width: 100%; border-collapse: collapse; font-size: 13.5px; border: 0 !important;
+         font-variant-numeric: tabular-nums; margin: 0; }}
+.hp-kv tr, .hp-kv td {{ border: 0 !important; background: transparent !important; }}
+.hp-kv td {{ padding: 9px 0 !important; border-bottom: 1px solid var(--line) !important; }}
+.hp-kv td:first-child {{ color: var(--ink2); }}
+.hp-kv td:last-child {{ text-align: right; color: var(--ink); font-weight: 600; }}
+
+.hp-table, .hp-table tr, .hp-table th, .hp-table td {{ border-left: 0 !important;
+         border-right: 0 !important; border-top: 0 !important; background: transparent; }}
+.hp-table {{ border: 0 !important; }}
+
+/* Legacy insight card (pages not yet migrated) */
+.hp-insight {{ background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+         padding: 18px 22px; margin: 6px 0 16px; }}
+.hp-insight-head {{ font-family: var(--serif); font-size: 21px; font-weight: 600;
+         color: var(--ink); margin: 10px 0 4px; line-height: 1.3; }}
 .hp-facts {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
-         gap: 6px 24px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #efefeb; }}
-.hp-fact-k {{ font-size: 12px; color: var(--hp-muted); }}
-.hp-fact-v {{ font-size: 15px; font-weight: 600; color: var(--hp-ink); letter-spacing: -0.01em;
+         gap: 6px 24px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }}
+.hp-fact-k {{ font-size: 11px; color: var(--muted); text-transform: uppercase;
+         letter-spacing: .06em; font-weight: 600; }}
+.hp-fact-v {{ font-size: 15px; font-weight: 600; color: var(--ink);
          font-variant-numeric: tabular-nums; }}
-.hp-note {{ color: var(--hp-ink2); font-size: 13px; margin-top: 10px; }}
-.hp-section {{ font-size: 14.5px; font-weight: 600; color: var(--hp-ink); letter-spacing: -0.01em;
+.hp-note {{ color: var(--ink2); font-size: 13px; margin-top: 10px; }}
+.hp-eyebrow {{ font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+         color: var(--accent); margin-bottom: 4px; }}
+.hp-sub {{ color: var(--ink2); font-size: 15px; margin: 6px 0 2px; max-width: 760px; }}
+.hp-section {{ font-family: var(--serif); font-size: 18px; font-weight: 600; color: var(--ink);
          margin: 0; }}
-.hp-section-sub {{ font-size: 12.5px; color: var(--hp-muted); margin: 2px 0 6px; }}
-.hp-pos {{ color: #11704f; }} .hp-neg {{ color: #a8352b; }}
-.hp-foot {{ font-size: 11.5px; color: var(--hp-muted); line-height: 1.5; }}
+.hp-section-sub {{ font-size: 12.5px; color: var(--muted); margin: 3px 0 8px; }}
 </style>
 """
 
@@ -209,7 +270,7 @@ def usd(x: float, decimals: int = 2) -> str:
 
 
 def usd_short(x: float) -> str:
-    """Compact dollars for headlines: 1_234_567 -> '$1.23M', -869_092 -> '-$869k'."""
+    """Compact dollars for headlines: 1_234_567 -> '$1.23M', -869_092 -> '−$869k'."""
     a = abs(x)
     sign = MINUS if x < 0 and round(a) else ""
     if a >= 1e6:
@@ -220,7 +281,7 @@ def usd_short(x: float) -> str:
 
 
 def signed(x: float, fmt=usd) -> str:
-    """Explicit sign for changes: +$1.50 / -$1.50."""
+    """Explicit sign for changes: +$1.50 / −$1.50."""
     s = fmt(x)
     return s if s.startswith(MINUS) or s.lstrip("$0.,") == "" else f"+{s}"
 
@@ -232,9 +293,22 @@ def delta(x: float, fmt=usd, suffix: str = "") -> str:
     return f"{'-' if round(x, 2) < 0 else '+'}{s}{suffix}"
 
 
+def tone_of(x: float) -> Tone:
+    return "good" if x > 0 else "bad" if x < 0 else "neutral"
+
+
 def _safe(text: str) -> str:
     """Escape HTML and keep "$" from being read as LaTeX by Streamlit's markdown."""
     return html.escape(text).replace("$", "&#36;")
+
+
+def md(text: str) -> str:
+    """Escape "$" for Streamlit widget labels (markdown), so "$5 · $300" isn't read as LaTeX."""
+    return text.replace("$", r"\$")
+
+
+def _html(markup: str) -> None:
+    st.markdown(markup, unsafe_allow_html=True)
 
 
 # --- Data access ----------------------------------------------------------------------------
@@ -279,7 +353,7 @@ def chip(label: str, tone: Tone = "neutral", title: str = "") -> str:
 
 
 def data_chip() -> str:
-    """'Live USDA data · Oct 19' or 'Saved data through …', for page headers."""
+    """'Live USDA data · index Oct 15' or 'Saved data through …', for page headers."""
     idx, source, note = hog_index()
     last = pd.Timestamp(idx["index_date"].iloc[-1])
     if source == "live":
@@ -287,25 +361,81 @@ def data_chip() -> str:
     return chip(f"Saved data through {last:%b %d, %Y}", "caution", note)
 
 
+def masthead(
+    title: str, dek: str = "", kicker: str = "", meta: Sequence[str] = ()
+) -> DeltaGenerator:
+    """Editorial page head: kicker, serif headline (ideally the finding), dek, status on the
+    right. Returns the right-hand column for an action button."""
+    left, right = st.columns([3.2, 1], vertical_alignment="top")
+    with left:
+        if kicker:
+            _html(f'<div class="hp-kicker">{_safe(kicker)}</div>')
+        st.title(title.replace("$", r"\$"))  # "$...$" would render as LaTeX math
+        if dek:
+            _html(f'<div class="hp-dek">{_safe(dek)}</div>')
+    with right:
+        _html(f'<div class="hp-meta" style="margin-top:2px">{"".join([data_chip(), *meta])}</div>')
+    _html('<div style="height:18px"></div>')
+    return right
+
+
 def page_header(
     title: str, subtitle: str = "", eyebrow: str = "", meta: Sequence[str] = ()
 ) -> DeltaGenerator:
-    """Eyebrow, title, subtitle on the left; status chips on the right.
+    """Older name for `masthead`."""
+    return masthead(title, subtitle, eyebrow, meta)
 
-    Returns the right-hand column so a page can add an action (e.g. a download button).
-    """
-    left, right = st.columns([3, 1.25], vertical_alignment="bottom")
-    with left:
-        if eyebrow:
-            st.markdown(f'<div class="hp-eyebrow">{_safe(eyebrow)}</div>', unsafe_allow_html=True)
-        st.title(title)
-        if subtitle:
-            st.markdown(f'<div class="hp-sub">{_safe(subtitle)}</div>', unsafe_allow_html=True)
-    with right:
-        chips = [data_chip(), *meta]
-        st.markdown(f'<div class="hp-meta">{"".join(chips)}</div>', unsafe_allow_html=True)
-    st.markdown('<div style="height:6px"></div>', unsafe_allow_html=True)
-    return right
+
+def quote(label: str, value: str, unit: str = "", change: str = "", tone: Tone = "neutral",
+          sub: str = "") -> None:  # fmt: skip
+    """Market-quote style hero number: label, big value + unit, coloured change, context line."""
+    ch = (
+        f'<span class="hp-quote-change" style="color:{TONE_TEXT[tone]}">{_safe(change)}</span>'
+        if change
+        else ""
+    )
+    _html(
+        f'<div class="hp-quote-label">{_safe(label)}</div>'
+        f'<div class="hp-quote"><span class="hp-quote-value">{_safe(value)}</span>'
+        f'<span class="hp-quote-unit">{_safe(unit)}</span>{ch}</div>'
+        + (f'<div class="hp-quote-sub">{_safe(sub)}</div>' if sub else "")
+    )
+
+
+def stat_strip(items: Sequence[tuple[str, str, str, Tone]]) -> None:
+    """One row of figures split by hairlines: (label, value, note, tone of the note)."""
+    cells = "".join(
+        f'<div class="hp-stat"><div class="hp-stat-k">{_safe(k)}</div>'
+        f'<div class="hp-stat-v">{_safe(v)}</div>'
+        f'<div class="hp-stat-d" style="color:{TONE_TEXT[t]}">{_safe(d) or "&nbsp;"}</div></div>'
+        for k, v, d, t in items
+    )
+    _html(f'<div class="hp-strip">{cells}</div>')
+
+
+def chart_title(finding: str, sub: str = "") -> None:
+    """Serif headline that states what the chart shows, with units/scope underneath."""
+    _html(
+        f'<div class="hp-title">{_safe(finding)}</div>'
+        + (f'<div class="hp-title-sub">{_safe(sub)}</div>' if sub else "")
+    )
+
+
+def source_note(source: str, note: str = "") -> None:
+    _html(
+        f'<div class="hp-source"><b>Source:</b> {_safe(source)}'
+        + (f" &nbsp;·&nbsp; <b>Note:</b> {_safe(note)}" if note else "")
+        + "</div>"
+    )
+
+
+def rule() -> None:
+    _html('<hr class="hp-rule">')
+
+
+def kv_table(rows: Sequence[tuple[str, str]]) -> None:
+    body = "".join(f"<tr><td>{_safe(k)}</td><td>{_safe(v)}</td></tr>" for k, v in rows)
+    _html(f'<table class="hp-kv">{body}</table>')
 
 
 def insight(
@@ -315,17 +445,16 @@ def insight(
     facts: Sequence[tuple[str, str]] = (),
     note: str = "",
 ) -> None:
-    """The page's takeaway: a status chip, one-sentence headline, a row of key figures."""
+    """Takeaway card: status chip, one-sentence serif headline, a row of key facts."""
     fact_html = "".join(
         f'<div><div class="hp-fact-k">{_safe(k)}</div><div class="hp-fact-v">{_safe(v)}</div></div>'
         for k, v in facts
     )
-    st.markdown(
+    _html(
         f"""<div class="hp-insight">{chip(status, tone)}
         <div class="hp-insight-head">{_safe(headline)}</div>
         {f'<div class="hp-facts">{fact_html}</div>' if facts else ""}
-        {f'<div class="hp-note">{_safe(note)}</div>' if note else ""}</div>""",
-        unsafe_allow_html=True,
+        {f'<div class="hp-note">{_safe(note)}</div>' if note else ""}</div>"""
     )
 
 
@@ -340,24 +469,29 @@ def card(key: str) -> DeltaGenerator:
     return st.container(key=f"card_{key}")
 
 
+def hero(key: str = "main") -> DeltaGenerator:
+    """The page's one dominant panel."""
+    return st.container(key=f"hero_{key}")
+
+
 def section(title: str, caption: str = "") -> None:
-    st.markdown(
-        f'<div class="hp-section">{_safe(title)}</div>'
-        + (f'<div class="hp-section-sub">{_safe(caption)}</div>' if caption else ""),
-        unsafe_allow_html=True,
-    )
+    chart_title(title, caption)
 
 
-def chart(fig: go.Figure, height: int = 300) -> None:
-    """Render a Plotly figure in the house style (no Streamlit theme, no toolbar)."""
-    # Explicit colours: Streamlit's renderer otherwise paints the plot area with the theme's
-    # secondary background, which shows as a grey box inside white cards.
-    fig.update_layout(
-        template="hogproj", height=height, paper_bgcolor=SURFACE, plot_bgcolor=SURFACE
-    )
+def assumption_bar(key: str) -> DeltaGenerator:
+    """Container whose popovers render as chips (see CSS `st-key-assume`)."""
+    return st.container(key=f"assume_{key}", horizontal=True, gap="small")
 
-    # d3 formats negatives with a true minus ("−$10"); a "$" tickprefix would give "$-10".
+
+def chart(fig: go.Figure, height: int = 300, on: str = SURFACE) -> None:
+    """Render a Plotly figure in the house style (no Streamlit theme, no toolbar).
+
+    `on` is the background the chart sits on: SURFACE inside panels, PAGE when unboxed.
+    """
+    fig.update_layout(template="hogproj", height=height, paper_bgcolor=on, plot_bgcolor=on)
+
     def money_ticks(ax) -> None:  # noqa: ANN001 - plotly axis object
+        # d3 formats negatives with a true minus ("−$10"); a "$" tickprefix would give "$-10".
         if ax.tickprefix == "$":
             ax.update(tickprefix=None, tickformat=ax.tickformat or "$,.0f")
 
@@ -371,8 +505,88 @@ def chart(fig: go.Figure, height: int = 300) -> None:
     )
 
 
+# --- Chart annotations ----------------------------------------------------------------------
+def end_tag(fig: go.Figure, x: object, y: float, text: str, color: str) -> None:
+    """Solid value tag just right of a series' last point (ERS / market-terminal style)."""
+    fig.add_annotation(
+        x=x,
+        y=y,
+        text=f"<b>{text}</b>",
+        showarrow=False,
+        xanchor="left",
+        xshift=8,
+        font={"size": 11, "color": "white", "family": SANS},
+        bgcolor=color,
+        borderpad=3,
+    )
+
+
+def ref_line(fig: go.Figure, y: float, label: str, color: str = REFERENCE) -> None:
+    """Dotted reference line (breakeven, floor) with its label at the right edge."""
+    fig.add_hline(y=y, line={"color": color, "width": 1.25, "dash": "dot"})
+    fig.add_annotation(
+        x=1,
+        xref="paper",
+        y=y,
+        text=label,
+        showarrow=False,
+        xanchor="right",
+        yanchor="bottom",
+        font={"size": 11, "color": color, "family": SANS},
+    )
+
+
+def projection_band(fig: go.Figure, x0: object, x1: object, label: str = "PROJECTION") -> None:
+    """Shade the forecast window and label it, so actuals and projections never blur."""
+    fig.add_vrect(x0=x0, x1=x1, fillcolor="#f4f1ea", opacity=1, line_width=0, layer="below")
+    fig.add_annotation(
+        x=x0,
+        y=1,
+        yref="paper",
+        text=label,
+        showarrow=False,
+        xanchor="left",
+        yanchor="top",
+        xshift=8,
+        yshift=-4,
+        font={"size": 10, "color": MUTED, "family": SANS},
+    )
+
+
+# --- Misc -----------------------------------------------------------------------------------
+def table(
+    header: Sequence[str], rows: Sequence[Sequence[str]], emphasis_col: int | None = None
+) -> None:
+    """A clean comparison table: label column left, figures right-aligned in tabular digits.
+
+    All cells are escaped. `emphasis_col` (0-based, excluding the label column) is shaded.
+    """
+
+    def cell(text: str, i: int, head: bool = False) -> str:
+        tag = "th" if head else "td"
+        align = "left" if i == 0 else "right"
+        shade = "background:#faf8f3;" if emphasis_col is not None and i == emphasis_col + 1 else ""
+        weight = "font-weight:600;" if head else (f"color:{INK_2};" if i == 0 else "")
+        return (
+            f'<{tag} style="text-align:{align};{shade}{weight}padding:9px 14px;'
+            f'border-bottom:1px solid {LINE}">{_safe(text)}</{tag}>'
+        )
+
+    head_html = "".join(cell(h, i, True) for i, h in enumerate(header))
+    body_html = "".join(
+        "<tr>" + "".join(cell(c, i) for i, c in enumerate(r)) + "</tr>" for r in rows
+    )
+    _html(
+        '<div style="overflow-x:auto"><table class="hp-table" style="width:100%;'
+        "border-collapse:collapse;"
+        f"font-size:13.5px;font-variant-numeric:tabular-nums;color:{INK};"
+        f'border:none"><thead style="color:{MUTED};font-size:11px;text-transform:uppercase;'
+        f'letter-spacing:.06em"><tr>{head_html}</tr></thead><tbody>{body_html}</tbody></table></div>'
+    )
+
+
 def footer_note(text: str) -> None:
-    st.markdown(f'<div class="hp-foot">{_safe(text)}</div>', unsafe_allow_html=True)
+    _html(f'<div class="hp-foot">{_safe(text)}</div>')
 
 
 def as_of() -> str:
@@ -387,34 +601,3 @@ def data_notice(source: Source, note: str) -> None:
     """Older API: data status now lives in the page header chip. Warn only when not live."""
     if source != "live":
         st.caption(note)
-
-
-def table(
-    header: Sequence[str], rows: Sequence[Sequence[str]], emphasis_col: int | None = None
-) -> None:
-    """A clean comparison table: label column left, figures right-aligned in tabular digits.
-
-    All cells are escaped. `emphasis_col` (0-based, excluding the label column) is shaded.
-    """
-
-    def cell(text: str, i: int, head: bool = False) -> str:
-        tag = "th" if head else "td"
-        align = "left" if i == 0 else "right"
-        shade = "background:#f7f8fb;" if emphasis_col is not None and i == emphasis_col + 1 else ""
-        weight = "font-weight:600;" if head else ("color:#4d535e;" if i == 0 else "")
-        return (
-            f'<{tag} style="text-align:{align};{shade}{weight}padding:9px 14px;'
-            f'border-bottom:1px solid #efefeb">{_safe(text)}</{tag}>'
-        )
-
-    head_html = "".join(cell(h, i, True) for i, h in enumerate(header))
-    body_html = "".join(
-        "<tr>" + "".join(cell(c, i) for i, c in enumerate(r)) + "</tr>" for r in rows
-    )
-    st.markdown(
-        '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;'
-        "font-size:13.5px;font-variant-numeric:tabular-nums;color:#16181d;"
-        'border:none"><thead style="color:#8b909a;font-size:12px">'
-        f"<tr>{head_html}</tr></thead><tbody>{body_html}</tbody></table></div>",
-        unsafe_allow_html=True,
-    )

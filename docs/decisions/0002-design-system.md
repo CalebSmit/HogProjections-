@@ -22,3 +22,6 @@
   - CSS may need touch-ups on Streamlit upgrades; keep selectors to `data-testid` / `st-key-*`
     and re-screenshot every page after upgrading.
   - Inter loads from Google Fonts when online; offline falls back to the OS UI font.
+
+- **Update 2026-10-19:** direction refined to "Field Report" (see `docs/DESIGN.md`) after a
+  review of ~35 reference products; the component approach is unchanged.

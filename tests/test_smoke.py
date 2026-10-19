@@ -9,10 +9,19 @@ def test_settings_load_without_env():
     assert isinstance(s.offline, bool)
 
 
+def headline_figures(at: AppTest) -> str:
+    """Text of the page's headline numbers: native metrics or the stat strip / quote hero."""
+    parts = [f"{m.label} {m.value} {m.delta}" for m in at.metric]
+    parts += [md.value for md in at.markdown if "hp-stat" in md.value or "hp-quote" in md.value]
+    return " ".join(parts)
+
+
 def test_app_renders():
     at = AppTest.from_file(str(ROOT / "app.py")).run(timeout=30)
     assert not at.exception
-    assert at.title[0].value == "Farm outlook"
+    assert (
+        at.title[0].value.replace("\\", "").startswith("At $")
+    )  # the Overview headline states the finding
 
 
 def app() -> AppTest:
@@ -24,18 +33,19 @@ def test_pages_render(page):
     # Run through the router so links between pages resolve, as they do in the real app.
     at = app().switch_page(f"views/{page}").run()
     assert not at.exception
-    assert at.metric  # every page leads with headline numbers
+    assert headline_figures(at)  # every page leads with headline numbers
 
 
 def test_overview_follows_inputs_from_other_pages():
     at = app()
-    before = at.metric[3].value  # "Next 12 months"
+    before = headline_figures(at)
     at.switch_page("views/1_Herd_flow.py").run()
     at.number_input(key="herd_sows").set_value(2000).run()
     at.switch_page("views/0_Overview.py").run()
     assert not at.exception
-    assert at.metric[3].value != before
-    assert "pigs sold" in str(at.metric[3].delta)
+    after = headline_figures(at)
+    assert after != before
+    assert "pigs sold" in after
 
 
 def test_herd_change_flows_to_costs_page():

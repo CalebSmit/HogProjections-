@@ -103,3 +103,14 @@ Newest at the bottom.
   numbers; sidebar footer above page inputs; label collisions in tornado and scenario bars.
 - **Verified:** ruff, format, pyright clean; 70 tests; screenshots of every page at 1500 and
   1280 px, plus the Risk floor interaction.
+
+## 2026-10-19 (cont.) — "Field Report" redesign from a reference review
+- **Why:** owner still found the dashboard generic.
+- **Research:** three parallel tracks captured ~35 public references with headless Edge
+  (fintech/SaaS, market-data, editorial/ag). Patterns adopted: finding-as-headline (ERS/OWID),
+  quote hero + hairline key stats (Stock Analysis/CME), stat strip merged with the main chart
+  (Plausible), direct end labels and forecast shading (ERS/Koyfin), source line under every chart.
+- **Done:** new tokens and components in `ui.py`; every page rebuilt around one hero; inputs
+  moved from the sidebar into assumption chips; Overview's signature chart joins 12 months of
+  actual index with the 12-month projection and its simulated range.
+- **Verified:** ruff, pyright, 70 tests; screenshots of all pages.

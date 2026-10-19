@@ -16,9 +16,10 @@ Larger choices get an ADR in `docs/decisions/`. Use the `sync-docs` skill.
 
 ## UI rules (see `docs/DESIGN.md`)
 
-- Build pages from `hogproj.ui` components (`page_header`, `insight`, `card`, `section`,
-  `chart`, `table`) and its tokens. No emoji, no raw hex outside `ui.py`/`export.py`, no
-  `st.info/success` as layout, no dual axes.
+- Build pages from `hogproj.ui` ("Field Report"): `masthead` with a finding headline, inputs in
+  an `assumption_bar` of popover chips (labels through `md()`), one `hero` with `quote` +
+  `stat_strip` + signature chart, then unboxed charts with `chart_title` / `source_note`.
+  No emoji, no inputs in the sidebar, no raw hex outside `ui.py`/`export.py`, no dual axes.
 - After any UI change, restart the server and screenshot every touched page before claiming
   it's done.
 

@@ -12,18 +12,24 @@ from hogproj.ui import (
     INK,
     INK_2,
     NEG,
+    PAGE,
     POS,
     SERIES,
-    card,
+    assumption_bar,
     chart,
+    chart_title,
     current_plan,
-    delta,
+    hero,
     hog_index,
-    insight,
-    page_header,
-    section,
+    masthead,
+    md,
+    quote,
+    rule,
     signed,
+    source_note,
+    stat_strip,
     table,
+    tone_of,
     usd,
     usd_short,
 )
@@ -31,13 +37,57 @@ from hogproj.ui import (
 idx, _, _ = hog_index()
 plan = current_plan()
 factors = seasonal_factors(idx)
+ss = st.session_state
 
-right = page_header(
-    "Scenarios",
-    "Compare up to three what-ifs with your current plan. Changes are added to your inputs.",
-    eyebrow="Decisions",
-)
-with right:
+PRESETS = [
+    Adjustments(name="Grow herd 20%", sows_pct=20),
+    Adjustments(name="Corn up $1", corn_usd_per_bu=1.0),
+    Adjustments(name="2 more pigs per sow", pigs_weaned_per_sow=2),
+]
+
+head = st.empty()
+scenarios: list[Adjustments] = []
+with assumption_bar("scenarios"):
+    for i, p in enumerate(PRESETS):
+        letter = chr(65 + i)
+        label = str(ss.get(f"scn_{i}_name", p.name))
+        with st.popover(md(f"{letter} · {label}"), icon=":material/tune:"):
+            name = st.text_input("Scenario name", p.name, key=f"scn_{i}_name")
+            a, b = st.columns(2)
+            hog = a.number_input(
+                "Hog price ±$/cwt", -50.0, 50.0, p.hog_usd_per_cwt, 1.0, key=f"scn_{i}_hog"
+            )
+            corn = b.number_input(
+                "Corn ±$/bu", -5.0, 5.0, p.corn_usd_per_bu, 0.1, key=f"scn_{i}_corn"
+            )
+            sows = a.number_input(
+                "Sow herd ±%", -100.0, 200.0, p.sows_pct, 5.0, key=f"scn_{i}_sows"
+            )
+            pigs = b.number_input(
+                "Pigs/sow/yr ±", -10.0, 10.0, p.pigs_weaned_per_sow, 0.5, key=f"scn_{i}_pigs"
+            )
+            sbm = a.number_input(
+                "Soybean meal ±$/ton", -300.0, 300.0, p.sbm_usd_per_ton, 10.0, key=f"scn_{i}_sbm"
+            )
+            nonfeed = b.number_input(
+                "Non-feed ±$/pig", -100.0, 100.0, p.nonfeed_usd_per_head, 1.0,
+                key=f"scn_{i}_nonfeed",
+            )  # fmt: skip
+            weight = a.number_input(
+                "Market weight ±lb", -60.0, 60.0, p.weight_lb, 5.0, key=f"scn_{i}_weight"
+            )
+        scenarios.append(
+            Adjustments(
+                name=name.strip() or f"Scenario {letter}",
+                hog_usd_per_cwt=hog,
+                corn_usd_per_bu=corn,
+                sbm_usd_per_ton=sbm,
+                sows_pct=sows,
+                pigs_weaned_per_sow=pigs,
+                nonfeed_usd_per_head=nonfeed,
+                weight_lb=weight,
+            )
+        )
     horizon = st.segmented_control(
         "Horizon",
         ["12 months", "24 months"],
@@ -48,57 +98,6 @@ with right:
     )
 weeks = 104 if horizon == "24 months" else 52
 span = horizon or "24 months"
-
-PRESETS = [
-    Adjustments(name="Grow herd 20%", sows_pct=20),
-    Adjustments(name="Corn up $1", corn_usd_per_bu=1.0),
-    Adjustments(name="2 more pigs per sow", pigs_weaned_per_sow=2),
-]
-scenarios: list[Adjustments] = []
-for i, (col, p) in enumerate(zip(st.columns(3, gap="medium"), PRESETS, strict=True)):
-    with col, card(f"scn{i}"):
-        st.markdown(
-            f'<div class="hp-eyebrow" style="color:{SERIES[i]}">Scenario {chr(65 + i)}</div>',
-            unsafe_allow_html=True,
-        )
-        name = st.text_input("Name", p.name, key=f"scn_{i}_name", label_visibility="collapsed")
-        a, b = st.columns(2)
-        hog = a.number_input(
-            "Hog price ±$/cwt", -50.0, 50.0, p.hog_usd_per_cwt, 1.0, key=f"scn_{i}_hog"
-        )
-        corn = b.number_input("Corn ±$/bu", -5.0, 5.0, p.corn_usd_per_bu, 0.1, key=f"scn_{i}_corn")
-        a, b = st.columns(2)
-        sows = a.number_input("Sow herd ±%", -100.0, 200.0, p.sows_pct, 5.0, key=f"scn_{i}_sows")
-        pigs = b.number_input(
-            "Pigs/sow/yr ±", -10.0, 10.0, p.pigs_weaned_per_sow, 0.5, key=f"scn_{i}_pigs"
-        )
-        with st.popover("More changes", icon=":material/tune:", width="stretch"):
-            sbm = st.number_input(
-                "Soybean meal ±$/ton", -300.0, 300.0, p.sbm_usd_per_ton, 10.0, key=f"scn_{i}_sbm"
-            )
-            nonfeed = st.number_input(
-                "Non-feed cost ±$/pig",
-                -100.0,
-                100.0,
-                p.nonfeed_usd_per_head,
-                1.0,
-                key=f"scn_{i}_nonfeed",
-            )
-            weight = st.number_input(
-                "Market weight ±lb", -60.0, 60.0, p.weight_lb, 5.0, key=f"scn_{i}_weight"
-            )
-        scenarios.append(
-            Adjustments(
-                name=name.strip() or f"Scenario {chr(65 + i)}",
-                hog_usd_per_cwt=hog,
-                corn_usd_per_bu=corn,
-                sbm_usd_per_ton=sbm,
-                sows_pct=sows,
-                pigs_weaned_per_sow=pigs,
-                nonfeed_usd_per_head=nonfeed,
-                weight_lb=weight,
-            )
-        )
 
 # Names key the comparison, so make them unique and keep "Current plan" reserved.
 seen: dict[str, int] = {}
@@ -113,48 +112,88 @@ table_df, cum = compare(plan, scenarios, factors, date.today(), weeks)
 base = table_df.iloc[0]
 alts = table_df.iloc[1:]
 best = alts.loc[alts["profit_vs_current_usd"].idxmax()]
-worst = alts.loc[alts["profit_vs_current_usd"].idxmin()]
+winners = int((alts["profit_vs_current_usd"] > 0).sum())
+
+with head.container():
+    if winners == 0:
+        title = "None of these scenarios beats your current plan."
+    elif winners == 1:
+        title = f"“{best['scenario']}” is the only scenario that beats your plan."
+    else:
+        title = f"“{best['scenario']}” adds the most: {usd_short(best['profit_vs_current_usd'])}."
+    masthead(
+        title,
+        f"Over {span}, your current plan makes {usd_short(base['profit_usd'])}. "
+        f"“{best['scenario']}” changes that by {signed(best['profit_vs_current_usd'], usd_short)}. "
+        "Open a scenario above to change it.",
+        kicker="Scenarios",
+    )
 
 st.space("small")
-if best["profit_vs_current_usd"] > 0:
-    insight(
-        "good",
-        f"Best over {span}",
-        f"“{best['scenario']}” adds {usd_short(best['profit_vs_current_usd'])} vs your plan.",
-        [
-            ("Current plan", usd_short(base["profit_usd"])),
-            (str(best["scenario"]), usd_short(best["profit_usd"])),
-            ("Biggest risk shown", f"{worst['scenario']}"),
-            ("Its impact", usd_short(worst["profit_vs_current_usd"])),
-        ],
-    )
-else:
-    insight(
-        "bad",
-        f"No improvement over {span}",
-        "None of these scenarios beats the current plan.",
-        [
-            ("Current plan", usd_short(base["profit_usd"])),
-            ("Least harmful", str(best["scenario"])),
-            ("Its impact", usd_short(best["profit_vs_current_usd"])),
-        ],
-    )
-
 colors = [BASELINE_SERIES, *SERIES]
-for col, (_, row) in zip(st.columns(len(table_df)), table_df.iterrows(), strict=True):
-    is_base = row["scenario"] == "Current plan"
-    col.metric(
-        str(row["scenario"]),
-        usd_short(row["profit_usd"]),
-        None if is_base else delta(row["profit_vs_current_usd"], usd_short, " vs current"),
-        help=f"Total profit over {span}.",
-        height="stretch",
+with hero():
+    quote(
+        "Best scenario vs current plan",
+        signed(best["profit_vs_current_usd"], usd_short),
+        f"over {span}",
+        str(best["scenario"]),
+        tone_of(float(best["profit_vs_current_usd"])),
+        f"Current plan {usd_short(base['profit_usd'])} · best {usd_short(best['profit_usd'])}",
     )
-st.space("small")
+    stat_strip(
+        [
+            (
+                str(row["scenario"]),
+                usd_short(row["profit_usd"]),
+                "baseline"
+                if row["scenario"] == "Current plan"
+                else f"{signed(row['profit_vs_current_usd'], usd_short)} vs current",
+                "neutral"
+                if row["scenario"] == "Current plan"
+                else tone_of(float(row["profit_vs_current_usd"])),
+            )
+            for _, row in table_df.iterrows()
+        ]
+    )
+    st.space("small")
+    chart_title(
+        "Running total profit by scenario",
+        "Cumulative $ from this week · herd changes show up after the 41-week lag",
+    )
+    lines = go.Figure()
+    for i, name in enumerate(table_df["scenario"]):
+        lines.add_scatter(
+            x=cum["date"],
+            y=cum[name],
+            mode="lines",
+            line={"color": colors[i], "width": 2.5 if i == 0 else 1.75},
+            hovertemplate=f"{name}: $%{{y:,.0f}}<extra></extra>",
+            showlegend=False,
+        )
+    # Label each line at its end instead of a legend; nudge labels apart if they collide.
+    ends = sorted(
+        ((float(cum[n].iloc[-1]), i, n) for i, n in enumerate(table_df["scenario"])),
+        key=lambda e: e[0],
+    )
+    span_y = max(abs(e[0]) for e in ends) or 1.0
+    last_y = None
+    for y, i, n in ends:
+        y_plot = y if last_y is None or y - last_y > span_y * 0.06 else last_y + span_y * 0.06
+        last_y = y_plot
+        lines.add_annotation(
+            x=cum["date"].iloc[-1], y=y_plot, text=f"<b>{n}</b>  {usd_short(y)}",
+            showarrow=False, xanchor="left", xshift=8, font={"size": 11, "color": colors[i]},
+        )  # fmt: skip
+    lines.update_yaxes(tickformat="$~s")
+    lines.update_xaxes(tickformat="%b %Y")
+    lines.update_layout(margin={"l": 4, "r": 210, "t": 8, "b": 4})
+    chart(lines, 340)
+    source_note("model", "each scenario adds its changes to your Herd flow and Costs inputs")
 
-left, right_col = st.columns([2, 3], gap="medium")
-with left, card("totals"):
-    section(f"Total profit over {span}", "Change vs current plan in brackets")
+st.space("medium")
+left, mid, right = st.columns([1, 0.06, 1.3])
+with left:
+    chart_title(f"Total profit over {span}", "Change vs current plan in brackets")
     order = table_df.iloc[::-1]
     vals = order["profit_usd"].to_numpy()
     bars = go.Figure(
@@ -164,51 +203,34 @@ with left, card("totals"):
             orientation="h",
             marker={
                 "color": [
-                    BASELINE_SERIES if n == "Current plan" else (POS if d >= 0 else NEG)
-                    for n, d in zip(order["scenario"], order["profit_vs_current_usd"], strict=True)
+                    BASELINE_SERIES if n == "Current plan" else (POS if dd >= 0 else NEG)
+                    for n, dd in zip(order["scenario"], order["profit_vs_current_usd"], strict=True)
                 ],
                 "cornerradius": 3,
             },
             hovertemplate="%{y}: $%{x:,.0f}<extra></extra>",
         )
     )
-    # Labels sit just right of the larger of 0 and the bar end, so they never hit the names.
     lim = float(abs(vals).max()) or 1.0
-    for n, v, d in zip(order["scenario"], vals, order["profit_vs_current_usd"], strict=True):
-        label = usd_short(v) if n == "Current plan" else f"{usd_short(v)}  ({signed(d, usd_short)})"
+    for n, v, dd in zip(order["scenario"], vals, order["profit_vs_current_usd"], strict=True):
+        label = usd_short(v) if n == "Current plan" else f"{usd_short(v)} ({signed(dd, usd_short)})"
         bars.add_annotation(
-            y=n,
-            x=max(0.0, float(v)),
-            text=label,
-            xanchor="left",
-            xshift=6,
-            showarrow=False,
+            y=n, x=max(0.0, float(v)), text=label, xanchor="left", xshift=6, showarrow=False,
             font={"size": 11.5, "color": INK_2},
-        )
+        )  # fmt: skip
     lo = -lim * 1.08 if (vals < 0).any() else 0
-    hi = lim * 1.25 if (vals > 0).any() else lim * 1.05  # room for the labels
+    hi = lim * 1.25 if (vals > 0).any() else lim * 1.05
     bars.update_xaxes(range=[lo, hi], tickformat="$~s", showline=False, ticks="")
     bars.update_yaxes(tickfont={"size": 12.5, "color": INK}, ticksuffix="  ", showgrid=False)
     bars.update_layout(hovermode="closest", bargap=0.42, showlegend=False)
-    chart(bars, 300)
-with right_col, card("running"):
-    section("Running total profit", "Herd changes show up after the 41-week lag")
-    lines = go.Figure()
-    for i, name in enumerate(table_df["scenario"]):
-        lines.add_scatter(
-            x=cum["date"],
-            y=cum[name],
-            name=name,
-            mode="lines",
-            line={"color": colors[i], "width": 2.5 if i == 0 else 2},
-            hovertemplate=f"{name}: $%{{y:,.0f}}<extra></extra>",
-        )
-    lines.update_yaxes(tickformat="$~s")
-    lines.update_xaxes(tickformat="%b %Y")
-    chart(lines, 300)
-
-with card("compare"):
-    section("Side by side", f"Totals over {span}")
+    chart(bars, 290, on=PAGE)
+with mid:
+    st.markdown(
+        '<div style="border-left:1px solid #e5e0d5;height:380px;margin:0 auto;width:1px"></div>',
+        unsafe_allow_html=True,
+    )
+with right:
+    chart_title("Side by side", f"Totals over {span}")
     names = list(table_df["scenario"])
     rows = [
         ["Pigs sold", *[f"{v:,.0f}" for v in table_df["pigs_sold"]]],
@@ -217,12 +239,15 @@ with card("compare"):
         ["Profit", *[usd_short(v) for v in table_df["profit_usd"]]],
         ["Change vs current", "—", *[signed(v, usd_short) for v in alts["profit_vs_current_usd"]]],
         ["Profit per pig", *[usd(v) for v in table_df["profit_usd_per_head"]]],
-        ["Breakeven, $/cwt carcass", *[usd(v) for v in table_df["breakeven_cwt_carcass"]]],
-        ["Avg hog price, $/cwt carcass", *[usd(v) for v in table_df["avg_price_cwt_carcass"]]],
+        ["Breakeven $/cwt", *[usd(v) for v in table_df["breakeven_cwt_carcass"]]],
+        ["Avg hog $/cwt", *[usd(v) for v in table_df["avg_price_cwt_carcass"]]],
     ]
     table(["", *names], rows, emphasis_col=0)
-    st.caption(
-        "Herd-size changes start being bred this week, so extra pigs reach market after about "
-        "41 weeks. Productivity and price changes apply immediately. Feed scales with market "
-        "weight; sow costs per pig fall as sows wean more pigs."
-    )
+
+rule()
+source_note(
+    "model",
+    "herd-size changes start being bred this week, so extra pigs reach market after about 41 "
+    "weeks; productivity and price changes apply immediately; feed scales with market weight; "
+    "sow costs per pig fall as sows wean more pigs",
+)
