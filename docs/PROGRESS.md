@@ -71,3 +71,11 @@ Newest at the bottom.
   fixed. Added a sow-productivity adjustment from ISU farrow-to-wean ($43.91/weaned pig).
 - **Verified:** 56 tests, pyright clean. Screenshots via Playwright + installed Edge (Chrome
   extension unavailable while the user's screen is locked).
+
+## 2026-10-19 (cont.) — Scenarios, Risk, Excel report
+- **Done:** Scenarios page (3 editable what-ifs vs current plan, 12/24 months); Risk page
+  (2,000 seeded price years; hog AR(1) fitted to the de-seasonalized index: phi 0.95/wk,
+  sigma 2.8%/wk; chance of profit, P10/P50/P90, fan chart, price-floor overlay); one-click
+  Excel report on the Overview.
+- **Verified:** 67 tests, pyright clean, screenshots of every new page.
+- **Next:** grain prices + quantity calibration once the owner adds a My Market News key.

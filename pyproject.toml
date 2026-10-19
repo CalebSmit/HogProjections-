@@ -20,6 +20,7 @@ dev = [
     "pytest>=8.3",
     "ruff>=0.8",
     "pyright>=1.1.390",
+    "openpyxl>=3.1.5",
 ]
 
 [build-system]

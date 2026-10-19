@@ -6,6 +6,7 @@ from datetime import date
 import plotly.graph_objects as go
 import streamlit as st
 
+from hogproj.export import build_report
 from hogproj.markets import seasonal_factors
 from hogproj.outlook import drivers, headline, monthly, project, summary
 from hogproj.ui import (
@@ -19,15 +20,17 @@ from hogproj.ui import (
     verdict,
 )
 
-st.title("Overview")
 idx, source, note = hog_index()
-data_notice(source, note)
-
 plan = current_plan()
 factors = seasonal_factors(idx)
 today = date.today()
 hl = headline(plan)
 r = project(plan, factors, today)
+
+head_l, head_r = st.columns([4, 1], vertical_alignment="bottom")
+head_l.title("Overview")
+report_slot = head_r.empty()  # filled once the verdict text exists
+data_notice(source, note)
 year = summary(r)
 months = monthly(r)
 hog = plan.cost.lean_hog_usd_per_cwt_carcass
@@ -56,28 +59,39 @@ outlook = (
     f"{months_note}"
 )
 if hl["gap_cwt_carcass"] >= 0:
-    verdict(
-        "good",
-        f"Making {usd(hl['profit_usd_per_head'])} per pig at today's hog price.",
+    kind = "good"
+    title = f"Making {usd(hl['profit_usd_per_head'])} per pig at today's hog price."
+    detail = (
         f"Hogs could fall {usd(hl['gap_cwt_carcass'])}/cwt (to "
-        f"{usd(hl['breakeven_cwt_carcass'])}) before you lose money. {outlook}",
+        f"{usd(hl['breakeven_cwt_carcass'])}) before you lose money. {outlook}"
     )
 else:
-    verdict(
-        "bad",
-        f"Losing {usd(-hl['profit_usd_per_head'])} per pig at today's hog price.",
+    kind = "bad"
+    title = f"Losing {usd(-hl['profit_usd_per_head'])} per pig at today's hog price."
+    detail = (
         f"Hogs need to rise {usd(-hl['gap_cwt_carcass'])}/cwt, to "
-        f"{usd(hl['breakeven_cwt_carcass'])}, to break even. {outlook}",
+        f"{usd(hl['breakeven_cwt_carcass'])}, to break even. {outlook}"
     )
+verdict(kind, title, detail)
+report_slot.download_button(
+    "⬇ Excel report",
+    build_report(plan, r, today, note, f"{title} {detail}"),
+    f"hog_outlook_{today:%Y-%m-%d}.xlsx",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    help="Summary, assumptions, 24-month outlook with chart, cost breakdown and weekly detail. "
+    "Good for sharing with a client.",
+    width="stretch",
+)
 
 # --- Headline numbers -------------------------------------------------------------------
-k1, k2, k3, k4 = st.columns(4)
+k1, k2, k3, k4 = st.columns(4)  # height="stretch" keeps the four cards level
 k1.metric(
     "Hog price used",
     f"{usd(hog)}/cwt",
     help="Lean hog, $/cwt carcass. Starts at the latest USDA-based index; change it on "
     "Costs & returns. The sparkline is the index over the last 90 days.",
     border=True,
+    height="stretch",
     chart_data=idx["lean_hog_index_usd_per_cwt_carcass"].tail(63).round(2).tolist(),
 )
 k2.metric(
@@ -87,12 +101,14 @@ k2.metric(
     delta_color="off",
     delta_arrow="off",
     border=True,
+    height="stretch",
 )
 k3.metric(
     "Profit per pig today",
     usd(hl["profit_usd_per_head"]),
     f"{usd(hl['gap_cwt_carcass'])}/cwt vs breakeven",
     border=True,
+    height="stretch",
 )
 k4.metric(
     "Next 12 months",
@@ -101,6 +117,7 @@ k4.metric(
     delta_color="off",
     delta_arrow="off",
     border=True,
+    height="stretch",
 )
 
 # --- Outlook charts ---------------------------------------------------------------------

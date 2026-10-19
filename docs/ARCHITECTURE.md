@@ -53,7 +53,7 @@ flowchart LR
 | `src/hogproj/outlook.py` | Whole-farm `Plan` (herd + cost + price path): projection, 12-month summary, monthly rollup, profit drivers | done |
 | `src/hogproj/ui.py` | Shared page helpers: cached data load, notices, `usd()` formatting | done |
 | `src/hogproj/risk.py` | Monte Carlo profit (fitted hog AR(1) + corn walk), price-floor payoff | done |
-| `src/hogproj/export.py` | Excel workbook builder | planned |
+| `src/hogproj/export.py` | Excel report builder (xlsxwriter, returns bytes) | done |
 | `data/sample/` | Committed datasets so the app runs offline (3 years of HG201, ~240 KB) | started |
 | `tests/` | pytest. `test_smoke.py` renders the app headless | started |
 | `run.bat`, `run.command`, `run.sh` | Recipient launchers | done |

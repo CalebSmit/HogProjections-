@@ -55,7 +55,8 @@ Phase 1 (2026-10-19) because every candidate idea in the PRD needs them.
 - [x] Risk page: 2,000 seeded price years (hog AR(1) fitted to de-seasonalized USDA index,
   corn random walk), chance of profit, P10/P50/P90, fan chart, price-floor overlay.
   verify: `tests/test_risk.py` (zero-vol = projection, seeded, floor lifts P10)
-- [ ] Excel / PDF report for clients
+- [x] Excel report for clients (Summary + verdict, assumptions, 24-month outlook with chart,
+  costs, weekly). verify: `tests/test_export.py` opens it and ties totals to the projection
 
 ## Phase 5 — Price outlook + scenarios ⏳ (started)
 - [x] Seasonal hog price path for projected returns (monthly factors from USDA history,
