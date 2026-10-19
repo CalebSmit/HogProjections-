@@ -52,7 +52,7 @@ def test_settings_load_without_env():
 def test_app_renders_projection_offline(app):
     assert not app.exception, app.exception
     assert any("Wean-to-Finish Group Projection" in h.proto.body for h in app.get("html"))
-    assert "Breakeven $/cwt carcass" in metrics(app)
+    assert "Breakeven $/cwt" in metrics(app)
     assert "Net per head sold" in metrics(app)
     assert not app.error, [e.value for e in app.error]
 

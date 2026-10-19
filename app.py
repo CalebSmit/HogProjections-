@@ -5,6 +5,7 @@ never replaced by its own output. Replacing it changes the widget's identity and
 the user's next edit. Reset buttons bump `ss.ver`, which is part of every editor key.
 """
 
+import re
 from datetime import date, timedelta
 from typing import Any
 
@@ -374,6 +375,12 @@ with st.sidebar:
     loc_name = st.selectbox("Feeding location", loc_names, key="loc_name")
     head_placed = st.number_input("Head placed", 100, 20000, step=100, key="in_head_placed")
     placement = st.date_input("Placement date", key="in_placement")
+    scenario = st.text_input(
+        "Scenario name (optional)",
+        key="in_scenario",
+        placeholder="e.g. Smith site, Q4 placement",
+        help="Shown in the header, on the Excel Dashboard and in the file name.",
+    ).strip()
 
     st.subheader("Weaned pig price")
     source = st.radio(
@@ -451,8 +458,8 @@ else:
     status = ("offline", "No live data: default prices. Use Refresh market data or the Data tab.")
 header.html(
     ui.header(
-        TITLE,
-        f"Wean to market · v{__version__}",
+        scenario or TITLE,
+        f"{TITLE if scenario else 'Wean to market'} · v{__version__}",
         [
             ("Location", loc_name),
             ("Head", f"{head_placed:,}"),
@@ -1013,9 +1020,9 @@ with tab_sum:
                     "Hog sales minus every cost, for the whole group.",
                 ),
                 ui.Kpi(
-                    "Breakeven $/cwt carcass",
+                    "Breakeven $/cwt",
                     ui.usd(s["breakeven_cwt_carcass"]),
-                    f"{ui.usd(s['breakeven_cwt_live'])}/cwt live",
+                    f"carcass · {ui.usd(s['breakeven_cwt_live'])} live",
                     help="The carcass price that covers every cost after checkoff. Live = "
                     "carcass × yield.",
                 ),
@@ -1328,6 +1335,17 @@ with tab_crush:
     crush_spec = CrushSpec(edited_weeks, int(lag), int(dtm), float(sale_wt), corn_is_cash)
     with results:
         st.write("")
+        no_history = wean_hist is None and (corn_hist is None or corn_hist.empty)
+        if no_history:
+            st.html(
+                ui.notice(
+                    "<b>No price history to look back on.</b> Every week uses today's weaned pig, "
+                    "corn and meal prices, so only the hog contract changes from week to week. "
+                    "Refresh market data with internet (and a USDA key), or import Barchart "
+                    "history on the Data tab, to see real past weeks.",
+                    "warn",
+                )
+            )
         if basis_daily.empty:
             st.html(
                 ui.notice(
@@ -1477,6 +1495,7 @@ with tab_mkt:
             ),
             hide_index=True,
             width="stretch",
+            height="content",
             column_config={
                 c: st.column_config.NumberColumn(format="dollar")
                 for c in ("Corn cash $/bu", "SBM cash $/ton", "DDGS $/ton")
@@ -1542,6 +1561,7 @@ with tab_xl, card("excel"):
         st.error(f"Couldn't build the workbook: {problem}")
     else:
         xl_args = (proj, locations, by_year, wean_df, crush_spec)  # what the button will export
+        xl_scenario = scenario
 
         def make_workbook() -> bytes:  # built on click, not on every rerun
             p, locs, history, wean_hist, crush = xl_args
@@ -1551,13 +1571,17 @@ with tab_xl, card("excel"):
                 basis_history=history if not history.empty else None,
                 wean_pig_history=wean_hist if not wean_hist.empty else None,
                 crush=crush,
+                scenario=xl_scenario,
             )
 
         st.download_button(
             "Download Excel workbook",
             icon=":material/download:",
             data=make_workbook,
-            file_name=f"W2F projection {loc_name} {placement:%Y-%m-%d}.xlsx",
+            file_name=(
+                f"W2F projection {re.sub(r'[^A-Za-z0-9 ,.()_-]', '', scenario or loc_name)} "
+                f"{placement:%Y-%m-%d}.xlsx"
+            ),
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             type="primary",
         )

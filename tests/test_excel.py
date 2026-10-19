@@ -214,3 +214,13 @@ def test_weekly_crush_sheet_matches_crush_table(tmp_path, corn_is_cash):
         ):
             got = ws.cell(labels[label], c).value
             assert got == pytest.approx(float(expected.loc[label, col])), (label, col)
+
+
+@needs_lo
+def test_scenario_name_reaches_the_dashboard(tmp_path):
+    p = make()
+    wb = recalc(build_workbook(p, [p.location], scenario='Smith\'s "north" site'), tmp_path)
+    assert str(wb["Dashboard"]["B2"].value).startswith('Smith\'s "north" site')
+    (tmp_path / "b").mkdir()
+    blank = recalc(build_workbook(p, [p.location]), tmp_path / "b")
+    assert str(blank["Dashboard"]["B2"].value).startswith(p.location.name)

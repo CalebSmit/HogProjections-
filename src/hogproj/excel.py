@@ -91,6 +91,7 @@ def build_workbook(
     basis_history: pd.DataFrame | None = None,
     wean_pig_history: pd.DataFrame | None = None,
     crush: CrushSpec | None = None,
+    scenario: str = "",
 ) -> bytes:
     buf = io.BytesIO()
     wb = xlsxwriter.Workbook(buf, {"in_memory": True})
@@ -120,7 +121,7 @@ def build_workbook(
     if problem := workbook_problem(p, locations):
         raise ValueError(problem)
 
-    _inputs_sheet(wb, inp, p, f)
+    _inputs_sheet(wb, inp, p, f, scenario)
     _locations_sheet(wb, loc, locations, f)
     _feed_sheet(wb, feed, p, f)
     _market_data_sheet(wb, prices, p, basis_history, wean_pig_history, f)
@@ -349,7 +350,7 @@ def _tip(ws, row: int, col: int, title: str, message: str) -> None:
 # Inputs sheet: one named cell per scalar input
 
 
-def _inputs_sheet(wb, ws, p: Projection, f) -> dict[str, str]:
+def _inputs_sheet(wb, ws, p: Projection, f, scenario: str = "") -> dict[str, str]:
     ws.set_column("A:A", 2)
     ws.set_column("B:B", 46)
     ws.set_column("C:C", 22)
@@ -361,6 +362,14 @@ def _inputs_sheet(wb, ws, p: Projection, f) -> dict[str, str]:
 
     rows: list[tuple] = [
         ("Group", None),
+        (
+            "Scenario",
+            "Scenario name (optional)",
+            scenario,
+            "in_txt",
+            "",
+            "Shown at the top of the Dashboard, e.g. a site or client name",
+        ),
         ("HeadPlaced", "Head placed", p.head_placed, "in_int", "head", ""),
         ("PlacementDate", "Placement date", p.placement_date, "in_date", "date", ""),
         ("WeanWeight", "Weaned pig weight", p.wean_weight_lb, "in_num", "lb", ""),
@@ -1051,7 +1060,8 @@ def _dashboard_sheet(wb, ws, f) -> None:
     ws.write("B1", "Wean-to-Finish Group Projection", f["title"])
     ws.write_formula(
         "B2",
-        '=Location&"   ·   "&TEXT(HeadPlaced,"#,##0")&" head placed "&TEXT(PlacementDate,'
+        '=IF(Scenario="","",Scenario&"   ·   ")&Location&"   ·   "&TEXT(HeadPlaced,"#,##0")'
+        '&" head placed "&TEXT(PlacementDate,'
         '"mmm d, yyyy")&"   ·   sold at about "&TEXT(AvgDays,"0")&" days"',
         f["subtitle"],
     )
