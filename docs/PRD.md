@@ -58,3 +58,5 @@ _TBD._ Default bar:
 
 ## Changelog
 - 2026-10-17: Draft skeleton created from research, before the product idea.
+- 2026-10-19: F1 (herd flow) and F2 (cost/breakeven) built ahead of the idea; scope otherwise
+  unchanged. Default prices now track Oct 2026 markets (corn $5.25, Lean Hog Index $75.75).

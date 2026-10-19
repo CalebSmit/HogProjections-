@@ -3,7 +3,7 @@
 > Source of truth for code structure. Short on purpose (matklad style): a code map, the data
 > flow and the invariants. Update it in the same commit as any structural change, and log it
 > in the Changelog.
-> **Current state:** Phase 0 scaffold. The "Target" sections are the proposed design until the
+> **Current state:** Phases 2–3 (herd flow, costs & returns) built. The "Target" sections are the proposed design until the
 > PRD is finalized.
 
 ## Bird's-eye view
@@ -26,7 +26,7 @@ flowchart LR
         MKT[markets<br/>index, seasonality, outlook]
         RISK[risk<br/>scenarios, Monte Carlo, hedge/LRP]
     end
-    subgraph UI["Streamlit — app.py + pages/"]
+    subgraph UI["Streamlit — app.py + views/"]
         INPUTS[Assumption editors]
         VIEWS[Charts & tables]
         EXPORT[Excel export]
@@ -43,12 +43,12 @@ flowchart LR
 
 | Path | Role | Status |
 |---|---|---|
-| `app.py` | Streamlit entry / home page | scaffold |
-| `pages/` | One file per Streamlit page | planned |
+| `app.py` | Router (`st.navigation`) + home page; keeps widget state across pages | done |
+| `views/` | One file per page. Not `pages/`: that name triggers Streamlit's legacy auto-nav | started |
 | `src/hogproj/config.py` | Paths + `Settings` (env / `.env`) | done |
 | `src/hogproj/data/` | API clients, cache, sample loader. The only package allowed to touch the network or disk | planned |
-| `src/hogproj/herd.py` | Herd-flow simulation | planned |
-| `src/hogproj/finance.py` | Cost of production, breakeven, P&L | planned |
+| `src/hogproj/herd.py` | Weekly cohort herd flow; pipeline starts in steady state | done |
+| `src/hogproj/finance.py` | CIH-structure cost, breakeven, sensitivity, weekly returns | done |
 | `src/hogproj/markets.py` | Price series, Lean Hog Index calc, seasonality | planned |
 | `src/hogproj/risk.py` | Scenarios, Monte Carlo, hedge/LRP payoffs | planned |
 | `src/hogproj/export.py` | Excel workbook builder | planned |
@@ -64,6 +64,10 @@ flowchart LR
 - Every quantity carries its unit in its name. Prices are $/cwt and state `live` or `carcass`.
 - The app starts and every page renders with `OFFLINE=true` and no `.env`.
 - Inputs cross into the model as pydantic models. Results come back as pandas DataFrames.
+- Pages share model inputs through `st.session_state["herd_inputs"]` (a `HerdInputs`), not by
+  re-reading each other's widgets.
 
 ## Changelog
 - 2026-10-17: Initial scaffold and proposed target design.
+- 2026-10-19: Added herd/finance modules and two pages; pages live in `views/` behind an
+  `st.navigation` router in `app.py` (so the sidebar says "Home", not "app").

@@ -17,15 +17,29 @@
 - [ ] Finalize `docs/ARCHITECTURE.md` target and re-cut Phases 2+ below
 
 ## Phases 2+ — proposed, to be re-cut after Phase 1
-Each phase ends with a usable app the recipient can run.
+Each phase ends with a usable app the recipient can run. Phases 2–3 were pulled ahead of
+Phase 1 (2026-10-19) because every candidate idea in the PRD needs them.
+
+## Phase 2 — Herd flow ✅
+- [x] `herd.py`: weekly cohort model (sows → farrowings → weaned → marketed) with lags.
+  verify: `tests/test_herd.py` (hand-calculated steady state, lag timing, head-count conservation)
+- [x] Herd flow page with editable assumptions + CSV download. verify: page smoke test
+
+## Phase 3 — Cost of production / breakeven / P&L ⏳
+- [x] `finance.py`: CIH per-cwt cost structure, breakeven (carcass + live), sensitivity grid,
+  weekly returns from herd marketings. verify: `tests/test_finance.py` reproduces the CIH formula
+- [x] Costs & returns page. verify: page smoke test; checked in a browser
+- [ ] Reconcile with an ISU ELR month within ±$2/head. The CIH shortcut gives ~$82.8/cwt
+  breakeven at $5.25 corn vs ISU's "above $87" (Aug 2026), so this needs ISU's line-item
+  structure (feed by phase + nonfeed) or a calibrated "other" cost. verify: fixture test
 
 | Phase | Deliverable | verify |
 |---|---|---|
-| 2 | Herd-flow model + assumptions page | head-count conservation tests; matches hand-calculated example |
-| 3 | Cost of production / breakeven / P&L | reproduces an ISU ELR month within ±$2/head |
 | 4 | Market data (AMS/NASS clients + cache + offline sample) | fixture tests; app runs with `OFFLINE=true` |
 | 5 | Price outlook + scenarios + Monte Carlo | seeded snapshot tests; fan chart renders |
 | 6 | Export (Excel) + polish + recipient docs | open workbook in tests; fresh-clone run on Win/Mac |
 
 ## Changelog
 - 2026-10-17: Plan created; Phase 0 complete; Phases 2+ are placeholders pending the idea.
+- 2026-10-19: Pulled Phases 2–3 ahead of Phase 1 (idea still pending; both are needed by every
+  candidate feature). Phase 2 done; Phase 3 done except the ISU ELR reconciliation.

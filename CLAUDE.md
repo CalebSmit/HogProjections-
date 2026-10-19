@@ -35,7 +35,7 @@ Use the `verify` skill.
 - **Goal-driven.** Write the test or check first, then loop until it passes. Show the output;
   don't just say it works.
 - **Model code is pure.** `herd`/`finance`/`markets` take inputs and return DataFrames.
-  No Streamlit, network or file I/O in them. I/O goes in `data/` modules; the UI goes in `app.py`/`pages/`.
+  No Streamlit, network or file I/O in them. I/O goes in `data/` modules; the UI goes in `app.py`/`views/`.
 - **Units in names.** `price_cwt_carcass`, `weight_lb_live`, `cost_usd_per_head`. Live and
   carcass prices differ by ~0.75; mixing them up is the #1 domain bug.
 - **Offline first.** The app must work with no API keys or network, using `data/sample/`.
@@ -53,5 +53,11 @@ Longer write-ups go in `docs/PROGRESS.md`.
 
 - hatchling fails to build if `readme = "README.md"` points to a missing file. Keep README present.
 - `UV_NATIVE_TLS` deprecation warning in the cloud sandbox is harmless noise.
+- Streamlit markdown treats `$...$` as LaTeX. Escape dollars (`\$`) in captions/markdown.
+- Streamlit doesn't hot-reload `hogproj` (it's an installed package). Restart the server after
+  model edits, and stop it before `uv run`/`uv sync` on Windows (it locks the venv).
+- With `st.navigation`, keep pages out of a folder named `pages/` or the legacy auto-nav shows.
+- Widget state is dropped when its page isn't shown. Key widgets `herd_*`/`cost_*`; `app.py`
+  re-assigns them each run.
 - usda.gov, iastate.edu and cmegroup.com may be blocked from cloud sandboxes. Build API clients
   against recorded fixtures in `tests/fixtures/` and verify live calls on a real machine.

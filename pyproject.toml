@@ -40,5 +40,5 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 testpaths = ["tests"]
 
 [tool.pyright]
-include = ["src", "tests", "app.py"]
+include = ["src", "tests", "app.py", "views"]
 typeCheckingMode = "standard"
