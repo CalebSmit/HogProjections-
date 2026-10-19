@@ -71,9 +71,18 @@ and earn from placement to market, before or right after placement. Today that m
 3. **Feed budget.** The default six-phase program is an industry-typical estimate. Can Pipestone's nutritionist provide the real phase lbs and inclusion rates?
 4. **Merit premium** ($1.50/cwt) and **yield** (75%): use Pipestone's actual packer grid?
 
+5. **Pipestone figures in the repo?** The owner's workbook carries Pipestone cost settings (by
+   quarter), a weaned pig price adder, and a ration. Can these be committed as defaults (is the
+   GitHub repo private?), or should they live only in a local, gitignored settings file?
+6. **Barchart.** The owner's data comes from Barchart downloads. Is Barchart the preferred
+   source (import their CSVs), with the free USDA/Yahoo pulls as the fallback?
+7. **Mortality.** The workbook charges mortality as $/pig; the app reduces head sold by a %.
+   Which should be the default?
+
 ## Changelog
 - 2026-10-17: Draft skeleton created from research, before the product idea.
 - 2026-10-18: Rewritten for the owner's idea (W2F group projection). Scope, goals, features
   and open questions as above. Basis moved to half-month periods (from monthly) after
   research showed large within-month jumps at contract expiry.
 - 2026-10-18: Added F12 monthly cash flow (for the accountant user).
+- 2026-10-19: Reviewed the owner's crush workbook; added open questions 5–7. Merge plan is PLAN Phase 7.
