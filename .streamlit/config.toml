@@ -4,5 +4,13 @@ gatherUsageStats = false
 [server]
 headless = false
 
+[client]
+toolbarMode = "minimal"  # hide the developer menu / Deploy button for end users
+
 [theme]
 base = "light"
+primaryColor = "#1f6f50"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f3f6f4"
+textColor = "#1d2a24"
+font = "sans serif"

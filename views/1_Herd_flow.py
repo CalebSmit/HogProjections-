@@ -105,7 +105,7 @@ fig.update_layout(
     hovermode="x unified",
     margin={"t": 50, "b": 40},
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 
 fig2 = go.Figure()
 fig2.add_scatter(x=df["week"], y=df["growing_inventory_head"], name="Wean-to-market", mode="lines")
@@ -118,8 +118,8 @@ fig2.update_layout(
     hovermode="x unified",
     margin={"t": 50, "b": 40},
 )
-st.plotly_chart(fig2, use_container_width=True)
+st.plotly_chart(fig2, width="stretch")
 
 with st.expander("Weekly table"):
-    st.dataframe(df.round(1), hide_index=True, use_container_width=True)
+    st.dataframe(df.round(1), hide_index=True, width="stretch")
     st.download_button("Download CSV", df.to_csv(index=False), "herd_flow.csv", "text/csv")

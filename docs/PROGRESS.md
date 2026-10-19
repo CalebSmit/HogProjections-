@@ -62,3 +62,12 @@ Newest at the bottom.
 - **Verified:** 45 tests pass, pyright clean; browser check. From $73.40 today the path reaches
   ~$67.9 in mid-December, near Dec 2026 futures (~$66.9).
 - **Notes:** factors come from only 2 full years (2024–25); they firm up as history accrues.
+
+## 2026-10-19 (cont.) — Overview dashboard + productivity-aware costs
+- **Done:** Overview is now the home page (verdict, 4 cards with a price sparkline, 12-month
+  outlook charts, "what moves your profit" tornado, key assumptions). Theme + minimal toolbar.
+  `outlook.py` ties herd, costs and price path together. Smoke tests run pages via the router.
+- **Bug found via the tornado:** +1 pig weaned/sow *lowered* profit because cost per pig was
+  fixed. Added a sow-productivity adjustment from ISU farrow-to-wean ($43.91/weaned pig).
+- **Verified:** 56 tests, pyright clean. Screenshots via Playwright + installed Edge (Chrome
+  extension unavailable while the user's screen is locked).

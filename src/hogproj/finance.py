@@ -36,6 +36,14 @@ class CostInputs(BaseModel):
     # ISU Sep 2026: variable 48.99 + operating interest 4.47 + fixed 23.30
     nonfeed_usd_per_head: Annotated[float, Field(ge=0)] = 76.76
     death_loss_usd_per_head: Annotated[float, Field(ge=0)] = 8.36  # ISU Sep 2026
+    # Part of the cost per pig is really cost per sow (sow feed, genetics, farrowing barns), so
+    # it falls as each sow produces more pigs. ISU farrow-to-wean, Sep 2026: $43.91 per weaned
+    # pig ÷ (1 - 0.065 wean-to-market deaths) = $46.96 per pig sold.
+    breeding_herd_usd_per_head: Annotated[float, Field(ge=0)] = 46.96
+    # Productivity the ISU per-pig costs correspond to: the app's default herd (28.4 weaned,
+    # 26.6 sold per sow per year) [VERIFY against ISU's NASS/FINBIN inputs].
+    ref_pigs_sold_per_sow_yr: Annotated[float, Field(gt=0)] = 26.58
+    pigs_sold_per_sow_yr: Annotated[float, Field(gt=0)] = 26.58  # set from the herd
     manure_credit_usd_per_head: Annotated[float, Field(ge=0)] = 5.59  # ISU Sep 2026
 
     weight_lb_live_market: Annotated[float, Field(gt=0)] = 283.0  # MetaFarms PAS W2F out-weight
@@ -59,13 +67,19 @@ def cost_usd_per_head(c: CostInputs) -> dict[str, float]:
     corn = c.corn_bu_per_head * c.corn_usd_per_bu * c.feed_scale
     sbm = c.sbm_lb_per_head * c.sbm_usd_per_ton / LB_PER_TON * c.feed_scale
     other_feed = c.other_feed_usd_per_head * c.feed_scale
-    total = corn + sbm + other_feed + c.nonfeed_usd_per_head + c.death_loss_usd_per_head
+    productivity = c.breeding_herd_usd_per_head * (
+        c.ref_pigs_sold_per_sow_yr / c.pigs_sold_per_sow_yr - 1
+    )
+    total = (
+        corn + sbm + other_feed + c.nonfeed_usd_per_head + c.death_loss_usd_per_head + productivity
+    )
     return {
         "corn": corn,
         "sbm": sbm,
         "other_feed": other_feed,
         "nonfeed": c.nonfeed_usd_per_head,
         "death_loss": c.death_loss_usd_per_head,
+        "productivity": productivity,
         "total": total,
         "manure_credit": c.manure_credit_usd_per_head,
         "net": total - c.manure_credit_usd_per_head,
@@ -92,6 +106,7 @@ def cost_table(c: CostInputs) -> pd.DataFrame:
         "other_feed": "Other feed",
         "nonfeed": "Non-feed",
         "death_loss": "Death loss",
+        "productivity": "Sow productivity adjustment",
         "total": "Total cost",
         "manure_credit": "Less manure credit",
         "net": "Net cost",

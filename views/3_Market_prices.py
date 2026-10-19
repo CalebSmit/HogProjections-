@@ -59,7 +59,7 @@ fig.update_layout(
     margin={"t": 50, "b": 30},
     hovermode="x unified",
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 
 left, right = st.columns(2)
 with left:
@@ -77,7 +77,7 @@ with left:
             )
         )
         bar.update_layout(yaxis_title="% vs year average", margin={"t": 10, "b": 30})
-        st.plotly_chart(bar, use_container_width=True)
+        st.plotly_chart(bar, width="stretch")
         st.caption(
             f"Average of {int(f['years'].to_numpy().max())} full calendar year(s). "
             "Hogs usually sell highest in summer and lowest in winter."
@@ -88,7 +88,7 @@ with right:
         go.Scatter(x=view["index_date"], y=view["avg_weight_lb_carcass"], mode="lines")
     )
     wfig.update_layout(yaxis_title="lb carcass", margin={"t": 10, "b": 30})
-    st.plotly_chart(wfig, use_container_width=True)
+    st.plotly_chart(wfig, width="stretch")
     st.caption("Heavier hogs mean more pork; weights usually peak in winter.")
 
 st.download_button(

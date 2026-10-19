@@ -45,6 +45,15 @@ Phase 1 (2026-10-19) because every candidate idea in the PRD needs them.
   (ISU publishes $/head, not quantities; current values are [VERIFY] estimates)
 - [ ] NASS Hogs & Pigs inventory (needs `NASS_API_KEY`)
 
+## Decision support (added 2026-10-19 for Pipestone users)
+- [x] Overview dashboard: plain-English verdict, headline cards, 12-month price vs breakeven,
+  profit by month, profit-driver tornado. verify: smoke test through the router; screenshot
+- [x] Cost per pig responds to sow productivity (ISU farrow-to-wean $43.91/weaned pig spread
+  over pigs sold per sow). verify: `test_more_pigs_per_sow_spreads_sow_costs`
+- [ ] Scenarios page (compare what-ifs side by side)
+- [ ] Risk page (probability of profit)
+- [ ] Excel / PDF report for clients
+
 ## Phase 5 — Price outlook + scenarios ⏳ (started)
 - [x] Seasonal hog price path for projected returns (monthly factors from USDA history,
   interpolated by day of year). verify: tests; Dec path ≈ $67.9 vs Dec futures ≈ $66.9

@@ -14,7 +14,7 @@ from hogproj.finance import (
     sensitivity,
     weekly_returns,
 )
-from hogproj.herd import HerdInputs, simulate
+from hogproj.herd import HerdInputs, pigs_sold_per_sow_yr, simulate
 from hogproj.markets import seasonal_factors, seasonal_price_path
 from hogproj.ui import hog_index, usd
 
@@ -112,7 +112,9 @@ c = CostInputs(
     manure_credit_usd_per_head=manure,
     weight_lb_live_market=herd_inp.weight_lb_live_market,
     carcass_yield=herd_inp.carcass_yield,
+    pigs_sold_per_sow_yr=pigs_sold_per_sow_yr(herd_inp),
 )
+st.session_state["cost_inputs"] = c  # the Overview, Scenarios and Risk pages use these
 be = breakeven(c)
 m = margin_usd_per_head(c)
 
@@ -137,7 +139,7 @@ with left:
             "usd_per_cwt_carcass": "$/cwt carcass",
             "share": "Share of cost",
         },
-        use_container_width=True,
+        width="stretch",
     )
     st.caption(
         "Other feed: DDGS, complete feeds, minerals, processing. Non-feed: labor, vet, "
@@ -167,7 +169,7 @@ with right:
         yaxis_title="Corn ($/bu)",
         margin={"t": 10, "b": 40},
     )
-    st.plotly_chart(heat, use_container_width=True)
+    st.plotly_chart(heat, width="stretch")
 
 st.subheader("Projected returns")
 path_choice = st.radio(
@@ -178,6 +180,7 @@ path_choice = st.radio(
     help="Seasonal starts at your hog price and follows the typical monthly pattern in USDA "
     "data (see Market prices). Flat keeps today's price for every week.",
 )
+st.session_state["seasonal"] = path_choice == "Seasonal"
 herd = simulate(herd_inp)
 path = (
     seasonal_price_path(date.today(), len(herd), hog, seasonal_factors(idx))
@@ -212,7 +215,7 @@ price_fig.add_hline(
 price_fig.update_layout(
     title="Hog price used ($/cwt carcass)", xaxis_title="Week", margin={"t": 50, "b": 40}
 )
-g0.plotly_chart(price_fig, use_container_width=True)
+g0.plotly_chart(price_fig, width="stretch")
 weekly = go.Figure(
     go.Bar(
         x=r["week"],
@@ -224,7 +227,7 @@ weekly = go.Figure(
 weekly.update_layout(
     title="Margin each week", xaxis_title="Week", yaxis_title="$", margin={"t": 50, "b": 40}
 )
-g1.plotly_chart(weekly, use_container_width=True)
+g1.plotly_chart(weekly, width="stretch")
 cum = go.Figure(
     go.Scatter(
         x=r["week"],
@@ -237,12 +240,12 @@ cum = go.Figure(
 cum.update_layout(
     title="Cumulative margin", xaxis_title="Week", yaxis_title="$", margin={"t": 50, "b": 40}
 )
-g2.plotly_chart(cum, use_container_width=True)
+g2.plotly_chart(cum, width="stretch")
 y1 = {k: float(r[k].to_numpy()[:52].sum()) for k in ["revenue_usd", "cost_usd", "margin_usd"]}
 s1, s2, s3 = st.columns(3)
 s1.metric("Revenue, first 52 weeks", usd(y1["revenue_usd"], 0))
 s2.metric("Costs, first 52 weeks", usd(y1["cost_usd"], 0))
 s3.metric("Margin, first 52 weeks", usd(y1["margin_usd"], 0))
 with st.expander("Weekly table"):
-    st.dataframe(r.round(2), hide_index=True, use_container_width=True)
+    st.dataframe(r.round(2), hide_index=True, width="stretch")
     st.download_button("Download CSV", r.to_csv(index=False), "returns.csv", "text/csv")

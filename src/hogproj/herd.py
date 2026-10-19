@@ -36,6 +36,15 @@ class HerdInputs(BaseModel):
     carcass_yield: Annotated[float, Field(gt=0, le=1)] = 0.75  # ISU: $64.04 live ≙ $85.39 carcass
 
 
+def pigs_sold_per_sow_yr(inp: HerdInputs) -> float:
+    return (
+        inp.litters_per_sow_yr
+        * inp.born_alive_per_litter
+        * (1 - inp.prewean_mortality)
+        * (1 - inp.wean_to_market_mortality)
+    )
+
+
 def _weeks(days: float) -> int:
     return max(1, round(days / 7))
 

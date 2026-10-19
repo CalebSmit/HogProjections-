@@ -59,5 +59,9 @@ Longer write-ups go in `docs/PROGRESS.md`.
 - With `st.navigation`, keep pages out of a folder named `pages/` or the legacy auto-nav shows.
 - Widget state is dropped when its page isn't shown. Key widgets `herd_*`/`cost_*`; `app.py`
   re-assigns them each run.
+- `st.page_link` only resolves inside the router: smoke-test pages via `app.py` + `switch_page`.
+- Screenshot without the Chrome extension: `uv run --no-project --with playwright` driving the
+  installed Edge (`channel="msedge"`); plain `--headless --screenshot` only catches the skeleton.
+- In raw-HTML `st.markdown`, write `&#36;` for "$" (backslash escapes show literally there).
 - usda.gov, iastate.edu and cmegroup.com may be blocked from cloud sandboxes. Build API clients
   against recorded fixtures in `tests/fixtures/` and verify live calls on a real machine.

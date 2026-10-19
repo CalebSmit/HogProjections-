@@ -118,3 +118,13 @@ def test_weekly_returns_with_price_path():
     assert r["hog_usd_per_cwt_carcass"].to_numpy() == pytest.approx(path)
     flat = weekly_returns(herd, c.model_copy(update={"lean_hog_usd_per_cwt_carcass": 100}))
     assert r["margin_usd"].iloc[-1] == pytest.approx(flat["margin_usd"].iloc[-1])
+
+
+def test_more_pigs_per_sow_spreads_sow_costs():
+    base = cost_usd_per_head(CostInputs())
+    assert base["productivity"] == pytest.approx(0)  # default herd = reference productivity
+    better = cost_usd_per_head(CostInputs(pigs_sold_per_sow_yr=29.24))  # +10%
+    worse = cost_usd_per_head(CostInputs(pigs_sold_per_sow_yr=23.92))  # -10%
+    assert better["total"] < base["total"] < worse["total"]
+    # sow costs per pig scale with 1 / pigs per sow: 46.96 x (26.58/29.24 - 1)
+    assert better["productivity"] == pytest.approx(46.96 * (26.58 / 29.24 - 1))

@@ -50,6 +50,7 @@ flowchart LR
 | `src/hogproj/herd.py` | Weekly cohort herd flow; pipeline starts in steady state | done |
 | `src/hogproj/finance.py` | ISU ELR line-item cost per pig, breakeven, sensitivity, weekly returns | done |
 | `src/hogproj/markets.py` | Lean Hog Index from HG201, monthly seasonal factors | done |
+| `src/hogproj/outlook.py` | Whole-farm `Plan` (herd + cost + price path): projection, 12-month summary, monthly rollup, profit drivers | done |
 | `src/hogproj/ui.py` | Shared page helpers: cached data load, notices, `usd()` formatting | done |
 | `src/hogproj/risk.py` | Scenarios, Monte Carlo, hedge/LRP payoffs | planned |
 | `src/hogproj/export.py` | Excel workbook builder | planned |
@@ -65,8 +66,10 @@ flowchart LR
 - Every quantity carries its unit in its name. Prices are $/cwt and state `live` or `carcass`.
 - The app starts and every page renders with `OFFLINE=true` and no `.env`.
 - Inputs cross into the model as pydantic models. Results come back as pandas DataFrames.
-- Pages share model inputs through `st.session_state["herd_inputs"]` (a `HerdInputs`), not by
-  re-reading each other's widgets.
+- Pages share model inputs through `st.session_state["herd_inputs"]` / `["cost_inputs"]` /
+  `["seasonal"]`, read via `ui.current_plan()`, not by re-reading each other's widgets.
+- `outlook.synced()` copies herd facts (weight, yield, pigs sold per sow) into the cost model;
+  always project through it so the two pages can't disagree.
 
 ## Changelog
 - 2026-10-17: Initial scaffold and proposed target design.
