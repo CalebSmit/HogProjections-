@@ -1,8 +1,8 @@
 # Review: owner's "USDA Wean Pig Crush" workbook (9/25/26)
 
 *Reviewed 2026-10-19. The owner built this before the app. This note records what it does, how it
-differs from the app, and what to merge. Pipestone-specific cost figures are deliberately left out
-of this file until the owner confirms they can live in the repo (PRD open question 5).*
+differs from the app, and what to merge. No company figures appear here (owner's decision: the
+app is a template; real numbers live in local settings profiles).*
 
 ## What the workbook is
 
@@ -45,21 +45,11 @@ The **weekly table** in `Sheet5` has these rows:
 
 ## Check: the app reproduces it
 
-Column C (placed 2026-09-14, marketed ~2027-02-21) was put through `model.project()` with the
-workbook's inputs:
-- mortality as a $/pig cost
-- single 696-lb ration
-- 100% sold at day 160, 290 lb, 75% yield
-- April futures 80.60 with −5.505 basis
-
-The app matches to the cent:
-
-| Item | App and workbook |
-|---|---|
-| Revenue | $163.33/head |
-| Feed | $87.41/head |
-| Cost | $175.72/head |
-| Margin | −$12.39/head |
+One workbook column was put through `model.project()` with the workbook's own inputs (mortality
+as a $/pig cost, a single whole-group ration, 100% sold at day 160). Revenue, feed, total cost and
+margin per head **matched to the cent**. The actual figures are company data and are
+intentionally not recorded here. `tests/test_crush_parity.py` locks in the same check with
+synthetic numbers.
 
 The workbook's hand-typed "CME marketing period" agrees with the app's ISU B2-41 contract rule
 in all 12 columns, including Feb 14 → FEB and Feb 21 → APR.

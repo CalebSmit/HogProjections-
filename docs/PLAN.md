@@ -59,7 +59,7 @@ Ordered so each step ships something usable. Steps 7.1–7.5 are small and chang
 projection. 7.6 is the big new view. 7.7 is about data.
 
 - [x] **7.1 Parity test.** Lock in "the app reproduces the workbook": `tests/test_crush_parity.py`
-  rebuilds Sheet5 column C and asserts margin −12.39/head (and revenue, feed, cost).
+  recomputes the workbook's Sheet5 formulas and asserts revenue, feed, cost and margin match.
   Synthetic numbers only (owner: no company figures in the repo).
   verify: the test is green.
 - [x] **7.2 Weaned pig price adder** (generic, default $0). Weaned pig cost = USDA price + adder ($/head), in the model, Excel
