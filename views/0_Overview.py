@@ -1,250 +1,288 @@
 """Overview: are we making money, what does the next year look like, and what moves it?"""
 
-import calendar
 from datetime import date
 
 import plotly.graph_objects as go
 import streamlit as st
 
 from hogproj.export import build_report
+from hogproj.herd import pigs_sold_per_sow_yr
 from hogproj.markets import seasonal_factors
-from hogproj.outlook import drivers, headline, monthly, project, summary
+from hogproj.outlook import drivers, headline, monthly, project, summary, synced
 from hogproj.ui import (
-    BAD,
-    GOOD,
+    INK,
+    INK_2,
+    MUTED,
+    NEG,
+    POS,
+    REFERENCE,
+    SERIES,
+    card,
+    chart,
     current_plan,
-    data_notice,
+    delta,
+    footer_note,
     hog_index,
+    insight,
+    page_header,
+    section,
+    signed,
     usd,
     usd_short,
-    verdict,
 )
 
 idx, source, note = hog_index()
-plan = current_plan()
+plan = synced(current_plan())
 factors = seasonal_factors(idx)
 today = date.today()
 hl = headline(plan)
 r = project(plan, factors, today)
-
-head_l, head_r = st.columns([4, 1], vertical_alignment="bottom")
-head_l.title("Overview")
-report_slot = head_r.empty()  # filled once the verdict text exists
-data_notice(source, note)
 year = summary(r)
 months = monthly(r)
 hog = plan.cost.lean_hog_usd_per_cwt_carcass
+be = hl["breakeven_cwt_carcass"]
+d = drivers(plan, factors, today)
 
-# --- The takeaway, in words -------------------------------------------------------------
+actions = page_header(
+    "Farm outlook",
+    f"{plan.herd.sows_start:,.0f} sows · farrow to finish · next 12 months from {today:%b %d, %Y}",
+    eyebrow="Overview",
+)
+
 # Rank months per pig sold: months have 4 or 5 sale weeks, so totals mostly track week count.
 per_pig = months["profit_usd_per_head"].fillna(0)
-best = months.loc[per_pig.idxmax()]
-worst = months.loc[per_pig.idxmin()]
-profit_months = int((per_pig >= 0).sum())
-if profit_months == len(months):
-    months_note = f"Every month is profitable; strongest is {best['month']:%B}."
-elif profit_months == 0:
-    months_note = (
-        f"Every month loses money; smallest loss in {best['month']:%B}, "
-        f"largest in {worst['month']:%B}."
-    )
+best, worst = months.loc[per_pig.idxmax()], months.loc[per_pig.idxmin()]
+above = int((months["hog_usd_per_cwt_carcass"] >= be).sum())
+lever = d.iloc[0]
+
+# --- Takeaway ---------------------------------------------------------------------------
+# Status follows profit (incl. manure credit); breakeven follows ISU and excludes the credit.
+profit = hl["profit_usd_per_head"]
+if profit >= 0 and hl["gap_cwt_carcass"] >= 0:
+    tone, status = "good", "Above breakeven"
+    head = f"Making {usd(profit)} per pig at today's hog price."
+elif profit >= 0:
+    tone, status = "caution", "Profitable only with manure credit"
+    head = f"Making {usd(profit)} per pig, thanks to the manure credit."
 else:
-    months_note = (
-        f"{profit_months} of {len(months)} months are profitable; best is "
-        f"{best['month']:%B}, worst is {worst['month']:%B}."
-    )
-word = "profit" if year["profit_usd"] >= 0 else "loss"
-outlook = (
-    f"Over the next 12 months{' (with the usual seasonal swing)' if plan.seasonal else ''} "
-    f"the farm is projected to post a {word} of {usd_short(abs(year['profit_usd']))} on "
-    f"{year['pigs_sold']:,.0f} pigs, {usd(abs(year['profit_usd_per_head']))} per pig. "
-    f"{months_note}"
-)
-# Good/bad follows profit (which includes the manure credit). Breakeven follows ISU and
-# leaves the credit out, so a price just under breakeven can still be profitable.
-if hl["profit_usd_per_head"] >= 0 and hl["gap_cwt_carcass"] >= 0:
-    kind = "good"
-    title = f"Making {usd(hl['profit_usd_per_head'])} per pig at today's hog price."
-    detail = (
-        f"Hogs could fall {usd(hl['gap_cwt_carcass'])}/cwt (to "
-        f"{usd(hl['breakeven_cwt_carcass'])}) before you stop covering costs. {outlook}"
-    )
-elif hl["profit_usd_per_head"] >= 0:
-    kind = "neutral"
-    title = f"Making {usd(hl['profit_usd_per_head'])} per pig, thanks to the manure credit."
-    detail = (
-        f"The hog price alone is {usd(-hl['gap_cwt_carcass'])}/cwt short of covering costs "
-        f"({usd(hl['breakeven_cwt_carcass'])}); the manure's fertilizer value makes up the "
-        f"difference. {outlook}"
-    )
-else:
-    kind = "bad"
-    title = f"Losing {usd(-hl['profit_usd_per_head'])} per pig at today's hog price."
-    detail = (
-        f"Hogs need to rise {usd(-hl['gap_cwt_carcass'])}/cwt, to "
-        f"{usd(hl['breakeven_cwt_carcass'])}, to break even. {outlook}"
-    )
-verdict(kind, title, detail)
-report_slot.download_button(
-    "⬇ Excel report",
-    build_report(plan, r, today, note, f"{title} {detail}"),
+    tone, status = "bad", "Below breakeven"
+    head = f"Losing {usd(-profit)} per pig at today's hog price."
+facts = [
+    ("Price move to break even", f"{signed(-hl['gap_cwt_carcass'])}/cwt"),
+    ("Months above breakeven", f"{above} of {len(months)}"),
+    ("Best month, per pig", f"{best['month']:%B} · {usd(best['profit_usd_per_head'])}"),
+    ("Toughest month, per pig", f"{worst['month']:%B} · {usd(worst['profit_usd_per_head'])}"),
+    ("Biggest lever", str(lever["driver"])),
+]
+insight(tone, status, head, facts)
+
+actions.download_button(
+    "Export report",
+    build_report(plan, r, today, note, f"{status}: {head}"),
     f"hog_outlook_{today:%Y-%m-%d}.xlsx",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    help="Summary, assumptions, 24-month outlook with chart, cost breakdown and weekly detail. "
-    "Good for sharing with a client.",
+    icon=":material/download:",
+    help="Excel workbook: summary, assumptions, 24-month outlook with chart, costs, weekly detail.",
     width="stretch",
 )
 
-# --- Headline numbers -------------------------------------------------------------------
-k1, k2, k3, k4 = st.columns(4)  # height="stretch" keeps the four cards level
+# --- KPIs -------------------------------------------------------------------------------
+series = idx["lean_hog_index_usd_per_cwt_carcass"]
+week_ago = float(series.iloc[-6]) if len(series) > 6 else hog
+k1, k2, k3, k4 = st.columns(4)
 k1.metric(
     "Hog price used",
-    f"{usd(hog)}/cwt",
-    help="Lean hog, $/cwt carcass. Starts at the latest USDA-based index; change it on "
-    "Costs & returns. The sparkline is the index over the last 90 days.",
-    border=True,
+    usd(hog),
+    delta(hog - week_ago, suffix=" this week"),
+    help="Lean hog, $/cwt carcass. Starts at the latest USDA-based index; edit it under "
+    "Costs & returns. The line shows the last 3 months.",
+    chart_data=series.tail(63).round(2).tolist(),
+    chart_type="area",
     height="stretch",
-    chart_data=idx["lean_hog_index_usd_per_cwt_carcass"].tail(63).round(2).tolist(),
 )
 k2.metric(
     "Breakeven price",
-    f"{usd(hl['breakeven_cwt_carcass'])}/cwt",
-    f"{usd(hl['breakeven_cwt_live'])}/cwt live",
+    usd(be),
+    f"{usd(hl['breakeven_cwt_live'])} live",
     delta_color="off",
     delta_arrow="off",
-    border=True,
+    help="All costs per pig ÷ carcass cwt sold. Excludes the manure credit (ISU convention).",
     height="stretch",
 )
 k3.metric(
-    "Profit per pig today",
-    usd(hl["profit_usd_per_head"]),
-    f"{usd(hl['gap_cwt_carcass'])}/cwt vs breakeven",
-    border=True,
+    "Profit per pig",
+    usd(profit),
+    delta(hl["gap_cwt_carcass"], suffix="/cwt vs breakeven"),
+    help="At today's hog price, including the manure credit. Bars: next 12 months, per pig.",
+    chart_data=months["profit_usd_per_head"].fillna(0).round(2).tolist(),
+    chart_type="bar",
     height="stretch",
 )
 k4.metric(
-    "Next 12 months",
+    "Profit, next 12 months",
     usd_short(year["profit_usd"]),
     f"{year['pigs_sold']:,.0f} pigs sold",
     delta_color="off",
     delta_arrow="off",
-    border=True,
+    help="With the seasonal price path. Line: running total over the year.",
+    chart_data=r["margin_usd"].iloc[:52].cumsum().round(0).tolist(),
+    chart_type="line",
     height="stretch",
 )
+st.space("small")
 
-# --- Outlook charts ---------------------------------------------------------------------
-left, right = st.columns(2)
-with left, st.container(border=True):
-    st.markdown("**Hog price vs. breakeven, next 12 months**")
-    labels = [f"{m:%b %y}" for m in months["month"]]
+# --- Outlook ----------------------------------------------------------------------------
+labels = [f"{m:%b}" for m in months["month"]]
+left, right = st.columns(2, gap="medium")
+with left, card("price"):
+    if above == 0:
+        title = "Hog prices stay below breakeven all year"
+    elif above == len(months):
+        title = "Hog prices stay above breakeven all year"
+    else:
+        title = f"Hog prices clear breakeven in {above} of {len(months)} months"
+    section(title, "Lean hog, $/cwt carcass, monthly average · seasonal pattern from USDA history")
     price = months["hog_usd_per_cwt_carcass"]
     fig = go.Figure()
     fig.add_scatter(
         x=labels,
-        y=[hl["breakeven_cwt_carcass"]] * len(labels),
-        name="Breakeven",
-        mode="lines",
-        line={"color": BAD, "dash": "dot"},
-    )
-    fig.add_scatter(
-        x=labels,
         y=price,
-        name="Hog price",
         mode="lines+markers",
-        line={"color": "#1f4e79", "width": 3},
-        fill="tonexty",
-        fillcolor="rgba(46,125,50,0.12)" if price.mean() >= hl["breakeven_cwt_carcass"] else
-        "rgba(198,40,40,0.10)",
+        line={"color": SERIES[0], "width": 2.25, "shape": "spline", "smoothing": 0.6},
+        marker={"size": 6, "color": SERIES[0], "line": {"color": "white", "width": 1.5}},
         hovertemplate="%{x}: $%{y:.2f}/cwt<extra></extra>",
-    )  # fmt: skip
-    fig.update_layout(
-        height=320,
-        margin={"t": 10, "b": 10, "l": 10, "r": 10},
-        yaxis_title="$/cwt carcass",
-        legend={"orientation": "h", "y": 1.12},
-        hovermode="x unified",
+        showlegend=False,
     )
-    st.plotly_chart(fig, width="stretch")
-with right, st.container(border=True):
-    st.markdown("**Profit per pig sold, by month**")
+    fig.add_hline(y=be, line={"color": REFERENCE, "width": 1, "dash": "dash"})
+    fig.add_annotation(
+        x=labels[-1],
+        y=be,
+        text=f"Breakeven {usd(be)}",
+        showarrow=False,
+        xanchor="right",
+        yanchor="bottom",
+        font={"size": 11, "color": REFERENCE},
+    )
+    lo = min(float(price.to_numpy().min()), be)
+    hi = max(float(price.to_numpy().max()), be)
+    pad = (hi - lo) * 0.18 + 1
+    fig.update_yaxes(range=[lo - pad, hi + pad], tickprefix="$")
+    fig.update_layout(hovermode="closest")
+    chart(fig, 300)
+with right, card("months"):
+    section(
+        f"{'Strongest' if per_pig.max() >= 0 else 'Smallest loss'} in {best['month']:%B}, "
+        f"{'weakest' if per_pig.min() >= 0 else 'largest loss'} in {worst['month']:%B}",
+        "Profit per pig sold by month"
+        + (" · first month is partial" if bool(months["partial"].iloc[0]) else ""),
+    )
     bars = go.Figure(
         go.Bar(
             x=labels,
             y=per_pig,
-            marker_color=[GOOD if v >= 0 else BAD for v in per_pig],
-            text=[usd(v, 0) for v in per_pig],
-            textposition="outside",
+            marker={"color": [POS if v >= 0 else NEG for v in per_pig], "cornerradius": 3},
             customdata=[usd_short(v) for v in months["profit_usd"]],
-            hovertemplate="%{x}: %{text} per pig (%{customdata} total)<extra></extra>",
+            hovertemplate="%{x}: $%{y:,.2f} per pig<br>%{customdata} total<extra></extra>",
         )
     )
-    bars.update_layout(height=320, margin={"t": 10, "b": 10, "l": 10, "r": 10}, showlegend=False)
-    if bool(months["partial"].iloc[0]):
-        st.caption(f"{labels[0]} is a partial month (the projection starts {today:%b %d}).")
-    st.plotly_chart(bars, width="stretch")
+    for i in {int(per_pig.to_numpy().argmax()), int(per_pig.to_numpy().argmin())}:
+        v = float(per_pig.iloc[i])
+        bars.add_annotation(
+            x=labels[i],
+            y=v,
+            text=usd(v, 0),
+            showarrow=False,
+            yshift=10 if v >= 0 else -10,
+            font={"size": 11, "color": INK},
+        )
+    bars.update_yaxes(tickprefix="$", zeroline=True, zerolinecolor="#cfcfc8", zerolinewidth=1)
+    bars.update_layout(hovermode="closest", bargap=0.35)
+    chart(bars, 300)
 
-# --- What moves profit ------------------------------------------------------------------
-left, right = st.columns([3, 2])
-with left, st.container(border=True):
-    st.markdown("**What moves your next-12-month profit most**")
-    st.caption("Each bar changes one thing and keeps everything else the same.")
-    d = drivers(plan, factors, today).iloc[::-1]  # biggest at the top
+# --- Drivers + assumptions --------------------------------------------------------------
+left, right = st.columns([3, 2], gap="medium")
+with left, card("drivers"):
+    section(
+        f"{lever['driver']} moves profit most",
+        "Change in next-12-month profit when one input moves and the rest hold",
+    )
+    dd = d.iloc[::-1]
+    names = [
+        f"{n}<br><span style='font-size:11px;color:{MUTED}'>{lo} / {hi}</span>"
+        for n, lo, hi in zip(dd["driver"], dd["low_label"], dd["high_label"], strict=True)
+    ]
     tor = go.Figure()
     for col, lab in [("low_usd", "low_label"), ("high_usd", "high_label")]:
         tor.add_bar(
-            y=d["driver"],
-            x=d[col],
+            y=names,
+            x=dd[col],
             orientation="h",
-            marker_color=[GOOD if v >= 0 else BAD for v in d[col]],
-            text=[f"{a}: {usd_short(v)}" for a, v in zip(d[lab], d[col], strict=True)],
-            textposition="auto",
-            hovertemplate="%{y} %{text}<extra></extra>",
+            marker={"color": [POS if v >= 0 else NEG for v in dd[col]], "cornerradius": 3},
+            text=[signed(v, usd_short) for v in dd[col]],
+            customdata=dd[lab],
+            textposition="outside",
+            textfont={"size": 11, "color": INK_2},
+            cliponaxis=False,
+            hovertemplate="%{customdata}: %{text}<extra></extra>",
             showlegend=False,
         )
-    tor.update_layout(
-        barmode="group",
-        height=330,
-        margin={"t": 10, "b": 10, "l": 10, "r": 10},
-        xaxis_title="Change in 12-month profit ($)",
+    span = float(dd[["low_usd", "high_usd"]].abs().to_numpy().max()) * 1.7 or 1.0
+    tor.update_xaxes(
+        range=[-span, span],
+        tickformat="$~s",
+        showline=False,
+        ticks="",
+        showgrid=True,
+        gridcolor="#efefeb",
+        zeroline=True,
+        zerolinecolor="#bdbdb6",
     )
-    st.plotly_chart(tor, width="stretch")
-with right, st.container(border=True):
-    st.markdown("**Key assumptions**")
+    tor.update_yaxes(
+        tickfont={"size": 12, "color": INK}, gridcolor="rgba(0,0,0,0)", ticksuffix="  "
+    )
+    tor.update_layout(barmode="overlay", hovermode="closest", bargap=0.42)
+    chart(tor, 320)
+with right, card("assumptions"):
+    section("Key assumptions", "Edit on Herd flow and Costs & returns")
     h, c = plan.herd, plan.cost
-    weaned = h.litters_per_sow_yr * h.born_alive_per_litter * (1 - h.prewean_mortality)
-    rows = {
-        "Sows": f"{h.sows_start:,.0f}",
-        "Pigs weaned / sow / yr": f"{weaned:.1f}",
-        "Market weight": f"{h.weight_lb_live_market:.0f} lb live",
-        "Corn": f"{usd(c.corn_usd_per_bu)}/bu",
-        "Soybean meal": f"{usd(c.sbm_usd_per_ton, 0)}/ton",
-        "Cost per pig (before manure credit)": usd(hl["cost_usd_per_head"]),
-        "Price path": "Seasonal" if plan.seasonal else "Flat",
-    }
-    st.dataframe(
-        {"Assumption": list(rows), "Value": list(rows.values())},
-        hide_index=True,
-        width="stretch",
-    )
-    st.page_link("views/1_Herd_flow.py", label="Change herd", icon="🐷")
-    st.page_link("views/2_Costs_and_returns.py", label="Change prices & costs", icon="💵")
-
-with st.expander("How to use this app"):
+    rows = [
+        ("Sows", f"{h.sows_start:,.0f}"),
+        ("Pigs sold / sow / yr", f"{pigs_sold_per_sow_yr(h):.1f}"),
+        ("Market weight", f"{h.weight_lb_live_market:.0f} lb live"),
+        ("Corn", f"{usd(c.corn_usd_per_bu)}/bu"),
+        ("Soybean meal", f"{usd(c.sbm_usd_per_ton, 0)}/ton"),
+        ("Cost per pig", usd(hl["cost_usd_per_head"])),
+        ("Price path", "Seasonal" if plan.seasonal else "Flat"),
+    ]
     st.markdown(
-        f"""
-1. **Herd flow** — enter your sow herd and productivity. See how many pigs you'll sell each
-   week and when a herd change reaches market (about 41 weeks from breeding).
-2. **Costs & returns** — enter corn, soybean meal and hog prices and your costs per pig. See
-   your breakeven and profit, and how they change with hog and corn prices.
-3. **Market prices** — today's Lean Hog Index from free USDA data, its history and its
-   typical seasonal pattern ({
-            calendar.month_name[int(factors.loc[factors["factor"].idxmax(), "month"])]
-            if not factors.empty
-            else "summer"
-        } is usually the high).
-4. Come back here for the summary. Everything you change is kept while the app is open.
+        '<div style="margin-top:6px">'
+        + "".join(
+            '<div style="display:flex;justify-content:space-between;padding:8px 0;'
+            'border-bottom:1px solid #f0f0ec;font-size:13.5px">'
+            f'<span style="color:{MUTED}">{k}</span>'
+            f'<span style="color:{INK};font-weight:500;font-variant-numeric:tabular-nums">'
+            f"{v.replace('$', '&#36;')}</span></div>"
+            for k, v in rows
+        )
+        + "</div>",
+        unsafe_allow_html=True,
+    )
+    st.space("small")
+    a, b = st.columns(2)
+    a.page_link("views/1_Herd_flow.py", label="Herd flow", icon=":material/timeline:")
+    b.page_link("views/2_Costs_and_returns.py", label="Costs", icon=":material/request_quote:")
 
-Costs follow Iowa State University's Estimated Livestock Returns budget. Prices are
-\\$/cwt carcass unless marked *live* (live ≈ carcass × 0.75).
+st.space("small")
+with st.expander("Methodology & sources", icon=":material/info:"):
+    st.markdown(
+        """
+- **Costs** follow Iowa State University's Estimated Livestock Returns (farrow to finish),
+  reproduced to the cent for its 2026 months, with sow costs spread over pigs sold per sow.
+- **Hog price** starts at the CME Lean Hog Index, rebuilt from USDA AMS report LM_HG201, and
+  follows the typical monthly pattern in that history. See Risk for the range of outcomes.
+- **Herd flow** is a weekly cohort model: 16 weeks gestation, 3 weeks nursing, 22 weeks to
+  market.
+- Prices are \\$/cwt carcass unless marked live (live ≈ carcass × 0.75).
 """
     )
+footer_note(f"Prepared {today:%B %d, %Y} · {note}")

@@ -1,9 +1,24 @@
 # Hog Projections
 
-Hog production projections and financials: herd flow, cost of production, market prices and
-profit scenarios. It runs in your web browser on your own computer.
+Farrow-to-finish projections for hog producers and their advisors: how many pigs you'll sell
+and when, what they cost to raise, today's hog market, and the odds of making money. It runs
+in your web browser on your own computer.
 
-> **Status:** early build. See [`docs/PLAN.md`](docs/PLAN.md) for which phases are done.
+![Farm outlook](docs/images/overview.png)
+
+**What it answers**
+
+| Page | Question |
+|---|---|
+| Overview | Are we making money at today's prices, and what moves it most? One-click Excel report. |
+| Herd flow | How many pigs reach market each week, and when does a herd change show up? |
+| Costs & returns | What's our breakeven and cost per pig (Iowa State ELR format)? |
+| Scenarios | What would expanding, cheaper feed or better productivity do? |
+| Risk | What's the chance of a profit next year, and what would a price floor (LRP) do? |
+| Market prices | Where is the Lean Hog Index, and what's the seasonal pattern? |
+
+Hog prices come live from USDA (no account needed). Costs reproduce Iowa State University's
+Estimated Livestock Returns to the cent. See [`docs/PLAN.md`](docs/PLAN.md) for what's next.
 
 ## Quick start (no programming needed)
 
@@ -64,6 +79,7 @@ Project docs (the source of truth for the build):
 |---|---|
 | [`CLAUDE.md`](CLAUDE.md) | Working rules for AI agents and humans, plus the lessons log |
 | [`docs/PRD.md`](docs/PRD.md) | What we're building and why |
+| [`docs/DESIGN.md`](docs/DESIGN.md) | Design system: tokens, type, components, chart rules |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Code map, data flow, invariants |
 | [`docs/PLAN.md`](docs/PLAN.md) | Phased plan with verification checks |
 | [`docs/PROGRESS.md`](docs/PROGRESS.md) | Session-by-session log |

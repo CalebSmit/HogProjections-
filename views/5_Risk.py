@@ -10,12 +10,24 @@ from hogproj.finance import breakeven
 from hogproj.markets import seasonal_factors
 from hogproj.outlook import project, synced
 from hogproj.risk import RiskInputs, distribution_summary, estimate_hog_dynamics, simulate_profit
-from hogproj.ui import ACCENT, BAD, current_plan, hog_index, usd, usd_short, verdict
+from hogproj.ui import (
+    REFERENCE,
+    SERIES,
+    card,
+    chart,
+    current_plan,
+    hog_index,
+    insight,
+    page_header,
+    section,
+    usd,
+    usd_short,
+)
 
-st.title("Risk")
-st.caption(
-    "Runs 2,000 possible years of hog and corn prices, based on how the USDA hog index has "
-    "actually moved, and shows the range of 12-month profit you could see."
+page_header(
+    "Risk",
+    "The range of 12-month profit across 2,000 simulated years of hog and corn prices.",
+    eyebrow="Decisions",
 )
 
 idx, _, _ = hog_index()
@@ -27,10 +39,10 @@ weeks = 52
 r = project(plan, factors, date.today()).iloc[:weeks]
 hog_now = plan.cost.lean_hog_usd_per_cwt_carcass
 
-with st.container(border=True):
-    c1, c2, c3 = st.columns(3)
-    corn_vol = c1.slider(
-        "Corn price uncertainty (% per year)",
+with st.sidebar:
+    st.header("Price uncertainty")
+    corn_vol = st.slider(
+        "Corn, % per year",
         0,
         50,
         20,
@@ -38,14 +50,15 @@ with st.container(border=True):
         key="risk_corn_vol",
         help="How much corn could move over a year. About 20% is typical.",
     )
-    use_floor = c2.toggle(
+    st.header("Price protection")
+    use_floor = st.toggle(
         "Add a hog price floor",
         key="risk_floor_on",
-        help="Like USDA Livestock Risk Protection (LRP) or a put option: if the hog price falls "
-        "below the floor you're paid the difference, in exchange for an up-front premium.",
+        help="Like USDA Livestock Risk Protection (LRP) or a put option: below the floor you're "
+        "paid the difference, for an up-front premium.",
     )
-    floor = c2.number_input(
-        "Floor ($/cwt carcass)",
+    floor = st.number_input(
+        "Floor, $/cwt carcass",
         0.0,
         200.0,
         float(round(hog_now - 3)),
@@ -53,15 +66,15 @@ with st.container(border=True):
         key="risk_floor",
         disabled=not use_floor,
     )
-    premium = c3.number_input(
-        "Floor cost ($/cwt carcass)",
+    premium = st.number_input(
+        "Premium, $/cwt carcass",
         0.0,
         30.0,
         2.5,
         0.25,
         key="risk_premium",
         disabled=not use_floor,
-        help="Enter the premium from your LRP or options quote. 2.50 is only a placeholder.",
+        help="Use the premium from your LRP or options quote. 2.50 is a placeholder.",
     )
 
 risk = RiskInputs(
@@ -80,119 +93,132 @@ out = simulate_profit(
 plain = distribution_summary(out["profit"])
 shown = distribution_summary(out["profit_with_floor"]) if use_floor else plain
 
-chance = shown["p_profit"]
-
 
 def odds(p: float) -> str:
     """Don't claim certainty from a simulation: 0.2% -> 'Under 1%'."""
     return "Under 1%" if p < 0.01 else "Over 99%" if p > 0.99 else f"{p:.0%}"
 
 
-kind = "good" if chance >= 0.6 else "bad" if chance < 0.4 else "neutral"
-detail = (
-    f"In a bad year (1 in 10) the farm would {'lose' if shown['p10'] < 0 else 'make'} "
-    f"{usd_short(abs(shown['p10']))}; in a good year (1 in 10) it would "
-    f"{'make' if shown['p90'] >= 0 else 'lose'} {usd_short(abs(shown['p90']))}."
-)
+chance = shown["p_profit"]
+tone = "good" if chance >= 0.6 else "bad" if chance < 0.4 else "caution"
+status = {"good": "Likely profitable", "bad": "Likely loss", "caution": "Toss-up"}[tone]
+end_prices = out["hog_paths"][:, -1]
+facts = [
+    ("Price needed", f"{usd(be)}/cwt"),
+    ("Hog price in 12 months, middle", f"{usd(float(np.median(end_prices)))}/cwt"),
+    (
+        "8 in 10 years between",
+        f"{usd(float(np.percentile(end_prices, 10)), 0)}–"
+        f"{usd(float(np.percentile(end_prices, 90)), 0)}",
+    ),
+    ("Typical weekly price move", f"±{dyn.sigma:.1%}"),
+]
 if use_floor:
-    detail += (
-        f" Without the floor: {odds(plain['p_profit'])} chance of profit and a bad year of "
-        f"{usd_short(plain['p10'])}."
-    )
-verdict(kind, f"{odds(chance)} chance of making money over the next 12 months.", detail)
+    facts.append(("Chance without floor", odds(plain["p_profit"])))
+insight(tone, status, f"{odds(chance)} chance of making money over the next 12 months.", facts)
 
 m1, m2, m3, m4 = st.columns(4)
-m1.metric("Chance of profit", odds(chance), border=True)
+m1.metric("Chance of profit", odds(chance), height="stretch")
 m2.metric(
     "Middle outcome",
     usd_short(shown["p50"]),
-    help="Half the simulated years do better, half do worse.",
-    border=True,
+    help="Half the simulated years do better, half worse.",
+    height="stretch",
 )
-m3.metric("Bad year (1 in 10)", usd_short(shown["p10"]), border=True)
-m4.metric("Good year (1 in 10)", usd_short(shown["p90"]), border=True)
+m3.metric("Bad year, 1 in 10", usd_short(shown["p10"]), height="stretch")
+m4.metric("Good year, 1 in 10", usd_short(shown["p90"]), height="stretch")
+st.space("small")
 
-left, right = st.columns(2)
-with left, st.container(border=True):
-    st.markdown("**Where hog prices could go**")
+left, right = st.columns(2, gap="medium")
+with left, card("fan"):
+    p90_end = float(np.percentile(out["hog_paths"][:, -1], 90))
+    section(
+        "Hog prices stay below breakeven in 9 of 10 years"
+        if p90_end < be
+        else "Where hog prices could go",
+        "Lean hog, $/cwt carcass · shaded: middle half and 8 in 10 simulated years",
+    )
     hog = out["hog_paths"]
     dates = r["date"]
     pct = {q: np.percentile(hog, q, axis=0) for q in (10, 25, 50, 75, 90)}
     fan = go.Figure()
-    fan.add_scatter(x=dates, y=pct[90], line={"width": 0}, showlegend=False, hoverinfo="skip")
+    for lo_q, hi_q, alpha in [(10, 90, 0.10), (25, 75, 0.20)]:
+        fan.add_scatter(x=dates, y=pct[hi_q], line={"width": 0}, hoverinfo="skip", showlegend=False)
+        fan.add_scatter(
+            x=dates,
+            y=pct[lo_q],
+            fill="tonexty",
+            fillcolor=f"rgba(42,120,214,{alpha})",
+            line={"width": 0},
+            hoverinfo="skip",
+            showlegend=False,
+        )
     fan.add_scatter(
         x=dates,
-        y=pct[10],
-        fill="tonexty",
-        fillcolor="rgba(31,111,80,0.12)",
-        line={"width": 0},
-        name="8 in 10 years",
+        y=pct[50],
+        line={"color": SERIES[0], "width": 2.25},
+        hovertemplate="%{x|%b %d}: middle $%{y:.2f}<extra></extra>",
+        showlegend=False,
     )
-    fan.add_scatter(x=dates, y=pct[75], line={"width": 0}, showlegend=False, hoverinfo="skip")
-    fan.add_scatter(
-        x=dates,
-        y=pct[25],
-        fill="tonexty",
-        fillcolor="rgba(31,111,80,0.25)",
-        line={"width": 0},
-        name="Half of years",
-    )
-    fan.add_scatter(x=dates, y=pct[50], name="Middle", line={"color": ACCENT, "width": 3})
-    fan.add_hline(y=be, line_dash="dot", line_color=BAD, annotation_text="breakeven")
+    fan.add_hline(y=be, line={"color": REFERENCE, "width": 1, "dash": "dash"})
+    fan.add_annotation(
+        x=dates.iloc[-1], y=be, text=f"Breakeven {usd(be)}", showarrow=False,
+        xanchor="right", yanchor="bottom", font={"size": 11, "color": REFERENCE},
+    )  # fmt: skip
     if use_floor:
-        fan.add_hline(y=floor, line_dash="dash", line_color="#1f4e79", annotation_text="floor")
-    fan.update_layout(
-        height=340,
-        margin={"t": 10, "b": 10, "l": 10, "r": 10},
-        yaxis_title="$/cwt carcass",
-        legend={"orientation": "h", "y": -0.15},
-        hovermode="x unified",
+        fan.add_hline(y=floor, line={"color": "#1f4e8c", "width": 1.25})
+        fan.add_annotation(
+            x=dates.iloc[-1], y=floor, text=f"Floor {usd(floor)}", showarrow=False,
+            xanchor="right", yanchor="top", font={"size": 11, "color": "#1f4e8c"},
+        )  # fmt: skip
+    fan.update_yaxes(tickprefix="$")
+    fan.update_xaxes(tickformat="%b %Y")
+    chart(fan, 320)
+with right, card("hist"):
+    section(
+        "Range of 12-month profit",
+        "Simulated years by outcome" + (" · green: with the floor" if use_floor else ""),
     )
-    st.plotly_chart(fan, width="stretch")
-with right, st.container(border=True):
-    st.markdown("**Range of 12-month profit**")
     hist = go.Figure()
     hist.add_histogram(
         x=out["profit"],
         name="No floor",
-        marker_color="rgba(138,154,147,0.6)",
+        marker={"color": "rgba(139,144,154,0.55)", "line": {"color": "white", "width": 1}},
         nbinsx=40,
+        hovertemplate="%{x}: %{y} years<extra></extra>",
     )
     if use_floor:
         hist.add_histogram(
             x=out["profit_with_floor"],
             name="With floor",
-            marker_color="rgba(31,111,80,0.6)",
+            marker={"color": "rgba(23,138,106,0.55)", "line": {"color": "white", "width": 1}},
             nbinsx=40,
+            hovertemplate="%{x}: %{y} years<extra></extra>",
         )
-    hist.add_vline(x=0, line_color=BAD, line_dash="dot", annotation_text="breakeven")
-    hist.update_layout(
-        barmode="overlay",
-        height=340,
-        margin={"t": 10, "b": 10, "l": 10, "r": 10},
-        xaxis_title="12-month profit ($)",
-        yaxis_title="Simulated years",
-        legend={"orientation": "h", "y": -0.2},
-    )
-    st.plotly_chart(hist, width="stretch")
+    hist.add_vline(x=0, line={"color": REFERENCE, "width": 1, "dash": "dash"})
+    hist.update_xaxes(tickformat="$~s", title="12-month profit")
+    hist.update_yaxes(title="Simulated years")
+    hist.update_layout(barmode="overlay", hovermode="closest", showlegend=use_floor)
+    chart(hist, 320)
 
-with st.expander("How this works"):
+with st.expander("How this works", icon=":material/info:"):
     st.markdown(
         f"""
 - **Expected path:** today's hog price ({usd(hog_now)}/cwt) following the usual seasonal
   pattern, the same path the Overview uses.
-- **Hog price surprises** are fitted to {dyn.weeks_used} weeks of USDA index history with the
+- **Price surprises** are fitted to {dyn.weeks_used} weeks of USDA index history with the
   seasonal pattern removed: a typical week moves **{dyn.sigma:.1%}**, and a surprise fades by
   about **{1 - dyn.phi:.0%} a week**, so prices drift back toward the seasonal path.
 - **Corn** moves randomly by about {corn_vol}% a year, independent of hogs.
 - Herd size, productivity and non-feed costs are held at your inputs. Disease, export shocks
   and futures-market views aren't included.
-- The floor pays (floor − hog price) on every cwt sold in a week when hogs are below it.
-  Real LRP pays on an ending value over a chosen period, so treat this as a guide and use
-  your actual quote for the premium.
+- The floor pays (floor − hog price) on every cwt sold in a week when hogs are below it. Real
+  LRP pays on an ending value over a chosen period, so treat this as a guide and use your
+  actual quote for the premium.
 """
     )
-    st.caption(
-        f"{risk.n_paths:,} simulated years, fixed seed {risk.seed} so results don't jump "
-        f"between visits. Breakeven: {usd(be)}/cwt carcass."
-    )
+st.markdown(
+    f'<div class="hp-foot">{risk.n_paths:,} simulated years with a fixed seed, so results '
+    f"don't change between visits. Breakeven {usd(be).replace('$', '&#36;')}/cwt carcass.</div>",
+    unsafe_allow_html=True,
+)

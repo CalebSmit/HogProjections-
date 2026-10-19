@@ -10,7 +10,8 @@ from hogproj.finance import cost_table
 from hogproj.herd import pigs_sold_per_sow_yr
 from hogproj.outlook import Plan, headline, monthly, summary, synced
 
-GREEN, RED, INK, GRID = "#1f6f50", "#c62828", "#1d2a24", "#dfe6e2"
+# Brand colours, matching src/hogproj/ui.py tokens.
+NAVY, GREEN, RED, INK, GRID = "#1f4e8c", "#178a6a", "#c8453a", "#16181d", "#e3e3de"
 
 
 def _dt(v: object) -> datetime:
@@ -35,7 +36,7 @@ def build_report(
         "title": wb.add_format({"bold": True, "font_size": 18, "font_color": INK}),
         "sub": wb.add_format({"italic": True, "font_color": "#5b6b64"}),
         "h": wb.add_format(
-            {"bold": True, "bg_color": GREEN, "font_color": "white", "border": 1,
+            {"bold": True, "bg_color": NAVY, "font_color": "white", "border": 1,
              "border_color": GRID}
         ),
         "label": wb.add_format({"font_color": INK, "border": 1, "border_color": GRID}),

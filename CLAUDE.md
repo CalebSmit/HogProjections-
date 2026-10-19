@@ -14,6 +14,14 @@ non-technical: they clone or download the repo and double-click `run.bat` / `run
 architecture or plan, update that doc *in the same commit* and add a line to its Changelog.
 Larger choices get an ADR in `docs/decisions/`. Use the `sync-docs` skill.
 
+## UI rules (see `docs/DESIGN.md`)
+
+- Build pages from `hogproj.ui` components (`page_header`, `insight`, `card`, `section`,
+  `chart`, `table`) and its tokens. No emoji, no raw hex outside `ui.py`/`export.py`, no
+  `st.info/success` as layout, no dual axes.
+- After any UI change, restart the server and screenshot every touched page before claiming
+  it's done.
+
 ## Commands
 
 ```bash

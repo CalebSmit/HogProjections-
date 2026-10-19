@@ -51,7 +51,8 @@ flowchart LR
 | `src/hogproj/finance.py` | ISU ELR line-item cost per pig, breakeven, sensitivity, weekly returns | done |
 | `src/hogproj/markets.py` | Lean Hog Index from HG201, monthly seasonal factors | done |
 | `src/hogproj/outlook.py` | Whole-farm `Plan` (herd + cost + price path): projection, 12-month summary, monthly rollup, profit drivers | done |
-| `src/hogproj/ui.py` | Shared page helpers: cached data load, notices, `usd()` formatting | done |
+| `src/hogproj/ui.py` | Design system (tokens, CSS, Plotly template, components) + cached data load and number formatting; see `docs/DESIGN.md` | done |
+| `assets/` | Logo and favicon SVGs | done |
 | `src/hogproj/risk.py` | Monte Carlo profit (fitted hog AR(1) + corn walk), price-floor payoff | done |
 | `src/hogproj/export.py` | Excel report builder (xlsxwriter, returns bytes) | done |
 | `data/sample/` | Committed datasets so the app runs offline (3 years of HG201, ~240 KB) | started |
@@ -73,6 +74,8 @@ flowchart LR
 
 ## Changelog
 - 2026-10-17: Initial scaffold and proposed target design.
+- 2026-10-19: Design system (ADR 0002, `docs/DESIGN.md`): theme tokens, `ui.py` components,
+  Material-icon navigation, `assets/` logo.
 - 2026-10-19: Added `data/ams.py`, `markets.py`, `ui.py` and the Market prices page. Tests
   force `OFFLINE=true` (tests/conftest.py).
 - 2026-10-19: Added herd/finance modules and two pages; pages live in `views/` behind an

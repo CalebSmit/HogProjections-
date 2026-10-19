@@ -76,5 +76,6 @@ Phase 1 (2026-10-19) because every candidate idea in the PRD needs them.
   candidate feature). Phase 2 done; Phase 3 done except the ISU ELR reconciliation.
 - 2026-10-19: Started Phase 4 with the keyless LMR datamart (hog prices); grain and inventory
   wait on the owner's free API keys.
+- 2026-10-19: Premium redesign (ADR 0002) across all pages before sharing with Pipestone.
 - 2026-10-19: Phase 3 closed: cost model switched from the CIH shortcut to ISU's line items,
   which reproduce ISU's 2026 months to the cent.

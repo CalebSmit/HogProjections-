@@ -88,3 +88,18 @@ Newest at the bottom.
 - **Review fixes:** verdict now follows profit (incl. manure credit), with a third "profitable
   only thanks to the manure credit" case; months are ranked and charted per pig sold (months
   have 4 or 5 sale weeks and the first is partial), and the Excel Monthly sheet flags it.
+
+## 2026-10-19 (cont.) — Premium redesign
+- **Why:** owner feedback that the app "looks made by an AI, not premium"; it will be used by
+  Pipestone and shown to clients.
+- **Done:** research brief (Stripe/Linear/Carbon/Datawrapper/NN/g + Streamlit 1.66 theming) →
+  design system (ADR 0002, `docs/DESIGN.md`): Inter + system fallback, neutral palette with one
+  navy accent, CVD-checked profit/loss colours, Material-icon nav, logo, page header with data
+  freshness chip, takeaway cards with key facts, white cards, house Plotly template (no toolbar,
+  hairline grid, true minus signs), clean comparison tables. All six pages rebuilt; Excel report
+  uses the same brand. README gets a screenshot and feature table.
+- **Bugs caught while reviewing screenshots:** grey plot backgrounds from Streamlit's renderer;
+  green ↑ on negative deltas (Streamlit reads only ASCII "-"); heatmap axes parsed "$55" as
+  numbers; sidebar footer above page inputs; label collisions in tornado and scenario bars.
+- **Verified:** ruff, format, pyright clean; 70 tests; screenshots of every page at 1500 and
+  1280 px, plus the Risk floor interaction.
