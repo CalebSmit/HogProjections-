@@ -52,14 +52,16 @@ Phase 1 (2026-10-19) because every candidate idea in the PRD needs them.
   over pigs sold per sow). verify: `test_more_pigs_per_sow_spreads_sow_costs`
 - [x] Scenarios page: 3 editable what-ifs vs current plan over 12/24 months (cards, bars,
   running total, side-by-side table). verify: `test_compare_*`, smoke test, screenshot
-- [ ] Risk page (probability of profit)
+- [x] Risk page: 2,000 seeded price years (hog AR(1) fitted to de-seasonalized USDA index,
+  corn random walk), chance of profit, P10/P50/P90, fan chart, price-floor overlay.
+  verify: `tests/test_risk.py` (zero-vol = projection, seeded, floor lifts P10)
 - [ ] Excel / PDF report for clients
 
 ## Phase 5 — Price outlook + scenarios ⏳ (started)
 - [x] Seasonal hog price path for projected returns (monthly factors from USDA history,
   interpolated by day of year). verify: tests; Dec path ≈ $67.9 vs Dec futures ≈ $66.9
 - [ ] Futures curve as the expected path (no free futures API; user-entered strip?)
-- [ ] Scenarios + Monte Carlo margin distribution
+- [x] Scenarios + Monte Carlo margin distribution (see Decision support)
 
 | Phase | Deliverable | verify |
 |---|---|---|

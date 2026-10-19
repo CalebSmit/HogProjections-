@@ -24,6 +24,7 @@ page = st.navigation(
         ],
         "Decide": [
             st.Page("views/4_Scenarios.py", title="Scenarios", icon="🔀"),
+            st.Page("views/5_Risk.py", title="Risk", icon="🎲"),
         ],
         "Markets": [
             st.Page("views/3_Market_prices.py", title="Market prices", icon="📈"),

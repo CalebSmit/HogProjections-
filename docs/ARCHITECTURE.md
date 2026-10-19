@@ -52,7 +52,7 @@ flowchart LR
 | `src/hogproj/markets.py` | Lean Hog Index from HG201, monthly seasonal factors | done |
 | `src/hogproj/outlook.py` | Whole-farm `Plan` (herd + cost + price path): projection, 12-month summary, monthly rollup, profit drivers | done |
 | `src/hogproj/ui.py` | Shared page helpers: cached data load, notices, `usd()` formatting | done |
-| `src/hogproj/risk.py` | Scenarios, Monte Carlo, hedge/LRP payoffs | planned |
+| `src/hogproj/risk.py` | Monte Carlo profit (fitted hog AR(1) + corn walk), price-floor payoff | done |
 | `src/hogproj/export.py` | Excel workbook builder | planned |
 | `data/sample/` | Committed datasets so the app runs offline (3 years of HG201, ~240 KB) | started |
 | `tests/` | pytest. `test_smoke.py` renders the app headless | started |
