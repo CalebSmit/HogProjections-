@@ -106,7 +106,7 @@ def cost_table(c: CostInputs) -> pd.DataFrame:
         "other_feed": "Other feed",
         "nonfeed": "Non-feed",
         "death_loss": "Death loss",
-        "productivity": "Sow productivity adjustment",
+        "productivity": "Sow productivity",
         "total": "Total cost",
         "manure_credit": "Less manure credit",
         "net": "Net cost",

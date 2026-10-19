@@ -1,9 +1,13 @@
 """Herd flow: how many pigs come out, and when."""
 
+from datetime import date, timedelta
+
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from hogproj.herd import HerdInputs, lags_weeks, simulate
+from hogproj.herd import HerdInputs, lags_weeks, pigs_sold_per_sow_yr, simulate
+from hogproj.ui import verdict
 
 st.title("Herd flow")
 st.caption(
@@ -83,43 +87,84 @@ st.session_state["herd_inputs"] = inp  # the Costs & returns page projects these
 df = simulate(inp)
 lag = lags_weeks(inp)
 
+df["date"] = pd.Timestamp(date.today()) + pd.to_timedelta(df["week"] * 7, unit="D")
 weaned_per_sow_yr = inp.litters_per_sow_yr * inp.born_alive_per_litter * (1 - inp.prewean_mortality)
+per_week_now = float(df["marketed_head"].iloc[0])
+per_week_end = float(df["marketed_head"].iloc[-1])
+first_year = float(df["marketed_head"].to_numpy()[:52].sum())
+to_market = sum(lag.values())
+
+change = inp.sows_target - inp.sows_start
+if change:
+    bred = date.today() + timedelta(weeks=inp.change_week)
+    arrives = bred + timedelta(weeks=to_market)
+    detail = (
+        f"The {change:+,.0f}-sow change bred from {bred:%b %d, %Y} first reaches market around "
+        f"{arrives:%b %d, %Y}; after that you'll sell about {per_week_end:,.0f} a week."
+    )
+else:
+    arrives = date.today() + timedelta(weeks=to_market)
+    detail = (
+        f"A herd change bred this week would first reach market around {arrives:%b %d, %Y} "
+        f"({to_market} weeks: gestation, nursing and grow-out)."
+    )
+verdict(
+    "neutral",
+    f"{inp.sows_start:,.0f} sows produce about {per_week_now:,.0f} market hogs a week "
+    f"({first_year:,.0f} in the next 12 months).",
+    detail,
+)
+
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("Pigs weaned / sow / year", f"{weaned_per_sow_yr:.1f}")
-c2.metric("Market hogs, first 52 weeks", f"{df['marketed_head'].head(52).sum():,.0f}")
-c3.metric("Market hogs / week (end)", f"{df['marketed_head'].iloc[-1]:,.0f}")
+c1.metric("Pigs weaned / sow / year", f"{weaned_per_sow_yr:.1f}", border=True)
+c2.metric(
+    "Pigs sold / sow / year",
+    f"{pigs_sold_per_sow_yr(inp):.1f}",
+    help="Weaned pigs that survive to market.",
+    border=True,
+)
+c3.metric("Market hogs, next 12 months", f"{first_year:,.0f}", border=True)
 c4.metric(
     "Breeding to market",
-    f"{sum(lag.values())} weeks",
-    help="Gestation + lactation + wean-to-market, rounded to whole weeks.",
+    f"{to_market} weeks",
+    help="Gestation + nursing + wean-to-market, rounded to whole weeks.",
+    border=True,
 )
 
-fig = go.Figure()
-fig.add_scatter(x=df["week"], y=df["weaned_head"], name="Weaned", mode="lines")
-fig.add_scatter(x=df["week"], y=df["marketed_head"], name="Marketed", mode="lines")
-fig.update_layout(
-    title="Pigs per week",
-    xaxis_title="Week",
-    yaxis_title="Head",
-    yaxis_rangemode="tozero",
-    hovermode="x unified",
-    margin={"t": 50, "b": 40},
-)
-st.plotly_chart(fig, width="stretch")
-
-fig2 = go.Figure()
-fig2.add_scatter(x=df["week"], y=df["growing_inventory_head"], name="Wean-to-market", mode="lines")
-fig2.add_scatter(x=df["week"], y=df["suckling_inventory_head"], name="Nursing", mode="lines")
-fig2.update_layout(
-    title="Pigs on hand (end of week)",
-    xaxis_title="Week",
-    yaxis_title="Head",
-    yaxis_rangemode="tozero",
-    hovermode="x unified",
-    margin={"t": 50, "b": 40},
-)
-st.plotly_chart(fig2, width="stretch")
+left, right = st.columns(2)
+with left, st.container(border=True):
+    st.markdown("**Pigs per week**")
+    fig = go.Figure()
+    fig.add_scatter(x=df["date"], y=df["weaned_head"], name="Weaned", mode="lines")
+    fig.add_scatter(
+        x=df["date"], y=df["marketed_head"], name="Sold", mode="lines", line={"width": 3}
+    )
+    fig.update_layout(
+        height=330,
+        yaxis_title="Head",
+        yaxis_rangemode="tozero",
+        hovermode="x unified",
+        legend={"orientation": "h", "y": -0.15},
+        margin={"t": 10, "b": 10, "l": 10, "r": 10},
+    )
+    st.plotly_chart(fig, width="stretch")
+with right, st.container(border=True):
+    st.markdown("**Pigs on hand (end of week)**")
+    fig2 = go.Figure()
+    fig2.add_scatter(
+        x=df["date"], y=df["growing_inventory_head"], name="Nursery & finishing", mode="lines"
+    )
+    fig2.add_scatter(x=df["date"], y=df["suckling_inventory_head"], name="Nursing", mode="lines")
+    fig2.update_layout(
+        height=330,
+        yaxis_title="Head",
+        yaxis_rangemode="tozero",
+        hovermode="x unified",
+        legend={"orientation": "h", "y": -0.15},
+        margin={"t": 10, "b": 10, "l": 10, "r": 10},
+    )
+    st.plotly_chart(fig2, width="stretch")
 
 with st.expander("Weekly table"):
-    st.dataframe(df.round(1), hide_index=True, width="stretch")
+    st.dataframe(df.round({c: 1 for c in df.columns if c != "date"}), hide_index=True)
     st.download_button("Download CSV", df.to_csv(index=False), "herd_flow.csv", "text/csv")

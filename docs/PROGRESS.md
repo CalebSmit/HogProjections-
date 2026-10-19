@@ -79,3 +79,9 @@ Newest at the bottom.
   Excel report on the Overview.
 - **Verified:** 67 tests, pyright clean, screenshots of every new page.
 - **Next:** grain prices + quantity calibration once the owner adds a My Market News key.
+
+## 2026-10-19 (cont.) — Visual consistency pass
+- **Done:** Herd flow gets a plain-English takeaway (when a herd change reaches market, as a
+  date), bordered cards and date axes. Costs & returns and Market prices get the same card and
+  panel styling; projection charts use dates; "-0%" share fixed.
+- **Verified:** ruff, format, pyright clean; 67 tests; screenshots of all pages.

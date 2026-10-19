@@ -34,13 +34,16 @@ c1.metric(
     f"Lean Hog Index, {latest_date:%b %d}",
     usd(latest),
     None if week is None else f"{usd(latest - week)} vs a week ago",
+    border=True,
+    chart_data=values[-63:].round(2).tolist(),
 )
-c2.metric("30 days ago", "—" if month is None else usd(month))
-c3.metric("1 year ago", "—" if year is None else usd(year))
+c2.metric("30 days ago", "—" if month is None else usd(month), border=True)
+c3.metric("1 year ago", "—" if year is None else usd(year), border=True)
 c4.metric(
     "Live-weight equivalent",
     usd(latest * 0.75),
     help="Index × 0.75 carcass yield. Live and carcass prices differ by about a quarter.",
+    border=True,
 )
 
 span = st.segmented_control("Show", ["6 months", "1 year", "All"], default="1 year")
@@ -62,9 +65,9 @@ fig.update_layout(
 st.plotly_chart(fig, width="stretch")
 
 left, right = st.columns(2)
-with left:
+with left, st.container(border=True):
     f = seasonal_factors(idx)
-    st.subheader("Typical month vs. yearly average")
+    st.markdown("**Typical month vs. yearly average**")
     if f.empty:
         st.info("Need at least one full calendar year of data.")
     else:
@@ -82,8 +85,8 @@ with left:
             f"Average of {int(f['years'].to_numpy().max())} full calendar year(s). "
             "Hogs usually sell highest in summer and lowest in winter."
         )
-with right:
-    st.subheader("Average carcass weight")
+with right, st.container(border=True):
+    st.markdown("**Average carcass weight**")
     wfig = go.Figure(
         go.Scatter(x=view["index_date"], y=view["avg_weight_lb_carcass"], mode="lines")
     )

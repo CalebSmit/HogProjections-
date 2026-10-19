@@ -3,6 +3,7 @@
 from datetime import date
 
 import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -119,21 +120,35 @@ be = breakeven(c)
 m = margin_usd_per_head(c)
 
 k1, k2, k3, k4 = st.columns(4)
-k1.metric("Breakeven ($/cwt carcass)", usd(be["price_cwt_carcass"]))
-k2.metric("Breakeven ($/cwt live)", usd(be["price_cwt_live"]))
-k3.metric("Cost per pig", usd(be["cost_usd_per_head"]), help="Before the manure credit, like ISU.")
+k1.metric("Breakeven ($/cwt carcass)", usd(be["price_cwt_carcass"]), border=True, height="stretch")
+k2.metric("Breakeven ($/cwt live)", usd(be["price_cwt_live"]), border=True, height="stretch")
+k3.metric(
+    "Cost per pig",
+    usd(be["cost_usd_per_head"]),
+    help="Before the manure credit, like ISU.",
+    border=True,
+    height="stretch",
+)
 k4.metric(
     "Profit per pig",
     usd(m),
     delta=f"{usd(hog - be['price_cwt_carcass'])}/cwt vs breakeven",
+    border=True,
+    height="stretch",
 )
 
 left, right = st.columns([2, 3])
-with left:
-    st.subheader("Cost breakdown")
+with left, st.container(border=True):
+    st.markdown("**Cost breakdown**")
     t = cost_table(c)
     st.dataframe(
-        t.style.format({"usd_per_cwt_carcass": usd, "usd_per_head": usd, "share": "{:.0%}"}),
+        t.style.format(
+            {
+                "usd_per_cwt_carcass": usd,
+                "usd_per_head": usd,
+                "share": lambda v: f"{round(v, 2) + 0.0:.0%}",
+            }
+        ),
         column_config={
             "usd_per_head": "$/pig",
             "usd_per_cwt_carcass": "$/cwt carcass",
@@ -145,8 +160,8 @@ with left:
         "Other feed: DDGS, complete feeds, minerals, processing. Non-feed: labor, vet, "
         "utilities, breeding herd, trucking, interest, buildings."
     )
-with right:
-    st.subheader("Profit per pig: hog price vs corn price")
+with right, st.container(border=True):
+    st.markdown("**Profit per pig: hog price vs corn price**")
     hogs = np.linspace(hog - 20, hog + 20, 9).clip(min=0)
     corns = np.linspace(corn - 1.5, corn + 1.5, 7).clip(min=0)
     grid = sensitivity(c, hogs, corns)
@@ -171,7 +186,7 @@ with right:
     )
     st.plotly_chart(heat, width="stretch")
 
-st.subheader("Projected returns")
+st.markdown("#### Projected returns")
 path_choice = st.radio(
     "Hog price over the projection",
     ["Seasonal", "Flat"],
@@ -188,6 +203,7 @@ path = (
     else None
 )
 r = weekly_returns(herd, c, path)
+r.insert(1, "date", pd.Timestamp(date.today()) + pd.to_timedelta(r["week"] * 7, unit="D"))
 change = herd_inp.sows_target - herd_inp.sows_start
 herd_note = f"{herd_inp.sows_start:,.0f} sows" + (
     f", {change:+,.0f} from week {herd_inp.change_week}" if change else ""
@@ -199,10 +215,10 @@ st.caption(
 g0, g1, g2 = st.columns(3)
 price_fig = go.Figure(
     go.Scatter(
-        x=r["week"],
+        x=r["date"],
         y=r["hog_usd_per_cwt_carcass"],
         mode="lines",
-        hovertemplate="Week %{x}<br>$%{y:.2f}/cwt<extra></extra>",
+        hovertemplate="%{x|%b %d, %Y}<br>$%{y:.2f}/cwt<extra></extra>",
     )
 )
 price_fig.add_hline(
@@ -212,40 +228,34 @@ price_fig.add_hline(
     annotation_text="breakeven",
     annotation_position="top left",
 )
-price_fig.update_layout(
-    title="Hog price used ($/cwt carcass)", xaxis_title="Week", margin={"t": 50, "b": 40}
-)
+price_fig.update_layout(title="Hog price used ($/cwt carcass)", margin={"t": 50, "b": 40})
 g0.plotly_chart(price_fig, width="stretch")
 weekly = go.Figure(
     go.Bar(
-        x=r["week"],
+        x=r["date"],
         y=r["margin_usd"],
         marker_color=np.where(r["margin_usd"] >= 0, "#2e7d32", "#c62828"),
-        hovertemplate="Week %{x}<br>%{y:$,.0f}<extra></extra>",
+        hovertemplate="%{x|%b %d, %Y}<br>%{y:$,.0f}<extra></extra>",
     )
 )
-weekly.update_layout(
-    title="Margin each week", xaxis_title="Week", yaxis_title="$", margin={"t": 50, "b": 40}
-)
+weekly.update_layout(title="Profit each week", margin={"t": 50, "b": 40})
 g1.plotly_chart(weekly, width="stretch")
 cum = go.Figure(
     go.Scatter(
-        x=r["week"],
+        x=r["date"],
         y=r["cumulative_margin_usd"],
         mode="lines",
         fill="tozeroy",
-        hovertemplate="Week %{x}<br>%{y:$,.0f}<extra></extra>",
+        hovertemplate="%{x|%b %d, %Y}<br>%{y:$,.0f}<extra></extra>",
     )
 )
-cum.update_layout(
-    title="Cumulative margin", xaxis_title="Week", yaxis_title="$", margin={"t": 50, "b": 40}
-)
+cum.update_layout(title="Running total profit", margin={"t": 50, "b": 40})
 g2.plotly_chart(cum, width="stretch")
 y1 = {k: float(r[k].to_numpy()[:52].sum()) for k in ["revenue_usd", "cost_usd", "margin_usd"]}
 s1, s2, s3 = st.columns(3)
-s1.metric("Revenue, first 52 weeks", usd(y1["revenue_usd"], 0))
-s2.metric("Costs, first 52 weeks", usd(y1["cost_usd"], 0))
-s3.metric("Margin, first 52 weeks", usd(y1["margin_usd"], 0))
+s1.metric("Revenue, next 12 months", usd(y1["revenue_usd"], 0), border=True)
+s2.metric("Costs, next 12 months", usd(y1["cost_usd"], 0), border=True)
+s3.metric("Profit, next 12 months", usd(y1["margin_usd"], 0), border=True)
 with st.expander("Weekly table"):
-    st.dataframe(r.round(2), hide_index=True, width="stretch")
+    st.dataframe(r.round({k: 2 for k in r.columns if k != "date"}), hide_index=True)
     st.download_button("Download CSV", r.to_csv(index=False), "returns.csv", "text/csv")
