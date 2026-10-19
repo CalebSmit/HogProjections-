@@ -100,3 +100,19 @@ def test_fill_curve_copies_nearest_contract():
     assert filled == {} and curve["2027-02"] == 69.0
     assert fill_curve({}, ["2027-04"]) == ({}, {})
     assert not math.isnan(curve["2027-02"])
+
+
+def test_whole_group_ration_round_trip():
+    from hogproj.tables import parse_ration_lbs
+
+    df = pd.DataFrame(
+        [{"corn_lb": 480, "sbm_lb": 90, "ddgs_lb": 100, "other_lb": 30, "other_usd_lb": 0.6}]
+    )
+    (phase,), problems = parse_ration_lbs(df)
+    assert not problems
+    assert phase.feed_lb_per_pig == 700
+    assert phase.feed_lb_per_pig * phase.corn_pct / 100 == pytest.approx(480)
+    assert phase.other_usd_ton == pytest.approx(1200)
+    assert phase.feed_lb_per_pig * phase.other_pct / 100 == pytest.approx(30)
+    _, problems = parse_ration_lbs(df.assign(corn_lb=NAN))
+    assert problems == ["Whole-group ration is missing: corn_lb"]

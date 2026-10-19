@@ -20,7 +20,7 @@ from hogproj.basis import (
     lean_hog_contract_for,
     period_label,
 )
-from hogproj.data import defaults
+from hogproj.data import defaults, profiles
 from hogproj.data.market import (
     load_grain_futures,
     load_hog_basis_daily,
@@ -30,13 +30,23 @@ from hogproj.data.market import (
 from hogproj.excel import build_workbook
 from hogproj.inputs import (
     BarnCostMode,
+    InterestMode,
     LaborCostMode,
     Location,
+    MortalityMode,
     Projection,
     WeanPigPriceSource,
 )
 from hogproj.model import cash_flow, project, sensitivity
-from hogproj.tables import fill_curve, parse_basis, parse_cuts, parse_locations, parse_phases
+from hogproj.tables import (
+    fill_curve,
+    parse_basis,
+    parse_cuts,
+    parse_locations,
+    parse_phases,
+    parse_ration_lbs,
+    ration_lbs_from_phases,
+)
 
 st.set_page_config(page_title="Hog Projections", page_icon="🐖", layout="wide")
 
@@ -80,6 +90,7 @@ def reset_inputs() -> None:
     start = defaults.default_projection(defaults.load_locations()[0])
     ss.phases_base = frame(start.feed_phases)
     ss.cuts_base = frame(start.marketing)
+    ss.ration_base = ration_lbs_from_phases(start.feed_phases)
     ss.ver = ss.get("ver", 0) + 1
 
 
@@ -158,13 +169,157 @@ loc_names = [lo.name for lo in locations]
 if ss.get("loc_name") not in loc_names:
     ss.loc_name = loc_names[0]
 
+# ---------------------------------------------------------------- settings & widgets
+
+RATION_MODES = ["By phase (% inclusion)", "Whole-group ration (lb per pig)"]
+ENUM_KEYS = {
+    "in_source": WeanPigPriceSource,
+    "in_barn_mode": BarnCostMode,
+    "in_labor_mode": LaborCostMode,
+    "in_mort_mode": MortalityMode,
+    "in_interest_mode": InterestMode,
+}
+# Settings saved in a profile: costs, ration, toggles. Never market prices or dates.
+SETTING_DEFAULTS: dict[str, object] = {
+    "in_head_placed": 2400,
+    "in_source": WeanPigPriceSource.USDA_CASH,
+    "in_min_lot": 2400,
+    "in_wean_adder": 0.0,
+    "in_freight": base.wean_pig_freight_usd_hd,
+    "in_wean_wt": base.wean_weight_lb,
+    "in_mort_mode": MortalityMode.PCT_OF_HEAD,
+    "in_mortality": base.mortality_pct,
+    "in_mort_cost": 6.0,
+    "in_dead_share": base.dead_feed_share,
+    "in_yield": base.carcass_yield_pct,
+    "in_feed_mill": base.feed_mill_usd_ton,
+    "in_corn_carry": 0.0,
+    "in_corn_hedge_pct": 0.0,
+    "in_corn_hedged": 0.0,
+    "in_sbm_hedge_pct": 0.0,
+    "in_sbm_hedged": 0.0,
+    "in_barn_mode": BarnCostMode.PER_SPACE_YEAR,
+    "in_barn_per_pig": 18.0,
+    "in_downtime": 10,
+    "in_labor_mode": LaborCostMode.HOURLY,
+    "in_labor_hr": base.labor_hr_per_pig,
+    "in_labor_per_pig": 4.0,
+    "in_vet": base.vet_med_usd_hd,
+    "in_util": base.utilities_usd_hd,
+    "in_truck": base.trucking_usd_hd_sold,
+    "in_ins": base.insurance_misc_usd_hd,
+    "in_ga": 0.0,
+    "in_other_sold": 0.0,
+    "in_interest_mode": InterestMode.RATE,
+    "in_interest": base.interest_rate_pct,
+    "in_interest_per_pig": 0.0,
+    "in_checkoff": base.checkoff_pct,
+    "in_premium": base.carcass_premium_cwt,
+    "in_hog_hedge_pct": 0.0,
+    "in_hog_hedged": 0.0,
+    "in_principal": 0.0,
+    "in_term_interest": 0.0,
+    "in_ration_mode": RATION_MODES[0],
+}
+MARKET_DEFAULTS: dict[str, object] = {
+    "in_corn_fut": base.corn_futures_usd_bu,
+    "in_sbm_fut": base.sbm_futures_usd_ton,
+    "in_wean_cash": defaults.DEFAULT_WEAN_PIG_USD_HD,
+    "in_wean_formula": defaults.DEFAULT_WEAN_PIG_USD_HD,
+    "in_wean_manual": defaults.DEFAULT_WEAN_PIG_USD_HD,
+}
+for k, v in {**SETTING_DEFAULTS, **MARKET_DEFAULTS}.items():
+    ss.setdefault(k, v)
+ss.setdefault("in_placement", date.today())
+
+
+def apply_settings(settings: dict) -> None:
+    """Load saved settings into widgets (runs in a button callback, before widgets exist)."""
+    for k, v in settings.items():
+        if k in SETTING_DEFAULTS:
+            ss[k] = ENUM_KEYS[k](v) if k in ENUM_KEYS else v
+    if "phases" in settings:
+        ss.phases_base = pd.DataFrame(settings["phases"])
+    if "ration" in settings:
+        ss.ration_base = pd.DataFrame(settings["ration"])
+    if "cuts" in settings:
+        ss.cuts_base = pd.DataFrame(settings["cuts"])
+    ss.ver += 1
+
+
+def current_settings() -> dict:
+    out = {k: (ss[k].value if k in ENUM_KEYS else ss[k]) for k in SETTING_DEFAULTS}
+    out.update(ss.get("last_tables", {}))
+    return out
+
+
+def load_profile_cb() -> None:
+    name = ss.get("profile_pick")
+    if name:
+        apply_settings(profiles.load_profile(name))
+        ss.profile_msg = f"Loaded “{name}”."
+
+
+def save_profile_cb() -> None:
+    try:
+        saved = profiles.save_profile(ss.get("profile_name", ""), current_settings())
+    except ValueError as e:
+        ss.profile_msg = str(e)
+        return
+    ss.profile_pick = saved
+    ss.profile_msg = f"Saved “{saved}” on this computer."
+
+
+def delete_profile_cb() -> None:
+    name = ss.get("profile_pick")
+    if name:
+        profiles.delete_profile(name)
+        ss.profile_msg = f"Deleted “{name}”."
+        ss.profile_pick = None
+
+
+def reset_all_cb() -> None:
+    apply_settings({k: v for k, v in SETTING_DEFAULTS.items()})
+    reset_inputs()
+
+
 # ---------------------------------------------------------------- sidebar: the group
 
 with st.sidebar:
+    with st.expander("💾 Settings profiles", expanded=False):
+        st.caption(
+            "Save your own costs, ration and toggles (for example “My system 2026 Q2”). "
+            "Profiles stay on this computer in `data/user/profiles/`; market prices aren't saved."
+        )
+        saved_profiles = profiles.list_profiles()
+        st.selectbox(
+            "Saved profiles",
+            saved_profiles,
+            index=None,
+            key="profile_pick",
+            placeholder="Choose a profile",
+        )
+        p1, p2 = st.columns(2)
+        p1.button(
+            "Load", on_click=load_profile_cb, use_container_width=True, disabled=not saved_profiles
+        )
+        p2.button(
+            "Delete",
+            on_click=delete_profile_cb,
+            use_container_width=True,
+            disabled=not saved_profiles,
+        )
+        st.text_input(
+            "Save current settings as", key="profile_name", placeholder="e.g. My system 2026 Q2"
+        )
+        st.button("Save profile", on_click=save_profile_cb, use_container_width=True)
+        if ss.get("profile_msg"):
+            st.caption(ss.profile_msg)
+
     st.header("Group")
     loc_name = st.selectbox("Feeding location", loc_names, key="loc_name")
-    head_placed = st.number_input("Head placed", 100, 20000, 2400, step=100)
-    placement = st.date_input("Placement date", value=date.today())
+    head_placed = st.number_input("Head placed", 100, 20000, step=100, key="in_head_placed")
+    placement = st.date_input("Placement date", key="in_placement")
 
     st.subheader("Weaned pig price")
     source = st.radio(
@@ -175,24 +330,34 @@ with st.sidebar:
             WeanPigPriceSource.USDA_FORMULA: "USDA formula",
             WeanPigPriceSource.MANUAL: "Manual",
         }[s],
+        key="in_source",
     )
     min_lot = st.selectbox(
         "USDA lot size",
         [2400, 1200, 600, 0],
         format_func=lambda n: f"{n:,}+ head" if n else "All lots",
         help="Uses this lot-size bucket if the report has it, otherwise the largest one.",
+        key="in_min_lot",
     )
     wean = wean_prices(min_lot, ss.refresh)
-    latest_cash = latest_formula = defaults.DEFAULT_WEAN_PIG_USD_HD
     wean_df = wean.data if isinstance(wean.data, pd.DataFrame) else pd.DataFrame()
-    if not wean_df.empty:
+    if not wean_df.empty and ss.get("wean_token") != (ss.refresh, min_lot):
         cash_hist = wean_df["cash_usd_hd"].dropna()
         formula_hist = wean_df["formula_usd_hd"].dropna()
-        latest_cash = float(cash_hist.iloc[-1]) if len(cash_hist) else latest_cash
-        latest_formula = float(formula_hist.iloc[-1]) if len(formula_hist) else latest_formula
-    wean_cash = st.number_input("USDA cash $/head", value=round(latest_cash, 2), step=0.5)
-    wean_formula = st.number_input("USDA formula $/head", value=round(latest_formula, 2), step=0.5)
-    wean_manual = st.number_input("Manual $/head", value=defaults.DEFAULT_WEAN_PIG_USD_HD, step=0.5)
+        if len(cash_hist):
+            ss.in_wean_cash = round(float(cash_hist.iloc[-1]), 2)
+        if len(formula_hist):
+            ss.in_wean_formula = round(float(formula_hist.iloc[-1]), 2)
+        ss.wean_token = (ss.refresh, min_lot)
+    wean_cash = st.number_input("USDA cash $/head", step=0.5, key="in_wean_cash")
+    wean_formula = st.number_input("USDA formula $/head", step=0.5, key="in_wean_formula")
+    wean_adder = st.number_input(
+        "Price adder over USDA $/head",
+        step=0.5,
+        key="in_wean_adder",
+        help="Your system's premium over the USDA price. Added to USDA cash/formula, not Manual.",
+    )
+    wean_manual = st.number_input("Manual $/head", step=0.5, key="in_wean_manual")
     st.caption(wean.note)
 
     st.divider()
@@ -200,9 +365,7 @@ with st.sidebar:
         ss.refresh += 1
         st.cache_data.clear()
         st.rerun()
-    if st.button("↩️ Reset inputs to defaults", use_container_width=True):
-        reset_inputs()
-        st.rerun()
+    st.button("↩️ Reset inputs to defaults", use_container_width=True, on_click=reset_all_cb)
 
 location = locations[loc_names.index(loc_name)]
 header.caption(
@@ -214,6 +377,12 @@ header.caption(
 
 grain = grain_futures(ss.refresh)
 grain_data = grain.data if isinstance(grain.data, dict) else {}
+if grain_data and ss.get("grain_token") != ss.refresh:
+    if "corn_usd_bu" in grain_data:
+        ss.in_corn_fut = round(grain_data["corn_usd_bu"], 4)
+    if "sbm_usd_ton" in grain_data:
+        ss.in_sbm_fut = round(grain_data["sbm_usd_ton"], 2)
+    ss.grain_token = ss.refresh
 basis_loaded = hog_basis(ss.refresh)
 basis_daily = basis_loaded.data if isinstance(basis_loaded.data, pd.Series) else pd.Series()
 by_year = basis_by_year_period(basis_daily) if not basis_daily.empty else pd.DataFrame()
@@ -226,104 +395,185 @@ with tab_in:
     with c1:
         st.subheader("Feed prices")
         corn_fut = st.number_input(
-            "CBOT corn futures $/bu",
-            value=round(grain_data.get("corn_usd_bu", base.corn_futures_usd_bu), 4),
-            step=0.05,
-            format="%.4f",
+            "CBOT corn futures $/bu", step=0.05, format="%.4f", key="in_corn_fut"
         )
-        sbm_fut = st.number_input(
-            "CBOT soybean meal futures $/ton",
-            value=round(grain_data.get("sbm_usd_ton", base.sbm_futures_usd_ton), 2),
-            step=1.0,
-        )
+        sbm_fut = st.number_input("CBOT soybean meal futures $/ton", step=1.0, key="in_sbm_fut")
         if not grain.live:
             st.caption(grain.note + " Defaults are Dec '26 settles on Oct 16, 2026.")
         else:
             st.caption(grain.note)
+        corn_carry = st.number_input(
+            "Corn carry / storage adder $/bu",
+            step=0.05,
+            key="in_corn_carry",
+            help="Added to local cash corn, e.g. +$0.20 for carrying corn to feeding time.",
+        )
         st.markdown(
-            f"**{loc_name}**: corn {md_money(corn_fut + location.corn_basis_usd_bu)}/bu "
+            f"**{loc_name}**: corn "
+            f"{md_money(corn_fut + location.corn_basis_usd_bu + corn_carry)}/bu "
             f"(basis {location.corn_basis_usd_bu * 100:+.0f}¢/bu) · SBM "
             f"{md_money(sbm_fut + location.sbm_basis_usd_ton)}/ton "
             f"(basis {md_money(location.sbm_basis_usd_ton, 0)}/ton) · "
             f"DDGS {md_money(location.ddgs_usd_ton)}/ton. Edit basis on the Locations tab."
         )
-        feed_mill = st.number_input(
-            "Feed mill grind/mix/delivery $/ton", value=base.feed_mill_usd_ton
-        )
+        feed_mill = st.number_input("Feed mill grind/mix/delivery $/ton", key="in_feed_mill")
     with c2:
         st.subheader("Production")
-        wean_wt = st.number_input("Weaned pig weight (lb)", value=base.wean_weight_lb)
-        mortality = st.number_input(
-            "Mortality wean to market (%)", value=base.mortality_pct, step=0.5, max_value=99.0
+        wean_wt = st.number_input("Weaned pig weight (lb)", key="in_wean_wt")
+        mort_mode = st.radio(
+            "Mortality method",
+            list(MortalityMode),
+            horizontal=True,
+            key="in_mort_mode",
+            help="% of head: deads reduce pigs sold. $ per pig: a flat death-loss charge per "
+            "pig placed (every pig placed is counted as sold).",
         )
-        dead_share = st.slider(
-            "Feed eaten by a dead pig (share of a full budget)",
-            0.0,
-            1.0,
-            base.dead_feed_share,
-            help="Most W2F death loss is early, so a dead pig eats little feed.",
-        )
-        yield_pct = st.number_input("Carcass yield (%)", value=base.carcass_yield_pct, step=0.5)
-        freight = st.number_input("Weaned pig freight $/head", value=base.wean_pig_freight_usd_hd)
+        if mort_mode is MortalityMode.PCT_OF_HEAD:
+            mortality = st.number_input(
+                "Mortality wean to market (%)", step=0.5, max_value=99.0, key="in_mortality"
+            )
+            dead_share = st.slider(
+                "Feed eaten by a dead pig (share of a full budget)",
+                0.0,
+                1.0,
+                key="in_dead_share",
+                help="Most W2F death loss is early, so a dead pig eats little feed.",
+            )
+            mort_cost = float(ss.in_mort_cost)
+        else:
+            mort_cost = st.number_input(
+                "Mortality charge $/pig placed", step=0.25, key="in_mort_cost"
+            )
+            mortality, dead_share = float(ss.in_mortality), float(ss.in_dead_share)
+        yield_pct = st.number_input("Carcass yield (%)", step=0.5, key="in_yield")
+        freight = st.number_input("Weaned pig freight $/head", key="in_freight")
     with c3:
         st.subheader("Barn & labor")
-        barn_mode = st.radio("Barn cost", list(BarnCostMode), horizontal=True)
+        barn_mode = st.radio("Barn cost", list(BarnCostMode), horizontal=True, key="in_barn_mode")
         if barn_mode is BarnCostMode.PER_SPACE_YEAR:
             st.caption(f"{md_money(location.barn_rent_usd_space_yr)}/space/yr at {loc_name}.")
         barn_per_pig = st.number_input(
             "Barn / grower fee $/pig placed",
-            value=18.0,
             disabled=barn_mode is BarnCostMode.PER_SPACE_YEAR,
+            key="in_barn_per_pig",
+            help="A grower fee often covers barn, labor and utilities: zero those out if so.",
         )
-        downtime = st.number_input("Barn downtime between groups (days)", value=10, min_value=0)
-        labor_mode = st.radio("Labor cost", list(LaborCostMode), horizontal=True)
+        downtime = st.number_input(
+            "Barn downtime between groups (days)", min_value=0, key="in_downtime"
+        )
+        labor_mode = st.radio(
+            "Labor cost", list(LaborCostMode), horizontal=True, key="in_labor_mode"
+        )
         labor_hr = st.number_input(
             "Labor hours per pig",
-            value=base.labor_hr_per_pig,
             step=0.05,
             disabled=labor_mode is LaborCostMode.PER_PIG_PLACED,
+            key="in_labor_hr",
         )
         labor_per_pig = st.number_input(
-            "Labor $/pig placed", value=4.0, disabled=labor_mode is LaborCostMode.HOURLY
+            "Labor $/pig placed",
+            disabled=labor_mode is LaborCostMode.HOURLY,
+            key="in_labor_per_pig",
         )
         st.caption(f"Wage at {loc_name}: {md_money(location.labor_wage_usd_hr)}/hr.")
 
     st.subheader("Other costs")
-    o1, o2, o3, o4, o5, o6 = st.columns(6)
-    vet = o1.number_input("Vet/med $/hd", value=base.vet_med_usd_hd)
-    util = o2.number_input("Utilities $/hd", value=base.utilities_usd_hd)
-    truck = o3.number_input("Trucking $/hd sold", value=base.trucking_usd_hd_sold)
-    ins = o4.number_input("Insurance/misc $/hd", value=base.insurance_misc_usd_hd)
-    interest = o5.number_input("Interest %/yr", value=base.interest_rate_pct)
-    checkoff = o6.number_input("Checkoff % of gross", value=base.checkoff_pct)
+    o = st.columns(4)
+    vet = o[0].number_input("Animal health / vet $/hd placed", key="in_vet")
+    util = o[1].number_input("Utilities $/hd placed", key="in_util")
+    truck = o[2].number_input("Freight out / trucking $/hd sold", key="in_truck")
+    ins = o[3].number_input("Insurance / misc $/hd placed", key="in_ins")
+    o = st.columns(4)
+    ga = o[0].number_input("G&A $/hd placed", key="in_ga")
+    other_sold = o[1].number_input(
+        "Other / (sales premiums) $/hd sold",
+        key="in_other_sold",
+        help="Positive = extra cost; negative = premiums received.",
+    )
+    checkoff = o[2].number_input("Checkoff % of gross", key="in_checkoff")
+    with o[3]:
+        interest_mode = st.radio(
+            "Operating interest", list(InterestMode), horizontal=True, key="in_interest_mode"
+        )
+        if interest_mode is InterestMode.RATE:
+            interest = st.number_input(
+                "Interest %/yr",
+                key="in_interest",
+                help="On pig cost + half of feed, for the days on feed.",
+            )
+            interest_per_pig = float(ss.in_interest_per_pig)
+        else:
+            interest_per_pig = st.number_input("Interest $/pig placed", key="in_interest_per_pig")
+            interest = float(ss.in_interest)
 
-    st.subheader("Feed budget by phase")
-    st.caption(
-        "Feed per pig marketed. Other % = premix, fat, amino acids and specialty ingredients, "
-        "priced per ton of that portion."
-    )
-    phases_df = st.data_editor(
-        ss.phases_base,
-        num_rows="dynamic",
-        use_container_width=True,
-        column_config={
-            "name": "Phase",
-            "feed_lb_per_pig": st.column_config.NumberColumn("Feed lb/pig", min_value=0),
-            "corn_pct": st.column_config.NumberColumn("Corn %", min_value=0, max_value=100),
-            "sbm_pct": st.column_config.NumberColumn("SBM %", min_value=0, max_value=100),
-            "ddgs_pct": st.column_config.NumberColumn("DDGS %", min_value=0, max_value=100),
-            "other_usd_ton": st.column_config.NumberColumn("Other $/ton", min_value=0),
-        },
-        key=f"phases_{ss.ver}",
-    )
-    phases, phase_problems = parse_phases(phases_df)
+    with st.expander("📈 Hedges & contracts", expanded=False):
+        st.caption(
+            "Share of the need that's hedged or contracted, at an all-in price. The rest pays "
+            "the open market. Hogs: the futures level locked on the hedged share; basis still "
+            "applies."
+        )
+        h = st.columns(3)
+        corn_hedge_pct = h[0].number_input("Corn % hedged", 0.0, 100.0, key="in_corn_hedge_pct")
+        corn_hedged = h[0].number_input("Corn hedged price $/bu", key="in_corn_hedged")
+        sbm_hedge_pct = h[1].number_input("SBM % hedged", 0.0, 100.0, key="in_sbm_hedge_pct")
+        sbm_hedged = h[1].number_input("SBM hedged price $/ton", key="in_sbm_hedged")
+        hog_hedge_pct = h[2].number_input("Hogs % hedged", 0.0, 100.0, key="in_hog_hedge_pct")
+        hog_hedged = h[2].number_input("Hog hedged futures $/cwt", key="in_hog_hedged")
+
+    with st.expander("🏦 Debt service (below the operating margin)", expanded=False):
+        st.caption("Principal and term-debt interest per pig sold, giving a second bottom line.")
+        d = st.columns(2)
+        principal = d[0].number_input("Principal payment $/hd sold", key="in_principal")
+        term_interest = d[1].number_input("Term interest payment $/hd sold", key="in_term_interest")
+
+    st.subheader("Feed budget")
+    ration_mode = st.radio("Enter the ration", RATION_MODES, horizontal=True, key="in_ration_mode")
+    if ration_mode == RATION_MODES[0]:
+        st.caption(
+            "Feed per pig marketed, by phase. Other % = premix, fat, amino acids and specialty "
+            "ingredients, priced per ton of that portion."
+        )
+        phases_df = st.data_editor(
+            ss.phases_base,
+            num_rows="dynamic",
+            use_container_width=True,
+            column_config={
+                "name": "Phase",
+                "feed_lb_per_pig": st.column_config.NumberColumn("Feed lb/pig", min_value=0),
+                "corn_pct": st.column_config.NumberColumn("Corn %", min_value=0, max_value=100),
+                "sbm_pct": st.column_config.NumberColumn("SBM %", min_value=0, max_value=100),
+                "ddgs_pct": st.column_config.NumberColumn("DDGS %", min_value=0, max_value=100),
+                "other_usd_ton": st.column_config.NumberColumn("Other $/ton", min_value=0),
+            },
+            key=f"phases_{ss.ver}",
+        )
+        phases, phase_problems = parse_phases(phases_df)
+        ration_df = ss.ration_base
+    else:
+        st.caption("Pounds of each ingredient per pig marketed for the whole group.")
+        ration_df = st.data_editor(
+            ss.ration_base,
+            hide_index=True,
+            use_container_width=True,
+            column_config={
+                "corn_lb": st.column_config.NumberColumn("Corn lb/pig", min_value=0),
+                "sbm_lb": st.column_config.NumberColumn("SBM lb/pig", min_value=0),
+                "ddgs_lb": st.column_config.NumberColumn("DDGS lb/pig", min_value=0),
+                "other_lb": st.column_config.NumberColumn("Other lb/pig", min_value=0),
+                "other_usd_lb": st.column_config.NumberColumn("Other $/lb", format="%.4f"),
+            },
+            key=f"ration_{ss.ver}",
+        )
+        phases, phase_problems = parse_ration_lbs(ration_df)
+        phases_df = ss.phases_base
     problems += phase_problems
     st.caption(f"Total feed: {sum(p.feed_lb_per_pig for p in phases):,.0f} lb per pig marketed.")
 
     st.subheader("Marketing (when the pigs sell)")
     st.caption(
         "Pigs sell 4 to 6 months after placement. Each cut is priced at the lean hog futures "
-        "contract for its sale date plus the average historical basis for that half-month."
+        "contract for its sale date plus the average historical basis for that half-month. "
+        "For a single average sale (e.g. placement + 160 days), use one row at 100%."
     )
     cuts_df = st.data_editor(
         ss.cuts_base,
@@ -342,6 +592,12 @@ with tab_in:
     )
     cuts, cut_problems = parse_cuts(cuts_df)
     problems += cut_problems
+
+ss.last_tables = {
+    "phases": phases_df.to_dict("records"),
+    "ration": ration_df.to_dict("records"),
+    "cuts": cuts_df.to_dict("records"),
+}
 
 # ---------------------------------------------------------------- hog futures & basis
 
@@ -414,7 +670,7 @@ with tab_in:
         height=300,
     )
     basis_used = parse_basis(basis_df)
-    premium = st.number_input("Carcass merit premium $/cwt", value=base.carcass_premium_cwt)
+    premium = st.number_input("Carcass merit premium $/cwt", key="in_premium")
 
 # ---------------------------------------------------------------- build the projection
 
@@ -424,19 +680,27 @@ def build(loc: Location) -> Projection:
         head_placed=int(head_placed),
         placement_date=placement,
         wean_weight_lb=wean_wt,
+        mortality_mode=mort_mode,
         mortality_pct=mortality,
+        mortality_cost_usd_hd=mort_cost,
         dead_feed_share=dead_share,
         carcass_yield_pct=yield_pct,
         wean_pig_source=source,
         wean_pig_usda_cash_usd_hd=wean_cash,
         wean_pig_usda_formula_usd_hd=wean_formula,
         wean_pig_manual_usd_hd=wean_manual,
+        wean_pig_adder_usd_hd=wean_adder,
         wean_pig_freight_usd_hd=freight,
         location=loc,
         corn_futures_usd_bu=corn_fut,
         sbm_futures_usd_ton=sbm_fut,
         feed_phases=phases,
         feed_mill_usd_ton=feed_mill,
+        corn_carry_usd_bu=corn_carry,
+        corn_hedged_pct=corn_hedge_pct,
+        corn_hedged_usd_bu=corn_hedged,
+        sbm_hedged_pct=sbm_hedge_pct,
+        sbm_hedged_usd_ton=sbm_hedged,
         barn_mode=barn_mode,
         barn_usd_pig_placed=barn_per_pig,
         barn_downtime_days=int(downtime),
@@ -447,11 +711,19 @@ def build(loc: Location) -> Projection:
         utilities_usd_hd=util,
         trucking_usd_hd_sold=truck,
         insurance_misc_usd_hd=ins,
+        ga_usd_hd=ga,
+        other_usd_hd_sold=other_sold,
+        interest_mode=interest_mode,
         interest_rate_pct=interest,
+        interest_usd_hd=interest_per_pig,
+        principal_usd_hd=principal,
+        term_interest_usd_hd=term_interest,
         marketing=cuts,
         lean_hog_futures_cwt=curve,
         hog_basis_cwt_by_period=basis_used,
         carcass_premium_cwt=premium,
+        hog_hedged_pct=hog_hedge_pct,
+        hog_hedged_cwt=hog_hedged,
         checkoff_pct=checkoff,
     )
 
@@ -508,6 +780,10 @@ with tab_sum:
     )
     k[3].metric("Cost per head sold", money(s["cost_usd_per_head_sold"]))
     k[4].metric("Revenue per head sold", money(s["revenue_usd_per_head_sold"]))
+    if s["debt_service_usd"]:
+        d = st.columns(5)
+        d[0].metric("Debt service (group)", money(s["debt_service_usd"], 0))
+        d[1].metric("Net per head after debt service", money(s["net_after_debt_usd_per_head_sold"]))
     avg_px = md_money(s["avg_price_cwt_carcass"])
     gap = md_money(abs(s["avg_price_cwt_carcass"] - s["breakeven_cwt_carcass"]))
     if s["net_usd"] >= 0:

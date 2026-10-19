@@ -122,3 +122,50 @@ def fill_curve(
         curve[c] = usable[src]
         filled[c] = src
     return curve, filled
+
+
+RATION_COLUMNS = ["corn_lb", "sbm_lb", "ddgs_lb", "other_lb", "other_usd_lb"]
+
+
+def parse_ration_lbs(df: pd.DataFrame) -> tuple[list[FeedPhase], list[str]]:
+    """One whole-group ration row (lb per pig marketed; other priced per lb) -> one FeedPhase."""
+    rows = _rows(df)
+    if len(rows) != 1:
+        return [], ["The whole-group ration needs exactly one row."]
+    r = rows[0]
+    missing = [k for k in RATION_COLUMNS if _blank(r.get(k))]
+    if missing:
+        return [], [f"Whole-group ration is missing: {', '.join(missing)}"]
+    lbs = {k: float(r[k]) for k in RATION_COLUMNS}
+    total = lbs["corn_lb"] + lbs["sbm_lb"] + lbs["ddgs_lb"] + lbs["other_lb"]
+    if total <= 0 or min(lbs.values()) < 0:
+        return [], ["Whole-group ration pounds must be positive."]
+    phase = FeedPhase(
+        name="Whole-group ration",
+        feed_lb_per_pig=total,
+        corn_pct=lbs["corn_lb"] / total * 100,
+        sbm_pct=lbs["sbm_lb"] / total * 100,
+        ddgs_pct=lbs["ddgs_lb"] / total * 100,
+        other_usd_ton=lbs["other_usd_lb"] * 2000,
+    )
+    return [phase], []
+
+
+def ration_lbs_from_phases(phases: list[FeedPhase]) -> pd.DataFrame:
+    """Collapse phases into the whole-group form (other $/lb = weighted average)."""
+    corn = sum(p.feed_lb_per_pig * p.corn_pct / 100 for p in phases)
+    sbm = sum(p.feed_lb_per_pig * p.sbm_pct / 100 for p in phases)
+    ddgs = sum(p.feed_lb_per_pig * p.ddgs_pct / 100 for p in phases)
+    other = sum(p.feed_lb_per_pig * p.other_pct / 100 for p in phases)
+    other_usd = sum(p.feed_lb_per_pig * p.other_pct / 100 * p.other_usd_ton / 2000 for p in phases)
+    return pd.DataFrame(
+        [
+            {
+                "corn_lb": round(corn, 1),
+                "sbm_lb": round(sbm, 1),
+                "ddgs_lb": round(ddgs, 1),
+                "other_lb": round(other, 1),
+                "other_usd_lb": round(other_usd / other, 4) if other else 0.0,
+            }
+        ]
+    )

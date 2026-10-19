@@ -5,6 +5,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 from hogproj.config import ROOT, get_settings
+from hogproj.inputs import InterestMode, MortalityMode, WeanPigPriceSource
 
 # Bundled futures defaults cover sales from an Oct 2026 placement; later dates need live data.
 PLACED = date(2026, 10, 19)
@@ -14,7 +15,7 @@ PLACED = date(2026, 10, 19)
 def app(monkeypatch) -> AppTest:
     monkeypatch.setenv("OFFLINE", "true")  # never touch the network in tests
     at = AppTest.from_file(str(ROOT / "app.py")).run(timeout=60)
-    at.sidebar.date_input[0].set_value(PLACED).run(timeout=60)
+    at.date_input(key="in_placement").set_value(PLACED).run(timeout=60)
     return at
 
 
@@ -35,15 +36,15 @@ def test_app_renders_projection_offline(app):
 
 def test_location_switch_changes_result(app):
     before = metrics(app)["Cost per head sold"]
-    app.sidebar.selectbox[0].set_value("Central South Dakota").run(timeout=60)
+    app.selectbox(key="loc_name").set_value("Central South Dakota").run(timeout=60)
     assert not app.exception
     assert metrics(app)["Cost per head sold"] != before
 
 
 def test_manual_wean_price_toggle(app):
     before = metrics(app)["Cost per head sold"]
-    app.sidebar.radio[0].set_value(app.sidebar.radio[0].options[2]).run(timeout=60)  # Manual
-    app.sidebar.number_input[3].set_value(60.0).run(timeout=60)  # Manual $/head
+    app.radio(key="in_source").set_value(WeanPigPriceSource.MANUAL).run(timeout=60)
+    app.number_input(key="in_wean_manual").set_value(60.0).run(timeout=60)
     assert not app.exception
     assert metrics(app)["Cost per head sold"] != before
 
@@ -98,10 +99,10 @@ def test_deleting_every_location_keeps_app_alive(app):
 
 
 def test_renaming_selected_location_keeps_it_selected(app):
-    app.sidebar.selectbox[0].set_value("Central South Dakota").run(timeout=60)
+    app.selectbox(key="loc_name").set_value("Central South Dakota").run(timeout=60)
     at = edit(app, "loc_editor_", {"edited_rows": {"2": {"name": "Pipestone SD"}}})
     assert not at.exception
-    assert at.sidebar.selectbox[0].value == "Pipestone SD"
+    assert at.selectbox(key="loc_name").value == "Pipestone SD"
 
 
 def test_cleared_basis_cell_counts_as_zero(app):
@@ -113,7 +114,45 @@ def test_cleared_basis_cell_counts_as_zero(app):
 def test_future_placement_runs_with_copied_futures_warning(monkeypatch):
     monkeypatch.setenv("OFFLINE", "true")
     at = AppTest.from_file(str(ROOT / "app.py")).run(timeout=60)
-    at.sidebar.date_input[0].set_value(date.today() + timedelta(days=60)).run(timeout=60)
+    at.date_input(key="in_placement").set_value(date.today() + timedelta(days=60)).run(timeout=60)
     assert not at.exception
     assert not at.error, errors(at)
     assert at.metric
+
+
+def test_new_toggles_change_the_numbers(app):
+    base_cost = metrics(app)["Cost per head sold"]
+    app.radio(key="in_mort_mode").set_value(MortalityMode.USD_PER_PIG).run(timeout=60)
+    app.number_input(key="in_mort_cost").set_value(6.0).run(timeout=60)
+    app.radio(key="in_interest_mode").set_value(InterestMode.USD_PER_PIG).run(timeout=60)
+    app.number_input(key="in_interest_per_pig").set_value(3.0).run(timeout=60)
+    app.number_input(key="in_ga").set_value(2.0).run(timeout=60)
+    app.number_input(key="in_wean_adder").set_value(7.0).run(timeout=60)
+    app.number_input(key="in_principal").set_value(3.0).run(timeout=60)
+    assert not app.exception
+    assert "Can't run" not in errors(app)  # a projected-loss callout is fine
+    m = metrics(app)
+    assert m["Cost per head sold"] != base_cost
+    assert "Net per head after debt service" in m
+
+
+def test_whole_group_ration_mode(app):
+    app.radio(key="in_ration_mode").set_value("Whole-group ration (lb per pig)").run(timeout=60)
+    assert not app.exception
+    assert not app.error, errors(app)
+    assert any("Total feed: 710 lb" in c.value for c in app.caption)
+
+
+def test_profile_round_trip(app, tmp_path, monkeypatch):
+    from hogproj.data import profiles
+
+    monkeypatch.setattr(profiles, "PROFILE_DIR", tmp_path)
+    app.number_input(key="in_ga").set_value(2.5).run(timeout=60)
+    app.text_input(key="profile_name").set_value("Test system Q2").run(timeout=60)
+    next(b for b in app.button if b.label == "Save profile").click().run(timeout=60)
+    assert profiles.list_profiles() == ["Test system Q2"]
+    app.number_input(key="in_ga").set_value(0.0).run(timeout=60)
+    app.selectbox(key="profile_pick").set_value("Test system Q2").run(timeout=60)
+    next(b for b in app.button if b.label == "Load").click().run(timeout=60)
+    assert not app.exception
+    assert app.number_input(key="in_ga").value == 2.5
