@@ -17,28 +17,60 @@ NEUTRAL = "#f0efec"
 INK = "#0b0b0b"
 INK_2 = "#52514e"
 GRID = "#e6e5e0"
-SURFACE = "#fcfcfb"
+GRID_SOFT = "#efeee9"
+SURFACE = "#ffffff"
 
 
 def _usd(v: float, dec: int = 2) -> str:
     v = round(v, dec) + 0.0  # + 0.0 turns -0.0 into 0.0
-    return f"-${abs(v):,.{dec}f}" if v < 0 else f"${v:,.{dec}f}"
+    return f"\u2212${abs(v):,.{dec}f}" if v < 0 else f"${v:,.{dec}f}"
+
+
+FONT = "Inter, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+CONFIG = {"displayModeBar": False, "responsive": True}  # pass to st.plotly_chart(config=...)
 
 
 def _layout(fig: go.Figure, title: str, height: int = 380) -> go.Figure:
+    """Shared look: transparent (the dashboard card is the surface), quiet grid, ink text."""
     fig.update_layout(
-        title={"text": title, "font": {"size": 16, "color": INK}, "x": 0, "xanchor": "left"},
+        title={
+            "text": title,
+            "font": {"size": 15, "color": INK, "family": FONT, "weight": 600},
+            "x": 0,
+            "xref": "container",
+            "xanchor": "left",
+            "y": 1,
+            "yref": "container",
+            "yanchor": "top",
+            "pad": {"t": 6, "l": 2},
+        },
         height=height,
-        margin={"l": 8, "r": 24, "t": 48, "b": 8},
-        paper_bgcolor=SURFACE,
-        plot_bgcolor=SURFACE,
-        font={"color": INK_2, "size": 13},
-        hoverlabel={"bgcolor": "white", "font_color": INK},
+        margin={"l": 4, "r": 20, "t": 44, "b": 4},
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font={"color": INK_2, "size": 12, "family": FONT},
+        hoverlabel={
+            "bgcolor": "white",
+            "bordercolor": GRID,
+            "font": {"color": INK, "family": FONT, "size": 12},
+        },
         showlegend=False,
     )
-    fig.update_xaxes(gridcolor=GRID, zerolinecolor=GRID, linecolor=GRID)
-    fig.update_yaxes(gridcolor=GRID, zerolinecolor=GRID, linecolor=GRID)
+    fig.update_xaxes(
+        gridcolor=GRID_SOFT, zerolinecolor=GRID, linecolor=GRID, ticks="", automargin=True
+    )
+    fig.update_yaxes(
+        gridcolor=GRID_SOFT, zerolinecolor=GRID, linecolor=GRID, ticks="", automargin=True
+    )
     return fig
+
+
+def _padded(values: object, pad: float = 0.18) -> list[float]:
+    """Axis range that always includes 0, with room for value labels outside the bars."""
+    s = pd.Series(values, dtype="float64")
+    lo, hi = min(0.0, float(s.min())), max(0.0, float(s.max()))
+    span = (hi - lo) or 1.0
+    return [lo - pad * span if lo < 0 else 0.0, hi + pad * span if hi > 0 else 0.0]
 
 
 def cost_breakdown(costs: pd.DataFrame) -> go.Figure:
@@ -62,6 +94,7 @@ def cost_breakdown(costs: pd.DataFrame) -> go.Figure:
     )
     fig.update_xaxes(tickprefix="$", showgrid=True)
     fig.update_yaxes(showgrid=False)
+    fig.update_xaxes(range=_padded(df["usd_per_head_sold"]), tickformat="$,.0f", tickprefix="")
     return _layout(fig, "Cost per head sold", height=max(300, 34 * len(df) + 80))
 
 
@@ -83,7 +116,12 @@ def net_by_location(df: pd.DataFrame, selected: str) -> go.Figure:
             hovertemplate="%{y}<br>Net $%{x:,.2f}/head sold<extra></extra>",
         )
     )
-    fig.update_xaxes(tickprefix="$", zerolinecolor=INK_2, zerolinewidth=1)
+    fig.update_xaxes(
+        range=_padded(df["net_usd_per_head_sold"]),
+        tickformat="$,.2~f",
+        zerolinecolor=INK_2,
+        zerolinewidth=1,
+    )
     return _layout(fig, "Net profit per head sold, by location", max(300, 34 * len(df) + 80))
 
 
@@ -99,7 +137,7 @@ def basis_bars(df: pd.DataFrame, value_col: str, title: str, unit: str, selected
             y=df["location"],
             orientation="h",
             marker={"color": colors, "cornerradius": 4},
-            text=[f"{v * scale:+,.0f}" for v in df[value_col]],
+            text=[f"{v * scale:+,.0f}".replace("-", "\u2212") for v in df[value_col]],
             textposition="inside",
             insidetextanchor="middle",
             textfont={"color": "white"},
@@ -162,7 +200,7 @@ def sensitivity_heatmap(grid: pd.DataFrame) -> go.Figure:
             textfont={"color": INK},
             xgap=2,
             ygap=2,
-            colorbar={"title": "Net $/hd", "tickprefix": "$"},
+            colorbar={"title": "Net $/hd", "tickformat": "$,.0f", "outlinewidth": 0},
             hovertemplate="Corn %{y}, hogs %{x}<br>Net %{text}/head sold<extra></extra>",
         )
     )
@@ -240,6 +278,11 @@ def crush_margin_chart(table: pd.DataFrame, row: str = "Margin $/pig") -> go.Fig
             hovertemplate="Placed %{x}<br>" + row + " %{y:$,.2f}<extra></extra>",
         )
     )
-    fig.update_yaxes(tickprefix="$", zerolinecolor=INK_2, zerolinewidth=1)
+    fig.update_yaxes(
+        range=_padded(pd.Series(vals), 0.15),
+        tickformat="$,.0f",
+        zerolinecolor=INK_2,
+        zerolinewidth=1,
+    )
     fig.update_xaxes(title="Placement week")
     return _layout(fig, f"{row.replace(' $/pig', '')} per pig by placement week", 380)

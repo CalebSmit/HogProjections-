@@ -59,7 +59,10 @@ flowchart LR
 | `src/hogproj/excel.py` | `build_workbook()`. Every number is a formula over named input cells, so the workbook mirrors `model.py`. |
 | `src/hogproj/crush.py` | Weekly crush: `Week`, `crush_table()` (one `project()` per week, single sale), `build_weeks()` (as-of prices from history; weeks after today use today's prices; fallbacks and stale prices noted), `CrushSpec` for Excel. Pure. |
 | `src/hogproj/tables.py` | Edited dashboard tables → validated models, with plain-English problems; blank basis = 0; missing futures contracts filled from the nearest one (flagged). Pure. |
-| `src/hogproj/charts.py` | Plotly figure builders (dataviz reference palette). Pure. |
+| `src/hogproj/charts.py` | Plotly figure builders (dataviz reference palette). Transparent, so the dashboard card is the surface. Pure. |
+| `src/hogproj/ui.py` | HTML for the dashboard (header, KPI cards, hero verdict, notices, stat lists, the crush sheet) rendered with `st.html`. Escapes all user text. Pure. |
+| `src/hogproj/ui.css` | Design tokens, cards (`st.container(key="card_…")`), tabs and motion. Loaded once by `app.py`. |
+| `.streamlit/config.toml`, `static/fonts/` | Theme (colors, radius, Inter font) and the bundled Inter font (OFL), served locally so the look works offline. |
 | `src/hogproj/data/http.py` | The only module that opens sockets. Retries 5xx only; transport errors raise `FetchError(unreachable=True)`. |
 | `src/hogproj/data/leanhog.py` | LM_HG201 → CME Lean Hog Index (with coverage check); Yahoo chart parsing; futures curve. |
 | `src/hogproj/data/weanpig.py` | USDA 2810 parsing (keyword field matching) and the lot-bucket choice. |
@@ -86,6 +89,10 @@ flowchart LR
    with the group's settings (minus hedges, which belong to one group's sales), and the Excel
    crush formulas are parity-tested against `crush_table`.
 9. **No silent truncation.** Input list sizes are capped by the pydantic models to the workbook's row slots. `build_workbook` raises if the locations or contracts exceed their slots.
+10. **One look.** Colors, type and spacing come from `config.toml` + `ui.css` tokens; app text
+   goes through `ui.py` builders (`st.html`, no `$…$` LaTeX risk) or Streamlit widgets. No emoji
+   in labels; icons are Material (`:material/…:`). Motion is short, eased, and off under
+   `prefers-reduced-motion`.
 
 ## Changelog
 - 2026-10-17: Initial scaffold and proposed target design.
@@ -98,3 +105,5 @@ flowchart LR
   tabs; Excel Weekly Crush sheet; invariants 7–8.
 - 2026-10-19: Third review: crush drops hedges; Barchart contract basis overlays the base history
   instead of replacing it; corn cash vs futures imports are separate kinds.
+- 2026-10-19: UI pass: `ui.py`/`ui.css`, theme + bundled Inter, card layout, HTML crush sheet,
+  Excel built on click, cached comparison/sensitivity runs; invariant 10.

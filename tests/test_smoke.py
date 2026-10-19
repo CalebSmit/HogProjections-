@@ -1,4 +1,6 @@
+import html
 import json
+import re
 from datetime import date, timedelta
 
 import pytest
@@ -29,8 +31,16 @@ def app(monkeypatch) -> AppTest:
     return at
 
 
+KPI = re.compile(r'hp-kpi-label">([^<]*)</div><div class="hp-kpi-value">([^<]*)')
+
+
 def metrics(at: AppTest) -> dict[str, str]:
-    return {m.label: m.value for m in at.metric}
+    """KPI cards (ui.kpi_cards / ui.hero_card), label -> value."""
+    found = {}
+    for h in at.get("html"):
+        for label, value in KPI.findall(h.proto.body):
+            found[html.unescape(label)] = html.unescape(value)
+    return found
 
 
 def test_settings_load_without_env():
@@ -39,8 +49,9 @@ def test_settings_load_without_env():
 
 def test_app_renders_projection_offline(app):
     assert not app.exception, app.exception
-    assert app.title[0].value == "Wean-to-Finish Group Projection"
+    assert any("Wean-to-Finish Group Projection" in h.proto.body for h in app.get("html"))
     assert "Breakeven $/cwt carcass" in metrics(app)
+    assert "Net per head sold" in metrics(app)
     assert not app.error, [e.value for e in app.error]
 
 
@@ -92,14 +103,14 @@ def test_two_consecutive_editor_edits_both_apply(app):
 def test_cleared_phase_cell_is_reported_not_dropped(app):
     at = edit(app, "phases_", {"edited_rows": {"4": {"feed_lb_per_pig": None}}})
     assert "is missing: feed_lb_per_pig" in errors(at)
-    assert not at.metric  # no misleading projection
+    assert not metrics(at)  # no misleading projection
 
 
 def test_cleared_location_number_does_not_loop(app):
     at = edit(app, "loc_editor_", {"edited_rows": {"1": {"ddgs_usd_ton": None}}})
     assert not at.exception
     assert "is missing: ddgs_usd_ton" in errors(at)
-    assert at.metric  # last good locations still project
+    assert metrics(at)  # last good locations still project
 
 
 def test_deleting_every_location_keeps_app_alive(app):
@@ -118,7 +129,7 @@ def test_renaming_selected_location_keeps_it_selected(app):
 def test_cleared_basis_cell_counts_as_zero(app):
     at = edit(app, "basis_", {"edited_rows": {"5": {"basis_cwt": None}}})
     assert not at.exception
-    assert all("nan" not in m.value for m in at.metric)
+    assert metrics(at) and all("nan" not in v for v in metrics(at).values())
 
 
 def test_future_placement_runs_with_copied_futures_warning(monkeypatch):
@@ -127,7 +138,7 @@ def test_future_placement_runs_with_copied_futures_warning(monkeypatch):
     at.date_input(key="in_placement").set_value(date.today() + timedelta(days=60)).run(timeout=60)
     assert not at.exception
     assert not at.error, errors(at)
-    assert at.metric
+    assert metrics(at)
 
 
 def test_new_toggles_change_the_numbers(app):
@@ -170,10 +181,10 @@ def test_profile_round_trip(app, tmp_path, monkeypatch):
 
 def test_weekly_crush_renders(app):
     assert not app.exception
-    tables = [d for d in app.dataframe if "Margin $/pig" in list(getattr(d.value, "index", []))]
+    tables = [h.proto.body for h in app.get("html") if "hp-table" in h.proto.body]
     assert tables, "weekly crush table missing"
-    t = tables[0].value
-    assert t.shape[1] >= 12  # 12 weeks back (+ ahead) + Average
+    assert "Margin $/pig" in tables[0]
+    assert tables[0].count("<th>") >= 13  # row label + 12 weeks back (+ ahead)
 
 
 def test_save_profile_after_switching_modes(app, tmp_path, monkeypatch):

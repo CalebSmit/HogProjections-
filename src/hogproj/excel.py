@@ -45,6 +45,16 @@ COST_NAMES = {  # named cells on the Costs sheet, used by the weekly crush
 LOC_END = MAX_LOCATIONS + 1  # last Locations row in Excel numbering
 
 
+def workbook_problem(p: Projection, locations: Sequence[Location]) -> str | None:
+    """Why build_workbook would refuse these inputs, or None. Lets the UI say so up front."""
+    names = {lo.name for lo in locations} | {p.location.name}
+    if len(names) > MAX_LOCATIONS:
+        return f"The workbook holds at most {MAX_LOCATIONS} locations."
+    if len(p.lean_hog_futures_cwt) > MAX_CONTRACTS:
+        return f"The workbook holds at most {MAX_CONTRACTS} futures contracts."
+    return None
+
+
 def build_workbook(
     p: Projection,
     locations: Sequence[Location],
@@ -69,10 +79,8 @@ def build_workbook(
     # must be in the list (the app may have edited them).
     locations = [lo for lo in locations if lo.name != p.location.name] + [p.location]
     locations = sorted(locations, key=lambda lo: lo.name)
-    if len(locations) > MAX_LOCATIONS:
-        raise ValueError(f"workbook holds at most {MAX_LOCATIONS} locations")
-    if len(p.lean_hog_futures_cwt) > MAX_CONTRACTS:
-        raise ValueError(f"workbook holds at most {MAX_CONTRACTS} futures contracts")
+    if problem := workbook_problem(p, locations):
+        raise ValueError(problem)
 
     _inputs_sheet(wb, inp, p, f)
     _locations_sheet(wb, loc, locations, f)

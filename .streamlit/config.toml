@@ -3,9 +3,41 @@ gatherUsageStats = false
 
 [server]
 headless = false
-
-[theme]
-base = "light"
+enableStaticServing = true  # serves static/ (the bundled Inter font, so it works offline)
 
 [client]
 toolbarMode = "viewer"
+
+# Light theme. Colors follow the chart palette in src/hogproj/charts.py; the CSS in
+# src/hogproj/ui.css adds cards, the header and motion on top of this.
+[theme]
+base = "light"
+primaryColor = "#1c5cab"
+backgroundColor = "#f6f6f3"
+secondaryBackgroundColor = "#efeee9"
+textColor = "#1a1a18"
+linkColor = "#1c5cab"
+borderColor = "#e3e2dc"
+dataframeBorderColor = "#ecebe6"
+dataframeHeaderBackgroundColor = "#f8f8f5"
+showWidgetBorder = true
+baseRadius = "8px"
+buttonRadius = "8px"
+font = "Inter, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+headingFont = "Inter, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+headingFontWeights = [650, 620, 600, 600, 600, 600]
+headingFontSizes = ["1.75rem", "1.25rem", "1.05rem", "1rem", "0.95rem", "0.9rem"]
+baseFontSize = 14
+greenColor = "#0a7d4f"
+redColor = "#c73a3a"
+
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/fonts/inter-var.woff2"
+weight = "100 900"
+style = "normal"
+
+[theme.sidebar]
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f6f6f3"
+borderColor = "#ebeae4"

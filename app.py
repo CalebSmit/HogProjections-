@@ -6,12 +6,13 @@ the user's next edit. Reset buttons bump `ss.ver`, which is part of every editor
 """
 
 from datetime import date, timedelta
+from typing import Any
 
 import pandas as pd
 import streamlit as st
 from pydantic import ValidationError
 
-from hogproj import __version__, charts
+from hogproj import __version__, charts, ui
 from hogproj.basis import (
     PERIODS,
     average_basis_by_period,
@@ -38,7 +39,7 @@ from hogproj.data.market import (
     load_hog_futures_curve,
     load_wean_pig_prices,
 )
-from hogproj.excel import build_workbook
+from hogproj.excel import build_workbook, workbook_problem
 from hogproj.inputs import (
     BarnCostMode,
     InterestMode,
@@ -59,7 +60,8 @@ from hogproj.tables import (
     ration_lbs_from_phases,
 )
 
-st.set_page_config(page_title="Hog Projections", page_icon="🐖", layout="wide")
+st.set_page_config(page_title="W2F Projection", page_icon=":material/monitoring:", layout="wide")
+st.html(f"<style>{ui.css()}</style>")
 
 # ---------------------------------------------------------------- cached market data
 
@@ -87,6 +89,31 @@ def grain_history(refresh_token: int):
 @st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA weaned pig report…")
 def wean_prices(min_lot: int, refresh_token: int):
     return load_wean_pig_prices(min_lot)
+
+
+def chart(fig, target: Any = st) -> None:
+    """Plotly figure with the dashboard's own styling (not Streamlit's theme) and no toolbar."""
+    target.plotly_chart(fig, width="stretch", theme=None, config=charts.CONFIG)
+
+
+def card(name: str, target: Any = st):
+    """A white card: a keyed container styled by ui.css (`st-key-card...`)."""
+    return target.container(key=f"card_{name}")
+
+
+# Model runs that don't depend on every widget are cached by the projection's JSON, so
+# changing (say) a crush control doesn't recompute the location comparison or the grid.
+
+
+@st.cache_data(max_entries=256, show_spinner=False)
+def summary_of(proj_json: str) -> dict:
+    return project(Projection.model_validate_json(proj_json)).summary
+
+
+@st.cache_data(max_entries=32, show_spinner=False)
+def sensitivity_of(proj_json: str) -> pd.DataFrame:
+    p = Projection.model_validate_json(proj_json)
+    return sensitivity(p, [-0.50, -0.25, 0.0, 0.25, 0.50], [-10, -5, 0, 5, 10])
 
 
 def money(v: float, dec: int = 2) -> str:
@@ -122,38 +149,34 @@ if "ver" not in ss:
 base = defaults.default_projection(ss.locations_ok[0])
 problems: list[str] = []
 
-st.title("Wean-to-Finish Group Projection")
+TITLE = "Wean-to-Finish Group Projection"
 header = st.empty()
 tab_sum, tab_crush, tab_in, tab_loc, tab_mkt, tab_data, tab_xl = st.tabs(
-    [
-        "📊 Summary",
-        "🗓️ Weekly crush",
-        "⚙️ Inputs",
-        "📍 Locations",
-        "📈 Markets & basis",
-        "📥 Data",
-        "⬇️ Excel",
-    ]
+    ["Summary", "Weekly crush", "Inputs", "Locations", "Markets & basis", "Data", "Excel"]
 )
 
 # ---------------------------------------------------------------- locations (read first)
 
 with tab_loc:
-    st.markdown(
-        "Every location runs with the same group, feed budget and hog prices, so the "
-        "difference is local feed prices, barn and labor."
+    comparison_slot = card("loc_compare")
+    st.write("")
+    loc_card = card("loc_edit")
+    loc_card.html(
+        ui.card_title(
+            "Locations",
+            sub="Every location runs the same group, feed budget and hog prices, so the "
+            "difference is local feed prices, barn and labor.",
+        )
     )
-    comparison_slot = st.container()
-    st.subheader("Edit locations")
-    st.caption(
+    loc_card.caption(
         "Corn basis in \\$/bu (−0.40 = 40¢ under futures). SBM basis = delivered premium over "
         "CBOT meal futures, \\$/ton. Add a row for a new location, or rename one for your own "
         "barn. **Save** keeps changes on this computer (in `data/user/`)."
     )
-    edited_locs = st.data_editor(
+    edited_locs = loc_card.data_editor(
         ss.loc_base,
         num_rows="dynamic",
-        use_container_width=True,
+        width="stretch",
         column_config={
             "name": "Location",
             "state": "State",
@@ -168,7 +191,7 @@ with tab_loc:
     )
     new_locs, loc_problems = parse_locations(edited_locs)
     if loc_problems:
-        st.error("Not applied yet: " + " · ".join(loc_problems))
+        loc_card.error("Not applied yet: " + " · ".join(loc_problems))
     else:
         old_names = [lo.name for lo in ss.locations_ok]
         new_names = [lo.name for lo in new_locs]
@@ -177,11 +200,16 @@ with tab_loc:
             if len(old_names) == len(new_names):  # a rename: follow the renamed row
                 ss.loc_name = new_names[i]
         ss.locations_ok = new_locs
-    b1, b2, _ = st.columns([1, 1, 4])
-    if b1.button("💾 Save locations", disabled=bool(loc_problems)):
+    b1, b2, _ = loc_card.columns([1, 1, 3])
+    if b1.button(
+        "Save locations",
+        icon=":material/save:",
+        disabled=bool(loc_problems),
+        width="stretch",
+    ):
         defaults.save_locations(ss.locations_ok)
         st.toast("Locations saved on this computer.")
-    if b2.button("↩️ Reset to defaults"):
+    if b2.button("Reset to defaults", icon=":material/restart_alt:", width="stretch"):
         defaults.reset_locations()
         ss.loc_base = frame(defaults.load_locations())
         ss.locations_ok = defaults.load_locations()
@@ -311,7 +339,7 @@ def reset_all_cb() -> None:
 # ---------------------------------------------------------------- sidebar: the group
 
 with st.sidebar:
-    with st.expander("💾 Settings profiles", expanded=False):
+    with st.expander("Settings profiles", icon=":material/bookmarks:", expanded=False):
         st.caption(
             "Save your own costs, ration and toggles (for example “My system 2026 Q2”). "
             "Profiles stay on this computer in `data/user/profiles/`; market prices aren't saved."
@@ -325,19 +353,17 @@ with st.sidebar:
             placeholder="Choose a profile",
         )
         p1, p2 = st.columns(2)
-        p1.button(
-            "Load", on_click=load_profile_cb, use_container_width=True, disabled=not saved_profiles
-        )
+        p1.button("Load", on_click=load_profile_cb, width="stretch", disabled=not saved_profiles)
         p2.button(
             "Delete",
             on_click=delete_profile_cb,
-            use_container_width=True,
+            width="stretch",
             disabled=not saved_profiles,
         )
         st.text_input(
             "Save current settings as", key="profile_name", placeholder="e.g. My system 2026 Q2"
         )
-        st.button("Save profile", on_click=save_profile_cb, use_container_width=True)
+        st.button("Save profile", on_click=save_profile_cb, width="stretch")
         if ss.get("profile_msg"):
             st.caption(ss.profile_msg)
 
@@ -386,17 +412,18 @@ with st.sidebar:
     st.caption(wean.note)
 
     st.divider()
-    if st.button("🔄 Refresh market data", use_container_width=True):
+    if st.button("Refresh market data", icon=":material/refresh:", width="stretch"):
         ss.refresh += 1
         st.cache_data.clear()
         st.rerun()
-    st.button("↩️ Reset inputs to defaults", use_container_width=True, on_click=reset_all_cb)
+    st.button(
+        "Reset inputs to defaults",
+        icon=":material/restart_alt:",
+        width="stretch",
+        on_click=reset_all_cb,
+    )
 
 location = locations[loc_names.index(loc_name)]
-header.caption(
-    f"{head_placed:,} head placed at **{loc_name}** on {placement:%b %d, %Y}. "
-    f"Costs and revenue from wean to market. v{__version__}"
-)
 
 # ---------------------------------------------------------------- market data
 
@@ -413,21 +440,44 @@ basis_daily = basis_loaded.data if isinstance(basis_loaded.data, pd.Series) else
 by_year = basis_by_year_period(basis_daily) if not basis_daily.empty else pd.DataFrame()
 years_available = [int(y) for y in by_year.index] if not by_year.empty else []
 
+if basis_loaded.live or wean.live or grain.live:
+    status = ("live", " ".join(x.note for x in (basis_loaded, wean, grain)))
+elif not barchart.inventory().empty:
+    status = ("import", "Using your Barchart imports where available (Data tab).")
+else:
+    status = ("offline", "No live data: default prices. Use Refresh market data or the Data tab.")
+header.html(
+    ui.header(
+        TITLE,
+        f"Wean to market · v{__version__}",
+        [
+            ("Location", loc_name),
+            ("Head", f"{head_placed:,}"),
+            ("Placed", f"{placement:%b %d, %Y}"),
+        ],
+        status,
+    )
+)
+
 # ---------------------------------------------------------------- data tab (before any st.stop)
 
 with tab_data:
-    st.markdown(
-        "**Import Barchart downloads.** Upload CSV or Excel files from Barchart (the website "
-        "*Download* button or Barchart for Excel). A workbook with one series per sheet works "
-        "too. Imported data stays on this computer (`data/cache/barchart/`) and is used ahead "
-        "of the free USDA and Yahoo sources."
+    import_card = card("import")
+    import_card.html(
+        ui.card_title(
+            "Import Barchart downloads",
+            sub="CSV or Excel files from Barchart (the website Download button or Barchart for "
+            "Excel); a workbook with one series per sheet works too. Imports stay on this "
+            "computer (data/cache/barchart/) and are used ahead of the free USDA and Yahoo "
+            "sources.",
+        )
     )
-    st.caption(
+    import_card.caption(
         "Useful series: CME Lean Hog Index; lean hog futures histories of **past, expired** "
         "contracts (e.g. HEG26, HEJ26) — with the index they give exact historical basis; "
         "USDA weaned pig (LS255 early weaned); corn (cash index or futures); soybean meal."
     )
-    uploads = st.file_uploader(
+    uploads = import_card.file_uploader(
         "Barchart files",
         type=["csv", "xlsx", "xlsm", "xls"],
         accept_multiple_files=True,
@@ -438,12 +488,14 @@ with tab_data:
         try:
             found += barchart.read_upload(up.name, up.getvalue())
         except Exception as e:  # noqa: BLE001 - show any unreadable file, keep the app running
-            st.error(f"Couldn't read {up.name}: {e}")
+            import_card.error(f"Couldn't read {up.name}: {e}")
     if uploads and not found:
-        st.warning("No price history found. Is there a Date/Time column and a Close/Latest column?")
+        import_card.warning(
+            "No price history found. Is there a Date/Time column and a Close/Latest column?"
+        )
     plan = []
     for i, series in enumerate(found):
-        c = st.columns([4, 3, 2])
+        c = import_card.columns([4, 3, 2])
         c[0].markdown(
             f"**{series.name}** {series.symbol}  \n"
             f"{len(series.data):,} rows, {series.data.index.min():%b %d, %Y} – "
@@ -463,9 +515,9 @@ with tab_data:
                 "Contract (YYYY-MM)", value=series.contract or "", key=f"ct_{i}_{series.name}"
             )
         if kind is not None and (warn := barchart.implausible(series.data, kind)):
-            c[0].warning(warn, icon="⚠️")
+            c[0].warning(warn, icon=":material/warning:")
         plan.append((series, kind, contract))
-    if plan and st.button("📥 Import", type="primary"):
+    if plan and import_card.button("Import", icon=":material/upload:", type="primary"):
         done = []
         for series, kind, contract in plan:
             if kind is None:
@@ -482,14 +534,26 @@ with tab_data:
             st.toast("Imported: " + ", ".join(done))
             st.rerun()
 
-    st.subheader("Imported on this computer")
+    st.write("")
+    inv_card = card("inventory")
+    inv_card.html(ui.card_title("Imported on this computer"))
     inv = barchart.inventory()
     if inv.empty:
-        st.caption("Nothing imported yet.")
+        inv_card.caption("Nothing imported yet.")
     else:
-        st.dataframe(inv, hide_index=True, use_container_width=True)
-        drop = st.selectbox("Remove a series", [None, *inv["file"]], key="bc_drop")
-        if drop and st.button("Remove"):
+        inv_card.dataframe(
+            inv,
+            hide_index=True,
+            width="stretch",
+            column_config={
+                "file": "Stored series",
+                "rows": st.column_config.NumberColumn("Rows", format="localized"),
+                "from": st.column_config.DateColumn("From", format="MMM D, YYYY"),
+                "to": st.column_config.DateColumn("To", format="MMM D, YYYY"),
+            },
+        )
+        drop = inv_card.selectbox("Remove a series", [None, *inv["file"]], key="bc_drop")
+        if drop and inv_card.button("Remove", icon=":material/delete:"):
             barchart.delete(drop)
             ss.refresh += 1
             st.cache_data.clear()
@@ -498,9 +562,9 @@ with tab_data:
 # ---------------------------------------------------------------- inputs tab
 
 with tab_in:
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.subheader("Feed prices")
+    c1, c2, c3 = st.columns(3, gap="medium")
+    with c1, card("in_feed"):
+        st.html(ui.card_title("Feed prices"))
         corn_fut = st.number_input(
             "CBOT corn futures $/bu", step=0.05, format="%.4f", key="in_corn_fut"
         )
@@ -515,17 +579,19 @@ with tab_in:
             key="in_corn_carry",
             help="Added to local cash corn, e.g. +$0.20 for carrying corn to feeding time.",
         )
-        st.markdown(
-            f"**{loc_name}**: corn "
-            f"{md_money(corn_fut + location.corn_basis_usd_bu + corn_carry)}/bu "
-            f"(basis {location.corn_basis_usd_bu * 100:+.0f}¢/bu) · SBM "
-            f"{md_money(sbm_fut + location.sbm_basis_usd_ton)}/ton "
-            f"(basis {md_money(location.sbm_basis_usd_ton, 0)}/ton) · "
-            f"DDGS {md_money(location.ddgs_usd_ton)}/ton. Edit basis on the Locations tab."
+        st.html(
+            ui.notice(
+                f"<b>{ui.esc(loc_name)}</b>: corn "
+                f"{ui.usd(corn_fut + location.corn_basis_usd_bu + corn_carry)}/bu "
+                f"(basis {location.corn_basis_usd_bu * 100:+.0f}¢) · SBM "
+                f"{ui.usd(sbm_fut + location.sbm_basis_usd_ton)}/ton "
+                f"(basis {ui.usd(location.sbm_basis_usd_ton, 0)}) · "
+                f"DDGS {ui.usd(location.ddgs_usd_ton)}/ton. Basis is set on the Locations tab."
+            )
         )
         feed_mill = st.number_input("Feed mill grind/mix/delivery $/ton", key="in_feed_mill")
-    with c2:
-        st.subheader("Production")
+    with c2, card("in_prod"):
+        st.html(ui.card_title("Production"))
         wean_wt = st.number_input("Weaned pig weight (lb)", key="in_wean_wt")
         mort_mode = st.radio(
             "Mortality method",
@@ -558,8 +624,8 @@ with tab_in:
         )
         yield_pct = st.number_input("Carcass yield (%)", step=0.5, key="in_yield")
         freight = st.number_input("Weaned pig freight $/head", key="in_freight")
-    with c3:
-        st.subheader("Barn & labor")
+    with c3, card("in_barn"):
+        st.html(ui.card_title("Barn & labor"))
         barn_mode = st.radio("Barn cost", list(BarnCostMode), horizontal=True, key="in_barn_mode")
         if barn_mode is BarnCostMode.PER_SPACE_YEAR:
             st.caption(f"{md_money(location.barn_rent_usd_space_yr)}/space/yr at {loc_name}.")
@@ -588,13 +654,15 @@ with tab_in:
         )
         st.caption(f"Wage at {loc_name}: {md_money(location.labor_wage_usd_hr)}/hr.")
 
-    st.subheader("Other costs")
-    o = st.columns(4)
+    st.write("")
+    other_card = card("in_other")
+    other_card.html(ui.card_title("Other costs"))
+    o = other_card.columns(4)
     vet = o[0].number_input("Animal health / vet $/hd placed", key="in_vet")
     util = o[1].number_input("Utilities $/hd placed", key="in_util")
     truck = o[2].number_input("Freight out / trucking $/hd sold", key="in_truck")
     ins = o[3].number_input("Insurance / misc $/hd placed", key="in_ins")
-    o = st.columns(4)
+    o = other_card.columns(4)
     ga = o[0].number_input("G&A $/hd placed", key="in_ga")
     other_sold = o[1].number_input(
         "Other / (sales premiums) $/hd sold",
@@ -602,22 +670,23 @@ with tab_in:
         help="Positive = extra cost; negative = premiums received.",
     )
     checkoff = o[2].number_input("Checkoff % of gross", key="in_checkoff")
-    with o[3]:
-        interest_mode = st.radio(
-            "Operating interest", list(InterestMode), horizontal=True, key="in_interest_mode"
-        )
-        rate_mode = interest_mode is InterestMode.RATE
-        interest = st.number_input(
-            "Interest %/yr",
-            key="in_interest",
-            disabled=not rate_mode,
-            help="On pig cost + half of feed, for the days on feed.",
-        )
-        interest_per_pig = st.number_input(
-            "Interest $/pig placed", key="in_interest_per_pig", disabled=rate_mode
-        )
+    o = other_card.columns(4, vertical_alignment="bottom")
+    interest_mode = o[0].radio(
+        "Operating interest", list(InterestMode), horizontal=True, key="in_interest_mode"
+    )
+    rate_mode = interest_mode is InterestMode.RATE
+    interest = o[1].number_input(
+        "Interest %/yr",
+        key="in_interest",
+        disabled=not rate_mode,
+        help="On pig cost + half of feed, for the days on feed.",
+    )
+    interest_per_pig = o[2].number_input(
+        "Interest $/pig placed", key="in_interest_per_pig", disabled=rate_mode
+    )
 
-    with st.expander("📈 Hedges & contracts", expanded=False):
+    st.write("")
+    with st.expander("Hedges & contracts", icon=":material/shield:", expanded=False):
         st.caption(
             "Share of the need that's hedged or contracted, at an all-in price. The rest pays "
             "the open market. Hogs: the futures level locked on the hedged share; basis still "
@@ -631,23 +700,31 @@ with tab_in:
         hog_hedge_pct = h[2].number_input("Hogs % hedged", 0.0, 100.0, key="in_hog_hedge_pct")
         hog_hedged = h[2].number_input("Hog hedged futures $/cwt", key="in_hog_hedged")
 
-    with st.expander("🏦 Debt service (below the operating margin)", expanded=False):
+    with st.expander(
+        "Debt service (below the operating margin)",
+        icon=":material/account_balance:",
+        expanded=False,
+    ):
         st.caption("Principal and term-debt interest per pig sold, giving a second bottom line.")
         d = st.columns(2)
         principal = d[0].number_input("Principal payment $/hd sold", key="in_principal")
         term_interest = d[1].number_input("Term interest payment $/hd sold", key="in_term_interest")
 
-    st.subheader("Feed budget")
-    ration_mode = st.radio("Enter the ration", RATION_MODES, horizontal=True, key="in_ration_mode")
+    st.write("")
+    feed_card = card("in_ration")
+    feed_card.html(ui.card_title("Feed budget"))
+    ration_mode = feed_card.radio(
+        "Enter the ration", RATION_MODES, horizontal=True, key="in_ration_mode"
+    )
     if ration_mode == RATION_MODES[0]:
-        st.caption(
+        feed_card.caption(
             "Feed per pig marketed, by phase. Other % = premix, fat, amino acids and specialty "
             "ingredients, priced per ton of that portion."
         )
-        phases_df = st.data_editor(
+        phases_df = feed_card.data_editor(
             ss.phases_base,
             num_rows="dynamic",
-            use_container_width=True,
+            width="stretch",
             column_config={
                 "name": "Phase",
                 "feed_lb_per_pig": st.column_config.NumberColumn("Feed lb/pig", min_value=0),
@@ -661,11 +738,11 @@ with tab_in:
         phases, phase_problems = parse_phases(phases_df)
         ration_df = ss.ration_base
     else:
-        st.caption("Pounds of each ingredient per pig marketed for the whole group.")
-        ration_df = st.data_editor(
+        feed_card.caption("Pounds of each ingredient per pig marketed for the whole group.")
+        ration_df = feed_card.data_editor(
             ss.ration_base,
             hide_index=True,
-            use_container_width=True,
+            width="stretch",
             column_config={
                 "corn_lb": st.column_config.NumberColumn("Corn lb/pig", min_value=0),
                 "sbm_lb": st.column_config.NumberColumn("SBM lb/pig", min_value=0),
@@ -678,18 +755,22 @@ with tab_in:
         phases, phase_problems = parse_ration_lbs(ration_df)
         phases_df = ss.phases_base
     problems += phase_problems
-    st.caption(f"Total feed: {sum(p.feed_lb_per_pig for p in phases):,.0f} lb per pig marketed.")
+    feed_card.caption(
+        f"Total feed: {sum(p.feed_lb_per_pig for p in phases):,.0f} lb per pig marketed."
+    )
 
-    st.subheader("Marketing (when the pigs sell)")
-    st.caption(
+    st.write("")
+    mkt_card = card("in_cuts")
+    mkt_card.html(ui.card_title("Marketing", "when the pigs sell"))
+    mkt_card.caption(
         "Pigs sell 4 to 6 months after placement. Each cut is priced at the lean hog futures "
         "contract for its sale date plus the average historical basis for that half-month. "
         "For a single average sale (e.g. placement + 160 days), use one row at 100%."
     )
-    cuts_df = st.data_editor(
+    cuts_df = mkt_card.data_editor(
         ss.cuts_base,
         num_rows="dynamic",
-        use_container_width=True,
+        width="stretch",
         column_config={
             "days_after_placement": st.column_config.NumberColumn(
                 "Days after placement", min_value=1, step=1
@@ -728,8 +809,11 @@ if (
     ss.curve_token = (ss.refresh, tuple(needed))
 
 with tab_in:
-    st.subheader("Lean hog futures ($/cwt carcass)")
-    curve_df = st.data_editor(
+    st.write("")
+    fut_col, basis_col = st.columns([2, 3], gap="medium")
+    fut_card = card("in_futures", fut_col)
+    fut_card.html(ui.card_title("Lean hog futures", "$/cwt carcass"))
+    curve_df = fut_card.data_editor(
         pd.DataFrame({"contract": needed, "price_cwt": [ss.curve_base.get(c) for c in needed]}),
         disabled=["contract"],
         hide_index=True,
@@ -741,26 +825,32 @@ with tab_in:
     )
     typed = {str(r["contract"]): r["price_cwt"] for r in curve_df.to_dict("records")}
     curve, filled = fill_curve({**ss.curve_base, **typed}, needed)
-    st.caption(
+    fut_card.caption(
         (live_curve.note + " " if live_curve.note else "")
         + "Typed prices reset if the sale months change."
     )
     if filled:
-        st.warning(
-            "No price for "
-            + ", ".join(f"{c} (using {src})" for c, src in filled.items())
-            + ". Type the real futures price above.",
-            icon="⚠️",
+        fut_card.html(
+            ui.notice(
+                "<b>No price for "
+                + ui.esc(", ".join(f"{c} (using {src})" for c, src in filled.items()))
+                + ".</b> Type the real futures price above.",
+                "warn",
+            )
         )
+    premium = fut_card.number_input("Carcass merit premium $/cwt", key="in_premium")
 
-    st.subheader("Hog basis (CME Lean Hog Index − futures)")
-    years = st.multiselect(
+    basis_card = card("in_basis", basis_col)
+    basis_card.html(ui.card_title("Hog basis", "CME Lean Hog Index − futures, $/cwt"))
+    years = basis_card.multiselect(
         "Years to average", years_available, default=years_available, key="basis_years"
     )
     hist_avg = average_basis_by_period(by_year, years) if years else {p: 0.0 for p in PERIODS}
     sale_periods = {basis_period(d) for d in sale_dates}
-    st.caption(basis_loaded.note + " Type over any value; changing the years resets typed values.")
-    basis_df = st.data_editor(
+    basis_card.caption(
+        basis_loaded.note + " Type over any value; changing the years resets typed values."
+    )
+    basis_df = basis_card.data_editor(
         pd.DataFrame(
             {
                 "period": list(PERIODS),
@@ -786,13 +876,14 @@ with tab_in:
         p for p in sale_periods if chosen is None or p not in chosen or chosen[p].isna().all()
     )
     if no_history:
-        st.warning(
-            "No basis history for sales in "
-            + ", ".join(period_label(p) for p in no_history)
-            + ": basis is 0 there unless you type it above.",
-            icon="⚠️",
+        basis_card.html(
+            ui.notice(
+                "<b>No basis history for sales in "
+                + ui.esc(", ".join(period_label(p) for p in no_history))
+                + ".</b> Basis is $0 there unless you type it above.",
+                "warn",
+            )
         )
-    premium = st.number_input("Carcass merit premium $/cwt", key="in_premium")
 
 # ---------------------------------------------------------------- build the projection
 
@@ -887,134 +978,164 @@ s = result.summary
 
 with tab_sum:
     if basis_daily.empty:
-        st.warning(
-            "Hog basis history isn't loaded, so basis is 0 unless you entered it on the "
-            "Inputs tab. Click **Refresh market data** with an internet connection.",
-            icon="⚠️",
+        st.html(
+            ui.notice(
+                "<b>No hog basis history yet.</b> Sale prices use futures with a basis of "
+                "$0 (or what you typed on the Inputs tab). Refresh market data with an internet "
+                "connection, or import Barchart history on the Data tab.",
+                "warn",
+            )
         )
     if filled:
-        st.warning(
-            "Some sales use a copied futures price: "
-            + ", ".join(f"{c} ← {src}" for c, src in filled.items())
-            + ". See Inputs → Lean hog futures.",
-            icon="⚠️",
+        st.html(
+            ui.notice(
+                "<b>Copied futures price.</b> "
+                + ui.esc(", ".join(f"{c} uses {src}" for c, src in filled.items()))
+                + ". Type the real price under Inputs → Lean hog futures.",
+                "warn",
+            )
         )
-    k = st.columns(5)
-    k[0].metric("Net profit (group)", money(s["net_usd"], 0))
-    k[1].metric("Net per head sold", money(s["net_usd_per_head_sold"]))
-    k[2].metric(
-        "Breakeven $/cwt carcass",
-        money(s["breakeven_cwt_carcass"]),
-        help=f"Live equivalent: {money(s['breakeven_cwt_live'])}/cwt",
+    fc = s["feed_conversion"]
+    st.html(
+        ui.kpi_grid_with_hero(
+            ui.hero_card(
+                s["net_usd_per_head_sold"], s["avg_price_cwt_carcass"], s["breakeven_cwt_carcass"]
+            ),
+            [
+                ui.Kpi(
+                    "Net profit (group)",
+                    ui.usd(s["net_usd"], 0),
+                    f"{s['head_sold']:,.0f} head sold",
+                    ui.tone(s["net_usd"]),
+                ),
+                ui.Kpi(
+                    "Breakeven $/cwt carcass",
+                    ui.usd(s["breakeven_cwt_carcass"]),
+                    f"{ui.usd(s['breakeven_cwt_live'])}/cwt live",
+                ),
+                ui.Kpi(
+                    "Cost per head sold",
+                    ui.usd(s["cost_usd_per_head_sold"]),
+                    f"{ui.usd(s['total_cost_usd'], 0)} total",
+                ),
+                ui.Kpi(
+                    "Revenue per head sold",
+                    ui.usd(s["revenue_usd_per_head_sold"]),
+                    f"{ui.usd(s['gross_revenue_usd'], 0)} total",
+                ),
+            ],
+        )
     )
-    k[3].metric("Cost per head sold", money(s["cost_usd_per_head_sold"]))
-    k[4].metric("Revenue per head sold", money(s["revenue_usd_per_head_sold"]))
     if s["debt_service_usd"]:
-        d = st.columns(5)
-        d[0].metric("Debt service (group)", money(s["debt_service_usd"], 0))
-        d[1].metric("Net per head after debt service", money(s["net_after_debt_usd_per_head_sold"]))
-    avg_px = md_money(s["avg_price_cwt_carcass"])
-    gap = md_money(abs(s["avg_price_cwt_carcass"] - s["breakeven_cwt_carcass"]))
-    if s["net_usd"] >= 0:
-        st.success(
-            f"✅ **Projected profit.** Average sale price {avg_px}/cwt carcass is {gap} "
-            "above breakeven."
+        st.html(
+            ui.kpi_cards(
+                [
+                    ui.Kpi("Debt service (group)", ui.usd(s["debt_service_usd"], 0)),
+                    ui.Kpi(
+                        "Net per head after debt service",
+                        ui.usd(s["net_after_debt_usd_per_head_sold"]),
+                        tone=ui.tone(s["net_after_debt_usd_per_head_sold"]),
+                    ),
+                    ui.Kpi("Net after debt service (group)", ui.usd(s["net_after_debt_usd"], 0)),
+                ],
+                "debt",
+            )
         )
-    else:
-        st.error(
-            f"🔻 **Projected loss.** Average sale price {avg_px}/cwt carcass is {gap} "
-            "below breakeven."
+    st.write("")
+    left, right = st.columns([3, 2], gap="medium")
+    with left, card("costs"):
+        chart(charts.cost_breakdown(result.costs))
+    with right, card("key"):
+        st.html(ui.card_title("Key numbers", f"{s['avg_days_on_feed']:.0f} days on feed"))
+        st.html(
+            ui.stat_list(
+                [
+                    ("Head placed", f"{proj.head_placed:,}"),
+                    ("Head sold", f"{s['head_sold']:,.0f}"),
+                    ("Feed conversion", "n/a" if pd.isna(fc) else f"{fc:.2f}"),
+                    ("Avg sale $/cwt carcass", ui.usd(s["avg_price_cwt_carcass"])),
+                    ("Weaned pig $/head", ui.usd(s["wean_pig_usd_hd"])),
+                    ("Corn cash $/bu", ui.usd(s["corn_cash_usd_bu"])),
+                    ("SBM cash $/ton", ui.usd(s["sbm_cash_usd_ton"])),
+                    ("DDGS $/ton", ui.usd(s["ddgs_usd_ton"])),
+                    ("Total cost", ui.usd(s["total_cost_usd"], 0)),
+                    ("Total revenue", ui.usd(s["gross_revenue_usd"], 0)),
+                ]
+            )
         )
 
-    left, right = st.columns([3, 2])
-    with left:
-        st.plotly_chart(charts.cost_breakdown(result.costs), use_container_width=True)
-    with right:
-        st.markdown("#### Key numbers")
-        fc = s["feed_conversion"]
+    st.write("")
+    with card("sales"):
+        st.html(ui.card_title("Sales", "priced at futures + historical basis + premium"))
+        m = result.marketing
         st.dataframe(
             pd.DataFrame(
                 {
-                    "": [
-                        "Head sold",
-                        "Avg days on feed",
-                        "Feed conversion",
-                        "Weaned pig $/head",
-                        "Corn cash $/bu",
-                        "SBM cash $/ton",
-                        "DDGS $/ton",
-                        "Total cost",
-                        "Total revenue",
-                    ],
-                    "Value": [
-                        f"{s['head_sold']:,.0f}",
-                        f"{s['avg_days_on_feed']:.0f}",
-                        "n/a" if pd.isna(fc) else f"{fc:.2f}",
-                        money(s["wean_pig_usd_hd"]),
-                        money(s["corn_cash_usd_bu"]),
-                        money(s["sbm_cash_usd_ton"]),
-                        money(s["ddgs_usd_ton"]),
-                        money(s["total_cost_usd"], 0),
-                        money(s["gross_revenue_usd"], 0),
-                    ],
+                    "Sale date": pd.to_datetime(m["sale_date"]).dt.date,
+                    "Head": m["head"].round(0),
+                    "Live wt lb": m["live_weight_lb"],
+                    "Contract": m["contract"],
+                    "Futures $/cwt": m["futures_cwt"],
+                    "Basis $/cwt": m["basis_cwt"],
+                    "Premium $/cwt": m["premium_cwt"],
+                    "Price $/cwt carcass": m["price_cwt_carcass"],
+                    "Revenue": m["revenue_usd"],
                 }
             ),
             hide_index=True,
-            use_container_width=True,
+            width="stretch",
+            column_config={
+                "Sale date": st.column_config.DateColumn(format="MMM D, YYYY"),
+                "Head": st.column_config.NumberColumn(format="localized"),
+                "Live wt lb": st.column_config.NumberColumn(format="%.0f"),
+                "Futures $/cwt": st.column_config.NumberColumn(format="dollar"),
+                "Basis $/cwt": st.column_config.NumberColumn(format="dollar"),
+                "Premium $/cwt": st.column_config.NumberColumn(format="dollar"),
+                "Price $/cwt carcass": st.column_config.NumberColumn(format="dollar"),
+                "Revenue": st.column_config.NumberColumn(format="dollar"),
+            },
         )
 
-    st.markdown("#### Sales")
-    m = result.marketing
-    st.dataframe(
-        pd.DataFrame(
-            {
-                "Sale date": pd.to_datetime(m["sale_date"]).dt.strftime("%b %d, %Y"),
-                "Head": m["head"].round(0),
-                "Live wt": m["live_weight_lb"],
-                "Contract": m["contract"],
-                "Futures $/cwt": m["futures_cwt"],
-                "Basis $/cwt": m["basis_cwt"],
-                "Premium": m["premium_cwt"],
-                "Price $/cwt carcass": m["price_cwt_carcass"],
-                "Revenue": m["revenue_usd"].map(lambda v: money(v, 0)),
-            }
-        ),
-        hide_index=True,
-        use_container_width=True,
-    )
-
-    st.markdown("#### Cost detail")
-    c = result.costs
-    st.dataframe(
-        pd.DataFrame(
-            {
-                "Cost line": c["line"],
-                "Total": c["total_usd"].map(lambda v: money(v, 0)),
-                "$/head placed": c["usd_per_head_placed"].map(money),
-                "$/head sold": c["usd_per_head_sold"].map(money),
-                "$/cwt carcass": c["usd_per_cwt_carcass"].map(money),
-                "% of cost": c["pct_of_total"].map(lambda v: f"{v:.1f}%"),
-            }
-        ),
-        hide_index=True,
-        use_container_width=True,
-    )
-
-    st.markdown("#### Cash flow by month")
-    st.caption(
-        "Weaned pigs and vet/med are paid at placement. Feed follows daily intake (heavier pigs "
-        "eat more). Barn, labor and utilities are spread evenly. Sales, trucking and checkoff "
-        "fall on each sale date; interest at closeout."
-    )
-    cf = cash_flow(proj, result)
-    st.plotly_chart(charts.cash_flow_chart(cf), use_container_width=True)
-    with st.expander("Monthly detail"):
-        show = cf.copy()
-        show["month"] = pd.to_datetime(show["month"]).dt.strftime("%b %Y")
-        for col in [c for c in show.columns if c != "month"]:
-            show[col] = show[col].map(lambda v: money(v, 0))
+    st.write("")
+    with card("cost_detail"):
+        st.html(ui.card_title("Cost detail", f"{ui.usd(s['total_cost_usd'], 0)} total"))
+        c = result.costs
         st.dataframe(
-            show.rename(
+            pd.DataFrame(
+                {
+                    "Cost line": c["line"],
+                    "Total": c["total_usd"],
+                    "$/head placed": c["usd_per_head_placed"],
+                    "$/head sold": c["usd_per_head_sold"],
+                    "$/cwt carcass": c["usd_per_cwt_carcass"],
+                    "% of cost": c["pct_of_total"],
+                }
+            ),
+            hide_index=True,
+            width="stretch",
+            height="content",
+            column_config={
+                "Total": st.column_config.NumberColumn(format="dollar"),
+                "$/head placed": st.column_config.NumberColumn(format="dollar"),
+                "$/head sold": st.column_config.NumberColumn(format="dollar"),
+                "$/cwt carcass": st.column_config.NumberColumn(format="dollar"),
+                "% of cost": st.column_config.ProgressColumn(
+                    format="%.1f%%", min_value=0.0, max_value=100.0
+                ),
+            },
+        )
+
+    st.write("")
+    cf = cash_flow(proj, result)
+    with card("cash"):
+        chart(charts.cash_flow_chart(cf))
+        st.caption(
+            "Weaned pigs and vet/med are paid at placement. Feed follows daily intake. Barn, labor "
+            "and utilities are spread evenly. Sales, trucking and checkoff fall on each sale date; "
+            "interest at closeout."
+        )
+        with st.expander("Monthly detail"):
+            show = cf.rename(
                 columns={
                     "month": "Month",
                     "cash_out_usd": "Total cash out",
@@ -1022,25 +1143,38 @@ with tab_sum:
                     "net_usd": "Net",
                     "cumulative_usd": "Cumulative",
                 }
-            ),
-            hide_index=True,
-            use_container_width=True,
-        )
+            )
+            show["Month"] = pd.to_datetime(show["Month"]).dt.strftime("%b %Y")
+            st.dataframe(
+                show,
+                hide_index=True,
+                width="stretch",
+                column_config={
+                    col: st.column_config.NumberColumn(format="dollar")
+                    for col in show.columns
+                    if col != "Month"
+                },
+            )
 
-    grid = sensitivity(proj, [-0.50, -0.25, 0.0, 0.25, 0.50], [-10, -5, 0, 5, 10])
-    st.plotly_chart(charts.sensitivity_heatmap(grid), use_container_width=True)
+    st.write("")
+    with card("sensitivity"):
+        grid = sensitivity_of(proj.model_dump_json())
+        chart(charts.sensitivity_heatmap(grid))
 
 # ---------------------------------------------------------------- weekly crush tab
 
 with tab_crush:
-    st.markdown(
-        "**Margin per pig for each weekly placement**, side by side, like a crush sheet. Each "
-        "column is one USDA weaned pig report: placed after the report, sold once at the average "
-        "marketing date. Weaned pig = USDA cash + your adder. Costs, ration, mortality and debt "
-        "come from the Inputs tab (and your settings profile). Hedges are left out: they "
-        "belong to one group's sales, not to every weekly placement."
+    controls = card("crush_controls")
+    controls.html(
+        ui.card_title(
+            "Weekly crush",
+            sub="Margin per pig for each weekly placement, side by side. Each column is one USDA "
+            "weaned pig report: placed after the report and sold once at the average marketing "
+            "date. Weaned pig = USDA cash + your adder. Costs, ration, mortality and debt come "
+            "from the Inputs tab; hedges are left out because they belong to one group's sales.",
+        )
     )
-    cc = st.columns(6)
+    cc = controls.columns(6)
     weeks_back = cc[0].number_input("Weeks back", 1, 52, 12, key="cr_back")
     weeks_fwd = cc[1].number_input(
         "Weeks ahead", 0, 26, 4, key="cr_fwd", help="Future placements, priced at today's prices."
@@ -1088,12 +1222,17 @@ with tab_crush:
         basis_by_period=basis_used,
         today=date.today(),
     )
-    st.caption(
-        f"Sources — {gh.note}. Weaned pig: {wean.note}"
-        + (f" Notes: {'; '.join(fallbacks)}." if fallbacks else "")
-    )
-    st.markdown("##### Weekly prices (type over any cell)")
-    week_df = st.data_editor(
+    with controls.expander(
+        f"Price sources{f' · {len(fallbacks)} notes' if fallbacks else ''}",
+        icon=":material/info:",
+    ):
+        st.caption(f"Corn and meal: {gh.note}. Weaned pig: {wean.note}")
+        for note in fallbacks:
+            st.caption(f"• {note[0].upper()}{note[1:]}.")
+    st.write("")
+    prices_card = card("crush_prices")
+    prices_card.html(ui.card_title("Weekly prices", "type over any cell"))
+    week_df = prices_card.data_editor(
         pd.DataFrame(
             [
                 {
@@ -1110,7 +1249,8 @@ with tab_crush:
         ),
         disabled=["report_date"],
         hide_index=True,
-        use_container_width=True,
+        height="content",
+        width="stretch",
         column_config={
             "report_date": st.column_config.DateColumn("USDA report", format="MMM D, YYYY"),
             "wean": st.column_config.NumberColumn("USDA weaned pig $/hd", format="%.2f"),
@@ -1132,50 +1272,39 @@ with tab_crush:
     table = crush_table(proj, edited_weeks, int(lag), int(dtm), float(sale_wt), corn_is_cash)
     crush_spec = CrushSpec(edited_weeks, int(lag), int(dtm), float(sale_wt), corn_is_cash)
 
+    st.write("")
     if basis_daily.empty:
-        st.warning(
-            "No hog basis history loaded, so basis is 0 unless typed above. Import Barchart "
-            "lean hog contract histories (Data tab) or Refresh with internet.",
-            icon="⚠️",
+        st.html(
+            ui.notice(
+                "<b>No hog basis history yet</b>, so basis is $0 unless typed above. Import "
+                "Barchart lean hog contract histories (Data tab) or refresh with internet.",
+                "warn",
+            )
         )
     show_after_debt = bool(proj.principal_usd_hd or proj.term_interest_usd_hd)
-    st.plotly_chart(
-        charts.crush_margin_chart(
-            table, "Margin after debt service $/pig" if show_after_debt else "Margin $/pig"
-        ),
-        use_container_width=True,
-    )
-    shown = table.copy()
-    shown.columns = [
-        f"{pd.Timestamp(str(table.loc['USDA report date', c])):%b %d}" for c in table.columns
-    ]
-    money_rows = [label for label, _, _ in CRUSH_ROWS] + ["USDA weaned pig $/hd"]
-
-    def fmt(row_label: str, v: object) -> str:
-        if row_label in ("USDA report date", "Placement date", "Avg marketing date"):
-            return f"{pd.Timestamp(str(v)):%b %d, %Y}"
-        if row_label == "CME contract":
-            return str(v)
-        if row_label in money_rows and isinstance(v, (int, float)):
-            return money(float(v))
-        return str(v)
-
-    shown = pd.DataFrame(
-        {c: [fmt(str(r), shown.loc[r, c]) for r in shown.index] for c in shown.columns},
-        index=shown.index,
-    )
-    shown["Average"] = [
-        money(float(table.loc[r].astype(float).mean())) if r in money_rows else ""
-        for r in table.index
-    ]
-    st.dataframe(shown, use_container_width=True, height=36 * (len(shown) + 1))
+    with card("crush_chart"):
+        chart(
+            charts.crush_margin_chart(
+                table, "Margin after debt service $/pig" if show_after_debt else "Margin $/pig"
+            )
+        )
+    st.write("")
+    money_rows = {label for label, _, _ in CRUSH_ROWS} | {"USDA weaned pig $/hd"}
+    with card("crush_table"):
+        st.html(ui.card_title("Crush sheet", f"{len(table.columns)} weekly placements"))
+        st.html(
+            ui.crush_table(
+                table if show_after_debt else table.drop(index="Margin after debt service $/pig"),
+                money_rows,
+            )
+        )
 
 # ---------------------------------------------------------------- locations comparison
 
 with comparison_slot:
     rows = []
     for lo in locations:
-        r = project(build(lo)).summary
+        r = summary_of(build(lo).model_dump_json())
         rows.append(
             {
                 "location": lo.name,
@@ -1183,96 +1312,115 @@ with comparison_slot:
                 "cost_usd_per_head_sold": r["cost_usd_per_head_sold"],
             }
         )
-    st.plotly_chart(charts.net_by_location(pd.DataFrame(rows), loc_name), use_container_width=True)
+    chart(charts.net_by_location(pd.DataFrame(rows), loc_name))
 
 # ---------------------------------------------------------------- markets tab
 
 with tab_mkt:
-    st.markdown(
-        f"Local cash price = CBOT futures + basis. Corn futures {md_money(corn_fut)}/bu, "
-        f"soybean meal futures {md_money(sbm_fut)}/ton."
-    )
     loc_table = frame(locations).rename(columns={"name": "location"})
-    a, b = st.columns(2)
-    a.plotly_chart(
-        charts.basis_bars(loc_table, "corn_basis_usd_bu", "Corn basis vs CBOT", "¢/bu", loc_name),
-        use_container_width=True,
-    )
-    b.plotly_chart(
-        charts.basis_bars(
-            loc_table,
-            "sbm_basis_usd_ton",
-            "Soybean meal basis vs CBOT (delivered)",
-            "$/ton",
-            loc_name,
-        ),
-        use_container_width=True,
-    )
-    st.dataframe(
-        pd.DataFrame(
-            {
-                "Location": loc_table["location"],
-                "Corn cash $/bu": (corn_fut + loc_table["corn_basis_usd_bu"]).round(2),
-                "SBM cash $/ton": (sbm_fut + loc_table["sbm_basis_usd_ton"]).round(2),
-                "DDGS $/ton": loc_table["ddgs_usd_ton"],
-            }
-        ),
-        hide_index=True,
-        use_container_width=True,
-    )
-
-    st.subheader("Hog basis history")
-    if by_year.empty:
-        st.info(basis_loaded.note)
-    else:
-        st.plotly_chart(
-            charts.hog_basis_seasonal(by_year, years or years_available), use_container_width=True
-        )
-        st.caption(basis_loaded.note)
-        with st.expander("Basis by year and half-month ($/cwt)"):
-            st.dataframe(
-                by_year.rename(columns={p: period_label(p) for p in PERIODS}).round(2),
-                use_container_width=True,
+    with card("feed_basis"):
+        st.html(
+            ui.card_title(
+                "Feed prices by location",
+                f"corn {ui.usd(corn_fut)}/bu · meal {ui.usd(sbm_fut)}/ton futures",
+                sub="Local cash price = CBOT futures + basis. Edit basis on the Locations tab.",
             )
-
-    st.subheader("USDA weaned pig prices")
-    if wean_df.empty:
-        st.info(wean.note)
-    else:
-        st.plotly_chart(
-            charts.price_history(
-                wean_df.dropna(subset=["cash_usd_hd"]),
-                "date",
-                "cash_usd_hd",
-                "Early weaned pig, cash $/head",
-                "$/head",
-            ),
-            use_container_width=True,
         )
-        st.caption(wean.note)
+        a, b = st.columns(2, gap="large")
+        chart(
+            charts.basis_bars(
+                loc_table, "corn_basis_usd_bu", "Corn basis vs CBOT", "¢/bu", loc_name
+            ),
+            a,
+        )
+        chart(
+            charts.basis_bars(
+                loc_table,
+                "sbm_basis_usd_ton",
+                "Soybean meal basis vs CBOT (delivered)",
+                "$/ton",
+                loc_name,
+            ),
+            b,
+        )
+        st.dataframe(
+            pd.DataFrame(
+                {
+                    "Location": loc_table["location"],
+                    "Corn cash $/bu": corn_fut + loc_table["corn_basis_usd_bu"],
+                    "SBM cash $/ton": sbm_fut + loc_table["sbm_basis_usd_ton"],
+                    "DDGS $/ton": loc_table["ddgs_usd_ton"],
+                }
+            ),
+            hide_index=True,
+            width="stretch",
+            column_config={
+                c: st.column_config.NumberColumn(format="dollar")
+                for c in ("Corn cash $/bu", "SBM cash $/ton", "DDGS $/ton")
+            },
+        )
+
+    st.write("")
+    with card("hog_basis"):
+        if by_year.empty:
+            st.html(ui.card_title("Hog basis history"))
+            st.html(ui.notice(ui.esc(basis_loaded.note), "info"))
+        else:
+            chart(charts.hog_basis_seasonal(by_year, years or years_available))
+            st.caption(basis_loaded.note)
+            with st.expander("Basis by year and half-month ($/cwt)"):
+                st.dataframe(
+                    by_year.rename(columns={p: period_label(p) for p in PERIODS}).round(2),
+                    width="stretch",
+                )
+
+    st.write("")
+    with card("wean_hist"):
+        if wean_df.empty:
+            st.html(ui.card_title("USDA weaned pig prices"))
+            st.html(ui.notice(ui.esc(wean.note), "info"))
+        else:
+            chart(
+                charts.price_history(
+                    wean_df.dropna(subset=["cash_usd_hd"]),
+                    "date",
+                    "cash_usd_hd",
+                    "Early weaned pig, cash $/head",
+                    "$/head",
+                )
+            )
+            st.caption(wean.note)
 
 # ---------------------------------------------------------------- excel tab
 
-with tab_xl:
-    st.markdown(
-        "Download this projection as an Excel workbook, including the **Weekly Crush** sheet. "
-        "Yellow cells are inputs and every other number is a live formula, so you can change "
-        "prices, location, feed budget, marketing or weekly prices in Excel and it recalculates."
-    )
-    try:
-        xlsx = build_workbook(
-            proj,
-            locations,
-            basis_history=by_year if not by_year.empty else None,
-            wean_pig_history=wean_df if not wean_df.empty else None,
-            crush=crush_spec,
+with tab_xl, card("excel"):
+    st.html(
+        ui.card_title(
+            "Excel workbook",
+            sub="This projection as a workbook, including the Weekly Crush sheet. Yellow cells "
+            "are inputs and every other number is a live formula, so you can change prices, "
+            "location, feed budget, marketing or weekly prices in Excel and it recalculates.",
         )
-    except ValueError as e:
-        st.error(f"Couldn't build the workbook: {e}")
+    )
+    if problem := workbook_problem(proj, locations):
+        st.error(f"Couldn't build the workbook: {problem}")
     else:
+        xl_args = (proj, locations, by_year, wean_df, crush_spec)  # what the button will export
+
+        def make_workbook() -> bytes:  # built on click, not on every rerun
+            p, locs, history, wean_hist, crush = xl_args
+            return build_workbook(
+                p,
+                locs,
+                basis_history=history if not history.empty else None,
+                wean_pig_history=wean_hist if not wean_hist.empty else None,
+                crush=crush,
+            )
+
         st.download_button(
-            "⬇️ Download Excel workbook",
-            data=xlsx,
+            "Download Excel workbook",
+            icon=":material/download:",
+            data=make_workbook,
             file_name=f"W2F projection {loc_name} {placement:%Y-%m-%d}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             type="primary",

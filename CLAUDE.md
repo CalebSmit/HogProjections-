@@ -79,5 +79,9 @@ Longer write-ups go in `docs/PROGRESS.md`.
 - The format-on-save hook reflows code, so a later `str.replace`/sed edit written against the old
   text silently misses. Re-read the file (or use the Edit tool, which fails loudly) and check
   that the edit landed.
+- `st.html` strips inline `<svg>`. Draw icons in `ui.css` (data-URI background) instead.
+- With `st.plotly_chart(theme=None)`, axes need `automargin=True` or tick labels vanish.
+- `pkill -f "streamlit run"` inside a command that also starts streamlit kills its own shell.
+  Stop the server in a separate command first.
 - Company figures (e.g. Pipestone costs) never go in the repo, tests or docs. Use synthetic
   numbers; real ones live in local profiles (`data/user/`).
