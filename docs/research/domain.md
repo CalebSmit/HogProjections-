@@ -39,6 +39,15 @@ build against it.*
   - Jan–Jul average $19.36/head.
   - Feed cost in July: $87.99/head.
 
+**ISU ELR line items (farrow to finish, Sep 2026 sale, $/head, 270 lb pig)** — verified from
+the published PDF 2026-10-19; the app's defaults:
+- Feed 90.58 = corn 40.78 + SBM 15.54 + DDGS 10.25 + complete feeds/other 18.10 + processing 5.92.
+- Nonfeed 76.76 = variable 48.99 + operating interest 4.47 + fixed 23.30. Death loss 8.36.
+- Total cost 175.70 → breakeven 65.07 live / 86.77 carcass. Manure credit 5.59 is added to
+  profit but left out of breakeven.
+- Monthly history 2001–2026 is in `farrow_to_finish_excel.xlsx` on the same site ($/head only;
+  no input prices or quantities).
+
 **Budgets:**
 - ISU FM1815 / B1-21 (2024): breakeven ~$55.35/cwt at $4.50 corn and $0.15/lb SBM. Decision tools: <https://go.iastate.edu/AGDMB221>
 - Missouri G688 (2026), the most current: 24.2 pigs weaned per sow per year, 280 lb market hogs. <https://extension.missouri.edu/g688>

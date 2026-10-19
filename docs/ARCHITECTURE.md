@@ -48,7 +48,7 @@ flowchart LR
 | `src/hogproj/config.py` | Paths + `Settings` (env / `.env`) | done |
 | `src/hogproj/data/ams.py` | Keyless LMR datamart client (LM_HG201); live → `data/cache` → `data/sample` | done |
 | `src/hogproj/herd.py` | Weekly cohort herd flow; pipeline starts in steady state | done |
-| `src/hogproj/finance.py` | CIH-structure cost, breakeven, sensitivity, weekly returns | done |
+| `src/hogproj/finance.py` | ISU ELR line-item cost per pig, breakeven, sensitivity, weekly returns | done |
 | `src/hogproj/markets.py` | Lean Hog Index from HG201, monthly seasonal factors | done |
 | `src/hogproj/ui.py` | Shared page helpers: cached data load, notices, `usd()` formatting | done |
 | `src/hogproj/risk.py` | Scenarios, Monte Carlo, hedge/LRP payoffs | planned |

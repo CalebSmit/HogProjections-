@@ -17,8 +17,8 @@ from hogproj.ui import hog_index, usd
 
 st.title("Costs & returns")
 st.caption(
-    "Farrow-to-finish cost of production using the CIH Hog Margin Watch rule of thumb: "
-    "per 100 lb carcass, 5.3 bu corn + 73 lb soybean meal + \\$44 of other costs. "
+    "Farrow-to-finish cost per pig sold, laid out like Iowa State University's monthly "
+    "Estimated Livestock Returns (defaults: ISU's September 2026 budget). "
     "Hog prices are **\\$/cwt carcass** (the Lean Hog basis) unless marked *live*."
 )
 
@@ -31,7 +31,16 @@ latest_date = idx["index_date"].iloc[-1]
 with st.sidebar:
     st.header("Prices")
     # Widget keys start with "cost_" so app.py keeps them when the user switches pages.
-    corn = st.number_input("Corn ($/bu)", 0.0, 20.0, d.corn_usd_per_bu, 0.05, key="cost_corn")
+    corn = st.number_input(
+        "Corn ($/bu)",
+        0.0,
+        20.0,
+        d.corn_usd_per_bu,
+        0.05,
+        key="cost_corn",
+        help="Default is Dec 2026 futures (early Oct). Use your local cash bid: Iowa cash "
+        "corn usually trades 20-40 cents under futures.",
+    )
     sbm = st.number_input(
         "Soybean meal ($/ton)", 0.0, 1000.0, d.sbm_usd_per_ton, 5.0, key="cost_sbm"
     )
@@ -45,21 +54,43 @@ with st.sidebar:
         help=f"Starts at the Lean Hog Index for {latest_date:%b %d, %Y} "
         f"({'live' if idx_source == 'live' else 'saved'} USDA data; see Market prices).",
     )
-    with st.expander("Ration & non-feed costs"):
+    with st.expander("Costs per pig sold"):
+        st.caption("Feed amounts are for a 270 lb pig and scale with your market weight.")
         corn_bu = st.number_input(
-            "Corn (bu / cwt carcass)", 0.0, 15.0, d.corn_bu_per_cwt_carcass, key="cost_corn_bu"
+            "Corn (bu / pig)", 0.0, 30.0, d.corn_bu_per_head, 0.1, key="cost_corn_bu"
         )
         sbm_lb = st.number_input(
-            "SBM (lb / cwt carcass)", 0.0, 300.0, d.sbm_lb_per_cwt_carcass, key="cost_sbm_lb"
+            "Soybean meal (lb / pig)", 0.0, 400.0, d.sbm_lb_per_head, 1.0, key="cost_sbm_lb"
         )
-        other = st.number_input(
-            "Other costs ($ / cwt carcass)",
+        other_feed = st.number_input(
+            "Other feed ($ / pig)",
             0.0,
             200.0,
-            d.other_usd_per_cwt_carcass,
+            d.other_feed_usd_per_head,
             1.0,
-            key="cost_other",
-            help="Labor, vet, utilities, interest, facilities, breeding herd.",
+            key="cost_other_feed",
+            help="DDGS, complete feeds, minerals and feed processing.",
+        )
+        nonfeed = st.number_input(
+            "Non-feed costs ($ / pig)",
+            0.0,
+            300.0,
+            d.nonfeed_usd_per_head,
+            1.0,
+            key="cost_nonfeed",
+            help="Labor, vet, utilities, breeding herd, trucking, interest, buildings.",
+        )
+        death = st.number_input(
+            "Death loss ($ / pig)", 0.0, 100.0, d.death_loss_usd_per_head, 0.5, key="cost_death"
+        )
+        manure = st.number_input(
+            "Manure credit ($ / pig)",
+            0.0,
+            50.0,
+            d.manure_credit_usd_per_head,
+            0.5,
+            key="cost_manure",
+            help="Fertilizer value of the manure. Set to 0 if you don't use or sell it.",
         )
     st.caption(
         f"Market hog: {herd_inp.weight_lb_live_market:.0f} lb live × "
@@ -70,9 +101,12 @@ c = CostInputs(
     corn_usd_per_bu=corn,
     sbm_usd_per_ton=sbm,
     lean_hog_usd_per_cwt_carcass=hog,
-    corn_bu_per_cwt_carcass=corn_bu,
-    sbm_lb_per_cwt_carcass=sbm_lb,
-    other_usd_per_cwt_carcass=other,
+    corn_bu_per_head=corn_bu,
+    sbm_lb_per_head=sbm_lb,
+    other_feed_usd_per_head=other_feed,
+    nonfeed_usd_per_head=nonfeed,
+    death_loss_usd_per_head=death,
+    manure_credit_usd_per_head=manure,
     weight_lb_live_market=herd_inp.weight_lb_live_market,
     carcass_yield=herd_inp.carcass_yield,
 )
@@ -80,11 +114,11 @@ be = breakeven(c)
 m = margin_usd_per_head(c)
 
 k1, k2, k3, k4 = st.columns(4)
-k1.metric("Breakeven ($/cwt carcass)", f"${be['price_cwt_carcass']:.2f}")
-k2.metric("Breakeven ($/cwt live)", f"${be['price_cwt_live']:.2f}")
-k3.metric("Cost per head", f"${be['cost_usd_per_head']:.2f}")
+k1.metric("Breakeven ($/cwt carcass)", usd(be["price_cwt_carcass"]))
+k2.metric("Breakeven ($/cwt live)", usd(be["price_cwt_live"]))
+k3.metric("Cost per pig", usd(be["cost_usd_per_head"]), help="Before the manure credit, like ISU.")
 k4.metric(
-    "Margin per head",
+    "Profit per pig",
     usd(m),
     delta=f"{usd(hog - be['price_cwt_carcass'])}/cwt vs breakeven",
 )
@@ -94,18 +128,20 @@ with left:
     st.subheader("Cost breakdown")
     t = cost_table(c)
     st.dataframe(
-        t.style.format(
-            {"usd_per_cwt_carcass": "${:.2f}", "usd_per_head": "${:.2f}", "share": "{:.0%}"}
-        ),
+        t.style.format({"usd_per_cwt_carcass": usd, "usd_per_head": usd, "share": "{:.0%}"}),
         column_config={
+            "usd_per_head": "$/pig",
             "usd_per_cwt_carcass": "$/cwt carcass",
-            "usd_per_head": "$/head",
-            "share": "Share",
+            "share": "Share of cost",
         },
         use_container_width=True,
     )
+    st.caption(
+        "Other feed: DDGS, complete feeds, minerals, processing. Non-feed: labor, vet, "
+        "utilities, breeding herd, trucking, interest, buildings."
+    )
 with right:
-    st.subheader("Margin per head: hog price vs corn price")
+    st.subheader("Profit per pig: hog price vs corn price")
     hogs = np.linspace(hog - 20, hog + 20, 9).clip(min=0)
     corns = np.linspace(corn - 1.5, corn + 1.5, 7).clip(min=0)
     grid = sensitivity(c, hogs, corns)
@@ -120,7 +156,7 @@ with right:
             zmax=lim,
             text=[[usd(v, 0) for v in row] for row in grid.to_numpy()],
             texttemplate="%{text}",
-            hovertemplate="Hog %{x}/cwt, corn %{y}/bu<br>Margin %{text}/head<extra></extra>",
+            hovertemplate="Hog %{x}/cwt, corn %{y}/bu<br>Profit %{text}/pig<extra></extra>",
         )
     )
     heat.update_layout(

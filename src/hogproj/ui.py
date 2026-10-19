@@ -9,7 +9,8 @@ from hogproj.markets import lean_hog_index
 
 
 def usd(x: float, decimals: int = 2) -> str:
-    """-11.6 -> '-$11.60' (not '$-11.60')."""
+    """-11.6 -> '-$11.60' (not '$-11.60'); -0.004 -> '$0.00' (no '-$0')."""
+    x = round(x, decimals) + 0.0  # + 0.0 turns -0.0 into 0.0
     return f"{'-' if x < 0 else ''}${abs(x):,.{decimals}f}"
 
 

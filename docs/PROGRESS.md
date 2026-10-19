@@ -45,3 +45,13 @@ Newest at the bottom.
   with live data (index $73.40 on Oct 15, −$3.11 on the week).
 - **Next:** owner adds free USDA keys to `.env` → corn/SBM (My Market News) and Hogs & Pigs
   (NASS). ISU ELR reconciliation still open.
+
+## 2026-10-19 (cont.) — Phase 3 closed: ISU line-item cost model
+- **Done:** Replaced the CIH per-cwt shortcut with ISU ELR's per-pig line items (corn, SBM, other
+  feed, nonfeed, death loss, manure credit); feed scales with market weight vs ISU's 270 lb.
+  Costs page shows ISU-style table. Fixed "-$0" money formatting.
+- **Verified:** all 9 published 2026 ISU months reproduce to the cent (fixture test); 42 tests
+  pass; pyright clean; checked the page in Chrome.
+- **Notes:** ISU publishes $/head, not feed quantities, so corn 10.2 bu/pig and SBM 104 lb/pig
+  are estimates at ~$4 corn / $300 SBM [VERIFY]. The $5.25 corn default is futures; cash runs
+  lower. Both get fixed with USDA cash prices once a My Market News key is in `.env`.

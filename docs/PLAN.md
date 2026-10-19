@@ -25,13 +25,14 @@ Phase 1 (2026-10-19) because every candidate idea in the PRD needs them.
   verify: `tests/test_herd.py` (hand-calculated steady state, lag timing, head-count conservation)
 - [x] Herd flow page with editable assumptions + CSV download. verify: page smoke test
 
-## Phase 3 — Cost of production / breakeven / P&L ⏳
-- [x] `finance.py`: CIH per-cwt cost structure, breakeven (carcass + live), sensitivity grid,
-  weekly returns from herd marketings. verify: `tests/test_finance.py` reproduces the CIH formula
+## Phase 3 — Cost of production / breakeven / P&L ✅
+- [x] `finance.py`: breakeven (carcass + live), sensitivity grid, weekly returns from herd
+  marketings. Started on the CIH per-cwt shortcut; replaced by ISU's line items (see below).
 - [x] Costs & returns page. verify: page smoke test; checked in a browser
-- [ ] Reconcile with an ISU ELR month within ±$2/head. The CIH shortcut gives ~$82.8/cwt
-  breakeven at $5.25 corn vs ISU's "above $87" (Aug 2026), so this needs ISU's line-item
-  structure (feed by phase + nonfeed) or a calibrated "other" cost. verify: fixture test
+- [x] Reconcile with ISU ELR within ±$2/head: cost model now uses ISU's farrow-to-finish line
+  items (corn, SBM, other feed, nonfeed, death loss, manure credit). verify: all 9 published
+  2026 months reproduce (cost ±$0.05, breakeven ±$0.03/cwt, profit ±$0.10) —
+  `tests/fixtures/isu_f2f_2026.csv`
 
 ## Phase 4 — Market data ⏳
 - [x] Keyless AMS LMR datamart client for LM_HG201 + cache + bundled 3-year sample.
@@ -39,7 +40,9 @@ Phase 1 (2026-10-19) because every candidate idea in the PRD needs them.
 - [x] Lean Hog Index rebuilt from HG201. verify: matches CME's published 75.75 for Oct 12, 2026
 - [x] Market prices page (index, history, seasonality, carcass weight); Costs page defaults to
   the latest index. verify: smoke tests (forced offline) + browser check with live data
-- [ ] Corn / SBM prices from My Market News (needs the owner's free `USDA_MMN_API_KEY`)
+- [ ] Corn / SBM cash prices from My Market News NW_GR110/NW_GR116 (needs the owner's free
+  `USDA_MMN_API_KEY`). Also calibrates corn bu/pig and SBM lb/pig against ISU's history
+  (ISU publishes $/head, not quantities; current values are [VERIFY] estimates)
 - [ ] NASS Hogs & Pigs inventory (needs `NASS_API_KEY`)
 
 | Phase | Deliverable | verify |
@@ -54,3 +57,5 @@ Phase 1 (2026-10-19) because every candidate idea in the PRD needs them.
   candidate feature). Phase 2 done; Phase 3 done except the ISU ELR reconciliation.
 - 2026-10-19: Started Phase 4 with the keyless LMR datamart (hog prices); grain and inventory
   wait on the owner's free API keys.
+- 2026-10-19: Phase 3 closed: cost model switched from the CIH shortcut to ISU's line items,
+  which reproduce ISU's 2026 months to the cent.
