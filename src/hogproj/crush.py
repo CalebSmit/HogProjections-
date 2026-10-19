@@ -3,7 +3,8 @@
 Mirrors the owner's "USDA Wean Pig Crush" workbook. Each column is one weekly USDA weaned pig
 report: placement = report date + N days, one sale at placement + M days and a set weight.
 Every column runs through `model.project()` with the group's settings (costs, ration, hedges,
-mortality, debt), so the crush and the single-group projection can never disagree.
+mortality, debt), so the crush and the single-group projection can never disagree. Hedges
+are left out: they belong to one group's sales, not to every weekly placement.
 """
 
 from dataclasses import dataclass
@@ -97,6 +98,10 @@ def week_projection(
                 )
             ],
             "lean_hog_futures_cwt": {lean_hog_contract_for(sold): w.hog_futures_cwt},
+            # The group's hedges belong to that group's sales, not to every weekly placement.
+            "corn_hedged_pct": 0.0,
+            "sbm_hedged_pct": 0.0,
+            "hog_hedged_pct": 0.0,
             "hog_basis_cwt_by_period": {basis_period(sold): w.hog_basis_cwt},
         }
     )
@@ -140,11 +145,22 @@ def crush_table(
 
 def value_on(series: pd.Series | None, d: date) -> float | None:
     """Last value on or before d (prices are as of that day); None if nothing that early."""
-    if series is None or series.empty:
+    found = _as_of(series, d)
+    return found[0] if found else None
+
+
+def _as_of(series: pd.Series | None, d: date) -> tuple[float, date] | None:
+    """(value, its date) for the last value on or before d."""
+    if series is None or series.dropna().empty:
         return None
-    s = series.sort_index()
+    s = series.dropna().sort_index()
     upto = s.loc[s.index <= pd.Timestamp(d)]
-    return float(upto.iloc[-1]) if len(upto) else None
+    if not len(upto):
+        return None
+    return float(upto.iloc[-1]), date.fromisoformat(str(upto.index[-1])[:10])
+
+
+STALE_DAYS = 10  # an as-of price older than this is flagged
 
 
 def report_dates(anchor: date, weeks_back: int, weeks_forward: int) -> list[date]:
@@ -169,36 +185,48 @@ def build_weeks(
     hog_curve: dict[str, float],
     hog_contract_history: dict[str, pd.Series],
     basis_by_period: dict[int, float],
+    today: date | None = None,
 ) -> tuple[list[Week], list[str]]:
     """One Week per report date, using price history where it exists.
 
     Weaned pig: the report's own week. Corn/SBM: as of placement. Lean hog futures: the pricing
     contract as of placement (history) or today's curve (nearest contract if missing).
-    Returns notes listing anything that fell back to today's prices.
+    Weeks placed after `today` use today's prices (the fallbacks and the curve), not the last
+    historical value. Returns notes on fallbacks and on prices more than STALE_DAYS old.
     """
+    today = today or date.today()
     weeks, notes = [], set()
+
+    def lookup(series: pd.Series | None, d: date, name: str) -> float | None:
+        if d > today:
+            return None  # a future week: today's price, said once below
+        found = _as_of(series, d)
+        if found is None:
+            notes.add(f"{name}: no history that early, today's price used")
+            return None
+        if (d - found[1]).days > STALE_DAYS:
+            notes.add(f"{name}: last value ({found[1]:%b %d, %Y}) carried forward")
+        return found[0]
+
     for d in dates:
         placed = placement_for(d, placement_lag_days)
         sold = placed + timedelta(days=days_to_market)
         contract = lean_hog_contract_for(sold)
-        w = value_on(wean, d)
-        c = value_on(corn, placed)
-        s = value_on(sbm, placed)
-        hog = value_on(hog_contract_history.get(contract), placed)
-        if w is None:
-            notes.add("weaned pig price")
-        if c is None:
-            notes.add("corn")
-        if s is None:
-            notes.add("soybean meal")
+        if placed > today:
+            notes.add("weeks placed after today use today's prices")
+        w = lookup(wean, d, "weaned pig price")
+        c = lookup(corn, placed, "corn")
+        s = lookup(sbm, placed, "soybean meal")
+        hog = value_on(hog_contract_history.get(contract), placed) if placed <= today else None
         if hog is None:
             if contract in hog_curve:
                 hog = hog_curve[contract]
             elif hog_curve:
                 near = min(hog_curve, key=lambda k: abs(_months(k) - _months(contract)))
                 hog = hog_curve[near]
-                notes.add(f"{contract} futures (copied from {near})")
-            notes.add("lean hog futures history")
+                notes.add(f"{contract} futures: none, copied from {near}")
+            if placed <= today:
+                notes.add("lean hog futures: no contract history, today's curve used")
         weeks.append(
             Week(
                 report_date=d,

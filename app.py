@@ -272,7 +272,8 @@ def apply_settings(settings: dict) -> None:
 
 
 def current_settings() -> dict:
-    out = {k: (ss[k].value if k in ENUM_KEYS else ss[k]) for k in SETTING_DEFAULTS}
+    vals = {k: ss.get(k, default) for k, default in SETTING_DEFAULTS.items()}
+    out = {k: (v.value if k in ENUM_KEYS else v) for k, v in vals.items()}
     out.update(ss.get("last_tables", {}))
     return out
 
@@ -422,8 +423,9 @@ with tab_data:
         "of the free USDA and Yahoo sources."
     )
     st.caption(
-        "Useful series: CME Lean Hog Index; lean hog futures by contract (e.g. HEJ27, HEM27) for "
-        "exact basis; USDA weaned pig (LS255 early weaned); corn; soybean meal."
+        "Useful series: CME Lean Hog Index; lean hog futures histories of **past, expired** "
+        "contracts (e.g. HEG26, HEJ26) — with the index they give exact historical basis; "
+        "USDA weaned pig (LS255 early weaned); corn (cash index or futures); soybean meal."
     )
     uploads = st.file_uploader(
         "Barchart files",
@@ -460,6 +462,8 @@ with tab_data:
             contract = c[2].text_input(
                 "Contract (YYYY-MM)", value=series.contract or "", key=f"ct_{i}_{series.name}"
             )
+        if kind is not None and (warn := barchart.implausible(series.data, kind)):
+            c[0].warning(warn, icon="⚠️")
         plan.append((series, kind, contract))
     if plan and st.button("📥 Import", type="primary"):
         done = []
@@ -531,23 +535,27 @@ with tab_in:
             help="% of head: deads reduce pigs sold. $ per pig: a flat death-loss charge per "
             "pig placed (every pig placed is counted as sold).",
         )
-        if mort_mode is MortalityMode.PCT_OF_HEAD:
-            mortality = st.number_input(
-                "Mortality wean to market (%)", step=0.5, max_value=99.0, key="in_mortality"
-            )
-            dead_share = st.slider(
-                "Feed eaten by a dead pig (share of a full budget)",
-                0.0,
-                1.0,
-                key="in_dead_share",
-                help="Most W2F death loss is early, so a dead pig eats little feed.",
-            )
-            mort_cost = float(ss.in_mort_cost)
-        else:
-            mort_cost = st.number_input(
-                "Mortality charge $/pig placed", step=0.25, key="in_mort_cost"
-            )
-            mortality, dead_share = float(ss.in_mortality), float(ss.in_dead_share)
+        # Both modes' inputs are always rendered (inactive one disabled): Streamlit drops the
+        # state of widgets that aren't rendered, which lost values and broke profile saves.
+        pct_mode = mort_mode is MortalityMode.PCT_OF_HEAD
+        mortality = st.number_input(
+            "Mortality wean to market (%)",
+            step=0.5,
+            max_value=99.0,
+            key="in_mortality",
+            disabled=not pct_mode,
+        )
+        dead_share = st.slider(
+            "Feed eaten by a dead pig (share of a full budget)",
+            0.0,
+            1.0,
+            key="in_dead_share",
+            disabled=not pct_mode,
+            help="Most W2F death loss is early, so a dead pig eats little feed.",
+        )
+        mort_cost = st.number_input(
+            "Mortality charge $/pig placed", step=0.25, key="in_mort_cost", disabled=pct_mode
+        )
         yield_pct = st.number_input("Carcass yield (%)", step=0.5, key="in_yield")
         freight = st.number_input("Weaned pig freight $/head", key="in_freight")
     with c3:
@@ -598,16 +606,16 @@ with tab_in:
         interest_mode = st.radio(
             "Operating interest", list(InterestMode), horizontal=True, key="in_interest_mode"
         )
-        if interest_mode is InterestMode.RATE:
-            interest = st.number_input(
-                "Interest %/yr",
-                key="in_interest",
-                help="On pig cost + half of feed, for the days on feed.",
-            )
-            interest_per_pig = float(ss.in_interest_per_pig)
-        else:
-            interest_per_pig = st.number_input("Interest $/pig placed", key="in_interest_per_pig")
-            interest = float(ss.in_interest)
+        rate_mode = interest_mode is InterestMode.RATE
+        interest = st.number_input(
+            "Interest %/yr",
+            key="in_interest",
+            disabled=not rate_mode,
+            help="On pig cost + half of feed, for the days on feed.",
+        )
+        interest_per_pig = st.number_input(
+            "Interest $/pig placed", key="in_interest_per_pig", disabled=rate_mode
+        )
 
     with st.expander("📈 Hedges & contracts", expanded=False):
         st.caption(
@@ -773,6 +781,17 @@ with tab_in:
         height=300,
     )
     basis_used = parse_basis(basis_df)
+    chosen = by_year.loc[by_year.index.isin(years)] if years and not by_year.empty else None
+    no_history = sorted(
+        p for p in sale_periods if chosen is None or p not in chosen or chosen[p].isna().all()
+    )
+    if no_history:
+        st.warning(
+            "No basis history for sales in "
+            + ", ".join(period_label(p) for p in no_history)
+            + ": basis is 0 there unless you type it above.",
+            icon="⚠️",
+        )
     premium = st.number_input("Carcass merit premium $/cwt", key="in_premium")
 
 # ---------------------------------------------------------------- build the projection
@@ -835,6 +854,13 @@ if not needed and cuts:
     problems.append("At least one marketing row needs a % of pigs above 0.")
 if needed and not curve:
     problems.append(f"Enter a lean hog futures price for {', '.join(needed)} (Inputs tab).")
+for what, pct, price in [
+    ("corn", corn_hedge_pct, corn_hedged),
+    ("soybean meal", sbm_hedge_pct, sbm_hedged),
+    ("hogs", hog_hedge_pct, hog_hedged),
+]:
+    if pct > 0 and price <= 0:
+        problems.append(f"{what.capitalize()} is {pct:g}% hedged: enter the hedged price.")
 proj: Projection | None = None
 result = None
 if not problems:
@@ -1009,9 +1035,10 @@ with tab_sum:
 with tab_crush:
     st.markdown(
         "**Margin per pig for each weekly placement**, side by side, like a crush sheet. Each "
-        "column is one USDA weaned pig report: placed the next day, sold once at the average "
-        "marketing date. Costs, ration, hedges, mortality and debt come from the Inputs tab "
-        "(and your settings profile)."
+        "column is one USDA weaned pig report: placed after the report, sold once at the average "
+        "marketing date. Weaned pig = USDA cash + your adder. Costs, ration, mortality and debt "
+        "come from the Inputs tab (and your settings profile). Hedges are left out: they "
+        "belong to one group's sales, not to every weekly placement."
     )
     cc = st.columns(6)
     weeks_back = cc[0].number_input("Weeks back", 1, 52, 12, key="cr_back")
@@ -1029,7 +1056,7 @@ with tab_crush:
         .radio(
             "Corn history is",
             ["Futures (+ location basis)", "Cash (use as is)"],
-            index=1 if ghd.get("corn_source") == "barchart" else 0,
+            index=1 if ghd.get("corn_source") == "cash" else 0,
             key="cr_corn_kind",
             help="A cash corn series (e.g. Barchart CORN$) already includes basis.",
         )
@@ -1059,14 +1086,11 @@ with tab_crush:
         hog_curve={**ss.curve_base, **curve},
         hog_contract_history=barchart.hog_contracts(),
         basis_by_period=basis_used,
+        today=date.today(),
     )
     st.caption(
         f"Sources — {gh.note}. Weaned pig: {wean.note}"
-        + (
-            f" Using today's prices where history is missing: {', '.join(fallbacks)}."
-            if fallbacks
-            else ""
-        )
+        + (f" Notes: {'; '.join(fallbacks)}." if fallbacks else "")
     )
     st.markdown("##### Weekly prices (type over any cell)")
     week_df = st.data_editor(

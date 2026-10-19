@@ -80,3 +80,19 @@ Newest at the bottom.
   - The ruff format hook's reformatting broke two string-replace edits (they silently didn't apply).
     Logged in CLAUDE.md.
 - **Next:** independent review of Phase 7; live data check on a real machine (Phase 4).
+
+## 2026-10-19 — Third review (Phase 7 follow-up)
+- **Done:**
+  - Weekly crush leaves the group's hedges out (Python and Excel), since a hedge belongs to
+    one group's sales, not to every weekly placement.
+  - `build_weeks`: weeks after today use today's prices; an as-of price more than 10 days old
+    is flagged; notes say what was used.
+  - Barchart: corn cash and corn futures are separate kinds (cash skips location basis);
+    grain eighths ("420-2") parse; cents convert on save; implausible values warned; the
+    contract box is validated.
+  - Exact-contract basis from imports now overlays the base basis history instead of replacing it.
+  - App: a hedged % with no hedged price stops the projection with a clear message; a warning
+    when a sale half-month has no basis history.
+- **Verified:** 79 tests green (ruff, pyright clean). New tests cover future/stale crush weeks
+  and the hedge-price check.
+- **Next:** live data check on a real machine (Phase 4).

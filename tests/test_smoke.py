@@ -174,3 +174,28 @@ def test_weekly_crush_renders(app):
     assert tables, "weekly crush table missing"
     t = tables[0].value
     assert t.shape[1] >= 12  # 12 weeks back (+ ahead) + Average
+
+
+def test_save_profile_after_switching_modes(app, tmp_path, monkeypatch):
+    from hogproj.data import profiles
+
+    monkeypatch.setattr(profiles, "PROFILE_DIR", tmp_path)
+    app.number_input(key="in_mortality").set_value(8.0).run(timeout=60)
+    app.radio(key="in_mort_mode").set_value(MortalityMode.USD_PER_PIG).run(timeout=60)
+    app.radio(key="in_interest_mode").set_value(InterestMode.USD_PER_PIG).run(timeout=60)
+    app.number_input(key="in_ga").set_value(1.0).run(timeout=60)
+    app.text_input(key="profile_name").set_value("Dollar modes").run(timeout=60)
+    next(b for b in app.button if b.label == "Save profile").click().run(timeout=60)
+    assert not app.exception
+    saved = profiles.load_profile("Dollar modes")
+    assert saved["in_mortality"] == 8.0  # the inactive mode's value survives
+    app.radio(key="in_mort_mode").set_value(MortalityMode.PCT_OF_HEAD).run(timeout=60)
+    assert app.number_input(key="in_mortality").value == 8.0
+
+
+def test_hedge_without_a_price_is_reported(app):
+    app.number_input(key="in_corn_hedge_pct").set_value(50.0).run(timeout=60)
+    assert not app.exception
+    assert "Corn is 50% hedged: enter the hedged price." in errors(app)
+    app.number_input(key="in_corn_hedged").set_value(4.25).run(timeout=60)
+    assert "hedged price" not in errors(app)

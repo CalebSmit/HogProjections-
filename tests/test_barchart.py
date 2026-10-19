@@ -52,13 +52,27 @@ def test_excel_layout_skips_dashes_and_reads_symbol():
     assert list(s.data.values) == [28.5]
 
 
-def test_corn_futures_in_cents_become_dollars():
+def test_corn_in_cents_becomes_dollars_on_save_whatever_was_guessed(tmp_path, monkeypatch):
     import datetime as dt
 
-    content = excel_layout("ZCZ26", [(dt.datetime(2026, 10, 16), 1, 1, 1, 474.25)])
-    (s,) = read_upload("corn.xlsx", content)
-    assert s.kind is Kind.CORN
-    assert s.data.iloc[0] == pytest.approx(4.7425)
+    monkeypatch.setattr(barchart, "STORE", tmp_path)
+    content = excel_layout("ZCZ26", [(dt.datetime(2026, 10, 16), 1, 1, 1, "474-2")])
+    (s,) = read_upload("prices.xlsx", content)
+    assert s.data.iloc[0] == pytest.approx(474.25)  # grain eighths parsed; still cents
+    barchart.save(s.data, Kind.CORN_FUTURES)  # user picked the kind by hand
+    assert barchart.load(Kind.CORN_FUTURES).iloc[0] == pytest.approx(4.7425)
+    assert barchart.implausible(s.data, Kind.CORN_FUTURES) is None
+    corn_dollars = barchart.load(Kind.CORN_FUTURES)
+    assert "looks wrong" in (barchart.implausible(corn_dollars, Kind.SBM) or "")  # $4.74 meal
+
+
+def test_contract_box_is_validated():
+    assert barchart.normalise_contract("HEJ27") == "2027-04"
+    assert barchart.normalise_contract(" 2026-12 ") == "2026-12"
+    with pytest.raises(ValueError):
+        barchart.normalise_contract("2027-03")  # not a listed month
+    with pytest.raises(ValueError):
+        barchart.normalise_contract("../../x")
 
 
 def test_contract_and_kind_guessing():
@@ -66,7 +80,11 @@ def test_contract_and_kind_guessing():
     assert hog_contract_from_symbol("hez26_daily.csv") == "2026-12"
     assert guess_kind("HEJ27") is Kind.HOG_FUTURES
     assert guess_kind("@SMV26") is Kind.SBM
-    assert guess_kind("CORN$.5328") is Kind.CORN
+    assert guess_kind("CORN$.5328") is Kind.CORN_CASH
+    assert guess_kind("Corn Spot Price - CF") is Kind.CORN_CASH
+    assert guess_kind("ZCZ26") is Kind.CORN_FUTURES
+    assert guess_kind("Smith farm prices") is None
+    assert guess_kind("Delhi grain") is None
     assert guess_kind("CME Index") is Kind.CME_INDEX
     assert guess_kind("something else") is None
 
@@ -98,4 +116,4 @@ def test_sheet_name_beats_workbook_file_name():
     buf = io.BytesIO()
     wb.save(buf)
     (s,) = read_upload("My_Wean_Pig_Crush.xlsx", buf.getvalue())
-    assert s.kind is Kind.CORN
+    assert s.kind is Kind.CORN_CASH

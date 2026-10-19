@@ -28,7 +28,8 @@ MONTH_CODE = {"G": 2, "J": 4, "K": 5, "M": 6, "N": 7, "Q": 8, "V": 10, "Z": 12}
 class Kind(StrEnum):
     CME_INDEX = "CME Lean Hog Index"
     HOG_FUTURES = "Lean hog futures (one contract)"
-    CORN = "Corn ($/bu)"
+    CORN_CASH = "Corn cash ($/bu)"  # e.g. CORN$ cash index: already includes basis
+    CORN_FUTURES = "Corn futures ($/bu)"
     SBM = "Soybean meal ($/ton)"
     WEAN_PIG = "USDA weaned pig ($/head)"
 
@@ -42,8 +43,57 @@ class Series:
     data: pd.Series  # date -> value
 
 
+def _number(text: str) -> float:
+    """'4.73', '1,234.5', and grain-style eighths '420-2' (= 420 2/8)."""
+    t = text.replace(",", "").strip()
+    m = re.fullmatch(r"(-?\d+)-([0-7])", t)
+    if m:
+        return float(m.group(1)) + int(m.group(2)) / 8
+    return float(t)
+
+
+def to_dollars(series: pd.Series, kind: Kind) -> pd.Series:
+    """Corn futures/cash are often quoted in cents per bushel; store $/bu."""
+    if kind in (Kind.CORN_CASH, Kind.CORN_FUTURES) and len(series) and series.median() > 50:
+        return series / 100
+    return series
+
+
+PLAUSIBLE = {
+    Kind.CME_INDEX: (30, 200),
+    Kind.HOG_FUTURES: (30, 200),
+    Kind.CORN_CASH: (1, 15),
+    Kind.CORN_FUTURES: (1, 15),
+    Kind.SBM: (100, 1000),
+    Kind.WEAN_PIG: (0, 200),
+}
+
+
+def implausible(series: pd.Series, kind: Kind) -> str | None:
+    """A warning if the latest value is far outside the usual range for this series."""
+    lo, hi = PLAUSIBLE[kind]
+    v = float(to_dollars(series, kind).iloc[-1]) if len(series) else 0.0
+    if not lo <= v <= hi:
+        return f"latest value {v:,.2f} looks wrong for {kind} (usually {lo}–{hi})"
+    return None
+
+
 def _cell(v: object) -> str:
     return "" if v is None or (isinstance(v, float) and pd.isna(v)) else str(v).strip()
+
+
+def normalise_contract(text: str) -> str:
+    """'2027-04', 'HEJ27' or '@HEJ27' -> '2027-04'; anything else is an error."""
+    t = text.strip()
+    if re.fullmatch(r"\d{4}-(02|04|05|06|07|08|10|12)", t):
+        return t
+    code = hog_contract_from_symbol(t)
+    if code:
+        return code
+    raise ValueError(
+        f"'{text}' isn't a lean hog contract. Use YYYY-MM for a listed month (Feb, Apr, May, "
+        "Jun, Jul, Aug, Oct, Dec), e.g. 2027-04, or a symbol like HEJ27."
+    )
 
 
 def hog_contract_from_symbol(text: str) -> str | None:
@@ -58,14 +108,16 @@ def guess_kind(text: str) -> Kind | None:
     t = text.upper()
     if "LS255" in t or "WEAN" in t or " WP" in f" {t}" or "ISOWEAN" in t:
         return Kind.WEAN_PIG
-    if "INDEX" in t or "KTCI" in t or "LHI" in t:
+    if "INDEX" in t or "KTCI" in t or re.search(r"(^|[^A-Z])LHI($|[^A-Z])", t):
         return Kind.CME_INDEX
     if hog_contract_from_symbol(t):
         return Kind.HOG_FUTURES
-    if "MEAL" in t or "SBM" in t or re.search(r"(^|[^A-Z])(@?SM|ZM)", t):
+    if "MEAL" in t or "SBM" in t or re.search(r"(^|[^A-Z])(@SM|ZM)[A-Z]?\d", t):
         return Kind.SBM
-    if "CORN" in t or re.search(r"(^|[^A-Z])(@?C|ZC)[A-Z]?\d", t):
-        return Kind.CORN
+    if re.search(r"(^|[^A-Z])(@C|ZC)[FHKNUZ]\d", t) or "CORN FUT" in t:
+        return Kind.CORN_FUTURES
+    if "CORN" in t or "ZCPAUS" in t:
+        return Kind.CORN_CASH  # cash indexes / spot series (e.g. CORN$.5328, "Corn Spot")
     return None
 
 
@@ -88,7 +140,7 @@ def parse_grid(grid: pd.DataFrame, name: str, hint: str = "") -> Series | None:
         for r in rows[i + 1 :]:
             d = pd.to_datetime(_cell(r[date_col]), errors="coerce")
             try:
-                v = float(_cell(r[value_col]).replace(",", ""))
+                v = _number(_cell(r[value_col]))
             except ValueError:
                 continue  # '---', footer lines, blanks
             if pd.notna(d):
@@ -104,8 +156,6 @@ def parse_grid(grid: pd.DataFrame, name: str, hint: str = "") -> Series | None:
         # workbook called "...Wean Pig Crush.xlsx" holds corn and meal sheets too.
         label = f"{hint} {symbol}".strip() or name
         kind = guess_kind(label) or guess_kind(name)
-        if kind is Kind.CORN and s.median() > 50:  # futures quoted in cents/bu
-            s = s / 100
         return Series(
             name=name,
             symbol=symbol,
@@ -137,7 +187,8 @@ def _file(kind: Kind, contract: str | None) -> Path:
     slug = {
         Kind.CME_INDEX: "cme_index",
         Kind.HOG_FUTURES: "hog_futures",
-        Kind.CORN: "corn",
+        Kind.CORN_CASH: "corn_cash",
+        Kind.CORN_FUTURES: "corn_futures",
         Kind.SBM: "sbm",
         Kind.WEAN_PIG: "wean_pig",
     }[kind]
@@ -146,8 +197,9 @@ def _file(kind: Kind, contract: str | None) -> Path:
 
 def save(series: pd.Series, kind: Kind, contract: str | None = None) -> Path:
     """Merge into any stored history for the same series (new values win)."""
-    if kind is Kind.HOG_FUTURES and not contract:
-        raise ValueError("A lean hog futures history needs its contract month, e.g. 2027-04.")
+    if kind is Kind.HOG_FUTURES:
+        contract = normalise_contract(contract or "")
+    series = to_dollars(series, kind)
     path = _file(kind, contract)
     path.parent.mkdir(parents=True, exist_ok=True)
     old = load(kind, contract)

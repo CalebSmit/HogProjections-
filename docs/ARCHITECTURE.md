@@ -57,7 +57,7 @@ flowchart LR
 | `src/hogproj/model.py` | `project(p) -> Result` (summary dict, costs/feed/marketing DataFrames), `sensitivity()` and `cash_flow()` (monthly; reconciles to `project`). Pure. |
 | `src/hogproj/basis.py` | Lean hog contract calendar (`lean_hog_contract_for`, `lean_hog_expiry`, `in_roll_gap`) and half-month basis aggregation. Pure. |
 | `src/hogproj/excel.py` | `build_workbook()`. Every number is a formula over named input cells, so the workbook mirrors `model.py`. |
-| `src/hogproj/crush.py` | Weekly crush: `Week`, `crush_table()` (one `project()` per week, single sale), `build_weeks()` (as-of prices from history with noted fallbacks), `CrushSpec` for Excel. Pure. |
+| `src/hogproj/crush.py` | Weekly crush: `Week`, `crush_table()` (one `project()` per week, single sale), `build_weeks()` (as-of prices from history; weeks after today use today's prices; fallbacks and stale prices noted), `CrushSpec` for Excel. Pure. |
 | `src/hogproj/tables.py` | Edited dashboard tables → validated models, with plain-English problems; blank basis = 0; missing futures contracts filled from the nearest one (flagged). Pure. |
 | `src/hogproj/charts.py` | Plotly figure builders (dataviz reference palette). Pure. |
 | `src/hogproj/data/http.py` | The only module that opens sockets. Retries 5xx only; transport errors raise `FetchError(unreachable=True)`. |
@@ -83,7 +83,8 @@ flowchart LR
 7. **No company figures in git.** Defaults are generic. Company numbers live only in local
    profiles (`data/user/`) and imports (`data/cache/`); tests use synthetic numbers.
 8. **The crush can't disagree with the projection.** Every crush column is `model.project()`
-   with the group's settings, and the Excel crush formulas are parity-tested against `crush_table`.
+   with the group's settings (minus hedges, which belong to one group's sales), and the Excel
+   crush formulas are parity-tested against `crush_table`.
 9. **No silent truncation.** Input list sizes are capped by the pydantic models to the workbook's row slots. `build_workbook` raises if the locations or contracts exceed their slots.
 
 ## Changelog
@@ -95,3 +96,5 @@ flowchart LR
 - 2026-10-18: Added `tables.py` and the editor-state rule after the second review.
 - 2026-10-19: Phase 7: `crush.py`, `data/barchart.py`, `data/profiles.py`; Weekly crush and Data
   tabs; Excel Weekly Crush sheet; invariants 7–8.
+- 2026-10-19: Third review: crush drops hedges; Barchart contract basis overlays the base history
+  instead of replacing it; corn cash vs futures imports are separate kinds.

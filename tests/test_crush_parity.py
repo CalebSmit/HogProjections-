@@ -35,14 +35,18 @@ LH_FUT, LH_BASIS, HOG_HEDGE_PCT, HOG_HEDGED = 80.0, -3.0, 40, 84.0
 PLACED = date(2026, 9, 14)
 
 
-def workbook_column() -> dict[str, float]:
-    """The workbook's per-pig math, written the way its formulas are."""
-    corn = ((CORN_FUT + CORN_BASIS + CORN_CARRY) * (1 - CORN_HEDGE_PCT / 100)) + (
-        CORN_HEDGED * CORN_HEDGE_PCT / 100
+def workbook_column(hedged: bool = True) -> dict[str, float]:
+    """The workbook's per-pig math, written the way its formulas are. hedged=False is the
+    weekly crush, which leaves the group's hedges out."""
+    corn_pct, sbm_pct, hog_pct = (
+        (CORN_HEDGE_PCT, SBM_HEDGE_PCT, HOG_HEDGE_PCT) if hedged else (0.0, 0.0, 0.0)
     )
-    sbm = ((SBM_FUT + SBM_BASIS) * (1 - SBM_HEDGE_PCT / 100)) + SBM_HEDGED * SBM_HEDGE_PCT / 100
+    corn = ((CORN_FUT + CORN_BASIS + CORN_CARRY) * (1 - corn_pct / 100)) + (
+        CORN_HEDGED * corn_pct / 100
+    )
+    sbm = ((SBM_FUT + SBM_BASIS) * (1 - sbm_pct / 100)) + SBM_HEDGED * sbm_pct / 100
     feed = corn / 56 * CORN_LB + sbm / 2000 * SBM_LB + DDG_LB * DDG / 2000 + OTHER_LB * OTHER_USD_LB
-    hog_fut = LH_FUT * (1 - HOG_HEDGE_PCT / 100) + HOG_HEDGED * HOG_HEDGE_PCT / 100
+    hog_fut = LH_FUT * (1 - hog_pct / 100) + HOG_HEDGED * hog_pct / 100
     revenue = (hog_fut + LH_BASIS) * (TARGET_WT * YIELD / 100)
     cost = (USDA_WP + ADDER) + feed + HEALTH + BARN_LABOR + MORT + GA + FREIGHT + INTEREST + OTHER
     margin = revenue - cost

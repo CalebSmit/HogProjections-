@@ -63,20 +63,34 @@ def _download_hog_basis(years: int, index: pd.Series | None = None) -> pd.Series
 def load_hog_basis_daily(years: int = 10, refresh: bool = False) -> Loaded:
     """Daily CME Lean Hog Index minus nearby futures, as far back as `years`.
 
-    Order: the user's Barchart imports (index + per-contract futures, exact contract match),
-    then the cache, then a live rebuild (Barchart or USDA index, Yahoo front month).
+    Base history: cache, else a live rebuild (Barchart or USDA index, Yahoo front month), else
+    the bundled sample. Where the user imported Barchart lean hog contract histories, the exact
+    contract basis replaces the base on those dates. It never replaces the whole history,
+    because a few imported contracts cover only a few half-months.
     """
     bc_index = barchart.load(barchart.Kind.CME_INDEX)
     bc_contracts = barchart.hog_contracts()
-    if not bc_index.empty and bc_contracts:
-        s = basis_from_contracts(bc_index, bc_contracts)
-        if not s.empty:
-            return Loaded(
-                s,
-                f"Your Barchart imports: CME Index − the exact lean hog contract for each date "
-                f"({len(bc_contracts)} contracts, {s.index.min():%b %Y}–{s.index.max():%b %Y}).",
-                False,
-            )
+    exact = (
+        basis_from_contracts(bc_index, bc_contracts)
+        if not bc_index.empty and bc_contracts
+        else pd.Series(dtype="float64", name="basis_cwt")
+    )
+    base = _base_basis(years, refresh, bc_index)
+    base_s = base.data if isinstance(base.data, pd.Series) else pd.Series(dtype="float64")
+    if exact.empty:
+        return base
+    merged = pd.concat([base_s, exact])
+    merged = merged.loc[~merged.index.duplicated(keep="last")].sort_index()
+    merged.name = "basis_cwt"
+    note = (
+        f"Your Barchart contract imports give exact basis on {len(exact):,} days "
+        f"({exact.index.min():%b %Y}–{exact.index.max():%b %Y}). "
+        + (base.note if not base_s.empty else "No other basis history for the remaining dates.")
+    )
+    return Loaded(merged, note, base.live)
+
+
+def _base_basis(years: int, refresh: bool, bc_index: pd.Series) -> Loaded:
     cached = cache_path(BASIS_FILE)
     if cached.exists() and not refresh:
         s = _read_series(cached)
@@ -192,15 +206,18 @@ def load_grain_futures() -> Loaded:
 def load_grain_history() -> Loaded:
     """Daily corn ($/bu) and soybean meal ($/ton) history for the weekly crush.
 
-    Barchart imports win (and are flagged as possibly cash corn); otherwise ~1 year of Yahoo
-    front-month futures. data = {"corn": Series, "sbm": Series, "corn_source": "barchart"|...}.
+    Barchart imports win (corn futures before corn cash); otherwise ~1 year of Yahoo front-month
+    futures. data = {"corn": Series, "sbm": Series, "corn_source": "cash" | "futures"}.
     """
-    corn = barchart.load(barchart.Kind.CORN)
+    corn = barchart.load(barchart.Kind.CORN_FUTURES)
+    corn_source = "futures"
+    if corn.empty:
+        corn = barchart.load(barchart.Kind.CORN_CASH)
+        corn_source = "cash" if not corn.empty else "futures"
     sbm = barchart.load(barchart.Kind.SBM)
-    corn_source = "barchart" if not corn.empty else "futures"
     sources = []
     if not corn.empty:
-        sources.append("corn: your Barchart import")
+        sources.append(f"corn: your Barchart import ({corn_source})")
     if not sbm.empty:
         sources.append("soybean meal: your Barchart import")
     if (corn.empty or sbm.empty) and not get_settings().offline:

@@ -928,10 +928,8 @@ def _crush_sheet(wb, ws, spec: CrushSpec, f) -> None:
         nxt = f"IF({m}<2,2,IF({m}<4,4,IF({m}<8,{m}+1,IF({m}<10,10,IF({m}<12,12,14)))))"
         cm = f"IF(AND({listed},{dd}<=14),{m},{nxt})"
         corn_open = f'({ref("Corn $/bu", c)}+IF(CrCornCash="Yes",0,CornBasis)+CornCarry)'
-        price = (
-            f"{ref('Lean hog futures $/cwt', c)}*(1-HogHedgePct/100)"
-            f"+HogHedged*HogHedgePct/100+{ref('Hog basis $/cwt', c)}+Premium"
-        )
+        # No hedges here: they belong to one group's sales, not to every weekly placement.
+        price = f"{ref('Lean hog futures $/cwt', c)}+{ref('Hog basis $/cwt', c)}+Premium"
         revenue = f"HeadSold*CrWeight*YieldPct/100/100*{ref('Price $/cwt carcass', c)}"
         pig = f"HeadPlaced*({ref('USDA weaned pig $/hd', c)}+WeanAdder+WeanFreight)"
         corn_paid, sbm_paid = ref("Corn $/bu paid", c), ref("Soybean meal $/ton paid", c)
@@ -967,15 +965,8 @@ def _crush_sheet(wb, ws, spec: CrushSpec, f) -> None:
                 f'=(YEAR({sale})+({cm}>12))&"-"&TEXT({cm}-12*({cm}>12),"00")',
                 "txt_r",
             ),
-            "Corn $/bu paid": (
-                f"={corn_open}*(1-CornHedgePct/100)+CornHedged*CornHedgePct/100",
-                "usd2",
-            ),
-            "Soybean meal $/ton paid": (
-                f"=({ref('Soybean meal $/ton', c)}+SbmBasis)*(1-SbmHedgePct/100)"
-                "+SbmHedged*SbmHedgePct/100",
-                "usd2",
-            ),
+            "Corn $/bu paid": (f"={corn_open}", "usd2"),
+            "Soybean meal $/ton paid": (f"={ref('Soybean meal $/ton', c)}+SbmBasis", "usd2"),
             "Price $/cwt carcass": (f"={price}", "usd2"),
             "Revenue $/pig": (f"={revenue}/HeadSold", "usd2"),
             "Weaned pig $/pig": (f"={pig}/HeadSold", "usd2"),
