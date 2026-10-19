@@ -1,0 +1,13 @@
+name,state,corn_basis_usd_bu,sbm_basis_usd_ton,ddgs_usd_ton,barn_rent_usd_space_yr,labor_wage_usd_hr,source
+Northwest Iowa,IA,-0.40,30,180,40,18.15,"Corn basis: NW IA co-op Dec bids -37/-39 (Oct 7 2026) [ESTIMATE]. SBM: IA FOB avg $366.75 (AMS 3668 Oct 8 2026) = ~+10 over Dec ZM, +$20 truck to farm [ESTIMATE]. DDGS: AMS 3618 IA $179.79 (Oct 5 2026). Barn: $30-40/space/yr extension range, rising build cost [VERIFY]. Wage: NASS US livestock $18.15 (Apr 2025) [VERIFY regional]"
+Southwest Minnesota,MN,-0.50,25,186,40,18.15,"Corn basis: S. MN cash $4.18-4.36 (Oct 13 2026) vs Dec [ESTIMATE]. SBM: MN FOB avg $359.79 (AMS 3668 Oct 8 2026) +$20 truck [ESTIMATE]. DDGS: AMS 3618 MN $186.25 (Oct 5 2026). Barn [VERIFY]. Wage: NASS US $18.15 [VERIFY regional]"
+Central South Dakota,SD,-0.70,35,195,40,17.51,"Corn basis: far from processors/rail [ESTIMATE]. SBM: +15 FOB +$20 truck [ESTIMATE]. DDGS: AMS 3618 SD $195.00 (Oct 5 2026). Barn [VERIFY]. Wage: NASS Northern Plains $17.51 (Oct 2024) [VERIFY]"
+Northeast Iowa,IA,-0.45,32,180,40,18.15,"Corn basis weaker than NW IA in Aug 2026 AMS 2850 [ESTIMATE]. DDGS: AMS 3618 IA (Oct 5 2026). Barn/wage [VERIFY]"
+Central Iowa,IA,-0.35,30,178,40,18.15,"Processor demand near Des Moines [ESTIMATE]. DDGS: AMS 3618 IA (Oct 5 2026). Barn/wage [VERIFY]"
+Southwest Iowa,IA,-0.38,32,182,40,18.15,"Council Bluffs processors [ESTIMATE]. DDGS: AMS 3618 IA (Oct 5 2026). Barn/wage [VERIFY]"
+Southern Minnesota,MN,-0.50,25,186,40,18.15,"S. MN cash $4.18-4.36 (Oct 13 2026) [ESTIMATE]. DDGS: AMS 3618 MN (Oct 5 2026). Barn/wage [VERIFY]"
+Eastern South Dakota (Sioux Falls),SD,-0.50,30,195,40,17.51,"[ESTIMATE] basis. DDGS: AMS 3618 SD (Oct 5 2026). Wage: NASS Northern Plains (Oct 2024) [VERIFY]"
+Northeast Nebraska,NE,-0.35,32,205,40,17.51,"NE cash $4.27-5.18 (Oct 13 2026) [ESTIMATE]. DDGS: AMS 3618 NE $207.50 (Oct 5 2026). Wage: NASS Northern Plains [VERIFY]"
+Central Illinois,IL,-0.30,38,200,40,18.15,"IL SBM FOB avg $378.06 (AMS 3668 Oct 8 2026) +$20 truck. DDGS: AMS 3618 IL $202.50 (Oct 5 2026). Basis [ESTIMATE]"
+Northern Missouri,MO,-0.50,40,195,40,18.15,"No MO DDGS series found; all values [ESTIMATE]"
+Central Indiana,IN,-0.30,35,188,40,18.15,"SBM: Bunge Decatur IN +$10-20 over Dec ZM (Oct 17 2026) +$20 truck. DDGS: AMS 3618 IN $187.88 (Oct 5 2026). Basis [ESTIMATE]"

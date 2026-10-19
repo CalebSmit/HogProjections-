@@ -1,7 +1,8 @@
 # CLAUDE.md
 
-Hog production projections and financials, as a Streamlit app. The person it's for is
-non-technical: they clone or download the repo and double-click `run.bat` / `run.command`.
+Wean-to-finish hog group projection (costs, revenue, breakeven) as a Streamlit dashboard
+plus a live-formula Excel workbook. The person it's for is an accountant at Pipestone, not a
+programmer: they clone or download the repo and double-click `run.bat` / `run.command`.
 
 ## Source of truth (read before building)
 
@@ -34,8 +35,11 @@ Use the `verify` skill.
 - **Surgical changes.** Every changed line should trace back to the current plan step.
 - **Goal-driven.** Write the test or check first, then loop until it passes. Show the output;
   don't just say it works.
-- **Model code is pure.** `herd`/`finance`/`markets` take inputs and return DataFrames.
-  No Streamlit, network or file I/O in them. I/O goes in `data/` modules; the UI goes in `app.py`/`pages/`.
+- **Model code is pure.** `inputs`/`model`/`basis`/`charts` take inputs and return values,
+  DataFrames or figures. No Streamlit, network or file I/O in them. I/O goes in `data/`;
+  the UI goes in `app.py`.
+- **Excel mirrors the model.** Any formula change in `model.py` needs the same change in
+  `excel.py`; `tests/test_excel.py` must stay green.
 - **Units in names.** `price_cwt_carcass`, `weight_lb_live`, `cost_usd_per_head`. Live and
   carcass prices differ by ~0.75; mixing them up is the #1 domain bug.
 - **Offline first.** The app must work with no API keys or network, using `data/sample/`.
@@ -43,8 +47,10 @@ Use the `verify` skill.
 - **Never commit secrets** (`.env`, `.streamlit/secrets.toml`) or `data/cache/`.
 - **The recipient path is sacred.** A change that breaks `run.bat`/`run.command`, or needs a
   manual install step, is a bug. Add dependencies with `uv add`, never pip.
-- Defaults for biology and finance come from `docs/research/domain.md`. Cite the source in a
-  comment next to the constant. Anything marked [VERIFY] there stays a user-editable input.
+- Defaults come from `docs/research/w2f-inputs.md` (and `domain.md`). Cite the source next to
+  the value. Anything marked [VERIFY] or [ESTIMATE] stays a user-editable input.
+- Streamlit markdown reads `$...$` as LaTeX. Use `md_money()` (or `\$`) for dollar amounts
+  in `st.markdown`, `st.caption`, `st.success` and similar text.
 
 ## Lessons log
 
@@ -55,3 +61,34 @@ Longer write-ups go in `docs/PROGRESS.md`.
 - `UV_NATIVE_TLS` deprecation warning in the cloud sandbox is harmless noise.
 - usda.gov, iastate.edu and cmegroup.com may be blocked from cloud sandboxes. Build API clients
   against recorded fixtures in `tests/fixtures/` and verify live calls on a real machine.
+- LibreOffice headless won't recalculate xlsxwriter files (it keeps the cached 0s) unless the profile
+  sets `OOXMLRecalcMode=0`. See `tests/test_excel.py::recalc`.
+- Excel formulas use named ranges (`HeadPlaced`, `CornCash`...). When a model formula changes,
+  change `excel.py` too. `test_excel.py` compares the two.
+- Never pipe checks through `tail` inside an `&&` chain: the pipe hides the exit code (a red
+  pyright got committed once). Chain `uv run pyright >/dev/null && ...` instead.
+- pandas 3's type hints make pyright fail on groupby/rolling chains. For small aggregations,
+  use plain dicts or `.to_dict("records")` (see `data/leanhog.py::cme_index`).
+- Streamlit `st.data_editor`: never assign its output back to its input (`ss.x = st.data_editor(ss.x)`).
+  The widget identity changes and the user's next edit is silently dropped. Keep a fixed base frame
+  and parse the output (`tables.py`). Regression tests in `tests/test_smoke.py` send real edits.
+- A cleared cell arrives as NaN, and pydantic accepts NaN floats by default. Models use
+  `allow_inf_nan=False` (`inputs.Strict`).
+- A long-running `streamlit run` keeps old `hogproj` modules imported. Restart it after
+  changing package code before taking screenshots.
+- The format-on-save hook reflows code, so a later `str.replace`/sed edit written against the old
+  text silently misses. Re-read the file (or use the Edit tool, which fails loudly) and check
+  that the edit landed.
+- `st.html` strips inline `<svg>`. Draw icons in `ui.css` (data-URI background) instead.
+- With `st.plotly_chart(theme=None)`, axes need `automargin=True` or tick labels vanish.
+- `pkill -f "streamlit run"` inside a command that also starts streamlit kills its own shell.
+  Stop the server in a separate command first.
+- Excel charts with date categories become a day-by-day date axis (bars turn into lines). Use
+  `text_axis: True`. Read workbook results by defined name in tests, never by cell address.
+- Excel `MATCH(x,range,0)` ignores case and treats `? * ~` as wildcards: look up user-typed names
+  with `MATCH(TRUE,INDEX(EXACT(range,x),0),0)`. Write user text with `write_string` (a leading
+  `=` becomes a formula). One data validation per cell, or Excel reports a damaged file.
+- `pd.read_csv` turns names like "NA", "None" into NaN and "101" into a number. Read text
+  columns with `dtype=str, keep_default_na=False`.
+- Company figures (e.g. Pipestone costs) never go in the repo, tests or docs. Use synthetic
+  numbers; real ones live in local profiles (`data/user/`).

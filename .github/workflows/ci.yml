@@ -17,6 +17,9 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
+      - name: Install LibreOffice (recalculates the Excel workbook in tests)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libreoffice-calc
       - run: uv sync --locked
       - run: uv run ruff check .
       - run: uv run ruff format --check .

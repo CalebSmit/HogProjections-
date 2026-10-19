@@ -16,6 +16,7 @@ CLAUDE.local.md
 # Generated data / outputs
 data/cache/
 data/raw/
+data/user/
 outputs/
 
 # OS
