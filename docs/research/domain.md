@@ -143,7 +143,7 @@ Adjust for survival (95–97%), Canadian feeder imports (~6–7M/yr [VERIFY]) an
 | Source | Endpoint | Key | Notes |
 |---|---|---|---|
 | AMS MyMarketNews (MARS) | `https://marsapi.ams.usda.gov/services/v1.2/reports/{slug}?q=report_begin_date=MM/DD/YYYY:MM/DD/YYYY&allSections=true` | Free key, sent as HTTP Basic `auth=(KEY, "")` | JSON. 100k rows registered vs 5k unregistered. API version [VERIFY] |
-| AMS LMR Datamart | `https://mpr.datamart.ams.usda.gov/services/v1.1/reports` | none? [VERIFY] | Possible keyless fallback |
+| AMS LMR Datamart | `https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2511/Barrows/Gilts?q=report_date=MM/DD/YYYY:MM/DD/YYYY` | **none** (verified 2026-10-19) | LMR reports only (no grain). 3 years of HG201 ≈ 6k rows in ~8 s. Rebuilt index matches CME to the cent (75.75, Oct 12 2026) when dated by the first of its two slaughter days |
 | NASS Quick Stats | `https://quickstats.nass.usda.gov/api/api_GET/?key=KEY&commodity_desc=HOGS&...&format=JSON` | Free | 50k-record cap; call `get_counts` first |
 | NASS ESMIS files | `https://esmis.nal.usda.gov` (hgpg*.txt) | none | Faster than Quick Stats for weight classes |
 | ERS | XLSX/CSV downloads | none | No REST API |

@@ -26,14 +26,18 @@ anything else on your computer. Later launches take a few seconds.
 
 ## Optional: live USDA data
 
-The app works out of the box using the bundled sample data. To pull live prices and inventory
-reports, get these free keys and paste them into the `.env` file in this folder. The launcher
-creates `.env` the first time it runs.
+**Hog prices need no key.** When you're online the app pulls the daily USDA hog report and
+rebuilds the CME Lean Hog Index itself. Offline, it uses the last data it saved, or the sample
+data that ships with the app.
 
-| Key | Where to get it (free) |
-|---|---|
-| `USDA_MMN_API_KEY` | <https://mymarketnews.ams.usda.gov/mymarketnews-api> |
-| `NASS_API_KEY` | <https://quickstats.nass.usda.gov/api> |
+Two free keys unlock more data (planned features). Paste them into the `.env` file in this
+folder, after the `=` sign, with no spaces or quotes. The launcher creates `.env` the first
+time it runs. Never share the keys or commit `.env`.
+
+| Key | Unlocks | Where to get it (free) |
+|---|---|---|
+| `USDA_MMN_API_KEY` | Corn and soybean meal prices (USDA My Market News) | <https://mymarketnews.ams.usda.gov/mymarketnews-api> |
+| `NASS_API_KEY` | Quarterly Hogs & Pigs inventory (USDA NASS) | <https://quickstats.nass.usda.gov/api> |
 
 ## Troubleshooting
 

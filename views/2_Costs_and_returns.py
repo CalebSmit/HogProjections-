@@ -13,6 +13,7 @@ from hogproj.finance import (
     weekly_returns,
 )
 from hogproj.herd import HerdInputs, simulate
+from hogproj.ui import hog_index, usd
 
 st.title("Costs & returns")
 st.caption(
@@ -22,13 +23,11 @@ st.caption(
 )
 
 
-def usd(x: float, decimals: int = 2) -> str:
-    """-11.6 -> '-$11.60' (not '$-11.60')."""
-    return f"{'-' if x < 0 else ''}${abs(x):,.{decimals}f}"
-
-
 herd_inp: HerdInputs = st.session_state.get("herd_inputs", HerdInputs())
 d = CostInputs()
+idx, idx_source, _ = hog_index()
+latest_index = round(float(idx["lean_hog_index_usd_per_cwt_carcass"].iloc[-1]), 2)
+latest_date = idx["index_date"].iloc[-1]
 with st.sidebar:
     st.header("Prices")
     # Widget keys start with "cost_" so app.py keeps them when the user switches pages.
@@ -40,10 +39,11 @@ with st.sidebar:
         "Lean hog price ($/cwt carcass)",
         0.0,
         200.0,
-        d.lean_hog_usd_per_cwt_carcass,
+        latest_index,
         0.5,
         key="cost_hog",
-        help="Default: CME Lean Hog Index on Oct 12, 2026. Dec 2026 futures were near 67.",
+        help=f"Starts at the Lean Hog Index for {latest_date:%b %d, %Y} "
+        f"({'live' if idx_source == 'live' else 'saved'} USDA data; see Market prices).",
     )
     with st.expander("Ration & non-feed costs"):
         corn_bu = st.number_input(

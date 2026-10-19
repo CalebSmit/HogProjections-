@@ -21,12 +21,14 @@ def home() -> None:
     |---|---|
     | **Herd flow** | Pigs reaching market each week, and when a sow-herd change shows up |
     | **Costs & returns** | Breakeven price, cost per head, and margin across hog and corn prices |
+| **Market prices** | Today's Lean Hog Index from free USDA data, its history and seasonal pattern |
 
     Every number starts at a published US industry benchmark. Change any input to match your farm.
     """
     )
     st.page_link("views/1_Herd_flow.py", label="Open Herd flow", icon="🐷")
     st.page_link("views/2_Costs_and_returns.py", label="Open Costs & returns", icon="💵")
+    st.page_link("views/3_Market_prices.py", label="Open Market prices", icon="📈")
 
     settings = get_settings()
     mode = "offline (sample data)" if settings.offline else "online (USDA APIs)"
@@ -44,5 +46,6 @@ st.navigation(
         st.Page(home, title="Home", icon="🏠", default=True),
         st.Page("views/1_Herd_flow.py", title="Herd flow", icon="🐷"),
         st.Page("views/2_Costs_and_returns.py", title="Costs & returns", icon="💵"),
+        st.Page("views/3_Market_prices.py", title="Market prices", icon="📈"),
     ]
 ).run()

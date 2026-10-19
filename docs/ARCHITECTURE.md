@@ -11,7 +11,7 @@
 ```mermaid
 flowchart LR
     subgraph Sources["Data sources (free)"]
-        AMS[USDA AMS MARS<br/>LM_HG201, LM_PK602]
+        AMS[USDA AMS LMR datamart<br/>LM_HG201, no key]
         NASS[USDA NASS<br/>Quick Stats / Hogs & Pigs]
         ERS[USDA ERS / WASDE]
         SAMPLE[(data/sample<br/>bundled CSV)]
@@ -46,13 +46,14 @@ flowchart LR
 | `app.py` | Router (`st.navigation`) + home page; keeps widget state across pages | done |
 | `views/` | One file per page. Not `pages/`: that name triggers Streamlit's legacy auto-nav | started |
 | `src/hogproj/config.py` | Paths + `Settings` (env / `.env`) | done |
-| `src/hogproj/data/` | API clients, cache, sample loader. The only package allowed to touch the network or disk | planned |
+| `src/hogproj/data/ams.py` | Keyless LMR datamart client (LM_HG201); live → `data/cache` → `data/sample` | done |
 | `src/hogproj/herd.py` | Weekly cohort herd flow; pipeline starts in steady state | done |
 | `src/hogproj/finance.py` | CIH-structure cost, breakeven, sensitivity, weekly returns | done |
-| `src/hogproj/markets.py` | Price series, Lean Hog Index calc, seasonality | planned |
+| `src/hogproj/markets.py` | Lean Hog Index from HG201, monthly seasonal factors | done |
+| `src/hogproj/ui.py` | Shared page helpers: cached data load, notices, `usd()` formatting | done |
 | `src/hogproj/risk.py` | Scenarios, Monte Carlo, hedge/LRP payoffs | planned |
 | `src/hogproj/export.py` | Excel workbook builder | planned |
-| `data/sample/` | Small committed datasets so the app runs offline | planned |
+| `data/sample/` | Committed datasets so the app runs offline (3 years of HG201, ~240 KB) | started |
 | `tests/` | pytest. `test_smoke.py` renders the app headless | started |
 | `run.bat`, `run.command`, `run.sh` | Recipient launchers | done |
 
@@ -69,5 +70,7 @@ flowchart LR
 
 ## Changelog
 - 2026-10-17: Initial scaffold and proposed target design.
+- 2026-10-19: Added `data/ams.py`, `markets.py`, `ui.py` and the Market prices page. Tests
+  force `OFFLINE=true` (tests/conftest.py).
 - 2026-10-19: Added herd/finance modules and two pages; pages live in `views/` behind an
   `st.navigation` router in `app.py` (so the sidebar says "Home", not "app").

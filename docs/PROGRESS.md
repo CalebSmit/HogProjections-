@@ -33,3 +33,15 @@ Newest at the bottom.
   "other costs" line ($44/cwt) likely understates current nonfeed costs.
 - **Next:** ISU ELR reconciliation (Phase 3 last step); the owner's product idea (Phase 1);
   then market data (Phase 4) to replace typed-in prices.
+
+## 2026-10-19 (cont.) — Phase 4 start: live hog prices, no key
+- **Done:**
+  - Found that USDA's LMR datamart serves LM_HG201 with no API key; 3 years load in ~8 s.
+  - `data/ams.py` client with live → cache → bundled-sample fallback and a visible notice.
+  - `markets.py`: Lean Hog Index rebuilt from HG201 (matches CME's 75.75 for Oct 12, 2026 to the
+    cent) and monthly seasonal factors (Jul +11%, Jan −16% over 2024–25).
+  - Market prices page; Costs page now defaults the hog price to the latest index.
+- **Verified:** ruff, format, pyright 0 errors, pytest 27 passed (offline forced); browser check
+  with live data (index $73.40 on Oct 15, −$3.11 on the week).
+- **Next:** owner adds free USDA keys to `.env` → corn/SBM (My Market News) and Hogs & Pigs
+  (NASS). ISU ELR reconciliation still open.
