@@ -51,7 +51,7 @@ with assumption_bar("scenarios"):
     for i, p in enumerate(PRESETS):
         letter = chr(65 + i)
         label = str(ss.get(f"scn_{i}_name", p.name))
-        with st.popover(md(f"{letter} · {label}"), icon=":material/tune:"):
+        with st.popover(md(f"{letter} · {label}")):
             name = st.text_input("Scenario name", p.name, key=f"scn_{i}_name")
             a, b = st.columns(2)
             hog = a.number_input(
@@ -185,7 +185,7 @@ with hero():
             showarrow=False, xanchor="left", xshift=8, font={"size": 11, "color": colors[i]},
         )  # fmt: skip
     lines.update_yaxes(tickformat="$~s")
-    lines.update_xaxes(tickformat="%b %Y")
+    lines.update_xaxes(tickformat="%b %Y", range=[cum["date"].iloc[0], cum["date"].iloc[-1]])
     lines.update_layout(margin={"l": 4, "r": 210, "t": 8, "b": 4})
     chart(lines, 340)
     source_note("model", "each scenario adds its changes to your Herd flow and Costs inputs")

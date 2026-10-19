@@ -42,7 +42,6 @@ with assumption_bar("herd"):
             if change_now
             else ""
         ),
-        icon=":material/groups:",
     ):
         sows_start = st.number_input(
             "Sows today", 0, 1_000_000, int(d.sows_start), step=50, key="herd_sows"
@@ -64,7 +63,7 @@ with assumption_bar("herd"):
         * cur("herd_born", d.born_alive_per_litter)
         * (1 - cur("herd_pw_mort", d.prewean_mortality * 100) / 100)
     )
-    with st.popover(f"Productivity · {weaned_now:.1f} weaned/sow/yr", icon=":material/monitoring:"):
+    with st.popover(f"Productivity · {weaned_now:.1f} weaned/sow/yr"):
         a, b = st.columns(2)
         litters = a.number_input(
             "Litters / sow / year", 1.0, 3.0, d.litters_per_sow_yr, 0.05, key="herd_litters"
@@ -83,16 +82,23 @@ with assumption_bar("herd"):
             0.5,
             key="herd_w2f_mort",
         )
-    with st.popover("Timing", icon=":material/schedule:"):
+    # Same rounding as the model (each phase to whole weeks), so the chip matches the page.
+    to_mkt_now = sum(
+        max(1, round(cur(k, v) / 7))
+        for k, v in [
+            ("herd_gest", d.gestation_days),
+            ("herd_lact", d.lactation_days),
+            ("herd_w2f", d.wean_to_market_days),
+        ]
+    )
+    with st.popover(f"Timing · {to_mkt_now} wk breeding to market"):
         gest = st.number_input("Gestation (days)", 100, 130, int(d.gestation_days), key="herd_gest")
         lact = st.number_input("Weaning age (days)", 14, 35, int(d.lactation_days), key="herd_lact")
         w2f = st.number_input(
             "Wean to market (days)", 100, 250, int(d.wean_to_market_days), key="herd_w2f"
         )
         weeks = st.slider("Projection length (weeks)", 52, 260, d.weeks, step=13, key="herd_weeks")
-    with st.popover(
-        f"Market hog · {cur('herd_wt', d.weight_lb_live_market):.0f} lb", icon=":material/scale:"
-    ):
+    with st.popover(f"Market hog · {cur('herd_wt', d.weight_lb_live_market):.0f} lb"):
         wt = st.number_input(
             "Market weight (lb live)", 150, 400, int(d.weight_lb_live_market), key="herd_wt"
         )
@@ -156,7 +162,9 @@ with hero():
     )
     stat_strip(
         [
-            ("Weaned / sow / yr", f"{weaned_per_sow_yr:.1f}", "", "neutral"),
+            ("Weaned / sow / yr", f"{weaned_per_sow_yr:.1f}",
+             f"{inp.litters_per_sow_yr:.2f} litters × {inp.born_alive_per_litter:.1f} born",
+             "neutral"),
             ("Sold / sow / yr", f"{pigs_sold_per_sow_yr(inp):.1f}", "after nursery and finishing"
              " losses", "neutral"),
             ("Per week, end", f"{per_week_end:,.0f}", f"{per_week_end - per_week_now:+,.0f} vs now"
@@ -219,7 +227,7 @@ inv.update_xaxes(tickformat="%b %Y")
 inv.update_layout(showlegend=False, margin={"l": 4, "r": 130, "t": 8, "b": 4})
 chart(inv, 280, on=PAGE)
 
-with st.expander("Weekly detail", icon=":material/table_rows:"):
+with st.expander("Weekly detail"):
     table = df[
         ["date", "sows", "farrowings", "weaned_head", "marketed_head", "growing_inventory_head"]
     ]

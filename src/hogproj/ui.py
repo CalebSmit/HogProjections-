@@ -26,7 +26,11 @@ from hogproj.markets import lean_hog_index
 from hogproj.outlook import Plan
 
 # --- Tokens ---------------------------------------------------------------------------------
-SANS = "Inter, 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif"
+# IBM Plex Sans for UI and figures + Source Serif 4 for headlines (not the default Inter).
+SANS = (
+    "'IBM Plex Sans', 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, Arial, "
+    "sans-serif"
+)
 SERIF = "'Source Serif 4', 'Source Serif Pro', Georgia, 'Times New Roman', serif"
 FONT = SANS
 PAGE = "#f7f5f0"  # warm paper
@@ -110,7 +114,7 @@ pio.templates["hogproj"] = go.layout.Template(
 
 _FONTS = (
     "https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600"
-    "&display=swap"
+    "&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
 )
 
 _CSS = f"""
@@ -119,8 +123,7 @@ _CSS = f"""
 :root {{ --ink:{INK}; --ink2:{INK_2}; --muted:{MUTED}; --line:{LINE}; --surface:{SURFACE};
          --accent:{ACCENT}; --accent-tint:{ACCENT_TINT}; --pos:{POS}; --neg:{NEG};
          --serif:{SERIF}; }}
-html, body, .stApp {{ -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-         font-feature-settings: "cv11", "ss01", "ss03"; }}
+html, body, .stApp {{ -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }}
 [data-testid="stDecoration"] {{ display: none; }}
 header[data-testid="stHeader"] {{ background: transparent; }}
 [data-testid="stMainBlockContainer"] {{ padding-top: 2.6rem; padding-bottom: 5rem;
@@ -133,7 +136,7 @@ p, li {{ line-height: 1.55; }}
 
 /* Native KPI cards (pages not yet on stat_strip) */
 [data-testid="stMetric"] {{ background: var(--surface); border: 1px solid var(--line);
-         border-radius: 10px; padding: 15px 18px 14px; height: 100%; }}
+         border-radius: 8px; padding: 15px 18px 14px; height: 100%; }}
 [data-testid="stMetricLabel"] p {{ font-size: 11px !important; font-weight: 600;
          text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }}
 [data-testid="stMetricValue"] {{ letter-spacing: -0.02em; color: var(--ink); line-height: 1.2; }}
@@ -141,9 +144,9 @@ p, li {{ line-height: 1.55; }}
 
 /* Panels: st.container(key="card_*") */
 [class*="st-key-card_"] {{ background: var(--surface); border: 1px solid var(--line);
-         border-radius: 10px; padding: 20px 22px 14px; }}
+         border-radius: 8px; padding: 20px 22px 14px; }}
 [class*="st-key-hero"] {{ background: var(--surface); border: 1px solid var(--line);
-         border-radius: 12px; padding: 26px 28px 16px; }}
+         border-radius: 8px; padding: 26px 30px 18px; }}
 
 /* Sidebar: navigation only */
 [data-testid="stSidebar"] {{ border-right: 1px solid var(--line); }}
@@ -153,7 +156,7 @@ p, li {{ line-height: 1.55; }}
          margin-top: 1rem; }}
 [data-testid="stSidebarNavLink"] {{ border-radius: 7px; padding-top: .32rem;
          padding-bottom: .32rem; }}
-[data-testid="stSidebarNavLink"] span {{ font-size: 13.5px; color: var(--ink2); }}
+[data-testid="stSidebarNavLink"] span {{ font-size: 14.5px; color: var(--ink2); }}
 [data-testid="stSidebarNavLink"][aria-current="page"] {{ background: var(--accent-tint); }}
 [data-testid="stSidebarNavLink"][aria-current="page"] span {{ color: var(--accent);
          font-weight: 600; }}
@@ -163,10 +166,10 @@ p, li {{ line-height: 1.55; }}
 
 /* Assumption bar: popovers styled as chips */
 [class*="st-key-assume"] [data-testid="stPopover"] button {{ background: var(--surface);
-         border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px;
+         border: 1px solid var(--line); border-radius: 6px; padding: 4px 12px;
          box-shadow: none; }}
-[class*="st-key-assume"] [data-testid="stPopover"] button p {{ font-size: 12.5px;
-         color: var(--ink2); }}
+[class*="st-key-assume"] [data-testid="stPopover"] button p {{ font-size: 13.5px;
+         color: var(--ink2); white-space: nowrap; }}
 [class*="st-key-assume"] [data-testid="stPopover"] button:hover {{ border-color: #cfc8b9; }}
 
 /* Expanders, tables, captions, buttons */
@@ -178,53 +181,55 @@ p, li {{ line-height: 1.55; }}
          font-weight: 500; }}
 
 /* Typography components */
-.hp-kicker {{ font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
-         color: var(--accent); margin-bottom: 6px; }}
-.hp-dek {{ color: var(--ink2); font-size: 15.5px; line-height: 1.5; margin: 8px 0 0;
-         max-width: 760px; }}
+.hp-kicker {{ font-size: 14px; font-weight: 600; color: var(--accent); margin-bottom: 4px; }}
+.hp-dek {{ color: var(--ink2); font-size: 17px; line-height: 1.5; margin: 8px 0 0;
+         max-width: 860px; }}
 .hp-meta {{ display: flex; justify-content: flex-end; gap: 8px; align-items: center;
          flex-wrap: wrap; }}
-.hp-chip {{ display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500;
-         padding: 3px 10px 3px 8px; border-radius: 999px; border: 1px solid var(--line);
+.hp-chip {{ display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500;
+         padding: 3px 10px 3px 8px; border-radius: 6px; border: 1px solid var(--line);
          background: var(--surface); color: var(--ink2); white-space: nowrap; }}
 .hp-dot {{ width: 7px; height: 7px; border-radius: 50%; display: inline-block; }}
-.hp-title {{ font-family: var(--serif); font-size: 19px; font-weight: 600; color: var(--ink);
+.hp-title {{ font-family: var(--serif); font-size: 21px; font-weight: 600; color: var(--ink);
          letter-spacing: -0.005em; line-height: 1.3; margin: 0; }}
-.hp-title-sub {{ font-size: 12.5px; color: var(--muted); margin: 3px 0 8px; }}
-.hp-source {{ font-size: 11.5px; color: var(--muted); line-height: 1.5; margin: 2px 0 0; }}
+.hp-title-sub {{ font-size: 13.5px; color: var(--muted); margin: 3px 0 8px; }}
+.hp-source {{ font-size: 12.5px; color: var(--muted); line-height: 1.5; margin: 2px 0 0; }}
 .hp-source b {{ color: var(--ink2); font-weight: 600; }}
 .hp-rule {{ border: 0; border-top: 1px solid var(--line); margin: 30px 0 26px; }}
-.hp-foot {{ font-size: 11.5px; color: var(--muted); line-height: 1.5; }}
+.hp-foot {{ font-size: 12.5px; color: var(--muted); line-height: 1.6; }}
+.hp-footer {{ border-top: 1px solid var(--line); margin-top: 48px; padding-top: 14px;
+         display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+         font-size: 12.5px; color: var(--muted); }}
 
 /* Quote hero */
-.hp-quote-label {{ font-size: 11px; font-weight: 600; letter-spacing: .09em; color: var(--muted);
-         text-transform: uppercase; }}
+.hp-quote-label {{ font-size: 14px; font-weight: 600; color: var(--ink2); }}
 .hp-quote {{ display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-top: 4px; }}
-.hp-quote-value {{ font-size: 46px; font-weight: 600; letter-spacing: -0.03em; color: var(--ink);
-         line-height: 1.05; }}
-.hp-quote-unit {{ font-size: 15px; color: var(--muted); font-weight: 500; }}
-.hp-quote-change {{ font-size: 18px; font-weight: 600; }}
-.hp-quote-sub {{ font-size: 12.5px; color: var(--muted); margin-top: 6px; }}
+.hp-quote-value {{ font-size: 50px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink);
+         line-height: 1.05; white-space: nowrap; }}
+.hp-quote-unit {{ font-size: 16px; color: var(--muted); font-weight: 500; white-space: nowrap; }}
+.hp-quote-change {{ font-size: 19px; font-weight: 600; white-space: nowrap; }}
+.hp-quote-sub {{ font-size: 13.5px; color: var(--muted); margin-top: 6px; }}
 
 /* Stat strip: one row split by hairlines */
-.hp-strip {{ display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+.hp-strip {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
          border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
-         margin: 20px 0 6px; }}
-.hp-stat {{ padding: 14px 18px 13px; border-left: 1px solid var(--line); }}
-.hp-stat:first-child {{ border-left: 0; padding-left: 0; }}
-.hp-stat-k {{ font-size: 10.5px; font-weight: 600; letter-spacing: .08em; color: var(--muted);
-         text-transform: uppercase; }}
-.hp-stat-v {{ font-size: 21px; font-weight: 600; color: var(--ink); letter-spacing: -0.02em;
-         margin-top: 3px; font-variant-numeric: tabular-nums; }}
-.hp-stat-d {{ font-size: 12px; font-weight: 500; margin-top: 1px; }}
+         margin: 22px 0 6px; overflow: hidden; }}
+.hp-stat {{ padding: 14px 18px 13px; border-left: 1px solid var(--line); margin-left: -1px; }}
+.hp-stat-k {{ font-size: 11px; font-weight: 600; letter-spacing: .07em; color: var(--muted);
+         text-transform: uppercase; white-space: nowrap; overflow: hidden;
+         text-overflow: ellipsis; }}
+.hp-stat-v {{ font-size: 23px; font-weight: 600; color: var(--ink); letter-spacing: -0.015em;
+         margin-top: 3px; font-variant-numeric: tabular-nums; white-space: nowrap; }}
+.hp-stat-d {{ font-size: 13px; font-weight: 500; margin-top: 1px; }}
 
 /* Key-value table */
-.hp-kv {{ width: 100%; border-collapse: collapse; font-size: 13.5px; border: 0 !important;
+.hp-kv {{ width: 100%; border-collapse: collapse; font-size: 14.5px; border: 0 !important;
          font-variant-numeric: tabular-nums; margin: 0; }}
 .hp-kv tr, .hp-kv td {{ border: 0 !important; background: transparent !important; }}
 .hp-kv td {{ padding: 9px 0 !important; border-bottom: 1px solid var(--line) !important; }}
-.hp-kv td:first-child {{ color: var(--ink2); }}
-.hp-kv td:last-child {{ text-align: right; color: var(--ink); font-weight: 600; }}
+.hp-kv td:first-child {{ color: var(--ink2); white-space: nowrap; }}
+.hp-kv td:last-child {{ text-align: right; color: var(--ink); font-weight: 600;
+         white-space: nowrap; padding-left: 16px !important; }}
 
 .hp-table, .hp-table tr, .hp-table th, .hp-table td {{ border-left: 0 !important;
          border-right: 0 !important; border-top: 0 !important; background: transparent; }}
@@ -260,7 +265,7 @@ def setup_page() -> None:
 
 
 # --- Formatting -----------------------------------------------------------------------------
-MINUS = "−"  # true minus sign: same width as "+", reads as finance typesetting
+MINUS = "−⁠"  # true minus + word joiner, so "−$863k" never breaks after the sign
 
 
 def usd(x: float, decimals: int = 2) -> str:
@@ -564,7 +569,7 @@ def table(
 
     def cell(text: str, i: int, head: bool = False) -> str:
         tag = "th" if head else "td"
-        align = "left" if i == 0 else "right"
+        align = "left;white-space:nowrap" if i == 0 else "right"
         shade = "background:#faf8f3;" if emphasis_col is not None and i == emphasis_col + 1 else ""
         weight = "font-weight:600;" if head else (f"color:{INK_2};" if i == 0 else "")
         return (
@@ -582,6 +587,17 @@ def table(
         f"font-size:13.5px;font-variant-numeric:tabular-nums;color:{INK};"
         f'border:none"><thead style="color:{MUTED};font-size:11px;text-transform:uppercase;'
         f'letter-spacing:.06em"><tr>{head_html}</tr></thead><tbody>{body_html}</tbody></table></div>'
+    )
+
+
+def page_footer() -> None:
+    """Who prepared it, when, and from what: the credibility line every page ends with."""
+    who = get_settings().prepared_by.strip()
+    left = (f"Prepared by {_safe(who)} · " if who else "Prepared ") + f"{date.today():%B %d, %Y}"
+    _html(
+        f'<div class="hp-footer"><span>{left}</span>'
+        "<span>Data: USDA AMS LM_HG201 · Iowa State University Estimated Livestock Returns · "
+        "Projections, not financial advice</span></div>"
     )
 
 

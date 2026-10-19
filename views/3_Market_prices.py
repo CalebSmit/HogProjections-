@@ -60,7 +60,7 @@ masthead(
 
 st.space("small")
 with hero():
-    left, right = st.columns([2.3, 1], gap="large")
+    left, right = st.columns([1.9, 1], gap="large")
     with left:
         pct = move_30 / month if month else 0.0
         quote(
@@ -118,13 +118,13 @@ with hero():
         )
         kv_table(
             [
-                ("Previous week", "—" if week is None else usd(week)),
+                ("Week ago", "—" if week is None else usd(week)),
                 ("30 days ago", "—" if month is None else usd(month)),
                 ("1 year ago", "—" if year is None else usd(year)),
-                ("52-week range", f"{usd(float(last_year.min()))} – {usd(float(last_year.max()))}"),
-                ("Live-weight equivalent", usd(latest * 0.75)),
-                ("Avg carcass weight", f"{weights[-1]:.1f} lb"),
-                ("Hogs in index (2 days)", f"{heads[-1]:,.0f}"),
+                ("52-wk range", f"{usd(float(last_year.min()))} – {usd(float(last_year.max()))}"),
+                ("Live equivalent", usd(latest * 0.75)),
+                ("Carcass weight", f"{weights[-1]:.1f} lb"),
+                ("Hogs in index", f"{heads[-1]:,.0f}"),
                 (
                     "Seasonal high / low",
                     f"{calendar.month_abbr[peak]} / {calendar.month_abbr[low]}",
@@ -138,7 +138,7 @@ with hero():
     )
 
 st.space("medium")
-left, mid, right = st.columns([1, 0.06, 1])
+left, mid, right = st.columns([1.4, 0.06, 1])
 with left:
     chart_title(
         f"Hogs usually peak in {calendar.month_name[peak]} and bottom in "

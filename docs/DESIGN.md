@@ -51,10 +51,16 @@ are kept to UI chrome and the single, directly-labelled headline series.
 
 ## Typography
 
-- Headlines and chart titles: **Source Serif 4** (600). UI, labels and numbers: **Inter**, with
-  system fallbacks offline.
-- Page headline 33px; chart title 19px serif; dek 15.5px; kickers and stat labels 10.5-11px
-  uppercase, +0.08em; quote value 46px/600; stat values 21px tabular.
+- Headlines and chart titles: **Source Serif 4** (600). UI, labels and numbers: **IBM Plex
+  Sans** (not Inter, the most-cited "AI default"), with system fallbacks offline.
+- Base 15px. Page headline 33px; chart title 21px serif; dek 17px; quote value 50px/600; stat
+  values 23px tabular. Kickers and quote labels are sentence case; small uppercase is reserved
+  for stat labels and table headers only.
+- Font names must not contain a bare number ("Source Sans 3"): Streamlit writes the theme font
+  unquoted and the declaration becomes invalid (everything falls back to Times).
+- Corners: 8px panels, 6px chips/buttons. No pills, no shadows.
+- Figures never wrap: values are `white-space: nowrap`, and `MINUS` is U+2212 + U+2060 (word
+  joiner) so "−$863k" can't split after the sign. Stat strips reflow into rows when narrow.
 
 ## Components (`hogproj.ui`)
 
@@ -70,7 +76,20 @@ are kept to UI chrome and the single, directly-labelled headline series.
 | `end_tag`, `ref_line`, `projection_band` | value tags, dotted reference lines, forecast shading |
 | `kv_table`, `table` | key-stats and comparison tables (hairline rows) |
 
+## Avoiding "AI-made" tells (checklist, 2026-10-19)
+
+From a review of designer write-ups on AI-generated UI (Anthropic's frontend-design article on
+"distributional convergence", Fountain Institute, SaaSUI, UX Collective, Tableau user group):
+no Inter/purple/gradients; no identical card grids; no decorative icon on every control (icons
+only in navigation and on the download action); no emoji; sentence-case copy; takeaway titles;
+direct labels instead of legends; one focal point per page; consistent number formatting;
+small radius; asymmetric secondary layouts; a visible "prepared by / as of / sources" footer
+(`PREPARED_BY` in `.env`).
+
 ## Changelog
+- 2026-10-19: "AI tells" pass: IBM Plex Sans, sentence-case kickers, 6-8px radius, no
+  decorative icons, unbreakable figures, reflowing stat strips, asymmetric layouts, page footer
+  with preparer/date/sources, consistency fixes found in screenshot audits at 1440/1280 px.
 - 2026-10-19: "Field Report" direction after the reference review: serif finding headlines,
   hero panel with quote + stat strip, assumption chips instead of sidebar inputs, warm paper
   palette with field green, actual-vs-projection signature chart.

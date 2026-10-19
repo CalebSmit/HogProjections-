@@ -67,7 +67,6 @@ with bar:
             f"{usd(cur('cost_sbm', d.sbm_usd_per_ton), 0)} · Hogs "
             f"{usd(cur('cost_hog', latest_index))}"
         ),
-        icon=":material/sell:",
     ):
         corn = st.number_input(
             "Corn ($/bu)",
@@ -94,7 +93,6 @@ with bar:
         )
     with st.popover(
         md(f"Costs per pig · non-feed {usd(cur('cost_nonfeed', d.nonfeed_usd_per_head), 0)}"),
-        icon=":material/receipt_long:",
     ):
         st.caption("Feed amounts are for a 270 lb pig and scale with your market weight.")
         a, b = st.columns(2)
@@ -134,9 +132,7 @@ with bar:
             key="cost_manure",
             help="Fertilizer value of the manure. Set to 0 if you don't use or sell it.",
         )
-    with st.popover(
-        f"Price path · {ss.get('cost_price_path') or 'Seasonal'}", icon=":material/timeline:"
-    ):
+    with st.popover(f"Price path · {ss.get('cost_price_path') or 'Seasonal'}"):
         path_choice = st.segmented_control(
             "Hog price over time",
             ["Seasonal", "Flat"],
@@ -189,7 +185,7 @@ with head.container():
         f"Feed is {feed_share:.0%} of the {usd(be['cost_usd_per_head'])} it costs to raise a pig. "
         f"At today's {usd(hog)} hog price that's {usd(abs(m))} "
         f"{'made' if m >= 0 else 'lost'} per pig.",
-        kicker="Costs & returns · Iowa State Estimated Livestock Returns format",
+        kicker="Costs & returns",
     )
 
 st.space("small")
@@ -212,8 +208,9 @@ with hero():
         stat_strip(
             [
                 ("Feed", usd(feed), f"{feed_share:.0%} of cost", "neutral"),
-                ("Profit per pig", usd(m), f"{signed(gap)}/cwt vs breakeven", tone_of(m)),
+                ("Profit per pig", usd(m), f"{signed(gap)}/cwt vs need", tone_of(m)),
                 ("Next 12 months", usd_short(y1["margin_usd"]), "projected profit", tone_of(m)),
+                ("Breakeven, live", usd(be["price_cwt_live"]), "per cwt live weight", "neutral"),
             ]
         )
     with right:
@@ -254,7 +251,7 @@ with hero():
 st.space("medium")
 
 # --- Sensitivity + projection -----------------------------------------------------------
-left, mid, right = st.columns([1.1, 0.06, 1])
+left, mid, right = st.columns([1.25, 0.06, 1])
 with left:
     hogs = np.linspace(hog - 20, hog + 20, 9).clip(min=0)
     corns = np.linspace(corn - 1.5, corn + 1.5, 7).clip(min=0)
@@ -302,7 +299,7 @@ with right:
     final = float(r["cumulative_margin_usd"].iloc[-1])
     years = len(r) / 52
     chart_title(
-        f"{usd_short(final)} over the next {years:.0f} years at this price path",
+        f"{usd_short(final)} over the next {years:.0f} years",
         ("Seasonal price path" if path is not None else "Flat price")
         + f" · first year: revenue {usd_short(y1['revenue_usd'])}, costs "
         f"{usd_short(y1['cost_usd'])}",
@@ -314,8 +311,6 @@ with right:
             y=r["cumulative_margin_usd"],
             mode="lines",
             line={"color": tone_col, "width": 2},
-            fill="tozeroy",
-            fillcolor="rgba(23,138,106,0.06)" if final >= 0 else "rgba(200,69,58,0.05)",
             hovertemplate="%{x|%b %d, %Y}: $%{y:,.0f}<extra></extra>",
         )
     )
@@ -347,7 +342,7 @@ pf.update_xaxes(tickformat="%b %Y")
 pf.update_layout(showlegend=False)
 chart(pf, 240, on=PAGE)
 
-with st.expander("Cost table and weekly detail", icon=":material/table_rows:"):
+with st.expander("Cost table and weekly detail"):
     st.dataframe(
         t,
         column_config={

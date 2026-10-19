@@ -6,6 +6,7 @@ from datetime import date, datetime
 import pandas as pd
 import xlsxwriter
 
+from hogproj.config import get_settings
 from hogproj.finance import cost_table
 from hogproj.herd import pigs_sold_per_sow_yr
 from hogproj.outlook import Plan, headline, monthly, summary, synced
@@ -62,7 +63,9 @@ def build_report(
     ws.set_column(0, 0, 38)
     ws.set_column(1, 1, 18)
     ws.write(0, 0, "Hog Projections — farm outlook", f["title"])
-    ws.write(1, 0, f"Prepared {as_of:%B %d, %Y}. {hog_index_note}", f["sub"])
+    who = get_settings().prepared_by.strip()
+    by = f" by {who}" if who else ""
+    ws.write(1, 0, f"Prepared{by} {as_of:%B %d, %Y}. {hog_index_note}", f["sub"])
     ws.merge_range(3, 0, 4, 5, verdict, f["verdict"])
     rows = [
         ("Hog price used ($/cwt carcass)", c.lean_hog_usd_per_cwt_carcass, "usd"),

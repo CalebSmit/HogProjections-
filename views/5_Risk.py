@@ -44,9 +44,7 @@ ss = st.session_state
 
 head = st.empty()
 with assumption_bar("risk"):
-    with st.popover(
-        f"Corn uncertainty · {ss.get('risk_corn_vol', 20)}% a year", icon=":material/grass:"
-    ):
+    with st.popover(f"Corn uncertainty · {ss.get('risk_corn_vol', 20)}% a year"):
         corn_vol = st.slider(
             "Corn, % per year",
             0,
@@ -63,7 +61,7 @@ with assumption_bar("risk"):
         if floor_on
         else "Price floor · off"
     )
-    with st.popover(md(floor_label), icon=":material/shield:"):
+    with st.popover(md(floor_label)):
         use_floor = st.toggle(
             "Add a hog price floor",
             key="risk_floor_on",
@@ -140,8 +138,18 @@ with hero():
     stat_strip(
         [
             ("Middle outcome", usd_short(shown["p50"]), "half of years do better", "neutral"),
-            ("Bad year · 1 in 10", usd_short(shown["p10"]), "", tone_of(shown["p10"])),
-            ("Good year · 1 in 10", usd_short(shown["p90"]), "", tone_of(shown["p90"])),
+            (
+                "Bad year · 1 in 10",
+                usd_short(shown["p10"]),
+                "9 in 10 do better",
+                tone_of(shown["p10"]),
+            ),
+            (
+                "Good year · 1 in 10",
+                usd_short(shown["p90"]),
+                "9 in 10 do worse",
+                tone_of(shown["p90"]),
+            ),
             (
                 "Hog price in 12 months",
                 usd(float(np.median(end_prices))),

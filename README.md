@@ -54,6 +54,8 @@ time it runs. Never share the keys or commit `.env`.
 | `USDA_MMN_API_KEY` | Corn and soybean meal prices (USDA My Market News) | <https://mymarketnews.ams.usda.gov/mymarketnews-api> |
 | `NASS_API_KEY` | Quarterly Hogs & Pigs inventory (USDA NASS) | <https://quickstats.nass.usda.gov/api> |
 
+Optional: add `PREPARED_BY=Your Name` to `.env` to sign the page footer and the Excel report.
+
 ## Troubleshooting
 
 - **Mac says the file "can't be opened":** right-click `run.command` → **Open**. If you

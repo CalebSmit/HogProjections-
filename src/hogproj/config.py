@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     usda_mmn_api_key: str = ""  # USDA AMS MyMarketNews (free key)
     nass_api_key: str = ""  # USDA NASS Quick Stats (free key)
     offline: bool = False  # force sample data, never hit the network
+    prepared_by: str = ""  # optional name shown in every page footer and the Excel report
 
 
 def get_settings() -> Settings:

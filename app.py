@@ -4,7 +4,7 @@ import streamlit as st
 
 from hogproj import __version__
 from hogproj.config import get_settings
-from hogproj.ui import asset, setup_page
+from hogproj.ui import asset, page_footer, setup_page
 
 st.set_page_config(
     page_title="Hog Projections",
@@ -52,6 +52,7 @@ page = st.navigation(
     }
 )
 page.run()
+page_footer()
 with st.sidebar:  # after the page so it sits below the page's own inputs
     mode = "Offline · saved data" if get_settings().offline else "Online"
     st.markdown(

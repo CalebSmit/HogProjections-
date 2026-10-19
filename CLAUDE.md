@@ -75,5 +75,7 @@ Longer write-ups go in `docs/PROGRESS.md`.
 - The repo lives in OneDrive. If `uv add/sync` fails with "Access is denied" on an empty
   `hogproj-*.dist-info`, `mv` it out of `site-packages` and re-run. Never kill python.exe
   processes you didn't start; other projects run on this machine.
+- Theme font names with a bare number ("Source Sans 3") break Streamlit's font CSS; use names
+  like "IBM Plex Sans". Screenshot audits need a tall viewport (Streamlit scrolls internally).
 - usda.gov, iastate.edu and cmegroup.com may be blocked from cloud sandboxes. Build API clients
   against recorded fixtures in `tests/fixtures/` and verify live calls on a real machine.

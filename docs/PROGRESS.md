@@ -114,3 +114,12 @@ Newest at the bottom.
   moved from the sidebar into assumption chips; Overview's signature chart joins 12 months of
   actual index with the 12-month projection and its simulated range.
 - **Verified:** ruff, pyright, 70 tests; screenshots of all pages.
+
+## 2026-10-19 (cont.) — Removing "AI-made" tells
+- **Research:** designer write-ups on what makes AI-built dashboards recognisable (see
+  `docs/DESIGN.md` checklist).
+- **Done:** IBM Plex Sans + Source Serif 4; sentence-case kickers; 6-8px radius; decorative
+  icons removed; unbreakable figures (word-joiner minus); reflowing stat strips; asymmetric
+  lower layouts; footer with preparer/date/sources (`PREPARED_BY`); consistency fixes (timing
+  chip 42 vs 41 weeks, wrapped labels, axis overrun, clipped chart labels).
+- **Verified:** ruff, pyright, 72 tests; tall-viewport screenshots of all pages at 1440/1280.

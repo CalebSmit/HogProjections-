@@ -129,9 +129,10 @@ with hero():
                 f"{year['pigs_sold']:,.0f} pigs sold",
                 "neutral",
             ),
-            ("Above breakeven", f"{above} of 12 mo", "with the seasonal swing", "neutral"),
-            ("Biggest lever", str(lever["driver"]), f"{lever['high_label']} moves profit "
-             f"{signed(float(lever['high_usd']), usd_short)}", "neutral"),
+            ("Above breakeven", f"{above} of 12 mo", "seasonal path", "neutral"),
+            ("Biggest lever", str(lever["driver"]),
+             f"{signed(float(lever['high_usd']), usd_short)} per {lever['high_label']}",
+             "neutral"),
         ]
     )  # fmt: skip
     st.space("small")
@@ -203,7 +204,7 @@ st.space("medium")
 
 # --- Two editorial charts on the page ---------------------------------------------------
 labels = [f"{m:%b}" for m in months["month"]]
-left, mid, right = st.columns([1, 0.06, 1])
+left, mid, right = st.columns([1, 0.06, 1.15])
 with left:
     chart_title(
         f"{'Strongest' if per_pig.max() >= 0 else 'Smallest loss'} in {best['month']:%B}, "
@@ -293,10 +294,6 @@ with left:
             ("Hog price path", "Seasonal" if plan.seasonal else "Flat"),
         ]
     )
-    st.space("small")
-    a, b = st.columns(2)
-    a.page_link("views/1_Herd_flow.py", label="Edit herd", icon=":material/timeline:")
-    b.page_link("views/2_Costs_and_returns.py", label="Edit costs", icon=":material/request_quote:")
 with right:
     chart_title("How this is calculated", "Sources and method")
     st.markdown(
