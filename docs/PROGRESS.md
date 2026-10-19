@@ -77,6 +77,6 @@ Newest at the bottom.
     trip, toggles, Barchart parsing.
   - Owner's file imported through the browser; weekly crush and Excel crush screenshots reviewed.
 - **Notes:**
-  - Black's/ruff's reformatting broke two string-replace edits (they silently didn't apply).
+  - The ruff format hook's reformatting broke two string-replace edits (they silently didn't apply).
     Logged in CLAUDE.md.
 - **Next:** independent review of Phase 7; live data check on a real machine (Phase 4).
