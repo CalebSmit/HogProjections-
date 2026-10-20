@@ -240,3 +240,15 @@ Newest at the bottom.
   lines, break-even productivity (only stated when realistic).
 - Tests: ISU reproduction, per-sow cost invariance, corn sensitivity, adder, monthly corn,
   integrated = sum of parts, herd productivity → page headline.
+
+## 2026-10-20 — Phase 6: This week (new home page)
+
+- `brief.py`: week/year moves for any series (NaN-safe), biggest movers in words, calendar of
+  exact lean hog expiries + weekly USDA report days (quarterly Hogs and Pigs left as "late
+  Mar/Jun/Sep/Dec — check NASS", since exact dates aren't verified).
+- New **This week** page is the default: headline = the week's hog move + what a pig placed
+  today projects; four numbers (index, cutout, weaned pig, Iowa corn) with week and year change;
+  movers in words; four decision cards (placing pigs, hedging, hog market, sow farm) linking to
+  their pages; coming-up list. Overview renamed **Farm outlook**.
+- Navigation `expanded=True`: with 14 pages Streamlit had hidden three behind "View 3 more".
+- Gate: ruff, pyright 0, 163 tests, screenshots reviewed.

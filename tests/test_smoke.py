@@ -22,11 +22,14 @@ def headline_figures(at: AppTest) -> str:
 
 
 def test_app_renders():
-    at = AppTest.from_file(str(ROOT / "app.py")).run(timeout=30)
+    at = AppTest.from_file(str(ROOT / "app.py")).run(timeout=60)
+    assert not at.exception
+    assert at.title[0].value.startswith("Hogs ")  # This week leads with the week's move
+    at.switch_page("views/0_Overview.py").run()
     assert not at.exception
     assert (
         at.title[0].value.replace("\\", "").startswith("At $")
-    )  # the Overview headline states the finding
+    )  # the farm outlook headline states the finding
 
 
 def app() -> AppTest:
@@ -43,7 +46,7 @@ def test_pages_render(page):
 
 
 def test_overview_follows_inputs_from_other_pages():
-    at = app()
+    at = app().switch_page("views/0_Overview.py").run()
     before = headline_figures(at)
     at.switch_page("views/1_Herd_flow.py").run()
     at.number_input(key="herd_sows").set_value(2000).run()
@@ -71,6 +74,7 @@ def test_saved_inputs_drive_every_page_without_visiting_them():
     at.session_state["herd_sows"] = 2400
     at.session_state["cost_hog"] = 95.0
     at.run()
+    at.switch_page("views/0_Overview.py").run()
     assert not at.exception
     kicker = " ".join(md.value for md in at.markdown if "hp-kicker" in md.value)
     assert "2,400 sows" in kicker

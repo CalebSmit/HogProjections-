@@ -43,10 +43,15 @@ page = st.navigation(
     {
         "Summary": [
             st.Page(
-                "views/0_Overview.py",
-                title="Overview",
-                icon=":material/space_dashboard:",
+                "views/12_This_week.py",
+                title="This week",
+                icon=":material/today:",
                 default=True,
+            ),
+            st.Page(
+                "views/0_Overview.py",
+                title="Farm outlook",
+                icon=":material/space_dashboard:",
             ),
             st.Page("views/7_Guide.py", title="Guide", icon=":material/menu_book:"),
         ],
@@ -78,7 +83,8 @@ page = st.navigation(
             st.Page("views/3_Market_prices.py", title="Hog market", icon=":material/show_chart:"),
             st.Page("views/6_Hog_supply.py", title="Hog supply", icon=":material/inventory_2:"),
         ],
-    }
+    },
+    expanded=True,  # every page visible; the menu is the table of contents
 )
 page.run()
 page_footer()
