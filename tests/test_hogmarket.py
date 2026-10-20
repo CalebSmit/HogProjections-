@@ -310,3 +310,15 @@ def test_wasde_accuracy_by_horizon():
     assert list(acc.index) == [0]  # Q4 has no actual yet
     assert acc.loc[0, "bias"] == pytest.approx(70 - 67.86)
     assert acc.loc[0, "mae"] == pytest.approx(2.14)
+
+
+def test_fi_slaughter_weekly_and_signal():
+    days = pd.date_range("2026-09-20", "2026-10-17", freq="D")  # four Sunday-Saturday weeks
+    fi = pd.DataFrame({"date": days, "head": 100_000.0, "head_year_ago": 104_000.0})
+    wk = hm.fi_weekly(fi)
+    assert len(wk) == 4 and (wk["head"] == 700_000).all()
+    got = hm.fi_vs_year_ago(fi)
+    assert got is not None and abs(got["pct"] - (100 / 104 - 1)) < 1e-9
+    assert hm.fi_vs_year_ago(None) is None
+    sig = next(s for s in hm.signals(_market(head_shift=0.05), fi=got) if s.name == "Slaughter")
+    assert sig.tone == "good" and "all federally inspected hogs" in sig.read

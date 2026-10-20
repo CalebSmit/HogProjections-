@@ -54,3 +54,22 @@ def test_no_key_means_no_history(tmp_path, monkeypatch):
     monkeypatch.setattr(mars, "CACHE_DIR", tmp_path)
     df, source, note = mars.load("feeder", "", offline=False)
     assert df.empty and source == "none" and "USDA_MMN_API_KEY" in note
+
+
+def test_fi_slaughter_keeps_hogs_and_latest_revision():
+    from hogproj.data.mars import fi_slaughter
+
+    def row(rep, day, head, ago, commodity="Hogs", cls="All"):
+        return {"report_date": rep, "slaughter_date": day, "commodity": commodity,
+                "class": cls, "slaughter": str(head), "year_ago": str(ago)}  # fmt: skip
+
+    rows = [
+        row("10/19/2026", "2026-10-19", 495000, 487676),  # estimate
+        row("10/20/2026", "2026-10-19", 476000, 487676),  # next day's revision wins
+        row("10/20/2026", "2026-10-20", 493000, 482149),
+        row("10/20/2026", "2026-10-20", 120000, 118000, commodity="Cattle"),
+    ]
+    df = fi_slaughter(rows)
+    assert list(df["head"]) == [476000, 493000]
+    assert list(df["head_year_ago"]) == [487676, 482149]
+    assert fi_slaughter([]).empty

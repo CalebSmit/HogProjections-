@@ -511,7 +511,8 @@ def market_signals() -> list:
     from hogproj import supply
 
     return hm.signals(hog_market(), supply.next_six_months(nass_data()[0])["pct"], wasde_now(),
-                      storage_now(), retail_now())  # fmt: skip
+                      storage_now(), retail_now(),
+                      hm.fi_vs_year_ago(mars_data("fi_slaughter")[0]))  # fmt: skip
 
 
 def retail_now() -> dict | None:
@@ -1476,6 +1477,9 @@ def data_status() -> list[Freshness]:
         md_, sm, _ = mars_data(name)
         if not md_.empty:
             add(label, md_[col].max(), sm)
+    fi, sfi, _ = mars_data("fi_slaughter")
+    if not fi.empty:
+        add("Inspected slaughter", fi["date"].max(), sfi)
     fp, sf, _ = fuel_prices()
     dz = fp[fp["series"] == "diesel_us"]
     if not dz.empty:

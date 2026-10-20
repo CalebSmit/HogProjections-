@@ -186,9 +186,28 @@ def retail_vs_year_ago(retail: pd.DataFrame, weeks: int = 4) -> dict | None:
             "week": _ts(nat["week_ending"].iloc[-1])}  # fmt: skip
 
 
+def fi_weekly(fi: pd.DataFrame) -> pd.DataFrame:
+    """Federally inspected hog slaughter by week (ending Saturday) with USDA's year-ago head."""
+    x = fi.assign(date=pd.to_datetime(fi["date"])).set_index("date")
+    w = x[["head", "head_year_ago"]].resample("W-SAT").sum(min_count=1)
+    return w.dropna(subset=["head"]).reset_index().rename(columns={"date": "week_ending"})
+
+
+def fi_vs_year_ago(fi: pd.DataFrame | None, days: int = 28) -> dict | None:
+    """All federally inspected hogs over the last `days` days vs the same days a year ago."""
+    if fi is None or fi.empty:
+        return None
+    d = pd.to_datetime(fi["date"])
+    x = fi[d > d.max() - pd.Timedelta(days=days)].dropna(subset=["head", "head_year_ago"])
+    if x.empty or x["head_year_ago"].sum() == 0:
+        return None
+    return {"pct": float(x["head"].sum() / x["head_year_ago"].sum() - 1),
+            "head": float(x["head"].sum()), "end": _ts(d.max())}  # fmt: skip
+
+
 def signals(d: pd.DataFrame, supply_pct: float | None = None,
             wasde: dict | None = None, storage: dict | None = None,
-            retail: dict | None = None) -> list[Signal]:  # fmt: skip
+            retail: dict | None = None, fi: dict | None = None) -> list[Signal]:  # fmt: skip
     out: list[Signal] = []
 
     # 1. Packer spread per head vs its own history.
@@ -236,15 +255,19 @@ def signals(d: pd.DataFrame, supply_pct: float | None = None,
                           "2+ lb heavier than a year ago = negative; 2+ lb lighter = "
                           "supportive"))  # fmt: skip
 
-    # 4. Slaughter vs a year ago (producer-sold head, 4 weeks).
+    # 4. Slaughter vs a year ago, 4 weeks: all federally inspected hogs when available (packer-
+    # owned included), else producer-sold barrows and gilts from LMR.
     s = vs_year_ago(d, "head", how="sum")
+    who = "producer-sold barrows and gilts"
+    if fi is not None:
+        s, who = {"pct": fi["pct"]}, "all federally inspected hogs"
     if not np.isnan(s["pct"]):
         tone = "bad" if s["pct"] >= 0.03 else "good" if s["pct"] <= -0.03 else "neutral"
         read = {"bad": "More hogs are coming to market than a year ago.",
                 "good": "Fewer hogs are coming to market than a year ago.",
                 "neutral": "Slaughter is close to last year."}[tone]  # fmt: skip
         out.append(Signal("Slaughter", f"{s['pct']:+.1%}".replace("-", "−") + " vs last year",
-                          read + " (last 4 weeks, producer-sold barrows and gilts)", tone,
+                          read + f" (last 4 weeks, {who})", tone,
                           "3%+ above a year ago = negative; 3%+ below = supportive"))  # fmt: skip
 
     # 5. Supply ahead (NASS Hogs and Pigs).

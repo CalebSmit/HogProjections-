@@ -30,7 +30,8 @@ MAX_AGE_DAYS = {
     "Hog by-product value": 10,
     "Retail pork features": 10,
     "Iowa State costs": 75,
-    "Diesel": 10,  # sale month; published about a month after
+    "Diesel": 10,
+    "Inspected slaughter": 5,  # sale month; published about a month after
 }
 
 

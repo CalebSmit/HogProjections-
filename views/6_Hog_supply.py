@@ -1,8 +1,10 @@
 """Hog supply: what the quarterly USDA Hogs and Pigs report says is coming to market."""
 
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from hogproj import hogmarket as hm
 from hogproj import supply
 from hogproj.ui import (
     ACCENT,
@@ -19,6 +21,7 @@ from hogproj.ui import (
     end_tag,
     excel_button,
     hero,
+    mars_data,
     masthead,
     nass_data,
     quote,
@@ -128,6 +131,59 @@ with hero():
         "marketing windows are rules of thumb: heavier hogs within weeks, lighter ones months "
         "later, pigs about six months after birth",
     )
+
+# --- What packers are killing now: all federally inspected hogs, weekly ----------------------
+fi, fi_src, _ = mars_data("fi_slaughter")
+if not fi.empty:
+    wk = hm.fi_weekly(fi)
+    wk = wk[wk["week_ending"] <= pd.to_datetime(fi["date"]).max()].tail(26)  # full weeks only
+    if len(wk):
+        st.space("medium")
+        last = wk.iloc[-1]
+        chg = float(last["head"]) / float(last["head_year_ago"]) - 1
+        four = hm.fi_vs_year_ago(fi)
+        chart_title(
+            f"Packers killed {float(last['head']) / 1e6:.2f}M hogs the week ending "
+            f"{last['week_ending'].strftime('%b')} {last['week_ending'].day}, "
+            f"{pct(chg)} vs a year ago",
+            "All federally inspected hogs, packer-owned included, head per week (Sunday to "
+            "Saturday) · line: same week a year ago"
+            + (f" · last 4 weeks {pct(four['pct'])}" if four else ""),
+        )
+        sf = go.Figure()
+        sf.add_bar(
+            x=wk["week_ending"],
+            y=wk["head"],
+            name="This year",
+            marker={"color": ACCENT, "cornerradius": 3},
+            hovertemplate="Week ending %{x|%b %d}: %{y:,.0f} head<extra></extra>",
+        )
+        sf.add_scatter(
+            x=wk["week_ending"],
+            y=wk["head_year_ago"],
+            name="A year ago",
+            mode="lines+markers",
+            line={"color": REFERENCE, "width": 2, "dash": "dot"},
+            marker={"size": 8, "color": REFERENCE},
+            hovertemplate="A year earlier: %{y:,.0f} head<extra></extra>",
+        )
+        lo = float(min(wk["head"].min(), wk["head_year_ago"].min()))
+        sf.update_yaxes(tickformat=".3s", range=[lo * 0.9, None])
+        sf.update_xaxes(tickformat="%b %d")
+        sf.update_layout(bargap=0.35, legend={"orientation": "h", "y": 1.08, "x": 0})
+        chart(sf, 300, on=PAGE)
+        source_note(
+            "USDA AMS Daily Livestock Slaughter (AMS_3208), estimated"
+            + (" (live)" if fi_src == "live" else " (saved)"),
+            "holiday weeks run short; the Slaughter signal on Hog market uses this count",
+        )
+        excel_button(
+            {"Weekly slaughter": wk, "Daily slaughter": fi},
+            "inspected_hog_slaughter",
+            "Federally inspected hog slaughter",
+            "USDA AMS_3208",
+        )
+        rule()
 
 st.space("medium")
 left, mid, right = st.columns([1.2, 0.06, 1])
