@@ -16,7 +16,9 @@ def headline_figures(at: AppTest) -> str:
         md.value
         for md in at.markdown
         if not md.value.lstrip().startswith("<style")  # the global stylesheet names the classes
-        and ('class="hp-stat"' in md.value or 'class="hp-quote' in md.value)
+        and (
+            'class="hp-stat"' in md.value or 'class="hp-quote' in md.value or "hp-score" in md.value
+        )  # This week's scorecard
     ]
     return " ".join(parts)
 
@@ -24,7 +26,8 @@ def headline_figures(at: AppTest) -> str:
 def test_app_renders():
     at = AppTest.from_file(str(ROOT / "app.py")).run(timeout=60)
     assert not at.exception
-    assert at.title[0].value.startswith("Hogs ")  # This week leads with the week's move
+    # This week leads with the answer: what a pig placed today projects
+    assert at.title[0].value.startswith("A pig placed today projects")
     assert any("weekly brief" in str(b.proto.label) for b in at.get("download_button"))
     at.switch_page("views/0_Overview.py").run()
     assert not at.exception

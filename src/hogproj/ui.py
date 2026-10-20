@@ -1154,6 +1154,17 @@ def uses_benchmarks() -> bool:
     return p.herd == HerdInputs() and p.cost == default
 
 
+def hedge_rule_from_state():  # -> book.HedgeRule
+    """The hedge rule the user chose on Hedging (defaults until they do)."""
+    from hogproj.book import HedgeRule
+
+    ss = st.session_state
+    return HedgeRule(mode=str(ss.get("w2f_rule_mode") or "rank"),
+                     trigger=float(ss.get("w2f_rule_trigger") or 75),
+                     target=float(ss.get("w2f_rule_target") or 50) / 100,
+                     min_margin=float(ss.get("w2f_rule_margin") or 10.0))  # fmt: skip
+
+
 def saved_inputs() -> dict[str, object]:
     """Inputs worth saving to a file: plain widget values only."""
     ss = st.session_state
@@ -1430,6 +1441,64 @@ def projection_band(fig: go.Figure, x0: object, x1: object, label: str = "PROJEC
 
 
 # --- Misc -----------------------------------------------------------------------------------
+def scorecard_table(rows: list) -> None:
+    """The weekly scorecard: one line per measure with its trend, its place against past years
+    and a status word (a coloured dot plus words, never colour alone)."""
+    from hogproj.scorecard import sparkline
+
+    dot = {"good": POS, "bad": NEG, "neutral": MUTED}
+    th = (
+        f"padding:8px 12px;border-bottom:1px solid {LINE};color:{MUTED};font-size:11px;"
+        "text-transform:uppercase;letter-spacing:.06em;font-weight:600;white-space:nowrap"
+    )
+    td = f"padding:10px 12px;border-bottom:1px solid {LINE};vertical-align:middle"
+    head = "".join(
+        f'<th style="{th};text-align:{a}">{h}</th>'
+        for h, a in (
+            ("Measure", "left"),
+            ("Latest", "right"),
+            ("Week", "right"),
+            ("Year", "right"),
+            ("26 weeks", "left"),
+            ("Vs past years, same week", "left"),
+            ("Status", "left"),
+        )
+    )
+    body = []
+    for r in rows:
+        wk = (
+            "–"
+            if r.week_change is None
+            else ("+" if r.week_change >= 0 else "") + r.fmt(r.week_change).replace("−", "−⁠")
+        )
+        yr = "–" if r.year_pct is None else f"{r.year_pct:+.0%}".replace("-", "−")
+        v = r.verdict
+        past = (
+            "–"
+            if v is None
+            else f"{r.fmt(v.lo, False)}–{r.fmt(v.hi, False)} <span style='color:{MUTED}'>· "
+            f"{v.span} · {r.rank_text()}</span>"
+        )
+        color = dot[r.tone]
+        body.append(
+            f"<tr><td style='{td};text-align:left'><div style='font-weight:600;color:{INK}'>"
+            f"{_safe(r.name)}</div><div style='color:{MUTED};font-size:11.5px'>"
+            f"{r.as_of:%b} {r.as_of.day}</div></td>"
+            f"<td style='{td};text-align:right;font-weight:600'>{_safe(r.fmt(r.latest))}</td>"
+            f"<td style='{td};text-align:right'>{_safe(wk)}</td>"
+            f"<td style='{td};text-align:right'>{_safe(yr)}</td>"
+            f"<td style='{td}'>{sparkline(r.trend, ACCENT)}</td>"
+            f"<td style='{td};color:{INK_2}'>{past}</td>"
+            f"<td style='{td};white-space:nowrap'><span style='display:inline-block;width:8px;"
+            f"height:8px;border-radius:50%;background:{color};margin-right:7px'></span>"
+            f"{_safe(r.status)}</td></tr>"
+        )
+    _html('<div style="overflow-x:auto"><table class="hp-table hp-score" style="width:100%;'
+          f"border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums;"
+          f'color:{INK_2}"><thead><tr>{head}</tr></thead><tbody>{"".join(body)}</tbody>'
+          "</table></div>")  # fmt: skip
+
+
 def table(
     header: Sequence[str], rows: Sequence[Sequence[str]], emphasis_col: int | None = None
 ) -> None:

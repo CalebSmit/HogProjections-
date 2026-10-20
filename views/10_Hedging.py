@@ -7,7 +7,15 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from hogproj.book import Hedge, business_days_since, by_contract, hedge_rule, positions, what_if
+from hogproj.book import (
+    RULE_MODES,
+    Hedge,
+    business_days_since,
+    by_contract,
+    hedge_rule,
+    positions,
+    what_if,
+)
 from hogproj.crush import contract_label, margin_rank
 from hogproj.text import ordinal
 from hogproj.ui import (
@@ -27,6 +35,7 @@ from hogproj.ui import (
     excel_button,
     futures_upload,
     head_per_week,
+    hedge_rule_from_state,
     hero,
     lh_key,
     live_number,
@@ -116,15 +125,21 @@ with assumption_bar("hedge"):
         live_number(st, "Pigs placed per week", 0.0, 1_000_000.0, head0, 10.0,
                     key="w2f_head_week",
                     help="Starts at Herd flow's weaned pigs per week. Sizes the book.")  # fmt: skip
-    with st.popover(
-        f"Hedge rule · {ordinal(cur('w2f_rule_trigger', 75))} pct → "
-        f"{cur('w2f_rule_target', 50):.0f}%"
-    ):
-        st.caption("Your rule, not advice: when a contract's projected margin ranks at or above "
-                   "the trigger against every placement since 2020, hedge the target "
-                   "share.")  # fmt: skip
-        st.slider("Trigger percentile", 50, 95, 75, 5, key="w2f_rule_trigger")
-        st.slider("Target hedged (%)", 10, 100, 50, 10, key="w2f_rule_target")
+    with st.popover(hedge_rule_from_state().label()):
+        st.caption(
+            "Your rule, not advice. Pick what triggers it: a margin that ranks high against "
+            "every placement since 2020, or a margin per pig you're happy to lock in."
+        )
+        st.segmented_control("Rule", list(RULE_MODES), default="rank", key="w2f_rule_mode",
+                             format_func=lambda m: RULE_MODES[m], required=True)  # fmt: skip
+        mode = st.session_state.get("w2f_rule_mode") or "rank"
+        if mode == "rank":
+            st.slider("Trigger percentile", 50, 95, 75, 5, key="w2f_rule_trigger")
+        elif mode == "margin":
+            st.number_input("Hedge when margin is at least ($/pig)", -50.0, 100.0, 10.0, 1.0,
+                            key="w2f_rule_margin")  # fmt: skip
+        if mode != "off":
+            st.slider("Target hedged (%)", 10, 100, 50, 10, key="w2f_rule_target")
 
 # --- Numbers ---------------------------------------------------------------------------------
 hog_hedges = {
@@ -138,7 +153,8 @@ sbm_h = Hedge(share=cur("w2f_sbm_hedge_pct", 0) / 100,
 per_week = cur("w2f_head_week", head0)
 pos = positions(on_feed, c, book.futures, hog_hedges, per_week, corn_h, sbm_h)
 summary = by_contract(pos)
-trigger, target = cur("w2f_rule_trigger", 75), cur("w2f_rule_target", 50) / 100
+hrule = hedge_rule_from_state()
+trigger, target = hrule.trigger, hrule.target
 
 if pos.empty:
     with head.container():
@@ -246,12 +262,14 @@ st.space("medium")
 
 chart_title(
     "What your rule says, contract by contract",
-    f"Trigger: {ordinal(trigger)} percentile · target {target:.0%} hedged",
+    f"Your rule: {hrule.describe()}",
 )
 rows = []
 for r in summary.to_dict("records"):
-    tone, _ = hedge_rule(float(r["rank"]), trigger, target, float(r["hedged_share"]))
-    short = {"good": "In place", "caution": f"Hedge {target:.0%}", "neutral": "Wait"}[tone]
+    tone, _ = hedge_rule(float(r["rank"]), trigger, target, float(r["hedged_share"]), hrule,
+                         float(r["unhedged_margin_usd"]) / float(r["head"]))  # fmt: skip
+    short = {"good": "In place", "caution": f"Hedge {target:.0%}",
+             "neutral": "Wait" if hrule.mode != "off" else "–"}[tone]  # fmt: skip
     rows.append([r["label"], f"{r['head']:,.0f}", usd(r["market_usd_per_cwt"]),
                  f"{r['hedged_share']:.0%}", usd(r["margin_usd_per_head"]),
                  usd_short(r["margin_usd"]),
@@ -261,8 +279,7 @@ table(["Contract", "Pigs", "Price $/cwt", "Hedged", "Margin/pig", "Total", "Rank
       emphasis_col=3)  # fmt: skip
 source_note(
     "model",
-    f"rank: open margin vs every placement since 2020; rule says hedge {target:.0%} at or above "
-    f"the {ordinal(trigger)} percentile, otherwise wait",
+    f"rank: open margin vs every placement since 2020; your rule: {hrule.describe()}",
 )
 excel_button({"By contract": summary, "By placement week": pos,
               "What if hogs move": what_if(pos, [float(x) for x in range(-15, 16)])},
