@@ -30,6 +30,7 @@ PAGES = {
     "scenarios": "Scenarios",
     "risk": "Risk",
     "market": "Market_prices",
+    "national": "National",
     "supply": "Hog_supply",
     "feed": "Feed",
     "archive": "Archive",

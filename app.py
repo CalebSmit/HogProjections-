@@ -94,6 +94,7 @@ page = st.navigation(
         ],
         "Markets": [
             st.Page("views/3_Market_prices.py", title="Hog market", icon=":material/show_chart:"),
+            st.Page("views/15_National.py", title="National view", icon=":material/map:"),
             st.Page("views/6_Hog_supply.py", title="Hog supply", icon=":material/inventory_2:"),
             st.Page("views/14_Feed.py", title="Feed prices", icon=":material/grass:"),
             st.Page("views/13_Archive.py", title="Market archive", icon=":material/table_view:"),

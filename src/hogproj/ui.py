@@ -32,7 +32,7 @@ from hogproj.crush import (
     pig_seasonality,
     placements,
 )
-from hogproj.data import ers, feed, lmr, mars, wasde
+from hogproj.data import ers, feed, lmr, mars, regional, wasde
 from hogproj.data.ams import Source, load_hg201
 from hogproj.data.feeder import load as feeder_load
 from hogproj.data.feeder import merge as feeder_merge
@@ -547,6 +547,16 @@ def _feeder(offline: bool) -> tuple[pd.DataFrame, str, str]:
 def _mars(name: str, offline: bool) -> tuple[pd.DataFrame, str, str]:
     # The key is read here rather than passed in, so it never becomes part of a cache key.
     return mars.load(name, get_settings().usda_mmn_api_key.strip(), offline)
+
+
+@st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA regional hog data…")
+def _regional(name: str, offline: bool) -> tuple[pd.DataFrame, str, str]:
+    return regional.load(name, offline)
+
+
+def regional_data(name: str) -> tuple[pd.DataFrame, str, str]:
+    """LMR regional datasets: "prices", "origin", "weights", "sows" (no key needed)."""
+    return _regional(name, get_settings().offline)
 
 
 def mars_data(name: str) -> tuple[pd.DataFrame, str, str]:
@@ -1319,7 +1329,8 @@ def warm_data() -> None:
     offline = get_settings().offline
     ctx = get_script_run_ctx()
     loaders = [_hg201, _cutout, _feeder, _feed, _nass, _corn, _wasde, _cold,
-               *[lambda o, n=n: _mars(n, o) for n in mars.DATASETS]]  # fmt: skip
+               *[lambda o, n=n: _mars(n, o) for n in [*mars.DATASETS, *mars.MULTI]],
+               *[lambda o, n=n: _regional(n, o) for n in regional.DATASETS]]  # fmt: skip
 
     def run(f):  # noqa: ANN001, ANN202 - cached loader
         add_script_run_ctx(ctx=ctx)  # so the cache and spinners know which session this is

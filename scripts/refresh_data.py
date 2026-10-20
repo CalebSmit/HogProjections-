@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from hogproj.config import CACHE_DIR, SAMPLE_DIR, get_settings  # noqa: E402
-from hogproj.data import ams, ers, feed, feeder, lmr, mars, nass, wasde  # noqa: E402
+from hogproj.data import ams, ers, feed, feeder, lmr, mars, nass, regional, wasde  # noqa: E402
 
 
 def main() -> int:
@@ -32,6 +32,8 @@ def main() -> int:
         "WASDE": (lambda: wasde.load(False), wasde.WASDE_FILE),
         "ERS cold storage": (lambda: ers.load(False), ers.ERS_FILE),
     }
+    for name, (_, _, file, _) in regional.DATASETS.items():
+        checks[f"LMR regional {name}"] = (lambda n=name: regional.load(n, False), file)
     if s.nass_api_key.strip():
         nk = s.nass_api_key.strip()
         checks["NASS Hogs and Pigs"] = (lambda: nass.load(nk, False), nass.NASS_FILE)
@@ -40,6 +42,8 @@ def main() -> int:
         mk = s.usda_mmn_api_key.strip()
         for name in mars.DATASETS:
             checks[f"My Market News {name}"] = (lambda n=name: mars.load(n, mk, False), None)
+        for name, spec in mars.MULTI.items():
+            checks[f"My Market News {name}"] = (lambda n=name: mars.load(n, mk, False), spec[3])
     failed = []
     for label, (run, sample_file) in checks.items():
         df, source, note = run()

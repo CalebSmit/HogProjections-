@@ -17,11 +17,11 @@ import httpx
 import numpy as np
 import pandas as pd
 
-from hogproj.config import CACHE_DIR
+from hogproj.config import CACHE_DIR, SAMPLE_DIR
 
 BASE = "https://marsapi.ams.usda.gov/services/v1.2/reports"
 START = date(2020, 1, 1)
-Source = Literal["live", "cache", "none"]
+Source = Literal["live", "cache", "sample", "none"]
 
 
 def _num(v: Any) -> float:
@@ -107,6 +107,76 @@ def iowa_feedstuffs(rows: list[dict]) -> pd.DataFrame:
     return df.sort_values("date").reset_index(drop=True)
 
 
+STATES = {  # state grain bid reports with corn by region
+    "Iowa": 2850, "Minnesota": 3049, "South Dakota": 3186, "Nebraska": 3225, "Illinois": 3192,
+    "Indiana": 3463, "Ohio": 2851, "Missouri": 2932, "Kansas": 2886, "North Carolina": 3156,
+    "Texas": 2711,
+}  # fmt: skip
+
+
+def state_corn(rows: list[dict], state: str) -> pd.DataFrame:
+    """Daily state average cash corn and basis (country elevators where reported)."""
+    corn = [r for r in rows if r.get("commodity") == "Corn"]
+    country = [r for r in corn if r.get("delivery_point") == "Country Elevators"]
+    df = iowa_corn(country or [{**r, "delivery_point": "Country Elevators"} for r in corn])
+    df = df.rename(columns={"corn_cash_iowa": "cash", "corn_basis_iowa": "basis"})
+    df.insert(1, "state", state)
+    return df
+
+
+def flows(rows: list[dict], _: object = None) -> pd.DataFrame:
+    """Feeder pig volume by state: share of pigs from (origin) and to (destination) each state."""
+    recs = [{"week_ending": pd.to_datetime(r["report_end_date"], format="%m/%d/%Y"),
+             "state": str(r.get("state")), "origin_pct": _num(r.get("origin_pct")),
+             "destination_pct": _num(r.get("destination_pct"))}
+            for r in rows if r.get("state")]  # fmt: skip
+    return pd.DataFrame(recs, columns=["week_ending", "state", "origin_pct", "destination_pct"])
+
+
+def drop_value(rows: list[dict], _: object = None) -> pd.DataFrame:
+    """Weekly hog by-product (drop) value, $/cwt live and dressed equivalent."""
+    recs = [{"week_ending": pd.to_datetime(r["report_end_date"], format="%m/%d/%Y"),
+             "drop_usd_per_cwt_live": _num(r.get("total_value")),
+             "drop_usd_per_cwt_carcass": _num(r.get("dressed_equivalent_value"))}
+            for r in rows if r.get("sub_Group") == "Hog Drop"]  # fmt: skip
+    return pd.DataFrame(recs, columns=["week_ending", "drop_usd_per_cwt_live",
+                                       "drop_usd_per_cwt_carcass"])  # fmt: skip
+
+
+def retail(rows: list[dict], _: object = None) -> pd.DataFrame:
+    """Weekly grocery pork feature activity by region (feature rate, activity index)."""
+    recs = [{"week_ending": pd.to_datetime(r["report_end_date"], format="%m/%d/%Y"),
+             "region": str(r.get("region")), "stores": _num(r.get("stores")),
+             "feature_rate": _num(r.get("feature")),
+             "feature_rate_last_year": _num(r.get("last_Year_Feature")),
+             "activity_index": _num(r.get("activity_Index")),
+             "activity_index_last_year": _num(r.get("last_Year_Activity_Index"))}
+            for r in rows if r.get("region")]  # fmt: skip
+    return pd.DataFrame(recs)
+
+
+# name -> ([(slug, section or None = its detail section, tag)], parser, date column, file, keys)
+MULTI: dict[str, tuple[list[tuple[int, str | None, object]], Any, str, str, list[str]]] = {
+    "state_corn": ([(slug, None, st) for st, slug in STATES.items()], state_corn, "date",
+                   "mars_state_corn.csv", ["date", "state"]),
+    "flows": ([(2810, "Report Volume", None)], flows, "week_ending", "mars_feeder_flows.csv",
+              ["week_ending", "state"]),
+    "drop": ([(2835, "Report Totals", None)], drop_value, "week_ending", "mars_drop_value.csv",
+             ["week_ending"]),
+    "retail": ([(2868, "Report Metrics", None)], retail, "week_ending",
+               "mars_retail_pork.csv", ["week_ending", "region"]),
+}  # fmt: skip
+
+
+def _detail_section(key: str, slug: int) -> str:
+    with httpx.Client(auth=(key, ""), timeout=120, follow_redirects=True) as c:
+        try:
+            secs = c.get(f"{BASE}/{slug}").json().get("reportSections") or []
+        except httpx.HTTPError as e:
+            raise httpx.HTTPError(str(e).replace(key, "***")) from None
+    return next((x for x in secs if "Detail" in x), "Report Detail")
+
+
 DATASETS = {
     "feeder": (2810, "Report Details", feeder, "week_ending", "mars_feeder_pigs.csv"),
     "corn": (2850, "Report Detail", iowa_corn, "date", "mars_iowa_corn.csv"),
@@ -114,12 +184,30 @@ DATASETS = {
 }
 
 
+def _fetch_multi(name: str, key: str, since: date) -> pd.DataFrame:
+    sources, parser, _, _, _ = MULTI[name]
+    parts = []
+    for slug, section, tag in sources:
+        sec = section or _detail_section(key, slug)
+        parts.append(parser(fetch(key, slug, sec, since, date.today()), tag))
+    parts = [p for p in parts if not p.empty]
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+
+
 def load(name: str, key: str, offline: bool) -> tuple[pd.DataFrame, Source, str]:
-    """One dataset: incremental from the cache (two weeks of overlap for revisions). Unlike the
-    other loaders there's no bundled sample — without a key the app uses the public PDFs."""
-    slug, section, parser, date_col, file = DATASETS[name]
+    """One dataset: incremental from the cache (two weeks of overlap for revisions), else the
+    bundled sample, else nothing (without a key the app uses the public PDFs)."""
+    section: str = ""
+    parser: Any = None
+    if name in MULTI:
+        _, _, date_col, file, keys = MULTI[name]
+        slug = MULTI[name][0][0][0]
+    else:
+        slug, section, parser, date_col, file = DATASETS[name]
+        keys = [date_col]
     cache = CACHE_DIR / file
-    saved = pd.read_csv(cache, parse_dates=[date_col]) if cache.exists() else None
+    path = cache if cache.exists() else SAMPLE_DIR / file
+    saved = pd.read_csv(path, parse_dates=[date_col]) if path.exists() else None
     if not key:
         problem = "Add USDA_MMN_API_KEY to .env for USDA history."
     elif offline:
@@ -128,10 +216,11 @@ def load(name: str, key: str, offline: bool) -> tuple[pd.DataFrame, Source, str]
         try:
             since = (pd.Timestamp(str(saved[date_col].max())).date() - timedelta(days=14)
                      if saved is not None and len(saved) else START)  # fmt: skip
-            new = parser(fetch(key, slug, section, since, date.today()))
+            new = (_fetch_multi(name, key, since) if name in MULTI
+                   else parser(fetch(key, slug, section, since, date.today())))  # fmt: skip
             df = new if saved is None else pd.concat([saved, new], ignore_index=True)
             df[date_col] = pd.to_datetime(df[date_col])
-            df = df.drop_duplicates(date_col, keep="last").sort_values(date_col)
+            df = df.drop_duplicates(keys, keep="last").sort_values(keys)
             df = df.reset_index(drop=True)
             if df.empty:
                 raise ValueError("USDA returned no rows")
@@ -141,5 +230,6 @@ def load(name: str, key: str, offline: bool) -> tuple[pd.DataFrame, Source, str]
         except (httpx.HTTPError, ValueError, KeyError) as e:
             problem = f"Couldn't reach My Market News ({type(e).__name__})."
     if saved is not None:
-        return saved, "cache", f"{problem} Showing saved history."
+        where: Source = "cache" if path == cache else "sample"
+        return saved, where, f"{problem} Showing saved history."
     return pd.DataFrame(), "none", problem
