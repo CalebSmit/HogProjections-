@@ -6,6 +6,8 @@ free USDA_MMN_API_KEY (HTTP basic auth: key as user, empty password).
 - AMS_2850 Iowa Daily Cash Grain Bids: corn by region → Iowa average cash and basis, Feb 2020 on.
 - AMS_3511 National Grain and Oilseed Processor Feedstuff: Iowa soybean meal and DDGS, weekly,
   Feb 2022 on.
+- MULTI below: state grain bids, feeder pig flows (2810), drop value (2835), retail features
+  (2868) and daily federally inspected slaughter (3208).
 
 The key never reaches logs or the UI: it is scrubbed from any error text.
 """
@@ -155,6 +157,23 @@ def retail(rows: list[dict], _: object = None) -> pd.DataFrame:
     return pd.DataFrame(recs)
 
 
+def fi_slaughter(rows: list[dict], _: object = None) -> pd.DataFrame:
+    """Daily federally inspected hog slaughter (all hogs, packer-owned included) with USDA's
+    same-day-a-year-ago figure. Each report also revises the prior day, so the newest report
+    for a slaughter day wins."""
+    recs = [{"date": pd.to_datetime(r["slaughter_date"]),
+             "report_date": pd.to_datetime(r["report_date"], format="%m/%d/%Y"),
+             "head": _num(r.get("slaughter")), "head_year_ago": _num(r.get("year_ago"))}
+            for r in rows
+            if r.get("commodity") == "Hogs" and r.get("class") == "All"
+            and r.get("slaughter_date")]  # fmt: skip
+    cols = ["date", "head", "head_year_ago"]
+    if not recs:
+        return pd.DataFrame(columns=cols)
+    df = pd.DataFrame(recs).sort_values(["date", "report_date"])
+    return df.drop_duplicates("date", keep="last")[cols].reset_index(drop=True)
+
+
 # name -> ([(slug, section or None = its detail section, tag)], parser, date column, file, keys)
 MULTI: dict[str, tuple[list[tuple[int, str | None, object]], Any, str, str, list[str]]] = {
     "state_corn": ([(slug, None, st) for st, slug in STATES.items()], state_corn, "date",
@@ -165,6 +184,8 @@ MULTI: dict[str, tuple[list[tuple[int, str | None, object]], Any, str, str, list
              ["week_ending"]),
     "retail": ([(2868, "Report Metrics", None)], retail, "week_ending",
                "mars_retail_pork.csv", ["week_ending", "region"]),
+    "fi_slaughter": ([(3208, "Report Livestock Commodity", None)], fi_slaughter, "date",
+                     "mars_fi_slaughter.csv", ["date"]),
 }  # fmt: skip
 
 
