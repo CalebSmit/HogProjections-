@@ -1172,6 +1172,25 @@ def crush_book() -> CrushBook:
                      curve=curve, price_source=source)  # fmt: skip
 
 
+@st.cache_data(ttl=12 * 3600, show_spinner=False)
+def _accuracy(index: pd.DataFrame) -> pd.DataFrame:
+    from hogproj import accuracy
+
+    return accuracy.summary(accuracy.backtest(index))
+
+
+def forecast_accuracy() -> pd.DataFrame:
+    """How far the seasonal hog price estimate has missed, by months ahead (accuracy.py)."""
+    return _accuracy(hog_index()[0])
+
+
+def price_band(months_ahead: float) -> float | None:
+    """$/cwt the hog price has landed within 8 times in 10, this many months ahead."""
+    from hogproj import accuracy
+
+    return accuracy.band_cwt(forecast_accuracy(), months_ahead)
+
+
 def margin_board() -> pd.DataFrame:
     """The forward margin board at today's contract prices (board.summarize), saved once a day
     when online so its trend builds up."""
@@ -1184,7 +1203,8 @@ def margin_board() -> pd.DataFrame:
     hedged = {contract_label(k): float(ss.get(f"w2f_hedge_{k[0]}_{k[1]:02d}_pct") or 0) / 100
               for k in book.contracts}  # fmt: skip
     b = board.summarize(book.forward if book.forward is not None else pd.DataFrame(), history,
-                        hedge_rule_from_state(), book.c.carcass_cwt, hedged)  # fmt: skip
+                        hedge_rule_from_state(), book.c.carcass_cwt, hedged,
+                        band=price_band)  # fmt: skip
     if not get_settings().offline:
         board.record(date.today(), b)
     return b
