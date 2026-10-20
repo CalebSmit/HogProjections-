@@ -30,7 +30,7 @@ from hogproj.crush import (
     model_contract_prices,
     placements,
 )
-from hogproj.data import feed, lmr, wasde
+from hogproj.data import ers, feed, lmr, wasde
 from hogproj.data.ams import Source, load_hg201
 from hogproj.data.feeder import load as feeder_load
 from hogproj.data.nass import load as nass_load
@@ -385,6 +385,22 @@ def _wasde(offline: bool) -> tuple[pd.DataFrame, str, str]:
 def wasde_data() -> tuple[pd.DataFrame, str, str]:
     """USDA WASDE quarterly pork production and barrow/gilt price forecasts."""
     return _wasde(get_settings().offline)
+
+
+@st.cache_data(ttl=12 * 3600, show_spinner="Loading USDA cold storage…")
+def _cold(offline: bool) -> tuple[pd.DataFrame, str, str]:
+    return ers.load(offline)
+
+
+def cold_storage() -> tuple[pd.DataFrame, str, str]:
+    """Monthly pork in cold storage (USDA ERS)."""
+    return _cold(get_settings().offline)
+
+
+def storage_now() -> dict | None:
+    from hogproj.hogmarket import storage_vs_normal
+
+    return storage_vs_normal(cold_storage()[0])
 
 
 def wasde_now() -> dict | None:
@@ -969,6 +985,28 @@ def page_footer() -> None:
         "Iowa State University Estimated Livestock Returns · "
         "Projections, not financial advice</span></div>"
     )
+
+
+def warm_data() -> None:
+    """Load every USDA source at once on first run. Each loader is cached, so later calls are
+    instant; fetching them side by side turns ~11 s of one-after-another downloads into ~3 s."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    from streamlit.runtime.scriptrunner import add_script_run_ctx, get_script_run_ctx
+
+    if st.session_state.get("_warm"):
+        return
+    offline = get_settings().offline
+    ctx = get_script_run_ctx()
+    loaders = [_hg201, _cutout, _feeder, _feed, _nass, _corn, _wasde, _cold]
+
+    def run(f):  # noqa: ANN001, ANN202 - cached loader
+        add_script_run_ctx(ctx=ctx)  # so the cache and spinners know which session this is
+        return f(offline)
+
+    with ThreadPoolExecutor(max_workers=len(loaders)) as pool:
+        list(pool.map(run, loaders))
+    st.session_state["_warm"] = True
 
 
 def data_status() -> list[tuple[str, str, str]]:

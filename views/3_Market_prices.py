@@ -20,6 +20,7 @@ from hogproj.ui import (
     REFERENCE,
     chart,
     chart_title,
+    cold_storage,
     end_tag,
     hero,
     hog_index,
@@ -34,6 +35,7 @@ from hogproj.ui import (
     signed,
     source_note,
     stat_strip,
+    storage_now,
     table,
     tone_of,
     usd,
@@ -58,7 +60,7 @@ week, month, year = value_days_ago(7), value_days_ago(30), value_days_ago(365)
 move_30 = latest - month if month is not None else 0.0
 last_year = values[(dates >= latest_date - pd.Timedelta(days=365)).to_numpy()]
 supply_pct = supply.next_six_months(nass_data()[0])["pct"]
-sigs = hm.signals(d, supply_pct, wasde_now())
+sigs = hm.signals(d, supply_pct, wasde_now(), storage_now())
 tone, why = hm.overall(sigs)
 good = [s.name.lower() for s in sigs if s.tone == "good"]
 bad = [s.name.lower() for s in sigs if s.tone == "bad"]
@@ -345,6 +347,55 @@ if not wd.empty:
         fp.update_layout(showlegend=False, bargap=0.35, hovermode="closest")
         chart(fp, 260, on=PAGE)
         source_note("USDA WASDE", "red: more pork than a year earlier (bearish), green: less")
+    rule()
+
+# --- Cold storage -------------------------------------------------------------------------------
+cs, cs_source, _ = cold_storage()
+stor = storage_now()
+if stor is not None:
+    m_ = pd.to_datetime(cs["month"])
+    last_year_ = int(m_.dt.year.max())
+    left, mid, right = st.columns([1.2, 0.06, 1])
+    with left:
+        chart_title(
+            f"Pork in storage is {abs(stor['pct']):.0%} "
+            f"{'above' if stor['pct'] >= 0 else 'below'} normal for {stor['month']:%B}",
+            "Frozen pork stocks, million lb, start of month · shaded: range of the 5 years before",
+        )
+        fs = go.Figure()
+        prior = cs[(m_.dt.year < last_year_) & (m_.dt.year >= last_year_ - 5)]
+        pm = pd.to_datetime(prior["month"]).dt.month
+        lo_, hi_ = (
+            prior.groupby(pm)["pork_stocks_mlb"].min(),
+            prior.groupby(pm)["pork_stocks_mlb"].max(),
+        )
+        avg_ = prior.groupby(pm)["pork_stocks_mlb"].mean()
+        names_ = [calendar.month_abbr[k] for k in hi_.index]
+        fs.add_scatter(x=names_, y=hi_.to_numpy(), mode="lines", line={"width": 0},
+                       hoverinfo="skip", showlegend=False)  # fmt: skip
+        fs.add_scatter(x=names_, y=lo_.to_numpy(), mode="lines", line={"width": 0},
+                       fill="tonexty", fillcolor="rgba(133,127,115,0.16)", hoverinfo="skip",
+                       showlegend=False)  # fmt: skip
+        fs.add_scatter(x=names_, y=avg_.to_numpy(), mode="lines", name="5-yr avg",
+                       line={"color": MUTED, "width": 1.2, "dash": "dot"},
+                       hovertemplate="%{x} 5-yr avg: %{y:,.0f}M lb<extra></extra>")  # fmt: skip
+        cur_ = cs[m_.dt.year == last_year_]
+        fs.add_scatter(x=[calendar.month_abbr[k] for k in pd.to_datetime(cur_["month"]).dt.month],
+                       y=cur_["pork_stocks_mlb"], mode="lines+markers", name=str(last_year_),
+                       line={"color": ACCENT, "width": 2.2}, marker={"size": 6},
+                       hovertemplate=f"%{{x}} {last_year_}: %{{y:,.0f}}M lb"
+                       "<extra></extra>")  # fmt: skip
+        fs.update_yaxes(ticksuffix="M")
+        fs.update_layout(showlegend=False, hovermode="closest")
+        chart(fs, 260, on=PAGE)
+        source_note("USDA ERS (NASS Cold Storage)" + (" (live)" if cs_source == "live" else
+                    " (saved)"), "dotted: 5-year average")  # fmt: skip
+    with mid:
+        st.markdown('<div class="hp-vrule" style="height:340px"></div>', unsafe_allow_html=True)
+    with right:
+        chart_title("How the signals are scored", "Each rule is fixed and written out")
+        for x in sigs:
+            st.markdown(f"**{x.name}** — {x.rule}.")
     rule()
 
 # --- Seasonality + primals ---------------------------------------------------------------------

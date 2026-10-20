@@ -147,3 +147,32 @@ def test_parse_wasde_rejects_other_text():
 
     with pytest.raises(ValueError):
         parse("National Daily Hog Report")
+
+
+# --- Cold storage (ERS) -------------------------------------------------------------------
+def test_ers_parse_pork_cold_storage():
+    from hogproj.data.ers import parse
+
+    raw = pd.DataFrame(
+        {"commodity_desc": ["Pork", "Pork", "Beef", "Pork"],
+         "attribute_desc": ["Cold storage", "Cold storage", "Cold storage",
+                            "Commercial production"],
+         "year_id": [2026, 2009, 2026, 2026], "timeperiod_id": [9, 9, 9, 9],
+         "amount": [436.269, 530.1, 400.0, 2000.0]}
+    )  # fmt: skip
+    df = parse(raw)
+    assert list(df["month"]) == [pd.Timestamp("2026-09-01")]  # pre-2010 and other series dropped
+    assert df["pork_stocks_mlb"].iloc[0] == pytest.approx(436.269)
+
+
+def _storage(last: float) -> pd.DataFrame:
+    months = pd.to_datetime([f"{y}-09-01" for y in range(2020, 2027)])
+    return pd.DataFrame({"month": months, "pork_stocks_mlb": [500.0] * 6 + [last]})
+
+
+@pytest.mark.parametrize(("last", "tone"), [(560.0, "bad"), (450.0, "good"), (510.0, "neutral")])
+def test_storage_signal(last, tone):
+    st = hm.storage_vs_normal(_storage(last))
+    assert st is not None and st["years"] == 5 and st["avg"] == pytest.approx(500)
+    sig = next(s for s in hm.signals(_market(), storage=st) if s.name == "Cold storage")
+    assert sig.tone == tone

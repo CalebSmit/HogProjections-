@@ -292,3 +292,13 @@ Newest at the bottom.
   year earlier by quarter. Wean to finish → Hog prices shows USDA's next-quarter price (live and
   ≈ carcass) beside the seasonal estimate. Guide source table updated.
 - Tests: parser (Oct 2026 fixture values), outlook math, signal band, missing quarters. 179 tests.
+
+## 2026-10-20 — Cold storage; parallel data warm-up
+
+- `data/ers.py`: monthly pork in cold storage from the keyless ERS ZIP; seventh signal (stocks vs
+  the 5-year average for the month, ±5%); Hog market chart (this year vs the prior five) next to
+  the written rules for every signal.
+- Cold start had grown to 11.2 s with eight USDA sources loaded one by one. `ui.warm_data`
+  runs every cached loader side by side on the first run (script context attached to each
+  thread): 5.1 s.
+- 183 tests; screenshots reviewed.

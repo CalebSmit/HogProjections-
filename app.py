@@ -15,6 +15,7 @@ from hogproj.ui import (
     page_footer,
     saved_inputs,
     setup_page,
+    warm_data,
 )
 
 st.set_page_config(
@@ -95,6 +96,7 @@ page = st.navigation(
     },
     expanded=True,  # every page visible; the menu is the table of contents
 )
+warm_data()  # all USDA sources in parallel on the first run
 page.run()
 page_footer()
 

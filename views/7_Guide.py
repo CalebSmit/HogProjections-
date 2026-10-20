@@ -194,6 +194,12 @@ rows = [
         "Hog market page",
     ),
     (
+        "USDA ERS · Livestock and Meat Domestic Data",
+        "Pork in cold storage",
+        "Monthly",
+        "Hog market cold storage chart and signal",
+    ),
+    (
         "USDA WASDE",
         "Quarterly pork production and hog price forecasts",
         "Monthly, around the 10th-12th",

@@ -137,8 +137,24 @@ def wasde_outlook(w: pd.DataFrame, today: pd.Timestamp) -> dict | None:
             "report": str(w["report"].iloc[0])}  # fmt: skip
 
 
+def storage_vs_normal(cs: pd.DataFrame, years: int = 5) -> dict | None:
+    """Latest month's pork in cold storage vs the average of the same month in the prior
+    `years` years."""
+    if cs is None or cs.empty:
+        return None
+    month = pd.to_datetime(cs["month"])
+    last = _ts(month.max())
+    now = float(cs.loc[month == last, "pork_stocks_mlb"].iloc[0])
+    prior = cs[(month.dt.month == last.month) & (month.dt.year < last.year)
+               & (month.dt.year >= last.year - years)]  # fmt: skip
+    if prior.empty:
+        return None
+    avg = float(prior["pork_stocks_mlb"].mean())
+    return {"month": last, "now": now, "avg": avg, "pct": now / avg - 1, "years": len(prior)}
+
+
 def signals(d: pd.DataFrame, supply_pct: float | None = None,
-            wasde: dict | None = None) -> list[Signal]:  # fmt: skip
+            wasde: dict | None = None, storage: dict | None = None) -> list[Signal]:  # fmt: skip
     out: list[Signal] = []
 
     # 1. Packer spread per head vs its own history.
@@ -204,6 +220,20 @@ def signals(d: pd.DataFrame, supply_pct: float | None = None,
         out.append(Signal("Supply ahead", f"{supply_pct:+.1%}".replace("-", "−") + " vs last year",
                           read, tone, "1%+ more hogs than a year ago = negative; 1%+ fewer = "
                           "supportive"))  # fmt: skip
+    # 7. Pork in cold storage vs the 5-year average for the month.
+    if storage is not None:
+        p = storage["pct"]
+        tone = "bad" if p >= 0.05 else "good" if p <= -0.05 else "neutral"
+        read = {
+            "bad": "More pork is in storage than usual, which weighs on prices.",
+            "good": "Less pork is in storage than usual, so the pipeline is lean.",
+            "neutral": "Pork in storage is about normal for the month.",
+        }[tone]
+        out.append(Signal("Cold storage", f"{p:+.0%}".replace("-", "−") + " vs 5-yr avg",
+                          read + f" ({storage['month']:%B} stocks {storage['now']:,.0f}M lb)",
+                          tone, "5%+ above the 5-year average for the month = negative; 5%+ "
+                          "below = supportive"))  # fmt: skip
+
     # 6. USDA's own pork production forecast (WASDE), next two quarters.
     if wasde is not None:
         p = wasde["pct"]
