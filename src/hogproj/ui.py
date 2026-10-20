@@ -27,7 +27,9 @@ from hogproj.crush import (
     contracts_needed,
     corn_contract_for,
     forward_corn,
+    forward_placements,
     model_contract_prices,
+    pig_seasonality,
     placements,
 )
 from hogproj.data import ers, feed, lmr, mars, wasde
@@ -827,6 +829,8 @@ class CrushBook:
     corn_mode: str = "Today's cash"  # or "Futures curve"
     corn_cash: float = 0.0  # the corn input (cash)
     corn_basis: float = 0.0  # cash − nearby CBOT futures, when the curve is used
+    forward: pd.DataFrame | None = None  # crush.forward_placements for the next 26 weeks
+    curve: dict | None = None
 
 
 def crush_book() -> CrushBook:
@@ -839,6 +843,10 @@ def crush_book() -> CrushBook:
     index_now = float(idx["lean_hog_index_usd_per_cwt_carcass"].iloc[-1])
     last_index = date.fromisoformat(str(idx["index_date"].iloc[-1])[:10])
     contracts = contracts_needed(pigs.tail(c.days_on_feed // 7 + 2), c, today, last_index)
+    # ...plus the contracts pigs placed over the next 26 weeks would sell into.
+    contracts = sorted(set(contracts) | {
+        contract_for(today + timedelta(weeks=w, days=c.days_on_feed)) for w in range(26)
+    })  # fmt: skip
     model = model_contract_prices(contracts, today, index_now, seasonal_factors(idx))
     futures = {k: user_value(lh_key(k), model[k]) for k in contracts}
     user_set = [k for k in contracts if lh_key(k) in touched()]
@@ -877,9 +885,12 @@ def crush_book() -> CrushBook:
             sbm=feed_monthly("sbm_iowa"),
             ddgs=feed_monthly("ddgs_iowa"),
         )
+    fwd = forward_placements(c, today, 26, c.pig_usd_per_head, pig_seasonality(pigs), futures,
+                             curve if mode == "Futures curve" else None, basis)  # fmt: skip
     return CrushBook(c=c, contracts=contracts, model=model, futures=futures, user_set=user_set,
                      this_contract=this, hog=futures.get(this, index_now), index_now=index_now,
-                     rows=rows, corn_mode=mode, corn_cash=cash, corn_basis=basis)  # fmt: skip
+                     rows=rows, corn_mode=mode, corn_cash=cash, corn_basis=basis, forward=fwd,
+                     curve=curve)  # fmt: skip
 
 
 def current_plan() -> Plan:

@@ -401,3 +401,56 @@ def contracts_needed(
     sold = [_ts(w).date() + timedelta(days=c.days_on_feed - 4) for w in weeks]
     sold.append(today + timedelta(days=c.days_on_feed))
     return sorted({contract_for(d) for d in sold if d > last_index})
+
+
+# --- Placing ahead --------------------------------------------------------------------------------
+def pig_seasonality(pigs: pd.DataFrame) -> pd.Series:
+    """Typical weaned pig price by ISO week (1-53) relative to its year's average (1.10 = 10%
+    above). Full calendar years only; smoothed over ±2 weeks because single weeks are noisy."""
+    d = pd.to_datetime(pigs["week_ending"])
+    df = pd.DataFrame({"year": d.dt.isocalendar()["year"].to_numpy(),
+                       "wk": d.dt.isocalendar()["week"].to_numpy(),
+                       "p": pigs["cash_usd_per_head"].to_numpy(dtype=float)})  # fmt: skip
+    full = df.groupby("year")["wk"].nunique()
+    df = df[df["year"].isin(full[full >= 50].index)]
+    if df.empty:
+        return pd.Series(1.0, index=range(1, 54))
+    df["rel"] = df["p"] / df.groupby("year")["p"].transform("mean")
+    raw = df.groupby("wk")["rel"].mean().reindex(range(1, 54)).interpolate().bfill().ffill()
+    wrapped = pd.concat([raw.iloc[-2:], raw, raw.iloc[:2]])
+    smooth = wrapped.rolling(5, center=True).mean().iloc[2:-2]
+    smooth.index = range(1, 54)
+    return smooth / smooth.mean()
+
+
+def forward_placements(
+    c: CrushInputs,
+    start: date,
+    weeks: int,
+    pig_now: float,
+    season: pd.Series,
+    futures: Mapping[Contract, float],
+    corn_curve: Mapping[Contract, float] | None = None,
+    corn_basis: float = 0.0,
+) -> pd.DataFrame:
+    """Each coming week's placement at today's futures: the expected USDA pig price (today's
+    price moved by the seasonal pattern), the contract it sells into, its margin, and the most
+    you could pay for the pig (USDA price, before your adder) and break even."""
+    wk_now = start.isocalendar()[1]
+    rows = []
+    for w in range(weeks):
+        placed = start + timedelta(weeks=w)
+        sold = placed + timedelta(days=c.days_on_feed)
+        k = contract_for(sold)
+        if k not in futures:
+            continue
+        wk = placed.isocalendar()[1]
+        pig = pig_now * float(season.get(wk, 1.0)) / float(season.get(wk_now, 1.0))
+        corn = (forward_corn(pd.Timestamp(placed), pd.Timestamp(sold), corn_curve, corn_basis)
+                if corn_curve else c.corn_usd_per_bu)  # fmt: skip
+        m = margin_usd(c, futures[k], pig=pig, corn=corn)
+        rows.append({"placed": pd.Timestamp(placed), "sold": pd.Timestamp(sold),
+                     "contract": contract_label(k), "hog_usd_per_cwt": float(futures[k]),
+                     "pig_expected_usd": pig, "corn_usd_per_bu": corn, "margin_usd": m,
+                     "most_usd": pig + m})  # fmt: skip
+    return pd.DataFrame(rows)

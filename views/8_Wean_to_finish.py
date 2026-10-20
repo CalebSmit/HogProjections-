@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from hogproj.crush import (
+    MONTHS,
     CrushInputs,
     breakeven_hog,
     breakeven_pig,
@@ -17,6 +18,7 @@ from hogproj.crush import (
     feed_lines,
     margin_rank,
     margin_usd,
+    pig_seasonality,
 )
 from hogproj.finance import CostInputs
 from hogproj.ui import (
@@ -437,6 +439,72 @@ with right:
     source_note("your inputs", "feed lines in green")
 
 rule()
+
+# --- Placing ahead ----------------------------------------------------------------------------
+fwd = book.forward
+if fwd is not None and len(fwd):
+    season = pig_seasonality(pigs)
+    good = fwd[fwd["most_usd"] >= fwd["pig_expected_usd"]]
+    best = fwd.loc[fwd["margin_usd"].idxmax()]
+    left, mid, right = st.columns([1.5, 0.06, 1])
+    with left:
+        chart_title(
+            f"Pigs placed the week of {best['placed']:%b %d} look best: {usd(best['margin_usd'])} "
+            "a pig"
+            if len(good) == 0 or best["margin_usd"] < 0
+            else f"{len(good)} of the next {len(fwd)} weeks pay for a pig at the usual price",
+            "Most you can pay for a weaned pig placed each week (bars) vs what weaned pigs usually "
+            "cost then (line) · at today's contract prices",
+        )
+        fp = go.Figure()
+        fp.add_bar(x=fwd["placed"], y=fwd["most_usd"],
+                   marker={"color": [POS if a >= b else NEG for a, b in
+                                     zip(fwd["most_usd"], fwd["pig_expected_usd"], strict=True)],
+                           "opacity": 0.8, "cornerradius": 2},
+                   customdata=np.stack([fwd["contract"], fwd["margin_usd"]], axis=-1),
+                   hovertemplate="Placed week of %{x|%b %d}: worth $%{y:.2f}<br>sells into "
+                   "%{customdata[0]} · margin at the usual pig price $%{customdata[1]:.2f}"
+                   "<extra></extra>")  # fmt: skip
+        fp.add_scatter(x=fwd["placed"], y=fwd["pig_expected_usd"], mode="lines",
+                       line={"color": HISTORY, "width": 2},
+                       hovertemplate="Usual USDA price %{x|%b %d}: $%{y:.2f}"
+                       "<extra></extra>")  # fmt: skip
+        end_tag(fp, fwd["placed"].iloc[-1], float(fwd["pig_expected_usd"].iloc[-1]), "Usual price",
+                HISTORY)  # fmt: skip
+        fp.add_hline(y=0, line={"color": INK, "width": 1})
+        fp.update_yaxes(tickprefix="$")
+        fp.update_xaxes(tickformat="%b %d")
+        fp.update_layout(showlegend=False, bargap=0.2, hovermode="closest",
+                         margin={"l": 4, "r": 80, "t": 8, "b": 4})  # fmt: skip
+        chart(fp, 300, on=PAGE)
+        source_note(
+            "model: today's contract prices"
+            + (" (seasonal estimates)" if not book.user_set else "")
+            + " and corn curve; usual price = today's USDA price moved by the seasonal pattern",
+            "green: worth more than pigs usually cost that week",
+        )
+    with mid:
+        st.markdown('<div class="hp-vrule" style="height:380px"></div>', unsafe_allow_html=True)
+    with right:
+        by_m = season.groupby(lambda w: min(12, (w - 1) * 12 // 52 + 1)).mean()
+        dear, cheap = MONTHS[int(by_m.idxmax()) - 1], MONTHS[int(by_m.idxmin()) - 1]
+        chart_title(
+            f"Weaned pigs are dearest in {dear} and cheapest in {cheap}",
+            "USDA early weaned price vs its year's average, by month · full years since 2021",
+        )
+        fs = go.Figure(
+            go.Bar(
+                x=MONTHS,
+                y=(by_m.to_numpy() - 1) * 100,
+                marker={"color": [NEG if v > 1 else POS for v in by_m], "cornerradius": 3},
+                hovertemplate="%{x}: %{y:+.0f}% vs the year<extra></extra>",
+            )
+        )  # fmt: skip
+        fs.update_yaxes(ticksuffix="%", zeroline=True, zerolinecolor="#cfc8b9")
+        fs.update_layout(showlegend=False, bargap=0.35, hovermode="closest")
+        chart(fs, 300, on=PAGE)
+        source_note("USDA AMS Feeder Pig Report", "red: dearer than usual for a buyer")
+    rule()
 
 # --- Pigs on feed table + what-to-pay grid ---------------------------------------------------
 left, mid, right = st.columns([1.15, 0.06, 1])

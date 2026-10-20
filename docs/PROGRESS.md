@@ -347,3 +347,12 @@ Newest at the bottom.
 - Download on Wean to finish and Hedging, pre-filled with the current inputs, prices and hedges.
 - Verified: tests check sheets, names, formulas and cached values; an independent formula engine
   (`formulas`, dev check only) recalculated all 74 margin cells of a real export: 0 mismatches.
+
+## 2026-10-20 — Placing ahead
+
+- `crush.pig_seasonality` (USDA weaned pig price by ISO week vs its year's average, full years,
+  ±2-week smoothing: Feb ≈ +45%, late Jul ≈ −30%) and `crush.forward_placements` (next 26 weeks:
+  usual pig price, contract, margin, most you can pay at today's futures and corn curve).
+- Wean to finish: "Placing ahead" chart and weaned pig seasonality by month. The shared contract
+  list now includes the contracts forward placements sell into (priced on Wean to finish);
+  Hedging lists only contracts with pigs on feed.

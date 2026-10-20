@@ -261,3 +261,28 @@ def test_exchange_holidays_observed_rules():
     assert date(2027, 12, 24) in h  # Christmas on Saturday -> Friday
     assert date(2027, 3, 26) in h  # Good Friday
     assert date(2027, 10, 11) not in h  # Columbus Day: markets open
+
+
+# --- Placing ahead ----------------------------------------------------------------------------
+def test_pig_seasonality_recovers_a_known_pattern():
+    from hogproj.crush import pig_seasonality
+
+    weeks = pd.date_range("2022-01-07", "2025-12-26", freq="W-FRI")
+    wk = weeks.isocalendar().week.to_numpy()
+    price = 50 * (1 + 0.3 * np.cos(2 * np.pi * (wk - 6) / 52))  # peak in week 6
+    s = pig_seasonality(pd.DataFrame({"week_ending": weeks, "cash_usd_per_head": price}))
+    assert s.mean() == pytest.approx(1.0)
+    assert 3 <= s.idxmax() <= 9 and 29 <= s.idxmin() <= 35
+
+
+def test_forward_placements_most_you_can_pay_breaks_even():
+    from hogproj.crush import forward_placements
+
+    season = pd.Series(1.0, index=range(1, 54))
+    fut = {(2027, 4): 80.0, (2027, 5): 82.0, (2027, 6): 90.0}
+    f = forward_placements(WORKBOOK, date(2026, 10, 19), 8, 30.0, season, fut)
+    assert len(f) > 0 and set(f["contract"]) <= {"Apr 2027", "May 2027", "Jun 2027"}
+    row = f.iloc[0]
+    assert margin_usd(WORKBOOK, row["hog_usd_per_cwt"], pig=row["most_usd"],
+                      corn=row["corn_usd_per_bu"]) == pytest.approx(0, abs=1e-9)  # fmt: skip
+    assert row["pig_expected_usd"] == pytest.approx(30.0)  # flat season: today's price

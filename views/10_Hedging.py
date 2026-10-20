@@ -57,7 +57,9 @@ def cur(name: str, default: float) -> float:
 
 
 corn_fut0 = round(book.corn_cash - book.corn_basis, 2)  # nearby futures (cash if no curve)
-hedged_now = [k for k in book.contracts if cur(key(k, "pct"), 0) > 0]
+# Only contracts that pigs on feed sell into; later ones are priced on Wean to finish.
+feed_contracts = [k for k in book.contracts if contract_label(k) in set(on_feed["priced_on"])]
+hedged_now = [k for k in feed_contracts if cur(key(k, "pct"), 0) > 0]
 asof = ss.get("w2f_asof")
 stale = asof is not None and business_days_since(asof, today) > 3
 
@@ -73,7 +75,7 @@ with assumption_bar("hedge"):
         )
         st.date_input("Prices as of", value=None, key="w2f_asof", format="MM/DD/YYYY")
         cols = st.columns(2)
-        for i, k in enumerate(book.contracts):
+        for i, k in enumerate(feed_contracts):
             live_number(cols[i % 2], contract_label(k), 0.0, 250.0, book.model[k], 0.25,
                                      key=lh_key(k))  # fmt: skip
     with st.popover(
@@ -85,7 +87,7 @@ with assumption_bar("hedge"):
     ):  # fmt: skip
         st.caption("Share of each contract's pigs already sold forward (futures, forward "
                    "contract, LRP floor at its strike) and the price locked.")  # fmt: skip
-        for k in book.contracts:
+        for k in feed_contracts:
             a, b = st.columns([1, 1])
             a.number_input(f"{contract_label(k)} hedged (%)", 0.0, 100.0, 0.0, 5.0,
                            key=key(k, "pct"))  # fmt: skip
@@ -119,7 +121,7 @@ with assumption_bar("hedge"):
 # --- Numbers ---------------------------------------------------------------------------------
 hog_hedges = {
     k: Hedge(share=cur(key(k, "pct"), 0) / 100, price=cur(key(k, "px"), book.futures[k]))
-    for k in book.contracts
+    for k in feed_contracts
 }
 corn_h = Hedge(share=cur("w2f_corn_hedge_pct", 0) / 100,
                price=cur("w2f_corn_hedge_px", corn_fut0) + book.corn_basis)  # fmt: skip
