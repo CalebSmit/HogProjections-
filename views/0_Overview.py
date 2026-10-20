@@ -7,7 +7,9 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from hogproj import supply
 from hogproj.export import build_report
+from hogproj.finance import CostInputs
 from hogproj.herd import pigs_sold_per_sow_yr
 from hogproj.markets import seasonal_factors
 from hogproj.outlook import drivers, headline, monthly, project, summary, synced
@@ -21,14 +23,19 @@ from hogproj.ui import (
     NEG,
     PAGE,
     POS,
+    assumption_bar,
     chart,
     chart_title,
+    chip,
     current_plan,
     end_tag,
     hero,
     hog_index,
     kv_table,
+    latest_hog_index,
     masthead,
+    md,
+    nass_data,
     projection_band,
     quote,
     ref_line,
@@ -39,6 +46,7 @@ from hogproj.ui import (
     tone_of,
     usd,
     usd_short,
+    uses_benchmarks,
 )
 
 idx, source, note = hog_index()
@@ -91,11 +99,54 @@ else:
         f"Hogs need {usd(be)}/cwt to cover costs. The usual seasonal rally clears it in "
         f"{above} of the next 12 months, peaking near {usd(peak_price, 0)} in {peak_month:%B}."
     )
+inputs_chip = (
+    chip(
+        "Benchmark inputs",
+        "caution",
+        "Herd and costs are U.S. industry benchmarks. Set yours on Herd flow and Costs & returns.",
+    )
+    if uses_benchmarks()
+    else chip("Your inputs", "good", "Using the herd and cost inputs you entered.")
+)
 actions = masthead(
     title,
     dek,
     kicker=f"Farm outlook · {plan.herd.sows_start:,.0f} sows · {today:%B %d, %Y}",
+    meta=[inputs_chip],
 )
+
+# Quick what-ifs: the same inputs as Costs & returns (shared keys), so every page agrees.
+_d = CostInputs()
+with assumption_bar("overview"):
+    with st.popover(md(f"Hog price · {usd(hog)}/cwt")):
+        st.number_input(
+            "Lean hog price ($/cwt carcass)",
+            0.0,
+            200.0,
+            latest_hog_index(),
+            0.5,
+            key="cost_hog",
+            help="Starts at the latest Lean Hog Index. Try the price you expect to average.",
+        )
+    with st.popover(md(f"Corn · {usd(plan.cost.corn_usd_per_bu)}/bu")):
+        st.number_input(
+            "Corn ($/bu)",
+            0.0,
+            20.0,
+            _d.corn_usd_per_bu,
+            0.05,
+            key="cost_corn",
+            help="Your local cash bid. Iowa cash corn usually trades 20-40 cents under futures.",
+        )
+    st.segmented_control(
+        "Hog price over time",
+        ["Seasonal", "Flat"],
+        default="Seasonal",
+        key="cost_price_path",
+        label_visibility="collapsed",
+        help="Seasonal follows the usual summer high and winter low; Flat holds today's price.",
+    )
+    st.caption("More inputs on Herd flow and Costs & returns")
 actions.download_button(
     "Export report",
     build_report(plan, r, today, note, title),
@@ -108,20 +159,29 @@ actions.download_button(
 
 # --- Hero: quote, stat strip, signature chart -------------------------------------------
 series = idx["lean_hog_index_usd_per_cwt_carcass"]
-week_ago = float(series.iloc[-6]) if len(series) > 6 else hog
+us_supply = supply.next_six_months(nass_data()[0])["pct"] or 0.0
+index_now = float(series.iloc[-1])
+week_ago = float(series.iloc[-6]) if len(series) > 6 else index_now
+custom_price = abs(hog - round(index_now, 2)) > 0.005
+hog_note, hog_tone = (
+    (f"market index {usd(index_now)}", "neutral")
+    if custom_price
+    else (f"{signed(index_now - week_ago)} this week", tone_of(index_now - week_ago))
+)
+whose = "your" if custom_price else "today's"
 with hero():
     quote(
         "Breakeven price",
         usd(be),
         "/cwt carcass",
-        f"{signed(hl['gap_cwt_carcass'])} vs today's {usd(hog)}",
+        f"{signed(hl['gap_cwt_carcass'])} vs {whose} {usd(hog)}",
         tone_of(hl["gap_cwt_carcass"]),
         f"{usd(hl['breakeven_cwt_live'])}/cwt live · {usd(hl['cost_usd_per_head'])} cost per pig"
         " · Iowa State Estimated Livestock Returns structure",
     )
     stat_strip(
         [
-            ("Hog price", usd(hog), f"{signed(hog - week_ago)} this week", tone_of(hog - week_ago)),
+            ("Hog price" + (" (yours)" if custom_price else ""), usd(hog), hog_note, hog_tone),
             ("Profit per pig", usd(profit), "at today's price", tone_of(profit)),
             (
                 "Next 12 months",
@@ -133,6 +193,8 @@ with hero():
             ("Biggest lever", str(lever["driver"]),
              f"{signed(float(lever['high_usd']), usd_short)} per {lever['high_label']}",
              "neutral"),
+            ("U.S. hog supply", f"{us_supply:+.1%}".replace("-", "\u2212"),
+             "next 6 months vs last year", "neutral"),
         ]
     )  # fmt: skip
     st.space("small")

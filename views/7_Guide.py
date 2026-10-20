@@ -1,0 +1,190 @@
+"""Guide: what the numbers mean, where they come from, and how to set the app up."""
+
+import html
+
+import pandas as pd
+import streamlit as st
+
+from hogproj import supply
+from hogproj.ui import INK, INK_2, LINE, MUTED, chart_title, hog_index, masthead, nass_data, rule
+
+idx, hog_source, _ = hog_index()
+nass_df, nass_source, _ = nass_data()
+index_date = pd.Timestamp(idx["index_date"].iloc[-1])
+report = supply.latest_report(nass_df)
+
+masthead(
+    "How to read this outlook.",
+    "What each number means, where it comes from, and how to set the app up for your farm.",
+    kicker="Guide",
+)
+
+
+def _e(text: str) -> str:
+    return html.escape(text).replace("$", "&#36;")
+
+
+def steps(items: list[tuple[str, str]]) -> None:
+    rows = "".join(
+        f'<div style="display:grid;grid-template-columns:34px 1fr;gap:14px;padding:14px 0;'
+        f'border-bottom:1px solid {LINE}">'
+        f'<div style="font-family:var(--serif);font-size:24px;color:var(--accent);'
+        f'line-height:1">{i}</div>'
+        f'<div><div style="font-weight:600;color:{INK};font-size:15.5px">{_e(t)}</div>'
+        f'<div style="color:{INK_2};font-size:14.5px;margin-top:2px">{_e(d)}</div></div></div>'
+        for i, (t, d) in enumerate(items, start=1)
+    )
+    st.markdown(rows, unsafe_allow_html=True)
+
+
+def glossary(items: list[tuple[str, str]]) -> None:
+    rows = "".join(
+        f'<div style="display:grid;grid-template-columns:200px 1fr;gap:18px;padding:11px 0;'
+        f'border-bottom:1px solid {LINE};font-size:14.5px">'
+        f'<div style="font-weight:600;color:{INK}">{_e(term)}</div>'
+        f'<div style="color:{INK_2}">{_e(meaning)}</div></div>'
+        for term, meaning in items
+    )
+    st.markdown(rows, unsafe_allow_html=True)
+
+
+left, mid, right = st.columns([1, 0.06, 1.15])
+with left:
+    chart_title("Set it up in three steps", "About five minutes")
+    steps(
+        [
+            (
+                "Enter your herd",
+                "On Herd flow, open the chips under the headline: sows, productivity, timing and "
+                "market weight.",
+            ),
+            (
+                "Enter your prices and costs",
+                "On Costs & returns: your local corn and soybean meal bids, the hog price you "
+                "expect, and your cost per pig. Hog price and corn can also be changed from the "
+                "Overview.",
+            ),
+            (
+                "Read the Overview, then test ideas",
+                "The Overview gives the answer. Scenarios compares what-ifs; Risk shows the odds "
+                "and what a price floor would do.",
+            ),
+            (
+                "Save your setup",
+                "Use Save inputs in the sidebar to keep your numbers, and Load inputs to bring "
+                "them back or open a setup someone sent you.",
+            ),
+        ]
+    )
+with mid:
+    st.markdown(
+        f'<div style="border-left:1px solid {LINE};height:520px;margin:0 auto;width:1px"></div>',
+        unsafe_allow_html=True,
+    )
+with right:
+    chart_title("Terms used in the app", "In plain language")
+    glossary(
+        [
+            ("cwt", "Hundredweight: 100 pounds. Hog prices are quoted in dollars per cwt."),
+            (
+                "Carcass vs. live",
+                "Carcass price is per 100 lb of carcass after slaughter; live is per 100 lb of "
+                "live hog. Live ≈ carcass × 0.75. The app uses carcass unless it says live.",
+            ),
+            (
+                "Lean Hog Index",
+                "The CME's daily average price packers paid for hogs, rebuilt here from USDA "
+                "reports. Lean hog futures settle on it.",
+            ),
+            (
+                "Breakeven",
+                "The hog price that covers every cost of raising a pig, before the manure credit.",
+            ),
+            (
+                "Farrow to finish",
+                "Raising pigs from birth (farrowing) to market weight on the same operation.",
+            ),
+            (
+                "Manure credit",
+                "Fertilizer value of the manure, which reduces the net cost of each pig.",
+            ),
+            (
+                "Pig crop",
+                "Pigs born in a quarter. They reach market about six months later.",
+            ),
+            (
+                "Farrowing intentions",
+                "How many sows producers plan to farrow in coming quarters (USDA survey).",
+            ),
+            (
+                "1 in 10 years",
+                "On Risk, a bad year is one only 1 in 10 simulated years does worse than.",
+            ),
+            (
+                "Seasonal path",
+                "Hog prices usually peak in summer and dip in winter. The projection starts at "
+                "today's price and follows that pattern.",
+            ),
+        ]
+    )
+
+rule()
+chart_title("Where the data comes from", "What updates when")
+rows = [
+    (
+        "USDA AMS · LM_HG201",
+        "Hog prices and the Lean Hog Index",
+        "Every business day",
+        f"Index for {index_date:%b %d, %Y}" + (" (live)" if hog_source == "live" else " (saved)"),
+    ),
+    (
+        "USDA NASS · Hogs and Pigs",
+        "Herd inventory, pig crop, farrowing intentions",
+        "Quarterly: late Mar, Jun, Sep, Dec",
+        f"{report:%B} 1, {report.year} report"
+        + (" (live)" if nass_source == "live" else " (saved)"),
+    ),
+    (
+        "Iowa State University",
+        "Estimated Livestock Returns cost structure",
+        "Monthly",
+        "September 2026 budget (defaults)",
+    ),
+    (
+        "USDA AMS · My Market News",
+        "Local corn and soybean meal cash prices",
+        "Daily",
+        "Not connected yet: add USDA_MMN_API_KEY to .env",
+    ),
+]
+head = "".join(
+    f'<th style="text-align:left;padding:8px 12px 8px 0;color:{MUTED};font-size:11px;'
+    f'text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid {LINE}">{h}</th>'
+    for h in ("Source", "Used for", "Updates", "In this app")
+)
+body = "".join(
+    "<tr>"
+    + "".join(
+        f'<td style="padding:10px 12px 10px 0;border-bottom:1px solid {LINE};font-size:14px;'
+        f'color:{INK if i == 0 else INK_2};{"font-weight:600;" if i == 0 else ""}">{_e(c)}</td>'
+        for i, c in enumerate(r)
+    )
+    + "</tr>"
+    for r in rows
+)
+st.markdown(
+    f'<table class="hp-table" style="width:100%;border-collapse:collapse"><thead><tr>{head}'
+    f"</tr></thead><tbody>{body}</tbody></table>",
+    unsafe_allow_html=True,
+)
+
+rule()
+chart_title("What the model leaves out", "Read the numbers with these in mind")
+st.markdown(
+    f"""<div style="color:{INK_2};font-size:14.5px;line-height:1.7;max-width:900px">
+<p>Disease outbreaks, export shocks and futures-market views aren't modelled. Costs follow a
+typical Iowa farrow-to-finish operation; your contract, basis and facility costs will differ, so
+enter your own. Feed amounts per pig are estimates until local cash prices are connected. The
+projections are planning estimates, not financial advice.</p></div>""",
+    unsafe_allow_html=True,
+)

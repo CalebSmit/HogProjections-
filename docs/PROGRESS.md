@@ -134,3 +134,15 @@ Newest at the bottom.
   smallest September herd since 2013; U.S. pigs per litter 11.96 vs the app's default 12.10.
 - **Verified:** ruff, pyright, 79 tests; screenshots of Hog supply and Herd flow.
 - **Next:** My Market News key → corn/SBM cash prices and feed-quantity calibration.
+
+## 2026-10-19 (cont.) — Usability round
+- **Done:** inputs now have one source of truth (`ui.herd_from_state` / `cost_from_state` read
+  the widget keys), so a setup loaded from file or changed on any page drives every page;
+  Overview quick controls (hog price, corn, price path) share keys with Costs & returns;
+  "Benchmark inputs / Your inputs" indicator; U.S. hog supply on the Overview; sidebar Save /
+  Load inputs (JSON); plain-language Guide page (steps, glossary, data sources and update
+  schedule, model limits).
+- **Fixed:** hog-price note compared a custom price with last week's index; "today's" wording
+  on custom prices; smoke test that passed on the stylesheet instead of real content.
+- **Verified:** ruff, pyright, 81 tests (incl. inputs-drive-pages test); interaction test
+  (Overview price change → Costs page, no Streamlit warnings); screenshots.

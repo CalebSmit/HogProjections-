@@ -12,7 +12,12 @@ def test_settings_load_without_env():
 def headline_figures(at: AppTest) -> str:
     """Text of the page's headline numbers: native metrics or the stat strip / quote hero."""
     parts = [f"{m.label} {m.value} {m.delta}" for m in at.metric]
-    parts += [md.value for md in at.markdown if "hp-stat" in md.value or "hp-quote" in md.value]
+    parts += [
+        md.value
+        for md in at.markdown
+        if not md.value.lstrip().startswith("<style")  # the global stylesheet names the classes
+        and ('class="hp-stat"' in md.value or 'class="hp-quote' in md.value)
+    ]
     return " ".join(parts)
 
 
@@ -33,7 +38,8 @@ def test_pages_render(page):
     # Run through the router so links between pages resolve, as they do in the real app.
     at = app().switch_page(f"views/{page}").run()
     assert not at.exception
-    assert headline_figures(at)  # every page leads with headline numbers
+    if page != "7_Guide.py":  # the guide is prose by design
+        assert headline_figures(at)  # every other page leads with headline numbers
 
 
 def test_overview_follows_inputs_from_other_pages():
@@ -56,3 +62,16 @@ def test_herd_change_flows_to_costs_page():
     assert inp.sows_start == inp.sows_target == 2000
     at.number_input(key="herd_sows_change").set_value(500).run(timeout=30)
     assert at.session_state["herd_inputs"].sows_target == 2500
+
+
+def test_saved_inputs_drive_every_page_without_visiting_them():
+    # Loading a setup file sets widget keys directly; the Overview must use them even though
+    # the Herd flow and Costs pages were never opened.
+    at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=60)
+    at.session_state["herd_sows"] = 2400
+    at.session_state["cost_hog"] = 95.0
+    at.run()
+    assert not at.exception
+    kicker = " ".join(md.value for md in at.markdown if "hp-kicker" in md.value)
+    assert "2,400 sows" in kicker
+    assert at.title[0].value.replace("\\", "").startswith("At $95.00")

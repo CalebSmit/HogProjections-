@@ -28,6 +28,7 @@ from hogproj.ui import (
     chart,
     chart_title,
     end_tag,
+    herd_from_state,
     hero,
     hog_index,
     masthead,
@@ -43,7 +44,7 @@ from hogproj.ui import (
     usd_short,
 )
 
-herd_inp: HerdInputs = st.session_state.get("herd_inputs", HerdInputs())
+herd_inp: HerdInputs = herd_from_state()
 d = CostInputs()
 idx, idx_source, _ = hog_index()
 latest_index = round(float(idx["lean_hog_index_usd_per_cwt_carcass"].iloc[-1]), 2)

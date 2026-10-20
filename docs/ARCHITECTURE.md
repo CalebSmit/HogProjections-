@@ -69,8 +69,10 @@ flowchart LR
 - Every quantity carries its unit in its name. Prices are $/cwt and state `live` or `carcass`.
 - The app starts and every page renders with `OFFLINE=true` and no `.env`.
 - Inputs cross into the model as pydantic models. Results come back as pandas DataFrames.
-- Pages share model inputs through `st.session_state["herd_inputs"]` / `["cost_inputs"]` /
-  `["seasonal"]`, read via `ui.current_plan()`, not by re-reading each other's widgets.
+- Inputs live in widget keys (`herd_*`, `cost_*`, `scn_*`, `risk_*`, `mkt_*`). `ui.current_plan()`
+  builds the herd and cost models from those keys, so every page (and a loaded setup file)
+  agrees even if the page owning a widget was never opened. Save/Load in `app.py` round-trips
+  exactly those keys.
 - `outlook.synced()` copies herd facts (weight, yield, pigs sold per sow) into the cost model;
   always project through it so the two pages can't disagree.
 

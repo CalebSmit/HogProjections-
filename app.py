@@ -1,10 +1,13 @@
 """Streamlit entry point. Run with: uv run streamlit run app.py"""
 
+import json
+from datetime import date
+
 import streamlit as st
 
 from hogproj import __version__
 from hogproj.config import get_settings
-from hogproj.ui import asset, page_footer, setup_page
+from hogproj.ui import DERIVED_KEYS, SAVED_PREFIXES, asset, page_footer, saved_inputs, setup_page
 
 st.set_page_config(
     page_title="Hog Projections",
@@ -13,14 +16,28 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 setup_page()
+ss = st.session_state
+
+# Load a saved setup before any widget is created (values set after creation are rejected).
+upload = ss.get("io_upload")
+if upload is not None and ss.get("_io_loaded") != upload.file_id:
+    try:
+        values = json.loads(upload.getvalue().decode("utf-8")).get("inputs", {})
+        for k, v in values.items():
+            if str(k).startswith(SAVED_PREFIXES) and isinstance(v, (int, float, str, bool)):
+                ss[k] = v
+        for k in DERIVED_KEYS:
+            ss.pop(k, None)
+        ss["_io_message"] = f"Loaded {len(values)} inputs from {upload.name}."
+    except (ValueError, AttributeError):
+        ss["_io_message"] = "That file isn't a Hog Projections setup."
+    ss["_io_loaded"] = upload.file_id
 
 # Streamlit drops a widget's value when its page isn't shown. Re-assigning the keyed inputs
 # on every run keeps them, so switching pages doesn't reset the user's assumptions.
-for key in [
-    k for k in st.session_state if str(k).startswith(("herd_", "cost_", "scn_", "risk_", "mkt_"))
-]:
-    if key not in ("herd_inputs", "cost_inputs"):
-        st.session_state[key] = st.session_state[key]
+for key in [k for k in ss if str(k).startswith(SAVED_PREFIXES)]:
+    if key not in DERIVED_KEYS:
+        ss[key] = ss[key]
 
 page = st.navigation(
     {
@@ -31,6 +48,7 @@ page = st.navigation(
                 icon=":material/space_dashboard:",
                 default=True,
             ),
+            st.Page("views/7_Guide.py", title="Guide", icon=":material/menu_book:"),
         ],
         "Your operation": [
             st.Page("views/1_Herd_flow.py", title="Herd flow", icon=":material/timeline:"),
@@ -54,10 +72,33 @@ page = st.navigation(
 )
 page.run()
 page_footer()
+
 with st.sidebar:  # after the page so it sits below the page's own inputs
+    st.header("Your setup")
+    st.download_button(
+        "Save inputs",
+        json.dumps(
+            {"app": "hog-projections", "saved": f"{date.today():%Y-%m-%d}",
+             "inputs": saved_inputs()},
+            indent=1,
+        ),
+        f"hog_projections_setup_{date.today():%Y-%m-%d}.json",
+        "application/json",
+        help="Download every number you've entered, to reload later or send to someone.",
+        width="stretch",
+    )  # fmt: skip
+    st.file_uploader(
+        "Load inputs",
+        type=["json"],
+        key="io_upload",
+        help="Open a setup file saved from this app.",
+        label_visibility="collapsed",
+    )
+    if msg := ss.get("_io_message"):
+        st.caption(msg)
     mode = "Offline · saved data" if get_settings().offline else "Online"
     st.markdown(
-        f'<div class="hp-foot" style="margin-top:28px">Hog Projections {__version__} · {mode}'
+        f'<div class="hp-foot" style="margin-top:20px">Hog Projections {__version__} · {mode}'
         "</div>",
         unsafe_allow_html=True,
     )

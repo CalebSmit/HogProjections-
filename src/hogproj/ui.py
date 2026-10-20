@@ -173,6 +173,12 @@ p, li {{ line-height: 1.55; }}
          color: var(--ink2); white-space: nowrap; }}
 [class*="st-key-assume"] [data-testid="stPopover"] button:hover {{ border-color: #cfc8b9; }}
 
+/* Compact file uploader in the sidebar (no "200MB per file" dropzone text) */
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] {{ padding: 6px;
+         background: transparent; border: 1px dashed var(--line); }}
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none; }}
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] button {{ width: 100%; }}
+
 /* Expanders, tables, captions, buttons */
 [data-testid="stExpander"] details {{ border-radius: 10px; background: transparent;
          border-color: var(--line); }}
@@ -345,18 +351,86 @@ def latest_hog_index() -> float:
     return round(float(idx["lean_hog_index_usd_per_cwt_carcass"].iloc[-1]), 2)
 
 
+# Widget key -> (model field, scale). Percent inputs are stored as % and the model wants 0-1.
+HERD_KEYS = {
+    "herd_sows": ("sows_start", 1),
+    "herd_change_week": ("change_week", 1),
+    "herd_weeks": ("weeks", 1),
+    "herd_litters": ("litters_per_sow_yr", 1),
+    "herd_born": ("born_alive_per_litter", 1),
+    "herd_pw_mort": ("prewean_mortality", 0.01),
+    "herd_w2f_mort": ("wean_to_market_mortality", 0.01),
+    "herd_gest": ("gestation_days", 1),
+    "herd_lact": ("lactation_days", 1),
+    "herd_w2f": ("wean_to_market_days", 1),
+    "herd_wt": ("weight_lb_live_market", 1),
+    "herd_yield": ("carcass_yield", 0.01),
+}
+COST_KEYS = {
+    "cost_corn": "corn_usd_per_bu",
+    "cost_sbm": "sbm_usd_per_ton",
+    "cost_hog": "lean_hog_usd_per_cwt_carcass",
+    "cost_corn_bu": "corn_bu_per_head",
+    "cost_sbm_lb": "sbm_lb_per_head",
+    "cost_other_feed": "other_feed_usd_per_head",
+    "cost_nonfeed": "nonfeed_usd_per_head",
+    "cost_death": "death_loss_usd_per_head",
+    "cost_manure": "manure_credit_usd_per_head",
+}
+SAVED_PREFIXES = ("herd_", "cost_", "scn_", "risk_", "mkt_")
+DERIVED_KEYS = ("herd_inputs", "cost_inputs")
+
+
+def herd_from_state() -> HerdInputs:
+    """HerdInputs from the saved widget values (defaults for anything not set yet)."""
+    ss = st.session_state
+    upd: dict[str, float | int] = {}
+    for key, (field, scale) in HERD_KEYS.items():
+        if key in ss:
+            v = ss[key] * scale
+            upd[field] = int(v) if field in ("change_week", "weeks") else float(v)
+    herd = HerdInputs().model_copy(update=upd)
+    change = float(ss.get("herd_sows_change", 0) or 0)
+    return herd.model_copy(update={"sows_target": max(0.0, herd.sows_start + change)})
+
+
+def cost_from_state(herd: HerdInputs) -> CostInputs:
+    """CostInputs from the saved widget values; hog price defaults to the latest index."""
+    ss = st.session_state
+    upd: dict[str, float] = {"lean_hog_usd_per_cwt_carcass": latest_hog_index()}
+    upd.update({field: float(ss[key]) for key, field in COST_KEYS.items() if key in ss})
+    upd.update(weight_lb_live_market=herd.weight_lb_live_market, carcass_yield=herd.carcass_yield)
+    return CostInputs().model_copy(update=upd)
+
+
 def current_plan() -> Plan:
-    """The plan the user has set up on the Herd flow and Costs pages (defaults if unvisited)."""
-    herd: HerdInputs = st.session_state.get("herd_inputs", HerdInputs())
-    cost: CostInputs = st.session_state.get(
-        "cost_inputs",
-        CostInputs(
-            lean_hog_usd_per_cwt_carcass=latest_hog_index(),
-            weight_lb_live_market=herd.weight_lb_live_market,
-            carcass_yield=herd.carcass_yield,
-        ),
+    """The plan from every input the user has set on any page (defaults where unset)."""
+    herd = herd_from_state()
+    seasonal = (st.session_state.get("cost_price_path") or "Seasonal") != "Flat"
+    return Plan(herd=herd, cost=cost_from_state(herd), seasonal=seasonal)
+
+
+def uses_benchmarks() -> bool:
+    """True while herd and cost inputs are still the built-in benchmarks (hog price aside)."""
+    p = current_plan()
+    default = CostInputs(
+        lean_hog_usd_per_cwt_carcass=p.cost.lean_hog_usd_per_cwt_carcass,
+        weight_lb_live_market=p.herd.weight_lb_live_market,
+        carcass_yield=p.herd.carcass_yield,
     )
-    return Plan(herd=herd, cost=cost, seasonal=st.session_state.get("seasonal", True))
+    return p.herd == HerdInputs() and p.cost == default
+
+
+def saved_inputs() -> dict[str, object]:
+    """Inputs worth saving to a file: plain widget values only."""
+    ss = st.session_state
+    return {
+        str(k): ss[k]
+        for k in ss
+        if str(k).startswith(SAVED_PREFIXES)
+        and str(k) not in DERIVED_KEYS
+        and isinstance(ss[k], (int, float, str, bool))
+    }
 
 
 # --- Components -----------------------------------------------------------------------------
