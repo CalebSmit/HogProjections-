@@ -337,3 +337,29 @@ def wasde_contract_prices(contracts: list, expiries: list, w: pd.DataFrame,
         if q in pr.index:
             out[k] = round(float(pr.loc[q]) * ratio * 4) / 4
     return out
+
+
+def wasde_accuracy(hist: pd.DataFrame) -> pd.DataFrame:
+    """How far USDA's barrow/gilt price forecasts landed from what was later reported, by how
+    many quarters ahead they were made. Rows: horizon (0 = the report's own quarter, 1 = the
+    next), forecasts, mean absolute miss and bias ($/cwt live; positive = forecasts ran high)."""
+    pr = hist[hist["series"] == "barrows_gilts_usd_cwt_live"].copy()
+    if pr.empty:
+        return pd.DataFrame(columns=["horizon", "n", "mae", "bias"])
+    pr["projected"] = pr["projected"].astype(str).str.lower().isin(["true", "1"])
+    actual = pr[~pr["projected"]].drop_duplicates(["year", "quarter"], keep="last")
+    actual = actual.set_index(["year", "quarter"])["value"]
+    rows = []
+    for r in pr[pr["projected"]].to_dict("records"):
+        rep = pd.to_datetime("1 " + str(r["report"]))
+        rep_q = rep.year * 4 + (rep.month - 1) // 3
+        h = int(r["year"]) * 4 + int(r["quarter"]) - 1 - rep_q
+        key = (int(r["year"]), int(r["quarter"]))
+        if h >= 0 and key in actual.index:
+            rows.append({"horizon": h, "error": float(r["value"]) - float(actual.loc[key])})
+    if not rows:
+        return pd.DataFrame(columns=["horizon", "n", "mae", "bias"])
+    e = pd.DataFrame(rows)
+    g = e.groupby("horizon")["error"]
+    return pd.DataFrame({"n": g.size(), "mae": g.apply(lambda x: x.abs().mean()),
+                         "bias": g.mean()}).reset_index()  # fmt: skip
