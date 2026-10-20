@@ -23,6 +23,7 @@ from hogproj.data import (  # noqa: E402
     eia,
     ers,
     ers_trade,
+    fas,
     feed,
     feeder,
     fred,
@@ -69,6 +70,9 @@ def main() -> int:
             checks[f"My Market News {name}"] = (lambda n=name: mars.load(n, mk, False), None)
         for name, spec in mars.MULTI.items():
             checks[f"My Market News {name}"] = (lambda n=name: mars.load(n, mk, False), spec[3])
+    if s.fas_api_key.strip():
+        fk = s.fas_api_key.strip()
+        checks["FAS weekly export sales"] = (lambda: fas.load(fk, False), fas.FILE)
     failed = []
     for label, (run, sample_file) in checks.items():
         df, source, note = run()
