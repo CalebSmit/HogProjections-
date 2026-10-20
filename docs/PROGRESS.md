@@ -425,3 +425,14 @@ Newest at the bottom.
 - 10.4: AMS_3658 sow slaughter + signal; ERS pork exports, live hog imports, price spreads
   (keyless); export signal; Demand section; pigs from Canada; disease links.
 - 10.6: scorecard rows become cards under 700 px; every page checked at 390 px.
+
+## 2026-10-20 — Phase 11: one number per thing, and how far to trust it
+
+- State grain reports in parallel: state corn 20 s -> ~5 s, which set the first load.
+- Audit of all 16 pages: same measure now agrees across pages or is labelled (feed per pig,
+  5-day averages, breakevens, crush margin by year); hedging wording; pigs past their sale
+  date count as sold; dates and a/an helpers (`text.day`, `text.article`).
+- `accuracy.py`: seasonal estimate replayed monthly since 2022 — $9.24/cwt average miss 3-6
+  months out, 35% better than no change, 8 in 10 within ~$13; likely margin ranges everywhere.
+- Diesel and propane as $/pig; Excel brief gains Scorecard and Forward board; crush workbook
+  gains a Forward board sheet; widget default warning fixed; `python -m pytest` documented.

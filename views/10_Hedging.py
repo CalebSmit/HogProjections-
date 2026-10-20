@@ -133,7 +133,9 @@ with assumption_bar("hedge"):
             "Your rule, not advice. Pick what triggers it: a margin that ranks high against "
             "every placement since 2020, or a margin per pig you're happy to lock in."
         )
-        st.segmented_control("Rule", list(RULE_MODES), default="rank", key="w2f_rule_mode",
+        first = "w2f_rule_mode" not in st.session_state
+        st.segmented_control("Rule", list(RULE_MODES), default="rank" if first else None,
+                             key="w2f_rule_mode",
                              format_func=lambda m: RULE_MODES[m], required=True)  # fmt: skip
         mode = st.session_state.get("w2f_rule_mode") or "rank"
         if mode == "rank":

@@ -200,6 +200,8 @@ with action:
             "Market signals": pd.DataFrame([{"signal": x.name, "value": x.value, "read": x.read,
                                              "rule": x.rule} for x in sigs]),
             "Crush history by year": annual_summary(book.rows),
+            "Scorecard": sc.table(card),
+            "Forward board": fb.drop(columns=["rule_tone"], errors="ignore"),
         },
         charts={
             "Lean Hog Index, $/cwt": weekly_series(idx["index_date"],

@@ -417,3 +417,12 @@ first load is fast.
 
 Each step: ruff, pyright, `uv run python -m pytest`, page text read-through, screenshots of
 changed pages, then merge.
+
+### Status (2026-10-20)
+All six steps done: 11.0 faster first load (#18), 11.1 one number per thing (#18), 11.2
+estimate track record and likely ranges (#19), 11.3 fuel as $/pig, 11.4 Excel catch-up
+(scorecard and forward board in the brief workbook; Forward board sheet in the crush
+workbook), 11.5 polish (wording, widget warning, phone check of every page, test command).
+Left as is, on purpose: Market archive and Crush history stay separate pages (one is a
+download table, the other the story); W2F keeps its short margin history next to the decision.
+

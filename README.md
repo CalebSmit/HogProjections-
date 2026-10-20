@@ -82,7 +82,7 @@ Optional: add `PREPARED_BY=Your Name` to `.env` to sign the page footer and the 
 ```bash
 uv sync                      # install deps (incl. dev tools)
 uv run streamlit run app.py  # run the app
-uv run pytest                # tests
+uv run python -m pytest      # tests (works even where Windows blocks the pytest.exe launcher)
 uv run ruff check . && uv run ruff format --check . && uv run pyright
 ```
 

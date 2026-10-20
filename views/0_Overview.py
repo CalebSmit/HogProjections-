@@ -148,7 +148,7 @@ with assumption_bar("overview"):
     st.segmented_control(
         "Hog price over time",
         ["Seasonal", "Flat"],
-        default="Seasonal",
+        default=None if "cost_price_path" in st.session_state else "Seasonal",
         key="cost_price_path",
         label_visibility="collapsed",
         help="Seasonal follows the usual summer high and winter low; Flat holds today's price.",

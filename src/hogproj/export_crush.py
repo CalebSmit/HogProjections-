@@ -13,6 +13,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import date, datetime
 
+import numpy as np
 import pandas as pd
 import xlsxwriter
 from xlsxwriter.utility import xl_rowcol_to_cell
@@ -134,6 +135,7 @@ def build_crush_workbook(
     usda: pd.DataFrame,
     as_of: date,
     notes: str = "",
+    board: pd.DataFrame | None = None,
 ) -> bytes:
     buf = io.BytesIO()
     wb = xlsxwriter.Workbook(buf, {"in_memory": True})
@@ -435,6 +437,44 @@ def build_crush_workbook(
         hc.set_x_axis({"num_format": "mmm yy", "date_axis": True})
         hc.set_y_axis({"num_format": "$#,##0"})
         wh.insert_chart(1, len(cols) + 1, hc, {"x_scale": 1.8, "y_scale": 1.3})
+
+    # --- Forward board: pigs not placed yet ------------------------------------------------
+    if board is not None and not board.empty:
+        wf = wb.add_worksheet("Forward board")
+        wf.write(0, 0, "Pigs not placed yet: margin per pig at the contract prices on Contracts",
+                 f["title"])  # fmt: skip
+        wf.write(1, 0, "Rank: against every placement since 2020 (0-100). Likely range: where the "
+                 "margin lands if hogs miss by as much as the seasonal estimate has 8 times in "
+                 "10 at that distance. Values as of the download; Crush recalculates, this "
+                 "sheet doesn't.", f["sub"])  # fmt: skip
+        bcols = [("contract", "Contract", "text"), ("placed_from", "Placed from", "date"),
+                 ("placed_to", "Placed to", "date"), ("hog_usd_per_cwt", "Hogs $/cwt", "usd"),
+                 ("pig_expected_usd", "Pig expected", "usd"), ("margin_usd", "Margin / pig", "usd"),
+                 ("low_usd", "Likely low", "usd"), ("high_usd", "Likely high", "usd"),
+                 ("rank", "Rank", "num"), ("hog_corn_ratio", "Hog:corn", "num"),
+                 ("rule_says", "Your rule", "text")]  # fmt: skip
+        wf.set_column(0, 0, 12)
+        wf.set_column(1, len(bcols) - 2, 13)
+        wf.set_column(len(bcols) - 1, len(bcols) - 1, 60)
+        wf.write_row(3, 0, [h for _, h, _ in bcols], f["h"])
+        for i, r in enumerate(board.to_dict("records"), start=4):
+            for j, (key, _, fmt) in enumerate(bcols):
+                v = r.get(key)
+                if v is None or (isinstance(v, float) and np.isnan(v)):
+                    wf.write_blank(i, j, None, f["text"])
+                elif fmt == "date":
+                    wf.write_datetime(i, j, _dt(v), f["date"])
+                elif fmt == "text":
+                    wf.write(i, j, str(v), f["text"])
+                else:
+                    wf.write(i, j, float(v), f[fmt])
+        last = 3 + len(board)
+        rank_col = [k for k, _, _ in bcols].index("rank")
+        wf.conditional_format(4, rank_col, last, rank_col, {
+            "type": "3_color_scale", "min_type": "num", "min_value": 0, "min_color": "#E6A39C",
+            "mid_type": "num", "mid_value": 50, "mid_color": "#ECE7DC",
+            "max_type": "num", "max_value": 100, "max_color": "#8CC7B0"})  # fmt: skip
+        wf.freeze_panes(4, 1)
 
     # --- USDA data -------------------------------------------------------------------------
     wu = wb.add_worksheet("USDA data")
