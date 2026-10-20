@@ -1,0 +1,5246 @@
+week_ending,state,origin_pct,destination_pct
+2020-10-02,Alabama,2.4,
+2020-10-02,Colorado,10.5,
+2020-10-02,Illinois,14.8,2.2
+2020-10-02,Indiana,2.8,
+2020-10-02,Iowa,5.4,70.9
+2020-10-02,Manitoba CAN,16.4,2.6
+2020-10-02,Michigan,,1.3
+2020-10-02,Minnesota,7.7,11.0
+2020-10-02,Missouri,11.0,
+2020-10-02,Montana,2.8,
+2020-10-02,Nebraska,5.1,7.7
+2020-10-02,North Dakota,2.4,
+2020-10-02,Noth Carolina,7.2,
+2020-10-02,Ohio,1.3,1.4
+2020-10-02,Ontario CAN,0.6,
+2020-10-02,Saskatchewan CAN,8.3,
+2020-10-02,South Dakota,1.4,2.9
+2020-10-09,Colorado,4.5,0.4
+2020-10-09,Illinois,18.8,1.3
+2020-10-09,Indiana,4.4,
+2020-10-09,Iowa,14.9,76.9
+2020-10-09,Manitoba CAN,12.2,
+2020-10-09,Michigan,1.0,1.1
+2020-10-09,Minnesota,8.3,13.5
+2020-10-09,Missouri,9.9,
+2020-10-09,Montana,1.2,
+2020-10-09,Nebraska,0.9,1.9
+2020-10-09,Noth Carolina,3.6,
+2020-10-09,Ohio,4.4,
+2020-10-09,Ontario CAN,1.5,
+2020-10-09,Saskatchewan CAN,4.4,
+2020-10-09,South Dakota,6.5,3.9
+2020-10-09,Wisconsin,2.5,1.0
+2020-10-09,Wyoming,0.9,
+2020-10-16,Colorado,9.8,
+2020-10-16,Illinois,23.3,2.7
+2020-10-16,Indiana,2.2,
+2020-10-16,Iowa,11.4,69.9
+2020-10-16,Manitoba CAN,6.3,
+2020-10-16,Michigan,,0.9
+2020-10-16,Minnesota,7.5,22.2
+2020-10-16,Missouri,8.5,
+2020-10-16,Montana,1.2,
+2020-10-16,Nebraska,,2.4
+2020-10-16,Noth Carolina,14.0,
+2020-10-16,Ohio,0.9,
+2020-10-16,Ontario CAN,1.8,
+2020-10-16,Saskatchewan CAN,3.7,
+2020-10-16,South Dakota,5.3,1.9
+2020-10-16,Wisconsin,4.1,
+2020-10-23,Colorado,7.0,0.7
+2020-10-23,Illinois,17.1,2.2
+2020-10-23,Iowa,13.5,74.0
+2020-10-23,Manitoba CAN,30.7,
+2020-10-23,Michigan,,4.2
+2020-10-23,Minnesota,3.2,16.1
+2020-10-23,Missouri,13.4,
+2020-10-23,Montana,1.6,
+2020-10-23,Nebraska,1.1,
+2020-10-23,North Dakota,1.2,
+2020-10-23,Noth Carolina,2.2,
+2020-10-23,Ohio,1.6,2.5
+2020-10-23,South Dakota,7.4,0.3
+2020-10-30,Colorado,9.6,3.0
+2020-10-30,Illinois,22.0,4.2
+2020-10-30,Indiana,1.7,1.7
+2020-10-30,Iowa,18.8,62.9
+2020-10-30,Manitoba CAN,7.9,
+2020-10-30,Michigan,,1.9
+2020-10-30,Minnesota,3.4,19.0
+2020-10-30,Missouri,6.9,
+2020-10-30,Montana,1.9,
+2020-10-30,Nebraska,3.1,2.1
+2020-10-30,Noth Carolina,2.6,
+2020-10-30,Ohio,1.9,3.7
+2020-10-30,Saskatchewan CAN,11.4,
+2020-10-30,South Dakota,8.9,1.6
+2020-11-06,Colorado,10.2,
+2020-11-06,Illinois,28.7,2.2
+2020-11-06,Indiana,1.4,2.0
+2020-11-06,Iowa,5.7,75.7
+2020-11-06,Kentucky,1.1,
+2020-11-06,Manitoba CAN,9.1,
+2020-11-06,Michigan,,1.6
+2020-11-06,Minnesota,4.4,11.6
+2020-11-06,Missouri,15.7,
+2020-11-06,Montana,1.7,
+2020-11-06,Nebraska,0.8,2.0
+2020-11-06,North Dakota,1.2,
+2020-11-06,Noth Carolina,7.0,
+2020-11-06,Ohio,1.6,3.7
+2020-11-06,Saskatchewan CAN,5.6,
+2020-11-06,South Dakota,5.8,1.3
+2020-11-13,Colorado,7.3,
+2020-11-13,Illinois,15.0,3.2
+2020-11-13,Iowa,16.2,76.6
+2020-11-13,Manitoba CAN,6.2,
+2020-11-13,Michigan,2.9,
+2020-11-13,Minnesota,1.0,18.6
+2020-11-13,Missouri,17.6,
+2020-11-13,Nebraska,11.2,1.6
+2020-11-13,Noth Carolina,18.6,
+2020-11-13,South Dakota,3.8,
+2020-11-20,Colorado,14.0,0.5
+2020-11-20,Illinois,18.2,1.7
+2020-11-20,Indiana,1.1,1.7
+2020-11-20,Iowa,10.9,78.7
+2020-11-20,Kentucky,0.6,
+2020-11-20,Manitoba CAN,19.0,
+2020-11-20,Michigan,,3.5
+2020-11-20,Minnesota,2.5,6.2
+2020-11-20,Missouri,8.6,
+2020-11-20,Montana,2.9,
+2020-11-20,Nebraska,0.4,4.2
+2020-11-20,Noth Carolina,8.5,
+2020-11-20,Ohio,3.5,2.8
+2020-11-20,Ontario CAN,1.6,
+2020-11-20,Saskatchewan CAN,6.5,
+2020-11-20,South Dakota,0.5,0.8
+2020-11-20,Wisconsin,1.2,
+2020-11-27,Colorado,9.8,
+2020-11-27,Illinois,26.0,1.7
+2020-11-27,Iowa,4.6,82.7
+2020-11-27,Kansas,,0.5
+2020-11-27,Manitoba CAN,16.0,
+2020-11-27,Michigan,,1.1
+2020-11-27,Minnesota,5.0,7.8
+2020-11-27,Missouri,7.4,
+2020-11-27,Montana,1.3,
+2020-11-27,Nebraska,6.2,2.8
+2020-11-27,Noth Carolina,2.6,
+2020-11-27,Ohio,1.1,3.0
+2020-11-27,Ontario CAN,0.5,
+2020-11-27,Saskatchewan CAN,8.1,
+2020-11-27,South Dakota,9.2,0.5
+2020-11-27,Wisconsin,2.1,
+2020-12-04,Alabama,1.4,
+2020-12-04,Colorado,9.3,0.9
+2020-12-04,Illinois,26.0,1.3
+2020-12-04,Indiana,0.9,0.2
+2020-12-04,Iowa,9.6,83.4
+2020-12-04,Kansas,0.8,
+2020-12-04,Maine,1.5,
+2020-12-04,Manitoba CAN,10.2,
+2020-12-04,Michigan,2.0,0.8
+2020-12-04,Minnesota,5.8,12.0
+2020-12-04,Missouri,6.2,
+2020-12-04,Montana,0.8,
+2020-12-04,Nebraska,4.4,1.4
+2020-12-04,North Dakota,1.6,
+2020-12-04,Noth Carolina,3.8,
+2020-12-04,Ohio,0.8,
+2020-12-04,Ontario CAN,2.7,
+2020-12-04,Quebec CAN,1.5,
+2020-12-04,Saskatchewan CAN,4.9,
+2020-12-04,South Dakota,5.9,
+2020-12-11,Colorado,8.8,
+2020-12-11,Illinois,19.1,
+2020-12-11,Indiana,3.0,1.0
+2020-12-11,Iowa,14.5,80.0
+2020-12-11,Kansas,2.1,
+2020-12-11,Manitoba CAN,6.7,
+2020-12-11,Michigan,,1.1
+2020-12-11,Minnesota,8.2,11.6
+2020-12-11,Missouri,9.7,1.0
+2020-12-11,Montana,1.2,
+2020-12-11,Nebraska,6.9,1.8
+2020-12-11,Noth Carolina,4.9,
+2020-12-11,Ohio,1.1,1.9
+2020-12-11,Ontario CAN,3.2,
+2020-12-11,Quebec CAN,1.1,
+2020-12-11,Saskatchewan CAN,5.6,
+2020-12-11,South Dakota,3.8,1.6
+2020-12-18,Colorado,5.6,
+2020-12-18,Illinois,20.6,4.6
+2020-12-18,Indiana,1.3,
+2020-12-18,Iowa,6.5,68.2
+2020-12-18,Manitoba CAN,12.5,
+2020-12-18,Maryland,1.5,
+2020-12-18,Michigan,,2.2
+2020-12-18,Minnesota,6.6,21.2
+2020-12-18,Missouri,6.3,
+2020-12-18,Montana,1.4,
+2020-12-18,Nebraska,16.4,3.8
+2020-12-18,Noth Carolina,2.1,
+2020-12-18,Ohio,1.2,
+2020-12-18,Ontario CAN,3.4,
+2020-12-18,Saskatchewan CAN,7.3,
+2020-12-18,South Dakota,7.1,
+2020-12-25,Colorado,14.0,
+2020-12-25,Idaho,4.1,
+2020-12-25,Illinois,18.3,1.2
+2020-12-25,Iowa,16.1,69.1
+2020-12-25,Manitoba CAN,13.8,
+2020-12-25,Maryland,1.4,
+2020-12-25,Michigan,,2.5
+2020-12-25,Minnesota,1.2,20.6
+2020-12-25,Missouri,10.1,
+2020-12-25,Montana,1.5,
+2020-12-25,Nebraska,0.6,4.1
+2020-12-25,Noth Carolina,3.9,
+2020-12-25,Ohio,1.4,
+2020-12-25,Ontario CAN,1.2,
+2020-12-25,Saskatchewan CAN,5.4,
+2020-12-25,South Dakota,6.0,2.4
+2020-12-25,Wisconsin,1.2,
+2021-01-01,Arkansas,3.1,
+2021-01-01,Colorado,9.2,
+2021-01-01,Illinois,34.6,5.7
+2021-01-01,Indiana,0.2,1.7
+2021-01-01,Iowa,10.6,66.8
+2021-01-01,Kansas,1.2,2.2
+2021-01-01,Manitoba CAN,3.6,
+2021-01-01,Michigan,,1.5
+2021-01-01,Minnesota,8.0,18.8
+2021-01-01,Missouri,13.9,
+2021-01-01,Montana,1.8,
+2021-01-01,Ohio,1.5,
+2021-01-01,Saskatchewan CAN,6.1,
+2021-01-01,South Dakota,3.2,3.2
+2021-01-01,Wisconsin,3.2,
+2021-01-08,Arkansas,2.0,
+2021-01-08,Colorado,3.4,
+2021-01-08,Illinois,26.3,
+2021-01-08,Indiana,0.9,0.9
+2021-01-08,Iowa,13.1,75.4
+2021-01-08,Manitoba CAN,21.4,
+2021-01-08,Michigan,,4.1
+2021-01-08,Minnesota,3.9,12.7
+2021-01-08,Missouri,8.2,
+2021-01-08,Montana,1.2,
+2021-01-08,Nebraska,2.0,2.8
+2021-01-08,Noth Carolina,2.3,
+2021-01-08,Ohio,1.0,1.7
+2021-01-08,Ontario CAN,5.1,
+2021-01-08,Saskatchewan CAN,4.0,
+2021-01-08,South Dakota,5.4,1.5
+2021-01-08,Wisconsin,,1.0
+2021-01-15,Colorado,16.8,
+2021-01-15,Illinois,15.4,2.9
+2021-01-15,Indiana,3.1,
+2021-01-15,Iowa,11.3,77.2
+2021-01-15,Manitoba CAN,17.5,
+2021-01-15,Minnesota,2.2,14.7
+2021-01-15,Missouri,8.6,
+2021-01-15,Nebraska,2.6,2.2
+2021-01-15,Ontario CAN,3.0,
+2021-01-15,Saskatchewan CAN,7.6,
+2021-01-15,South Dakota,11.9,3.1
+2021-01-22,Arkansas,3.4,
+2021-01-22,Colorado,11.8,
+2021-01-22,Illinois,16.2,5.6
+2021-01-22,Indiana,0.7,1.1
+2021-01-22,Iowa,10.5,71.5
+2021-01-22,Manitoba CAN,18.3,
+2021-01-22,Michigan,,1.5
+2021-01-22,Minnesota,2.1,7.6
+2021-01-22,Missouri,5.2,1.5
+2021-01-22,Montana,1.7,
+2021-01-22,Nebraska,1.7,6.4
+2021-01-22,Noth Carolina,2.0,
+2021-01-22,Ohio,1.5,3.5
+2021-01-22,Ontario CAN,2.7,
+2021-01-22,Saskatchewan CAN,8.0,
+2021-01-22,South Dakota,11.5,1.3
+2021-01-22,Wyoming,2.6,
+2021-01-29,Arkansas,4.1,
+2021-01-29,British Columbia CAN,2.1,
+2021-01-29,Colorado,5.1,
+2021-01-29,Illinois,26.1,0.8
+2021-01-29,Indiana,0.5,1.3
+2021-01-29,Iowa,6.8,78.6
+2021-01-29,Manitoba CAN,13.4,
+2021-01-29,Michigan,,1.4
+2021-01-29,Minnesota,3.4,15.1
+2021-01-29,Missouri,5.2,
+2021-01-29,Montana,1.6,
+2021-01-29,Nebraska,1.1,1.6
+2021-01-29,North Dakota,0.6,
+2021-01-29,Noth Carolina,4.1,
+2021-01-29,Ohio,1.4,1.2
+2021-01-29,Ontario CAN,4.1,
+2021-01-29,Saskatchewan CAN,7.8,
+2021-01-29,South Dakota,12.6,
+2021-02-05,Illinois,25.8,3.3
+2021-02-05,Indiana,3.3,
+2021-02-05,Iowa,11.4,89.8
+2021-02-05,Manitoba CAN,28.1,
+2021-02-05,Michigan,,1.5
+2021-02-05,Minnesota,4.7,4.7
+2021-02-05,Missouri,4.5,
+2021-02-05,Montana,1.9,
+2021-02-05,Nebraska,1.7,0.7
+2021-02-05,Noth Carolina,0.9,
+2021-02-05,Ohio,6.1,
+2021-02-05,Saskatchewan CAN,6.5,
+2021-02-05,South Dakota,5.1,
+2021-02-12,Colorado,5.3,
+2021-02-12,Illinois,16.8,1.8
+2021-02-12,Indiana,9.6,3.6
+2021-02-12,Iowa,5.1,75.5
+2021-02-12,Manitoba CAN,23.1,
+2021-02-12,Michigan,,2.1
+2021-02-12,Minnesota,7.9,13.8
+2021-02-12,Missouri,9.0,
+2021-02-12,Montana,2.4,
+2021-02-12,Nebraska,6.9,3.2
+2021-02-12,Ohio,8.2,
+2021-02-12,Saskatchewan CAN,0.8,
+2021-02-12,South Dakota,4.7,
+2021-02-19,Arkansas,12.0,
+2021-02-19,Colorado,1.9,
+2021-02-19,Illinois,16.8,
+2021-02-19,Indiana,2.1,
+2021-02-19,Iowa,18.0,69.7
+2021-02-19,Manitoba CAN,18.6,3.2
+2021-02-19,Michigan,,1.9
+2021-02-19,Minnesota,2.4,19.8
+2021-02-19,Missouri,7.2,
+2021-02-19,Montana,2.4,
+2021-02-19,Nebraska,,2.3
+2021-02-19,Ohio,1.9,
+2021-02-19,Saskatchewan CAN,1.0,
+2021-02-19,South Dakota,11.7,3.0
+2021-02-19,Wisconsin,4.0,
+2021-02-26,Colorado,7.3,
+2021-02-26,Illinois,36.9,2.9
+2021-02-26,Indiana,6.0,
+2021-02-26,Iowa,16.7,70.2
+2021-02-26,Manitoba CAN,7.1,
+2021-02-26,Michigan,,1.9
+2021-02-26,Minnesota,2.0,20.7
+2021-02-26,Missouri,,2.0
+2021-02-26,Montana,2.7,
+2021-02-26,Ohio,2.0,
+2021-02-26,Saskatchewan CAN,7.9,
+2021-02-26,South Dakota,11.5,2.3
+2021-03-05,Arkansas,3.3,
+2021-03-05,Colorado,9.3,
+2021-03-05,Illinois,25.3,
+2021-03-05,Indiana,6.5,0.7
+2021-03-05,Iowa,12.4,60.8
+2021-03-05,Kansas,,3.0
+2021-03-05,Manitoba CAN,2.6,
+2021-03-05,Maryland,1.6,
+2021-03-05,Michigan,,4.8
+2021-03-05,Minnesota,7.4,23.7
+2021-03-05,Missouri,7.0,
+2021-03-05,Montana,2.0,
+2021-03-05,Nebraska,,3.8
+2021-03-05,North Dakota,0.8,
+2021-03-05,Ohio,3.2,3.3
+2021-03-05,Ontario CAN,1.6,
+2021-03-05,Saskatchewan CAN,6.5,
+2021-03-05,South Dakota,8.8,
+2021-03-05,Wyoming,1.8,
+2021-03-12,Arkansas,4.6,
+2021-03-12,Colorado,5.7,
+2021-03-12,Illinois,26.1,
+2021-03-12,Indiana,2.8,
+2021-03-12,Iowa,9.3,75.7
+2021-03-12,Manitoba CAN,24.7,
+2021-03-12,Michigan,,1.1
+2021-03-12,Minnesota,2.7,15.3
+2021-03-12,Missouri,1.3,
+2021-03-12,Montana,1.4,
+2021-03-12,Nebraska,1.1,3.8
+2021-03-12,North Dakota,0.5,
+2021-03-12,Ohio,1.1,2.3
+2021-03-12,Saskatchewan CAN,7.4,
+2021-03-12,South Dakota,10.5,1.8
+2021-03-12,Wisconsin,0.9,
+2021-03-19,Arkansas,0.8,
+2021-03-19,Colorado,15.1,
+2021-03-19,Illinois,37.5,6.4
+2021-03-19,Iowa,8.6,82.8
+2021-03-19,Manitoba CAN,18.4,
+2021-03-19,Michigan,,2.6
+2021-03-19,Minnesota,1.8,3.8
+2021-03-19,Missouri,6.1,
+2021-03-19,Montana,1.8,
+2021-03-19,Ohio,,2.7
+2021-03-19,Quebec CAN,1.5,
+2021-03-19,Saskatchewan CAN,6.1,
+2021-03-19,South Dakota,2.3,
+2021-03-19,Wisconsin,,1.8
+2021-03-26,Colorado,11.6,
+2021-03-26,Illinois,29.5,3.4
+2021-03-26,Indiana,0.4,0.4
+2021-03-26,Iowa,11.7,62.2
+2021-03-26,Kansas,12.6,3.4
+2021-03-26,Manitoba CAN,5.4,
+2021-03-26,Michigan,,4.3
+2021-03-26,Minnesota,2.3,18.3
+2021-03-26,Missouri,3.7,
+2021-03-26,Montana,1.6,
+2021-03-26,Nebraska,,4.3
+2021-03-26,North Dakota,1.3,
+2021-03-26,Ohio,,2.6
+2021-03-26,Ontario CAN,2.5,
+2021-03-26,Saskatchewan CAN,5.3,
+2021-03-26,South Dakota,9.4,1.1
+2021-03-26,Wisconsin,2.6,
+2021-04-02,Colorado,12.8,
+2021-04-02,Illinois,32.8,4.5
+2021-04-02,Iowa,13.3,71.3
+2021-04-02,Manitoba CAN,27.1,
+2021-04-02,Minnesota,5.1,14.2
+2021-04-02,Missouri,5.3,
+2021-04-02,Montana,2.2,
+2021-04-02,Nebraska,1.4,3.3
+2021-04-02,Ohio,,4.9
+2021-04-02,South Dakota,,1.7
+2021-04-09,Colorado,17.7,
+2021-04-09,Georgia,0.5,
+2021-04-09,Illinois,25.9,10.8
+2021-04-09,Indiana,0.6,
+2021-04-09,Iowa,8.3,75.3
+2021-04-09,Manitoba CAN,21.3,
+2021-04-09,Michigan,,1.0
+2021-04-09,Minnesota,3.0,11.0
+2021-04-09,Missouri,5.7,
+2021-04-09,Montana,1.4,
+2021-04-09,Nebraska,1.1,0.7
+2021-04-09,Noth Carolina,1.4,
+2021-04-09,Ohio,1.0,
+2021-04-09,Ontario CAN,0.6,
+2021-04-09,Saskatchewan CAN,6.9,
+2021-04-09,South Dakota,4.6,1.1
+2021-04-16,Arkansas,0.7,
+2021-04-16,Colorado,16.1,2.5
+2021-04-16,Illinois,24.6,7.5
+2021-04-16,Indiana,0.5,
+2021-04-16,Iowa,13.6,69.9
+2021-04-16,Manitoba CAN,14.1,
+2021-04-16,Minnesota,8.0,10.9
+2021-04-16,Missouri,8.2,1.3
+2021-04-16,Montana,1.4,
+2021-04-16,Nebraska,,5.8
+2021-04-16,Noth Carolina,1.2,
+2021-04-16,Ontario CAN,1.1,
+2021-04-16,Saskatchewan CAN,1.1,
+2021-04-16,South Dakota,5.6,2.0
+2021-04-16,Wisconsin,3.8,
+2021-04-23,Colorado,10.3,
+2021-04-23,Georgia,0.7,
+2021-04-23,Illinois,37.5,1.1
+2021-04-23,Iowa,3.0,87.7
+2021-04-23,Manitoba CAN,15.5,
+2021-04-23,Michigan,,1.3
+2021-04-23,Minnesota,12.5,10.0
+2021-04-23,Missouri,4.4,
+2021-04-23,Montana,1.5,
+2021-04-23,North Dakota,0.6,
+2021-04-23,Ohio,1.2,
+2021-04-23,Saskatchewan CAN,5.3,
+2021-04-23,South Dakota,4.8,
+2021-04-23,Wisconsin,2.7,
+2021-04-30,Colorado,11.7,1.3
+2021-04-30,Illinois,33.5,3.6
+2021-04-30,Indiana,3.0,1.0
+2021-04-30,Iowa,5.1,73.1
+2021-04-30,Manitoba CAN,6.8,
+2021-04-30,Michigan,,1.3
+2021-04-30,Minnesota,3.1,15.3
+2021-04-30,Missouri,1.5,
+2021-04-30,Montana,2.0,
+2021-04-30,Nebraska,1.2,2.8
+2021-04-30,Noth Carolina,1.5,
+2021-04-30,Ohio,3.0,
+2021-04-30,Ontario CAN,3.1,
+2021-04-30,Pennsylvania,,1.5
+2021-04-30,Saskatchewan CAN,6.2,
+2021-04-30,South Dakota,18.3,
+2021-05-07,Colorado,1.7,
+2021-05-07,Illinois,40.8,2.5
+2021-05-07,Iowa,10.7,80.1
+2021-05-07,Manitoba CAN,4.5,
+2021-05-07,Minnesota,,15.3
+2021-05-07,Missouri,10.8,
+2021-05-07,Montana,2.5,
+2021-05-07,Nebraska,,2.1
+2021-05-07,Ontario CAN,3.6,
+2021-05-07,Saskatchewan CAN,12.7,
+2021-05-07,South Dakota,12.7,
+2021-05-14,Alberta CAN,1.0,
+2021-05-14,Colorado,11.8,
+2021-05-14,Illinois,15.6,1.3
+2021-05-14,Iowa,6.4,72.5
+2021-05-14,Kansas,,0.8
+2021-05-14,Manitoba CAN,18.6,
+2021-05-14,Michigan,,1.0
+2021-05-14,Minnesota,5.6,21.2
+2021-05-14,Missouri,11.9,
+2021-05-14,Montana,1.6,
+2021-05-14,Nebraska,12.9,3.2
+2021-05-14,North Dakota,2.4,
+2021-05-14,Ohio,1.0,
+2021-05-14,Ontario CAN,1.1,
+2021-05-14,Saskatchewan CAN,4.8,
+2021-05-14,South Dakota,5.4,
+2021-05-21,Colorado,16.5,
+2021-05-21,Illinois,26.6,
+2021-05-21,Iowa,4.1,77.1
+2021-05-21,Kansas,,1.5
+2021-05-21,Manitoba CAN,13.4,
+2021-05-21,Michigan,2.9,1.1
+2021-05-21,Minnesota,3.6,13.2
+2021-05-21,Missouri,6.5,
+2021-05-21,Montana,1.5,
+2021-05-21,Nebraska,4.1,2.9
+2021-05-21,Noth Carolina,6.5,
+2021-05-21,Ohio,1.1,1.9
+2021-05-21,Saskatchewan CAN,4.6,
+2021-05-21,South Dakota,4.8,1.1
+2021-05-21,Wisconsin,2.3,1.1
+2021-05-21,Wyoming,1.4,
+2021-05-28,Colorado,17.6,
+2021-05-28,Illinois,29.4,
+2021-05-28,Indiana,,0.3
+2021-05-28,Iowa,2.6,74.3
+2021-05-28,Manitoba CAN,15.9,
+2021-05-28,Michigan,,1.4
+2021-05-28,Minnesota,5.2,14.1
+2021-05-28,Missouri,6.0,
+2021-05-28,Montana,1.7,
+2021-05-28,Nebraska,1.5,6.3
+2021-05-28,North Dakota,1.3,
+2021-05-28,Noth Carolina,4.4,
+2021-05-28,Ohio,1.7,2.4
+2021-05-28,Saskatchewan CAN,6.0,
+2021-05-28,South Dakota,6.5,
+2021-05-28,Wisconsin,,1.2
+2021-06-04,Colorado,15.0,
+2021-06-04,Illinois,22.5,
+2021-06-04,Indiana,2.4,0.6
+2021-06-04,Iowa,8.6,69.4
+2021-06-04,Manitoba CAN,4.1,
+2021-06-04,Michigan,,1.4
+2021-06-04,Minnesota,10.0,10.7
+2021-06-04,Missouri,3.6,
+2021-06-04,Montana,1.8,
+2021-06-04,Nebraska,13.8,15.0
+2021-06-04,North Dakota,2.9,
+2021-06-04,Noth Carolina,8.2,
+2021-06-04,Ohio,1.4,2.8
+2021-06-04,Ontario CAN,0.7,
+2021-06-04,South Dakota,5.0,
+2021-06-11,Colorado,9.0,
+2021-06-11,Illinois,16.8,1.1
+2021-06-11,Indiana,2.2,2.2
+2021-06-11,Iowa,9.6,78.3
+2021-06-11,Manitoba CAN,23.5,
+2021-06-11,Michigan,,1.3
+2021-06-11,Minnesota,2.1,12.4
+2021-06-11,Missouri,6.1,
+2021-06-11,Montana,1.4,
+2021-06-11,Nebraska,11.9,2.0
+2021-06-11,Noth Carolina,4.5,0.9
+2021-06-11,Ohio,1.3,1.7
+2021-06-11,Ontario CAN,1.1,
+2021-06-11,Saskatchewan CAN,7.4,
+2021-06-11,South Dakota,3.0,
+2021-06-18,Colorado,12.3,
+2021-06-18,Illinois,17.6,1.3
+2021-06-18,Indiana,1.6,1.6
+2021-06-18,Iowa,4.7,68.5
+2021-06-18,Manitoba CAN,20.9,
+2021-06-18,Michigan,,1.6
+2021-06-18,Minnesota,4.0,17.0
+2021-06-18,Missouri,5.1,
+2021-06-18,Montana,1.8,
+2021-06-18,Nebraska,7.8,3.7
+2021-06-18,North Dakota,5.2,
+2021-06-18,Noth Carolina,1.0,1.0
+2021-06-18,Ohio,1.6,
+2021-06-18,Ontario CAN,1.3,
+2021-06-18,Saskatchewan CAN,6.9,
+2021-06-18,South Dakota,8.0,5.4
+2021-06-25,Arkansas,4.3,
+2021-06-25,Colorado,13.2,
+2021-06-25,Illinois,27.6,
+2021-06-25,Indiana,0.5,1.3
+2021-06-25,Iowa,3.4,73.0
+2021-06-25,Kansas,8.5,
+2021-06-25,Manitoba CAN,7.0,
+2021-06-25,Michigan,,2.6
+2021-06-25,Minnesota,0.9,14.9
+2021-06-25,Missouri,3.7,4.4
+2021-06-25,Montana,1.5,
+2021-06-25,Nebraska,0.4,2.7
+2021-06-25,Noth Carolina,13.9,0.8
+2021-06-25,Ohio,2.3,
+2021-06-25,Saskatchewan CAN,4.3,
+2021-06-25,South Dakota,8.5,0.4
+2021-07-02,California,,0.6
+2021-07-02,Colorado,12.9,
+2021-07-02,Illinois,14.4,3.0
+2021-07-02,Indiana,0.8,
+2021-07-02,Iowa,6.6,66.4
+2021-07-02,Kansas,10.7,
+2021-07-02,Manitoba CAN,13.5,
+2021-07-02,Michigan,,2.8
+2021-07-02,Minnesota,5.7,22.5
+2021-07-02,Missouri,14.7,
+2021-07-02,Montana,1.7,
+2021-07-02,Nebraska,3.7,3.6
+2021-07-02,Noth Carolina,9.4,1.0
+2021-07-02,Ohio,1.5,
+2021-07-02,Saskatchewan CAN,1.1,
+2021-07-02,South Dakota,3.3,
+2021-07-09,Colorado,7.6,
+2021-07-09,Illinois,17.3,2.3
+2021-07-09,Indiana,2.1,
+2021-07-09,Iowa,13.5,73.5
+2021-07-09,Kansas,8.7,1.0
+2021-07-09,Manitoba CAN,12.5,
+2021-07-09,Michigan,,1.2
+2021-07-09,Minnesota,1.7,15.4
+2021-07-09,Missouri,3.8,
+2021-07-09,Montana,1.5,
+2021-07-09,Nebraska,4.0,1.1
+2021-07-09,North Dakota,2.2,
+2021-07-09,Noth Carolina,7.8,0.8
+2021-07-09,Ohio,1.2,2.1
+2021-07-09,Saskatchewan CAN,4.9,
+2021-07-09,South Dakota,11.4,2.7
+2021-07-16,Colorado,10.8,
+2021-07-16,Idaho,,1.2
+2021-07-16,Illinois,28.4,8.0
+2021-07-16,Indiana,2.4,
+2021-07-16,Iowa,7.2,78.3
+2021-07-16,Kansas,10.1,
+2021-07-16,Manitoba CAN,17.3,
+2021-07-16,Michigan,,2.9
+2021-07-16,Minnesota,1.3,5.4
+2021-07-16,Missouri,3.4,
+2021-07-16,Montana,1.8,
+2021-07-16,Nebraska,3.4,4.2
+2021-07-16,Ohio,2.9,
+2021-07-16,Saskatchewan CAN,5.1,
+2021-07-16,South Dakota,5.9,
+2021-07-23,Colorado,7.1,
+2021-07-23,Connecticut,,2.3
+2021-07-23,Illinois,22.3,7.9
+2021-07-23,Iowa,13.4,69.1
+2021-07-23,Kansas,9.0,1.1
+2021-07-23,Kentucky,1.2,
+2021-07-23,Manitoba CAN,10.4,
+2021-07-23,Maryland,1.1,
+2021-07-23,Michigan,1.1,1.6
+2021-07-23,Minnesota,2.4,9.6
+2021-07-23,Missouri,4.9,
+2021-07-23,Montana,1.4,
+2021-07-23,Nebraska,8.5,4.5
+2021-07-23,Noth Carolina,0.7,0.7
+2021-07-23,Ohio,1.6,3.3
+2021-07-23,Ontario CAN,11.3,
+2021-07-23,Quebec CAN,1.4,
+2021-07-23,Saskatchewan CAN,0.5,
+2021-07-23,South Dakota,1.7,
+2021-07-30,Colorado,16.1,
+2021-07-30,Illinois,27.2,6.1
+2021-07-30,Indiana,2.2,1.9
+2021-07-30,Iowa,9.5,76.0
+2021-07-30,Kansas,1.0,
+2021-07-30,Manitoba CAN,18.8,
+2021-07-30,Michigan,1.2,1.2
+2021-07-30,Minnesota,4.0,9.3
+2021-07-30,Missouri,6.1,
+2021-07-30,Montana,1.6,
+2021-07-30,Nebraska,4.0,3.1
+2021-07-30,Noth Carolina,1.1,1.1
+2021-07-30,Ohio,1.2,1.2
+2021-07-30,Saskatchewan CAN,5.1,
+2021-07-30,South Dakota,0.6,
+2021-08-06,Colorado,7.5,
+2021-08-06,Illinois,26.6,5.8
+2021-08-06,Iowa,9.2,71.7
+2021-08-06,Manitoba CAN,23.2,
+2021-08-06,Minnesota,9.8,11.0
+2021-08-06,Missouri,3.1,
+2021-08-06,Montana,1.5,
+2021-08-06,Nebraska,0.9,2.1
+2021-08-06,Noth Carolina,1.0,1.5
+2021-08-06,Ohio,,5.3
+2021-08-06,Ontario CAN,8.4,
+2021-08-06,Saskatchewan CAN,4.4,
+2021-08-06,South Dakota,4.4,2.7
+2021-08-13,Colorado,9.6,
+2021-08-13,Illinois,30.0,3.3
+2021-08-13,Indiana,3.3,5.2
+2021-08-13,Iowa,10.7,70.9
+2021-08-13,Manitoba CAN,7.8,
+2021-08-13,Michigan,,1.7
+2021-08-13,Minnesota,6.1,13.3
+2021-08-13,Missouri,5.4,
+2021-08-13,Montana,2.0,
+2021-08-13,Nebraska,,3.5
+2021-08-13,North Dakota,6.0,
+2021-08-13,Noth Carolina,1.3,1.3
+2021-08-13,Ohio,1.7,
+2021-08-13,Saskatchewan CAN,0.7,
+2021-08-13,South Dakota,10.5,0.7
+2021-08-13,Wisconsin,4.7,
+2021-08-20,Colorado,11.5,
+2021-08-20,Illinois,30.5,6.6
+2021-08-20,Indiana,,2.9
+2021-08-20,Iowa,1.5,58.8
+2021-08-20,Manitoba CAN,4.5,
+2021-08-20,Michigan,,2.2
+2021-08-20,Minnesota,3.0,17.2
+2021-08-20,Mississippi,2.0,
+2021-08-20,Missouri,3.5,
+2021-08-20,Nebraska,1.3,5.3
+2021-08-20,New Jersey,,0.4
+2021-08-20,North Dakota,5.5,
+2021-08-20,Noth Carolina,11.3,1.3
+2021-08-20,Ohio,3.5,2.8
+2021-08-20,Ontario CAN,5.8,
+2021-08-20,Saskatchewan CAN,6.1,
+2021-08-20,South Dakota,9.9,2.4
+2021-08-27,Colorado,16.9,
+2021-08-27,Illinois,21.1,2.0
+2021-08-27,Indiana,,0.8
+2021-08-27,Iowa,7.3,62.9
+2021-08-27,Manitoba CAN,10.8,
+2021-08-27,Michigan,,2.0
+2021-08-27,Minnesota,5.9,20.8
+2021-08-27,Missouri,4.0,
+2021-08-27,Montana,1.4,
+2021-08-27,Nebraska,4.0,7.6
+2021-08-27,Noth Carolina,7.8,0.8
+2021-08-27,Ohio,1.0,1.1
+2021-08-27,Saskatchewan CAN,6.7,
+2021-08-27,South Dakota,13.0,1.9
+2021-09-03,Colorado,10.1,
+2021-09-03,Illinois,21.7,3.7
+2021-09-03,Indiana,,0.7
+2021-09-03,Iowa,6.3,71.5
+2021-09-03,Kansas,,1.0
+2021-09-03,Manitoba CAN,26.4,
+2021-09-03,Michigan,,1.8
+2021-09-03,Minnesota,,17.3
+2021-09-03,Missouri,9.6,
+2021-09-03,Montana,1.2,
+2021-09-03,Nebraska,5.2,3.2
+2021-09-03,Noth Carolina,6.6,0.7
+2021-09-03,Ohio,0.9,
+2021-09-03,Ontario CAN,2.6,
+2021-09-03,Quebec CAN,1.4,
+2021-09-03,Saskatchewan CAN,3.7,
+2021-09-03,South Dakota,4.1,
+2021-09-10,California,1.5,
+2021-09-10,Colorado,11.7,
+2021-09-10,Illinois,18.9,3.9
+2021-09-10,Indiana,2.1,3.5
+2021-09-10,Iowa,6.2,61.3
+2021-09-10,Manitoba CAN,4.9,
+2021-09-10,Michigan,,1.7
+2021-09-10,Minnesota,8.3,20.0
+2021-09-10,Missouri,4.6,
+2021-09-10,Montana,2.1,
+2021-09-10,Nebraska,5.9,6.2
+2021-09-10,Noth Carolina,8.1,
+2021-09-10,Ohio,4.3,2.6
+2021-09-10,Ontario CAN,9.0,
+2021-09-10,Quebec CAN,1.8,
+2021-09-10,Saskatchewan CAN,6.5,
+2021-09-10,South Dakota,4.1,0.7
+2021-09-17,Colorado,15.7,
+2021-09-17,Illinois,21.8,1.1
+2021-09-17,Indiana,,1.0
+2021-09-17,Iowa,9.8,62.2
+2021-09-17,Manitoba CAN,8.6,
+2021-09-17,Michigan,,1.1
+2021-09-17,Minnesota,7.3,25.9
+2021-09-17,Missouri,15.8,
+2021-09-17,Montana,1.6,
+2021-09-17,Nebraska,2.2,4.3
+2021-09-17,Noth Carolina,6.9,
+2021-09-17,Ohio,1.1,
+2021-09-17,Ontario CAN,3.1,
+2021-09-17,Saskatchewan CAN,4.4,
+2021-09-17,South Dakota,1.6,4.4
+2021-09-24,Colorado,10.9,0.7
+2021-09-24,Illinois,11.3,1.6
+2021-09-24,Indiana,2.3,5.2
+2021-09-24,Iowa,8.0,60.7
+2021-09-24,Manitoba CAN,21.0,
+2021-09-24,Michigan,,1.8
+2021-09-24,Minnesota,4.8,12.4
+2021-09-24,Missouri,3.9,
+2021-09-24,Montana,2.2,
+2021-09-24,Nebraska,3.3,11.6
+2021-09-24,North Dakota,2.8,
+2021-09-24,Noth Carolina,9.8,
+2021-09-24,Ohio,1.8,2.9
+2021-09-24,Ontario CAN,8.8,
+2021-09-24,South Dakota,9.1,3.0
+2021-10-01,Colorado,17.6,
+2021-10-01,Illinois,16.6,
+2021-10-01,Indiana,,0.6
+2021-10-01,Iowa,9.0,66.1
+2021-10-01,Kentucky,0.6,
+2021-10-01,Manitoba CAN,9.4,
+2021-10-01,Maryland,1.2,
+2021-10-01,Michigan,,1.3
+2021-10-01,Minnesota,6.0,19.1
+2021-10-01,Missouri,1.5,
+2021-10-01,Montana,1.5,
+2021-10-01,Nebraska,4.2,8.8
+2021-10-01,Noth Carolina,11.5,
+2021-10-01,Ohio,1.8,3.0
+2021-10-01,Ontario CAN,3.3,
+2021-10-01,Saskatchewan CAN,4.6,
+2021-10-01,South Dakota,11.2,1.2
+2021-10-08,Arkansas,3.8,
+2021-10-08,Colorado,7.5,
+2021-10-08,Illinois,30.3,
+2021-10-08,Indiana,2.5,5.3
+2021-10-08,Iowa,8.7,72.5
+2021-10-08,Kansas,,3.8
+2021-10-08,Manitoba CAN,11.3,
+2021-10-08,Michigan,,0.9
+2021-10-08,Minnesota,10.6,8.4
+2021-10-08,Missouri,4.0,1.9
+2021-10-08,Montana,1.2,
+2021-10-08,Nebraska,0.8,2.0
+2021-10-08,Noth Carolina,7.6,
+2021-10-08,Ohio,0.9,2.4
+2021-10-08,Ontario CAN,2.7,
+2021-10-08,Quebec CAN,1.8,
+2021-10-08,Saskatchewan CAN,4.2,
+2021-10-08,South Dakota,2.3,2.8
+2021-10-15,Colorado,11.8,0.6
+2021-10-15,Illinois,21.9,5.3
+2021-10-15,Indiana,,1.0
+2021-10-15,Iowa,5.3,65.7
+2021-10-15,Kansas,,1.2
+2021-10-15,Manitoba CAN,18.5,
+2021-10-15,Michigan,,1.2
+2021-10-15,Minnesota,16.4,18.1
+2021-10-15,Missouri,2.8,
+2021-10-15,Montana,1.7,
+2021-10-15,New Jersey,,0.4
+2021-10-15,Noth Carolina,3.4,
+2021-10-15,Ohio,4.3,
+2021-10-15,Ontario CAN,1.5,
+2021-10-15,Saskatchewan CAN,5.2,
+2021-10-15,South Dakota,6.0,6.4
+2021-10-15,Wisconsin,1.2,
+2021-10-22,Illinois,21.7,5.7
+2021-10-22,Indiana,1.4,2.6
+2021-10-22,Iowa,6.7,74.3
+2021-10-22,Kentucky,1.5,
+2021-10-22,Manitoba CAN,18.4,
+2021-10-22,Maryland,,1.4
+2021-10-22,Minnesota,5.5,11.9
+2021-10-22,Missouri,1.7,
+2021-10-22,Nebraska,2.0,2.7
+2021-10-22,Noth Carolina,12.9,
+2021-10-22,Ohio,2.6,
+2021-10-22,Ontario CAN,0.7,
+2021-10-22,Quebec CAN,1.4,
+2021-10-22,Saskatchewan CAN,10.1,
+2021-10-22,South Dakota,11.7,1.4
+2021-10-22,Wisconsin,1.5,
+2021-10-29,Colorado,14.3,
+2021-10-29,Illinois,22.8,2.3
+2021-10-29,Iowa,14.5,75.2
+2021-10-29,Manitoba CAN,13.8,
+2021-10-29,Michigan,,1.5
+2021-10-29,Minnesota,3.2,12.0
+2021-10-29,Missouri,2.9,
+2021-10-29,Montana,1.8,
+2021-10-29,Nebraska,0.7,4.9
+2021-10-29,Noth Carolina,4.9,
+2021-10-29,Ohio,1.5,3.3
+2021-10-29,Ontario CAN,3.1,
+2021-10-29,Quebec CAN,4.0,
+2021-10-29,Saskatchewan CAN,5.6,
+2021-10-29,South Dakota,5.6,0.9
+2021-10-29,Wyoming,1.3,
+2021-11-05,Colorado,12.8,
+2021-11-05,Illinois,21.5,0.9
+2021-11-05,Indiana,0.7,
+2021-11-05,Iowa,8.7,81.1
+2021-11-05,Manitoba CAN,16.8,
+2021-11-05,Maryland,1.7,
+2021-11-05,Michigan,,2.8
+2021-11-05,Minnesota,5.6,8.9
+2021-11-05,Missouri,1.3,
+2021-11-05,Montana,1.3,
+2021-11-05,Nebraska,6.3,2.0
+2021-11-05,Noth Carolina,5.2,0.4
+2021-11-05,Ohio,2.0,1.0
+2021-11-05,Ontario CAN,0.4,
+2021-11-05,Quebec CAN,3.9,
+2021-11-05,Saskatchewan CAN,3.7,
+2021-11-05,South Dakota,8.1,2.9
+2021-11-12,Colorado,6.4,
+2021-11-12,Illinois,22.9,
+2021-11-12,Indiana,6.0,
+2021-11-12,Iowa,13.1,69.3
+2021-11-12,Manitoba CAN,8.2,
+2021-11-12,Michigan,,2.4
+2021-11-12,Minnesota,5.3,21.2
+2021-11-12,Missouri,2.0,
+2021-11-12,Montana,2.6,
+2021-11-12,Nebraska,0.8,4.8
+2021-11-12,Ohio,4.7,2.3
+2021-11-12,Ontario CAN,1.0,
+2021-11-12,Saskatchewan CAN,9.2,
+2021-11-12,South Dakota,15.7,
+2021-11-12,Wisconsin,2.1,
+2021-11-19,Colorado,15.8,
+2021-11-19,Illinois,18.4,4.0
+2021-11-19,Indiana,5.4,
+2021-11-19,Iowa,5.1,72.4
+2021-11-19,Manitoba CAN,18.6,
+2021-11-19,Michigan,,1.1
+2021-11-19,Minnesota,6.4,17.0
+2021-11-19,Missouri,2.7,
+2021-11-19,Montana,1.4,
+2021-11-19,Nebraska,1.6,3.2
+2021-11-19,North Dakota,2.2,
+2021-11-19,Noth Carolina,5.9,
+2021-11-19,Ohio,2.2,1.1
+2021-11-19,Ontario CAN,4.1,
+2021-11-19,Quebec CAN,1.0,
+2021-11-19,Saskatchewan CAN,6.5,
+2021-11-19,South Dakota,2.7,1.1
+2021-11-26,Arkansas,0.6,
+2021-11-26,Colorado,25.0,
+2021-11-26,Illinois,30.2,5.8
+2021-11-26,Iowa,4.4,58.3
+2021-11-26,Kansas,,1.7
+2021-11-26,Manitoba CAN,3.1,
+2021-11-26,Michigan,,1.8
+2021-11-26,Minnesota,5.5,23.7
+2021-11-26,Missouri,3.1,
+2021-11-26,Montana,4.6,
+2021-11-26,Nebraska,2.0,5.4
+2021-11-26,Noth Carolina,2.9,
+2021-11-26,Ohio,3.6,1.8
+2021-11-26,Ontario CAN,5.4,
+2021-11-26,South Dakota,9.7,0.8
+2021-11-26,Tennessee,,0.7
+2021-12-03,Arkansas,1.7,
+2021-12-03,Colorado,14.1,
+2021-12-03,Illinois,33.2,2.7
+2021-12-03,Indiana,0.8,0.8
+2021-12-03,Iowa,3.0,66.7
+2021-12-03,Kentucky,2.7,
+2021-12-03,Manitoba CAN,3.3,
+2021-12-03,Maryland,4.8,
+2021-12-03,Michigan,,1.3
+2021-12-03,Minnesota,3.0,13.7
+2021-12-03,Missouri,1.5,
+2021-12-03,Montana,1.9,
+2021-12-03,Nebraska,,8.5
+2021-12-03,Noth Carolina,10.4,
+2021-12-03,Ohio,2.6,1.3
+2021-12-03,Ontario CAN,3.7,
+2021-12-03,Quebec CAN,2.9,
+2021-12-03,Saskatchewan CAN,8.7,
+2021-12-03,South Dakota,1.8,3.2
+2021-12-03,Tennessee,,0.4
+2021-12-03,Wisconsin,,1.3
+2021-12-10,Arkansas,1.3,
+2021-12-10,Colorado,20.4,
+2021-12-10,Illinois,12.2,
+2021-12-10,Indiana,3.2,1.2
+2021-12-10,Iowa,9.9,76.2
+2021-12-10,Manitoba CAN,10.0,
+2021-12-10,Michigan,,1.3
+2021-12-10,Minnesota,7.3,7.9
+2021-12-10,Missouri,5.1,
+2021-12-10,Montana,1.6,
+2021-12-10,Nebraska,0.3,9.3
+2021-12-10,Noth Carolina,10.0,
+2021-12-10,Ohio,3.8,2.8
+2021-12-10,Ontario CAN,1.6,
+2021-12-10,Saskatchewan CAN,5.3,
+2021-12-10,South Dakota,8.2,1.3
+2021-12-17,Arkansas,2.6,
+2021-12-17,California,1.3,
+2021-12-17,Colorado,14.6,
+2021-12-17,Illinois,14.0,2.1
+2021-12-17,Indiana,2.1,
+2021-12-17,Iowa,9.2,74.7
+2021-12-17,Manitoba CAN,30.3,
+2021-12-17,Michigan,1.3,
+2021-12-17,Minnesota,2.2,10.5
+2021-12-17,Missouri,1.5,
+2021-12-17,Nebraska,2.9,10.2
+2021-12-17,Noth Carolina,4.9,
+2021-12-17,Ohio,1.3,
+2021-12-17,Quebec CAN,4.6,
+2021-12-17,South Dakota,7.1,2.6
+2021-12-24,Alberta CAN,0.7,
+2021-12-24,California,1.2,
+2021-12-24,Colorado,16.2,
+2021-12-24,Illinois,25.7,
+2021-12-24,Indiana,1.3,
+2021-12-24,Iowa,2.8,68.4
+2021-12-24,Manitoba CAN,15.7,
+2021-12-24,Michigan,,8.6
+2021-12-24,Minnesota,1.4,17.9
+2021-12-24,Missouri,4.9,
+2021-12-24,Montana,2.0,
+2021-12-24,Nebraska,2.3,5.1
+2021-12-24,North Dakota,2.8,
+2021-12-24,Noth Carolina,2.2,
+2021-12-24,Ohio,2.8,
+2021-12-24,Quebec CAN,3.4,
+2021-12-24,Saskatchewan CAN,9.1,
+2021-12-24,South Dakota,5.4,
+2021-12-31,Colorado,7.1,
+2021-12-31,Illinois,26.8,
+2021-12-31,Iowa,8.4,70.9
+2021-12-31,Manitoba CAN,6.7,
+2021-12-31,Michigan,,3.5
+2021-12-31,Minnesota,3.8,23.7
+2021-12-31,Missouri,5.5,
+2021-12-31,Nebraska,4.6,1.9
+2021-12-31,Noth Carolina,7.8,
+2021-12-31,Ohio,1.7,
+2021-12-31,Ontario CAN,3.0,
+2021-12-31,Quebec CAN,3.5,
+2021-12-31,Saskatchewan CAN,8.9,
+2021-12-31,South Dakota,12.1,
+2022-01-07,Arkansas,2.5,
+2022-01-07,Colorado,20.3,1.4
+2022-01-07,Illinois,24.2,5.1
+2022-01-07,Iowa,4.4,64.3
+2022-01-07,Maryland,1.7,
+2022-01-07,Michigan,,4.4
+2022-01-07,Minnesota,3.1,17.3
+2022-01-07,Missouri,1.8,
+2022-01-07,Montana,3.6,
+2022-01-07,Nebraska,1.8,3.1
+2022-01-07,Noth Carolina,4.7,
+2022-01-07,Ohio,4.6,2.7
+2022-01-07,Ontario CAN,1.9,
+2022-01-07,Quebec CAN,5.2,
+2022-01-07,Saskatchewan CAN,9.7,
+2022-01-07,South Dakota,10.6,1.5
+2022-01-14,Colorado,11.1,
+2022-01-14,Illinois,17.4,4.4
+2022-01-14,Indiana,4.1,
+2022-01-14,Iowa,3.4,65.3
+2022-01-14,Manitoba CAN,23.4,
+2022-01-14,Michigan,,3.5
+2022-01-14,Minnesota,11.0,21.2
+2022-01-14,Missouri,2.4,
+2022-01-14,Montana,1.4,
+2022-01-14,Nebraska,2.5,2.6
+2022-01-14,North Dakota,1.8,
+2022-01-14,Noth Carolina,3.7,
+2022-01-14,Ohio,2.5,1.6
+2022-01-14,Quebec CAN,1.4,
+2022-01-14,Saskatchewan CAN,7.4,
+2022-01-14,South Dakota,6.5,1.4
+2022-01-21,Arkansas,2.4,
+2022-01-21,Colorado,10.0,
+2022-01-21,Illinois,21.9,9.4
+2022-01-21,Indiana,0.9,
+2022-01-21,Iowa,9.0,55.5
+2022-01-21,Manitoba CAN,5.0,
+2022-01-21,Maryland,1.8,
+2022-01-21,Michigan,,1.8
+2022-01-21,Minnesota,1.4,21.8
+2022-01-21,Missouri,3.6,
+2022-01-21,Montana,2.0,
+2022-01-21,Nebraska,3.5,7.6
+2022-01-21,Noth Carolina,5.1,
+2022-01-21,Ohio,3.5,
+2022-01-21,Ontario CAN,5.3,
+2022-01-21,Quebec CAN,6.4,
+2022-01-21,Saskatchewan CAN,9.4,
+2022-01-21,South Dakota,8.8,3.9
+2022-01-28,Arkansas,2.0,
+2022-01-28,Colorado,19.5,
+2022-01-28,Idaho,1.2,
+2022-01-28,Illinois,21.4,2.3
+2022-01-28,Iowa,3.2,60.6
+2022-01-28,Kansas,,1.2
+2022-01-28,Manitoba CAN,16.5,
+2022-01-28,Michigan,,1.4
+2022-01-28,Minnesota,12.1,26.8
+2022-01-28,Missouri,2.6,
+2022-01-28,Montana,1.7,
+2022-01-28,Nebraska,,6.4
+2022-01-28,Noth Carolina,4.3,
+2022-01-28,Ohio,3.1,
+2022-01-28,Ontario CAN,1.7,
+2022-01-28,Quebec CAN,1.2,
+2022-01-28,Saskatchewan CAN,6.0,
+2022-01-28,South Dakota,3.7,1.3
+2022-02-04,Arkansas,2.5,
+2022-02-04,Colorado,16.7,3.0
+2022-02-04,Illinois,12.1,4.6
+2022-02-04,Indiana,6.2,7.6
+2022-02-04,Iowa,9.5,67.9
+2022-02-04,Kansas,,1.4
+2022-02-04,Manitoba CAN,13.7,
+2022-02-04,Michigan,,1.7
+2022-02-04,Minnesota,2.4,9.9
+2022-02-04,Missouri,6.1,
+2022-02-04,Montana,2.1,
+2022-02-04,Nebraska,1.5,3.8
+2022-02-04,Nova Scotia CAN,1.5,
+2022-02-04,Ohio,4.9,
+2022-02-04,Ontario CAN,7.8,
+2022-02-04,Saskatchewan CAN,13.1,
+2022-02-11,Arkansas,1.4,
+2022-02-11,Colorado,10.5,
+2022-02-11,Illinois,20.0,3.6
+2022-02-11,Indiana,5.7,
+2022-02-11,Iowa,3.2,69.3
+2022-02-11,Manitoba CAN,17.8,
+2022-02-11,Michigan,,1.3
+2022-02-11,Minnesota,7.4,14.6
+2022-02-11,Missouri,3.5,
+2022-02-11,Montana,1.6,
+2022-02-11,Nebraska,,3.2
+2022-02-11,Noth Carolina,5.2,
+2022-02-11,Ohio,2.7,4.0
+2022-02-11,Ontario CAN,4.4,
+2022-02-11,Saskatchewan CAN,10.9,
+2022-02-11,South Dakota,5.8,4.0
+2022-02-18,Arkansas,3.4,
+2022-02-18,Colorado,1.6,
+2022-02-18,Illinois,8.4,2.6
+2022-02-18,Indiana,3.8,0.3
+2022-02-18,Iowa,10.3,58.8
+2022-02-18,Kansas,3.4,
+2022-02-18,Manitoba CAN,14.8,
+2022-02-18,Minnesota,6.8,30.7
+2022-02-18,Missouri,3.3,
+2022-02-18,Nebraska,,2.5
+2022-02-18,North Dakota,1.8,
+2022-02-18,Noth Carolina,3.4,
+2022-02-18,Ohio,1.8,3.4
+2022-02-18,Ontario CAN,9.9,
+2022-02-18,Quebec CAN,3.1,
+2022-02-18,Saskatchewan CAN,11.6,
+2022-02-18,South Dakota,12.4,1.8
+2022-02-25,Arkansas,2.5,
+2022-02-25,Colorado,30.7,
+2022-02-25,Illinois,12.8,2.7
+2022-02-25,Iowa,8.3,51.0
+2022-02-25,Manitoba CAN,2.3,
+2022-02-25,Minnesota,4.2,28.7
+2022-02-25,Missouri,5.7,
+2022-02-25,Montana,3.3,
+2022-02-25,Nebraska,,9.9
+2022-02-25,North Dakota,4.6,
+2022-02-25,Noth Carolina,5.2,0.1
+2022-02-25,Ohio,2.0,5.1
+2022-02-25,Ontario CAN,4.8,
+2022-02-25,Quebec CAN,6.6,
+2022-02-25,South Dakota,7.0,2.5
+2022-03-04,Arkansas,3.4,
+2022-03-04,Colorado,30.4,
+2022-03-04,Illinois,22.4,4.0
+2022-03-04,Iowa,6.8,50.3
+2022-03-04,Kansas,,1.8
+2022-03-04,Manitoba CAN,3.5,
+2022-03-04,Michigan,,4.0
+2022-03-04,Minnesota,11.9,20.6
+2022-03-04,Missouri,2.7,
+2022-03-04,Montana,2.6,
+2022-03-04,Nebraska,,10.1
+2022-03-04,North Dakota,3.9,
+2022-03-04,Ohio,3.4,
+2022-03-04,Ontario CAN,2.1,
+2022-03-04,Saskatchewan CAN,1.6,
+2022-03-04,South Dakota,5.3,4.9
+2022-03-04,Wisconsin,,4.4
+2022-03-11,Arkansas,2.7,
+2022-03-11,Colorado,12.4,
+2022-03-11,Illinois,17.1,4.0
+2022-03-11,Iowa,1.6,74.3
+2022-03-11,Kentucky,1.5,
+2022-03-11,Manitoba CAN,42.1,
+2022-03-11,Michigan,,1.5
+2022-03-11,Minnesota,5.3,8.7
+2022-03-11,Missouri,0.4,
+2022-03-11,Montana,2.0,
+2022-03-11,Nebraska,0.2,6.1
+2022-03-11,Noth Carolina,3.4,
+2022-03-11,Ohio,,3.4
+2022-03-11,Oklahoma,1.5,
+2022-03-11,Ontario CAN,6.5,
+2022-03-11,Quebec CAN,2.5,
+2022-03-11,South Dakota,0.8,2.0
+2022-03-18,Arkansas,2.5,
+2022-03-18,Colorado,12.3,
+2022-03-18,Illinois,13.6,4.3
+2022-03-18,Iowa,11.3,63.0
+2022-03-18,Kansas,,3.3
+2022-03-18,Kentucky,1.4,
+2022-03-18,Manitoba CAN,15.5,
+2022-03-18,Michigan,,4.0
+2022-03-18,Minnesota,7.0,10.3
+2022-03-18,Missouri,5.4,
+2022-03-18,Montana,1.7,
+2022-03-18,Nebraska,3.3,6.2
+2022-03-18,Noth Carolina,2.8,
+2022-03-18,Ohio,1.3,5.8
+2022-03-18,Oklahoma,1.7,
+2022-03-18,Ontario CAN,7.9,
+2022-03-18,Quebec CAN,5.7,
+2022-03-18,South Dakota,6.7,3.1
+2022-03-25,Arkansas,3.4,
+2022-03-25,Colorado,11.6,
+2022-03-25,Illinois,24.4,2.9
+2022-03-25,Iowa,6.1,68.6
+2022-03-25,Manitoba CAN,16.2,
+2022-03-25,Michigan,,2.0
+2022-03-25,Minnesota,9.2,15.9
+2022-03-25,Missouri,3.5,
+2022-03-25,Montana,2.4,
+2022-03-25,Nebraska,,2.6
+2022-03-25,North Dakota,1.8,
+2022-03-25,Ohio,2.0,2.0
+2022-03-25,Oklahoma,3.8,
+2022-03-25,Ontario CAN,0.8,
+2022-03-25,Saskatchewan CAN,7.9,
+2022-03-25,South Dakota,7.1,6.0
+2022-04-01,Arkansas,3.2,
+2022-04-01,Colorado,15.1,
+2022-04-01,Illinois,14.8,1.7
+2022-04-01,Indiana,2.8,
+2022-04-01,Iowa,5.1,54.5
+2022-04-01,Kansas,,2.5
+2022-04-01,Kentucky,1.7,
+2022-04-01,Manitoba CAN,9.2,
+2022-04-01,Michigan,,3.3
+2022-04-01,Minnesota,8.0,17.6
+2022-04-01,Montana,2.3,
+2022-04-01,Nebraska,,6.6
+2022-04-01,North Dakota,3.3,
+2022-04-01,Noth Carolina,6.9,
+2022-04-01,Ohio,3.3,12.3
+2022-04-01,Ontario CAN,4.1,
+2022-04-01,Saskatchewan CAN,9.9,
+2022-04-01,South Dakota,10.2,1.5
+2022-04-08,Arkansas,1.7,
+2022-04-08,Colorado,15.7,
+2022-04-08,Illinois,14.6,2.5
+2022-04-08,Indiana,4.1,
+2022-04-08,Iowa,10.9,65.3
+2022-04-08,Manitoba CAN,14.3,
+2022-04-08,Michigan,,2.9
+2022-04-08,Minnesota,6.1,20.7
+2022-04-08,Missouri,3.7,1.4
+2022-04-08,Montana,1.6,
+2022-04-08,Nebraska,6.6,4.3
+2022-04-08,Ohio,1.3,2.9
+2022-04-08,Oklahoma,2.8,
+2022-04-08,Ontario CAN,1.7,
+2022-04-08,Quebec CAN,1.7,
+2022-04-08,Saskatchewan CAN,5.9,
+2022-04-08,South Dakota,7.5,
+2022-04-15,Arkansas,3.3,
+2022-04-15,British Columbia CAN,4.0,
+2022-04-15,Colorado,16.3,
+2022-04-15,Illinois,21.6,2.2
+2022-04-15,Indiana,2.8,0.7
+2022-04-15,Iowa,2.6,54.0
+2022-04-15,Manitoba CAN,4.8,
+2022-04-15,Michigan,2.1,1.9
+2022-04-15,Minnesota,6.8,22.2
+2022-04-15,Nebraska,3.9,13.3
+2022-04-15,Noth Carolina,2.2,
+2022-04-15,Nova Scotia CAN,0.8,
+2022-04-15,Ohio,1.9,4.0
+2022-04-15,Oklahoma,5.8,
+2022-04-15,Ontario CAN,2.4,
+2022-04-15,Saskatchewan CAN,10.2,
+2022-04-15,South Dakota,8.5,1.8
+2022-04-22,Arkansas,3.4,
+2022-04-22,Colorado,14.5,1.7
+2022-04-22,Illinois,12.0,3.4
+2022-04-22,Indiana,6.5,
+2022-04-22,Iowa,12.1,57.5
+2022-04-22,Manitoba CAN,24.0,
+2022-04-22,Michigan,,6.4
+2022-04-22,Minnesota,5.9,15.8
+2022-04-22,Montana,2.2,
+2022-04-22,Nebraska,1.9,1.5
+2022-04-22,Noth Carolina,6.8,
+2022-04-22,Ohio,1.6,13.4
+2022-04-22,Ontario CAN,8.8,
+2022-04-22,South Dakota,0.3,0.3
+2022-04-29,Arkansas,2.6,
+2022-04-29,Colorado,20.6,
+2022-04-29,Illinois,19.8,
+2022-04-29,Indiana,2.5,
+2022-04-29,Iowa,6.0,62.0
+2022-04-29,Manitoba CAN,13.7,
+2022-04-29,Michigan,,4.8
+2022-04-29,Minnesota,10.0,24.0
+2022-04-29,Missouri,5.7,
+2022-04-29,Montana,2.2,
+2022-04-29,Nebraska,,9.2
+2022-04-29,Ontario CAN,2.0,
+2022-04-29,Saskatchewan CAN,6.6,
+2022-04-29,South Dakota,8.2,
+2022-05-06,Colorado,2.3,
+2022-05-06,Illinois,13.6,
+2022-05-06,Indiana,5.6,
+2022-05-06,Iowa,4.7,72.2
+2022-05-06,Kentucky,1.8,
+2022-05-06,Manitoba CAN,31.7,
+2022-05-06,Minnesota,8.4,24.2
+2022-05-06,Nebraska,4.6,1.8
+2022-05-06,Ohio,,1.8
+2022-05-06,Ontario CAN,5.3,
+2022-05-06,Saskatchewan CAN,7.6,
+2022-05-06,South Dakota,14.3,
+2022-05-13,Arkansas,2.9,
+2022-05-13,Colorado,5.4,
+2022-05-13,Illinois,21.0,
+2022-05-13,Indiana,5.3,3.2
+2022-05-13,Iowa,1.9,64.7
+2022-05-13,Kansas,,3.0
+2022-05-13,Kentucky,1.4,
+2022-05-13,Manitoba CAN,25.2,
+2022-05-13,Michigan,,3.2
+2022-05-13,Minnesota,5.0,14.6
+2022-05-13,Missouri,4.9,
+2022-05-13,Montana,2.0,
+2022-05-13,Nebraska,4.5,4.8
+2022-05-13,Ohio,1.6,5.9
+2022-05-13,Ontario CAN,4.2,
+2022-05-13,Quebec CAN,1.6,
+2022-05-13,Saskatchewan CAN,0.7,
+2022-05-13,South Dakota,12.4,0.5
+2022-05-20,Arkansas,3.2,
+2022-05-20,Colorado,18.1,
+2022-05-20,Illinois,27.8,
+2022-05-20,Indiana,3.7,
+2022-05-20,Iowa,4.7,71.9
+2022-05-20,Manitoba CAN,17.8,
+2022-05-20,Massachusetts,,1.5
+2022-05-20,Michigan,,3.0
+2022-05-20,Minnesota,2.9,18.3
+2022-05-20,Nebraska,,3.7
+2022-05-20,North Dakota,3.1,
+2022-05-20,Ohio,1.5,
+2022-05-20,Ontario CAN,0.7,
+2022-05-20,Saskatchewan CAN,7.9,
+2022-05-20,South Dakota,8.6,1.5
+2022-05-27,Colorado,16.0,
+2022-05-27,Georgia,,1.6
+2022-05-27,Illinois,24.8,
+2022-05-27,Indiana,5.3,
+2022-05-27,Iowa,2.7,79.6
+2022-05-27,Kansas,3.0,1.5
+2022-05-27,Manitoba CAN,10.1,
+2022-05-27,Maryland,1.4,
+2022-05-27,Michigan,,3.1
+2022-05-27,Minnesota,4.4,11.3
+2022-05-27,Missouri,6.1,
+2022-05-27,Montana,1.9,
+2022-05-27,Nebraska,1.2,1.4
+2022-05-27,North Dakota,6.3,
+2022-05-27,Ohio,3.1,
+2022-05-27,Ontario CAN,4.3,
+2022-05-27,Pennsylvania,,1.4
+2022-05-27,Saskatchewan CAN,6.0,
+2022-05-27,South Dakota,3.2,
+2022-06-03,Arkansas,0.4,
+2022-06-03,Colorado,20.9,
+2022-06-03,Georgia,,1.3
+2022-06-03,Idaho,1.3,3.4
+2022-06-03,Illinois,32.0,1.6
+2022-06-03,Indiana,,0.9
+2022-06-03,Iowa,6.8,65.3
+2022-06-03,Kansas,,1.7
+2022-06-03,Manitoba CAN,7.4,
+2022-06-03,Maryland,1.9,
+2022-06-03,Michigan,,1.9
+2022-06-03,Minnesota,3.3,10.5
+2022-06-03,Mississippi,,0.8
+2022-06-03,Montana,2.3,
+2022-06-03,Nebraska,,7.7
+2022-06-03,North Dakota,1.7,
+2022-06-03,Ohio,2.8,3.5
+2022-06-03,Ontario CAN,2.2,
+2022-06-03,Pennsylvania,,1.4
+2022-06-03,Saskatchewan CAN,9.3,
+2022-06-03,South Dakota,7.8,
+2022-06-10,Arkansas,1.2,
+2022-06-10,Colorado,12.7,
+2022-06-10,Georgia,,0.5
+2022-06-10,Idaho,,2.4
+2022-06-10,Illinois,25.4,2.4
+2022-06-10,Indiana,2.4,
+2022-06-10,Iowa,6.9,72.4
+2022-06-10,Manitoba CAN,9.9,
+2022-06-10,Maryland,2.5,
+2022-06-10,Michigan,1.5,1.5
+2022-06-10,Minnesota,6.9,19.0
+2022-06-10,Missouri,1.4,
+2022-06-10,Montana,2.4,
+2022-06-10,Noth Carolina,3.8,
+2022-06-10,Ohio,1.5,1.2
+2022-06-10,Oklahoma,5.2,
+2022-06-10,Ontario CAN,0.6,
+2022-06-10,Pennsylvania,,0.6
+2022-06-10,Saskatchewan CAN,6.8,
+2022-06-10,South Dakota,9.0,
+2022-06-17,Arkansas,3.4,
+2022-06-17,Colorado,18.3,
+2022-06-17,Illinois,23.5,14.7
+2022-06-17,Indiana,3.6,0.4
+2022-06-17,Iowa,0.7,57.3
+2022-06-17,Kansas,3.6,
+2022-06-17,Manitoba CAN,23.8,
+2022-06-17,Michigan,,1.7
+2022-06-17,Minnesota,1.9,14.1
+2022-06-17,Missouri,2.6,
+2022-06-17,Montana,2.3,
+2022-06-17,Nebraska,,6.3
+2022-06-17,Ohio,2.2,
+2022-06-17,Saskatchewan CAN,14.2,
+2022-06-17,South Dakota,,5.5
+2022-06-24,Arkansas,3.1,
+2022-06-24,British Columbia CAN,3.7,
+2022-06-24,Colorado,17.1,
+2022-06-24,Georgia,,0.8
+2022-06-24,Illinois,23.6,4.2
+2022-06-24,Indiana,1.8,
+2022-06-24,Iowa,1.6,55.7
+2022-06-24,Kansas,,1.7
+2022-06-24,Manitoba CAN,17.1,
+2022-06-24,Michigan,,10.8
+2022-06-24,Minnesota,6.1,18.6
+2022-06-24,Missouri,2.4,
+2022-06-24,Nebraska,,8.2
+2022-06-24,Noth Carolina,2.5,
+2022-06-24,Ohio,2.1,
+2022-06-24,Saskatchewan CAN,10.1,
+2022-06-24,South Dakota,8.9,
+2022-07-01,Arkansas,1.8,
+2022-07-01,California,3.0,
+2022-07-01,Colorado,12.7,
+2022-07-01,Illinois,25.3,6.7
+2022-07-01,Indiana,0.7,
+2022-07-01,Iowa,3.1,50.3
+2022-07-01,Manitoba CAN,9.3,
+2022-07-01,Michigan,,1.8
+2022-07-01,Minnesota,12.1,13.1
+2022-07-01,Nebraska,,9.2
+2022-07-01,Noth Carolina,2.7,
+2022-07-01,Ohio,1.8,4.2
+2022-07-01,Ontario CAN,0.9,
+2022-07-01,Pennsylvania,,0.9
+2022-07-01,Saskatchewan CAN,8.4,
+2022-07-01,South Dakota,18.2,11.3
+2022-07-01,Wisconsin,,2.4
+2022-07-08,Illinois,30.2,
+2022-07-08,Indiana,3.6,3.6
+2022-07-08,Iowa,4.5,65.7
+2022-07-08,Manitoba CAN,20.6,
+2022-07-08,Minnesota,9.0,21.9
+2022-07-08,Missouri,2.5,
+2022-07-08,Nebraska,5.4,1.1
+2022-07-08,North Dakota,4.7,
+2022-07-08,Noth Carolina,1.3,
+2022-07-08,Ontario CAN,3.2,
+2022-07-08,Pennsylvania,,3.2
+2022-07-08,Saskatchewan CAN,2.9,
+2022-07-08,South Carolina,,4.5
+2022-07-08,South Dakota,12.1,
+2022-07-15,Colorado,25.6,
+2022-07-15,Idaho,,2.3
+2022-07-15,Illinois,16.1,3.5
+2022-07-15,Indiana,2.9,
+2022-07-15,Iowa,14.5,65.7
+2022-07-15,Kentucky,1.3,
+2022-07-15,Manitoba CAN,9.1,
+2022-07-15,Michigan,,1.6
+2022-07-15,Minnesota,4.9,12.3
+2022-07-15,Missouri,4.8,
+2022-07-15,Montana,4.4,
+2022-07-15,Nebraska,,11.5
+2022-07-15,North Dakota,1.6,
+2022-07-15,Noth Carolina,0.5,0.5
+2022-07-15,Ohio,1.6,0.8
+2022-07-15,Ontario CAN,0.8,
+2022-07-15,South Dakota,11.7,1.7
+2022-07-22,Colorado,21.6,
+2022-07-22,Illinois,9.0,14.5
+2022-07-22,Indiana,8.2,7.2
+2022-07-22,Iowa,9.7,55.3
+2022-07-22,Kentucky,2.0,
+2022-07-22,Manitoba CAN,8.1,
+2022-07-22,Minnesota,6.4,9.8
+2022-07-22,Missouri,10.1,
+2022-07-22,Montana,3.0,
+2022-07-22,Nebraska,,9.3
+2022-07-22,Noth Carolina,1.5,
+2022-07-22,Ontario CAN,3.8,
+2022-07-22,Pennsylvania,,3.8
+2022-07-22,Saskatchewan CAN,9.0,
+2022-07-22,South Dakota,7.6,
+2022-07-29,Arkansas,5.6,
+2022-07-29,Colorado,19.3,
+2022-07-29,Idaho,4.9,
+2022-07-29,Illinois,13.0,3.7
+2022-07-29,Indiana,,3.9
+2022-07-29,Iowa,6.7,71.5
+2022-07-29,Kansas,3.6,
+2022-07-29,Kentucky,1.5,
+2022-07-29,Manitoba CAN,8.2,
+2022-07-29,Michigan,,4.1
+2022-07-29,Minnesota,5.7,12.1
+2022-07-29,Missouri,6.5,
+2022-07-29,Nebraska,,3.9
+2022-07-29,New York,2.5,
+2022-07-29,Noth Carolina,2.2,
+2022-07-29,Ontario CAN,0.8,
+2022-07-29,Pennsylvania,,0.8
+2022-07-29,Saskatchewan CAN,8.2,
+2022-07-29,South Dakota,11.4,
+2022-08-05,Arkansas,0.4,
+2022-08-05,Colorado,10.5,
+2022-08-05,Illinois,19.8,4.6
+2022-08-05,Indiana,5.9,3.4
+2022-08-05,Iowa,6.0,60.3
+2022-08-05,Kansas,1.2,
+2022-08-05,Manitoba CAN,22.5,
+2022-08-05,Michigan,,3.1
+2022-08-05,Minnesota,1.4,24.3
+2022-08-05,Missouri,5.9,
+2022-08-05,Montana,1.9,
+2022-08-05,Nebraska,,2.7
+2022-08-05,Noth Carolina,2.8,
+2022-08-05,Ohio,4.0,1.6
+2022-08-05,Saskatchewan CAN,5.8,
+2022-08-05,South Dakota,12.2,
+2022-08-12,Arkansas,6.6,
+2022-08-12,Colorado,14.0,
+2022-08-12,Illinois,21.9,4.7
+2022-08-12,Indiana,1.7,
+2022-08-12,Iowa,,52.3
+2022-08-12,Manitoba CAN,4.3,
+2022-08-12,Michigan,,4.4
+2022-08-12,Minnesota,6.1,24.6
+2022-08-12,Missouri,11.3,
+2022-08-12,Montana,3.2,
+2022-08-12,Nebraska,,6.6
+2022-08-12,North Dakota,2.2,
+2022-08-12,Ohio,3.2,7.3
+2022-08-12,Saskatchewan CAN,14.2,
+2022-08-12,South Dakota,11.3,
+2022-08-19,Arkansas,1.6,
+2022-08-19,Colorado,13.2,
+2022-08-19,Illinois,3.2,3.1
+2022-08-19,Indiana,6.7,2.1
+2022-08-19,Iowa,4.4,80.4
+2022-08-19,Kansas,6.3,
+2022-08-19,Manitoba CAN,4.5,
+2022-08-19,Michigan,,2.0
+2022-08-19,Minnesota,6.7,2.2
+2022-08-19,Missouri,7.1,
+2022-08-19,Montana,2.2,
+2022-08-19,Nebraska,3.4,3.4
+2022-08-19,Noth Carolina,1.2,
+2022-08-19,Ohio,4.5,
+2022-08-19,Ontario CAN,4.8,
+2022-08-19,Pennsylvania,,1.6
+2022-08-19,Saskatchewan CAN,6.9,
+2022-08-19,South Dakota,12.8,5.2
+2022-08-19,Wisconsin,10.3,
+2022-08-26,Colorado,16.7,2.8
+2022-08-26,Illinois,20.8,13.5
+2022-08-26,Iowa,7.6,60.5
+2022-08-26,Manitoba CAN,18.1,
+2022-08-26,Michigan,,4.1
+2022-08-26,Minnesota,2.0,8.1
+2022-08-26,Missouri,2.8,
+2022-08-26,Montana,2.9,
+2022-08-26,Nebraska,6.5,2.6
+2022-08-26,Noth Carolina,1.5,
+2022-08-26,Ohio,2.1,2.3
+2022-08-26,Ontario CAN,2.3,
+2022-08-26,Saskatchewan CAN,9.7,
+2022-08-26,South Dakota,7.1,6.0
+2022-09-02,Arkansas,2.4,
+2022-09-02,Colorado,11.8,0.5
+2022-09-02,Illinois,20.6,2.3
+2022-09-02,Indiana,0.8,2.4
+2022-09-02,Iowa,6.2,67.2
+2022-09-02,Kentucky,0.2,
+2022-09-02,Manitoba CAN,15.4,
+2022-09-02,Michigan,,1.2
+2022-09-02,Minnesota,7.3,8.4
+2022-09-02,Missouri,6.0,
+2022-09-02,Montana,1.7,
+2022-09-02,Nebraska,5.3,6.4
+2022-09-02,North Dakota,3.3,
+2022-09-02,Noth Carolina,0.8,
+2022-09-02,Ohio,1.2,
+2022-09-02,Saskatchewan CAN,13.5,
+2022-09-02,South Dakota,3.4,11.7
+2022-09-09,Colorado,24.9,
+2022-09-09,Illinois,17.1,1.8
+2022-09-09,Indiana,3.9,
+2022-09-09,Iowa,10.4,47.9
+2022-09-09,Manitoba CAN,15.4,
+2022-09-09,Michigan,,1.9
+2022-09-09,Minnesota,3.6,20.0
+2022-09-09,Missouri,6.3,
+2022-09-09,Montana,2.5,
+2022-09-09,Nebraska,,18.2
+2022-09-09,North Dakota,3.5,
+2022-09-09,Noth Carolina,0.6,0.6
+2022-09-09,Ohio,1.9,3.6
+2022-09-09,Ontario CAN,2.2,
+2022-09-09,Pennsylvania,,2.2
+2022-09-09,South Dakota,7.8,1.7
+2022-09-09,Wisconsin,,2.0
+2022-09-16,Colorado,26.4,
+2022-09-16,Illinois,11.0,6.8
+2022-09-16,Indiana,4.8,
+2022-09-16,Iowa,3.5,52.5
+2022-09-16,Kansas,,1.5
+2022-09-16,Kentucky,5.1,
+2022-09-16,Manitoba CAN,21.7,
+2022-09-16,Michigan,,1.7
+2022-09-16,Minnesota,1.7,24.3
+2022-09-16,Missouri,4.8,
+2022-09-16,Montana,2.6,
+2022-09-16,Nebraska,5.2,8.2
+2022-09-16,Ohio,1.7,3.0
+2022-09-16,South Dakota,11.5,1.8
+2022-09-23,British Columbia CAN,4.3,
+2022-09-23,Colorado,8.9,
+2022-09-23,Illinois,25.8,4.6
+2022-09-23,Indiana,1.0,
+2022-09-23,Iowa,9.7,62.3
+2022-09-23,Kentucky,1.5,
+2022-09-23,Manitoba CAN,19.2,
+2022-09-23,Maryland,1.9,
+2022-09-23,Michigan,,5.0
+2022-09-23,Minnesota,3.4,23.9
+2022-09-23,Missouri,2.2,
+2022-09-23,Montana,2.3,
+2022-09-23,Nebraska,4.9,0.8
+2022-09-23,Ohio,1.6,
+2022-09-23,Saskatchewan CAN,7.6,
+2022-09-23,South Dakota,2.2,3.3
+2022-09-23,Wisconsin,3.4,
+2022-09-30,Colorado,2.0,
+2022-09-30,Idaho,2.1,
+2022-09-30,Illinois,19.7,16.5
+2022-09-30,Indiana,9.3,
+2022-09-30,Iowa,,29.6
+2022-09-30,Kentucky,1.8,
+2022-09-30,Manitoba CAN,11.0,
+2022-09-30,Minnesota,10.9,24.6
+2022-09-30,Missouri,2.3,
+2022-09-30,Nebraska,7.1,3.0
+2022-09-30,Noth Carolina,4.0,
+2022-09-30,Ohio,,5.0
+2022-09-30,Ontario CAN,4.8,
+2022-09-30,Pennsylvania,,4.8
+2022-09-30,Saskatchewan CAN,11.2,8.3
+2022-09-30,South Dakota,13.7,8.3
+2022-10-07,Colorado,12.6,
+2022-10-07,Illinois,8.1,8.0
+2022-10-07,Indiana,6.9,0.6
+2022-10-07,Iowa,2.7,56.6
+2022-10-07,Kansas,,4.1
+2022-10-07,Manitoba CAN,16.6,
+2022-10-07,Michigan,,3.1
+2022-10-07,Minnesota,5.3,15.1
+2022-10-07,Missouri,3.3,
+2022-10-07,Montana,4.1,
+2022-10-07,Nebraska,12.5,8.4
+2022-10-07,New Jersey,,0.7
+2022-10-07,North Dakota,3.6,
+2022-10-07,Noth Carolina,2.7,
+2022-10-07,Ohio,3.7,2.7
+2022-10-07,Ontario CAN,3.3,
+2022-10-07,Pennsylvania,,0.7
+2022-10-07,Saskatchewan CAN,6.3,
+2022-10-07,South Dakota,5.5,
+2022-10-07,Wyoming,2.8,
+2022-10-14,Colorado,16.9,
+2022-10-14,Connecticut,,1.7
+2022-10-14,Illinois,7.0,2.7
+2022-10-14,Indiana,1.6,0.8
+2022-10-14,Iowa,8.0,68.5
+2022-10-14,Kansas,,3.5
+2022-10-14,Kentucky,1.3,
+2022-10-14,Manitoba CAN,25.4,
+2022-10-14,Michigan,3.1,
+2022-10-14,Minnesota,7.9,9.0
+2022-10-14,Missouri,4.6,
+2022-10-14,Montana,3.8,
+2022-10-14,Nebraska,6.0,6.5
+2022-10-14,North Dakota,1.5,
+2022-10-14,Noth Carolina,1.5,
+2022-10-14,Ohio,0.8,4.4
+2022-10-14,Ontario CAN,2.1,
+2022-10-14,Saskatchewan CAN,0.7,
+2022-10-14,South Carolina,2.5,
+2022-10-14,South Dakota,5.4,2.9
+2022-10-21,Arkansas,2.1,
+2022-10-21,Colorado,13.5,
+2022-10-21,Illinois,13.2,5.1
+2022-10-21,Indiana,3.8,
+2022-10-21,Iowa,5.2,73.7
+2022-10-21,Kansas,6.8,
+2022-10-21,Kentucky,1.5,
+2022-10-21,Manitoba CAN,35.1,
+2022-10-21,Minnesota,1.7,12.5
+2022-10-21,Missouri,6.2,1.7
+2022-10-21,Montana,2.6,
+2022-10-21,Nebraska,3.3,5.3
+2022-10-21,Ontario CAN,1.6,
+2022-10-21,Pennsylvania,,1.6
+2022-10-21,South Dakota,3.3,
+2022-10-28,Arkansas,2.2,
+2022-10-28,Colorado,4.2,
+2022-10-28,Illinois,12.0,6.8
+2022-10-28,Indiana,4.3,2.2
+2022-10-28,Iowa,9.3,56.5
+2022-10-28,Kansas,,1.4
+2022-10-28,Manitoba CAN,25.6,
+2022-10-28,Michigan,,3.4
+2022-10-28,Minnesota,11.9,22.7
+2022-10-28,Missouri,2.7,
+2022-10-28,Montana,1.6,
+2022-10-28,Nebraska,3.8,7.0
+2022-10-28,North Dakota,2.3,
+2022-10-28,Ohio,1.1,
+2022-10-28,Saskatchewan CAN,4.7,
+2022-10-28,South Dakota,14.4,
+2022-11-04,Arkansas,1.9,
+2022-11-04,Colorado,13.9,
+2022-11-04,Illinois,,6.7
+2022-11-04,Indiana,7.4,1.9
+2022-11-04,Iowa,,50.0
+2022-11-04,Kansas,8.0,
+2022-11-04,Manitoba CAN,22.3,
+2022-11-04,Michigan,,4.1
+2022-11-04,Minnesota,4.8,26.1
+2022-11-04,Missouri,4.7,
+2022-11-04,Montana,6.7,
+2022-11-04,Nebraska,6.3,6.0
+2022-11-04,North Dakota,10.1,
+2022-11-04,Noth Carolina,2.1,0.9
+2022-11-04,Ohio,,2.7
+2022-11-04,Ontario CAN,3.1,
+2022-11-04,Pennsylvania,,1.6
+2022-11-04,Saskatchewan CAN,0.9,
+2022-11-04,South Dakota,7.7,
+2022-11-11,Arkansas,2.8,
+2022-11-11,Colorado,23.1,
+2022-11-11,Illinois,11.9,1.9
+2022-11-11,Indiana,6.9,2.8
+2022-11-11,Iowa,10.4,63.8
+2022-11-11,Kansas,,1.0
+2022-11-11,Manitoba CAN,4.0,
+2022-11-11,Michigan,,1.5
+2022-11-11,Minnesota,4.2,17.4
+2022-11-11,Mississippi,1.8,
+2022-11-11,Missouri,6.4,
+2022-11-11,Nebraska,,3.5
+2022-11-11,Noth Carolina,1.0,
+2022-11-11,Ohio,2.7,5.1
+2022-11-11,Ontario CAN,3.0,
+2022-11-11,Saskatchewan CAN,7.6,
+2022-11-11,South Dakota,14.2,
+2022-11-11,Wisconsin,,2.9
+2022-11-18,Alberta CAN,0.7,
+2022-11-18,Arkansas,2.9,
+2022-11-18,Colorado,14.6,
+2022-11-18,Illinois,16.2,1.5
+2022-11-18,Indiana,7.2,3.8
+2022-11-18,Iowa,12.3,66.8
+2022-11-18,Manitoba CAN,3.5,
+2022-11-18,Michigan,,1.8
+2022-11-18,Minnesota,5.4,19.7
+2022-11-18,Mississippi,1.8,
+2022-11-18,Missouri,3.6,
+2022-11-18,Montana,9.7,
+2022-11-18,Nebraska,3.5,6.5
+2022-11-18,Noth Carolina,2.0,
+2022-11-18,Ohio,1.8,
+2022-11-18,Saskatchewan CAN,9.3,
+2022-11-18,South Dakota,5.5,
+2022-11-25,Arkansas,1.7,
+2022-11-25,Colorado,8.8,
+2022-11-25,Illinois,8.3,1.3
+2022-11-25,Indiana,3.1,1.3
+2022-11-25,Iowa,7.4,57.8
+2022-11-25,Manitoba CAN,27.2,
+2022-11-25,Michigan,,3.7
+2022-11-25,Minnesota,5.5,26.5
+2022-11-25,Missouri,7.9,
+2022-11-25,Montana,1.6,
+2022-11-25,Nebraska,9.9,7.2
+2022-11-25,Noth Carolina,3.8,
+2022-11-25,Ohio,1.2,1.6
+2022-11-25,Saskatchewan CAN,6.7,
+2022-11-25,South Dakota,6.9,
+2022-11-25,Tennessee,,0.6
+2022-12-02,Colorado,4.4,
+2022-12-02,Illinois,15.1,5.8
+2022-12-02,Indiana,8.0,2.8
+2022-12-02,Iowa,7.0,67.4
+2022-12-02,Manitoba CAN,27.7,
+2022-12-02,Michigan,,1.2
+2022-12-02,Minnesota,7.3,12.2
+2022-12-02,Missouri,4.0,7.9
+2022-12-02,Montana,1.4,
+2022-12-02,Nebraska,4.3,0.4
+2022-12-02,North Dakota,2.3,
+2022-12-02,Ohio,2.2,1.2
+2022-12-02,Ontario CAN,5.9,
+2022-12-02,Pennsylvania,,1.1
+2022-12-02,Saskatchewan CAN,4.5,
+2022-12-02,South Dakota,5.9,
+2022-12-09,Colorado,2.7,
+2022-12-09,Idaho,,0.6
+2022-12-09,Illinois,18.6,10.2
+2022-12-09,Indiana,4.4,
+2022-12-09,Iowa,0.4,63.7
+2022-12-09,Kansas,4.7,2.3
+2022-12-09,Kentucky,0.6,
+2022-12-09,Manitoba CAN,31.1,
+2022-12-09,Maryland,1.8,
+2022-12-09,Minnesota,5.7,11.5
+2022-12-09,Missouri,4.2,
+2022-12-09,Nebraska,,5.9
+2022-12-09,Noth Carolina,3.5,
+2022-12-09,Ohio,,5.7
+2022-12-09,Ontario CAN,8.7,
+2022-12-09,South Dakota,11.8,
+2022-12-09,Wisconsin,1.8,
+2022-12-16,Colorado,19.0,
+2022-12-16,Illinois,12.6,1.4
+2022-12-16,Indiana,2.2,
+2022-12-16,Iowa,5.9,62.9
+2022-12-16,Kansas,3.5,
+2022-12-16,Manitoba CAN,16.5,
+2022-12-16,Michigan,,1.5
+2022-12-16,Minnesota,1.1,13.9
+2022-12-16,Missouri,11.4,
+2022-12-16,Montana,1.7,
+2022-12-16,Nebraska,3.5,20.3
+2022-12-16,Noth Carolina,1.7,
+2022-12-16,Ohio,2.1,
+2022-12-16,Saskatchewan CAN,5.2,
+2022-12-16,South Dakota,13.6,
+2022-12-23,Colorado,10.5,
+2022-12-23,Idaho,1.9,
+2022-12-23,Illinois,44.6,1.9
+2022-12-23,Indiana,3.5,
+2022-12-23,Iowa,2.2,74.5
+2022-12-23,Kansas,1.6,
+2022-12-23,Michigan,,4.3
+2022-12-23,Minnesota,8.9,13.2
+2022-12-23,Missouri,7.1,
+2022-12-23,Montana,2.6,
+2022-12-23,Nebraska,,3.6
+2022-12-23,Noth Carolina,3.8,
+2022-12-23,Ohio,4.3,0.9
+2022-12-23,Ontario CAN,2.5,
+2022-12-23,Pennsylvania,,1.6
+2022-12-23,South Dakota,6.5,
+2022-12-30,Colorado,21.4,
+2022-12-30,Illinois,23.6,5.8
+2022-12-30,Indiana,0.7,
+2022-12-30,Iowa,4.1,57.3
+2022-12-30,Manitoba CAN,6.6,
+2022-12-30,Minnesota,3.0,15.1
+2022-12-30,Missouri,4.8,4.3
+2022-12-30,Nebraska,,9.7
+2022-12-30,Ohio,,4.9
+2022-12-30,Ontario CAN,3.0,
+2022-12-30,Pennsylvania,,3.0
+2022-12-30,Saskatchewan CAN,14.9,
+2022-12-30,South Dakota,17.8,
+2023-01-06,Colorado,8.5,
+2023-01-06,Idaho,,3.9
+2023-01-06,Illinois,15.9,5.2
+2023-01-06,Indiana,3.2,0.9
+2023-01-06,Iowa,4.7,62.9
+2023-01-06,Kansas,2.7,
+2023-01-06,Manitoba CAN,31.6,
+2023-01-06,Michigan,,2.5
+2023-01-06,Minnesota,3.7,12.8
+2023-01-06,Missouri,3.2,
+2023-01-06,Montana,1.8,
+2023-01-06,Nebraska,,11.8
+2023-01-06,North Dakota,4.1,
+2023-01-06,Noth Carolina,1.8,
+2023-01-06,Ohio,4.0,
+2023-01-06,Ontario CAN,1.4,
+2023-01-06,Saskatchewan CAN,1.3,
+2023-01-06,South Dakota,12.1,
+2023-01-13,Arkansas,1.9,
+2023-01-13,Colorado,11.0,
+2023-01-13,Illinois,19.7,5.6
+2023-01-13,Indiana,1.8,
+2023-01-13,Iowa,3.4,74.2
+2023-01-13,Kansas,0.9,2.1
+2023-01-13,Kentucky,0.9,
+2023-01-13,Manitoba CAN,17.7,
+2023-01-13,Michigan,,2.9
+2023-01-13,Minnesota,4.8,5.3
+2023-01-13,Missouri,5.2,
+2023-01-13,Montana,2.6,
+2023-01-13,Nebraska,7.9,2.3
+2023-01-13,Noth Carolina,1.0,
+2023-01-13,Ohio,1.0,2.3
+2023-01-13,Ontario CAN,0.9,
+2023-01-13,Saskatchewan CAN,4.3,
+2023-01-13,South Dakota,13.0,4.1
+2023-01-13,Wisconsin,2.1,1.0
+2023-01-20,Arkansas,1.3,
+2023-01-20,Colorado,12.4,
+2023-01-20,Illinois,22.9,7.8
+2023-01-20,Indiana,1.5,0.4
+2023-01-20,Iowa,2.3,71.2
+2023-01-20,Kansas,,1.0
+2023-01-20,Manitoba CAN,24.4,2.5
+2023-01-20,Minnesota,10.9,15.5
+2023-01-20,Mississippi,1.6,
+2023-01-20,Missouri,7.9,
+2023-01-20,Nebraska,0.3,0.3
+2023-01-20,Ohio,,1.4
+2023-01-20,Ontario CAN,1.8,
+2023-01-20,Quebec CAN,2.5,
+2023-01-20,Saskatchewan CAN,5.0,
+2023-01-20,South Dakota,2.0,
+2023-01-20,Tennessee,3.0,
+2023-01-27,Arkansas,1.3,
+2023-01-27,Colorado,2.9,
+2023-01-27,Illinois,17.7,6.3
+2023-01-27,Indiana,1.5,
+2023-01-27,Iowa,2.4,71.1
+2023-01-27,Kansas,1.8,
+2023-01-27,Kentucky,1.0,
+2023-01-27,Manitoba CAN,27.3,
+2023-01-27,Minnesota,2.1,10.3
+2023-01-27,Missouri,9.0,
+2023-01-27,Montana,1.5,
+2023-01-27,Nebraska,0.4,1.8
+2023-01-27,Noth Carolina,2.4,
+2023-01-27,Ohio,3.9,3.4
+2023-01-27,Ontario CAN,12.2,
+2023-01-27,Saskatchewan CAN,5.4,
+2023-01-27,South Dakota,7.3,7.2
+2023-02-03,Arkansas,3.8,
+2023-02-03,Colorado,19.6,
+2023-02-03,Illinois,16.7,2.6
+2023-02-03,Indiana,2.1,
+2023-02-03,Iowa,7.0,65.3
+2023-02-03,Manitoba CAN,12.9,
+2023-02-03,Michigan,,5.1
+2023-02-03,Minnesota,8.7,19.5
+2023-02-03,Missouri,2.1,
+2023-02-03,Montana,2.3,
+2023-02-03,Nebraska,,1.8
+2023-02-03,Ohio,1.7,3.4
+2023-02-03,Ontario CAN,2.4,
+2023-02-03,Quebec CAN,4.5,
+2023-02-03,Saskatchewan CAN,7.1,
+2023-02-03,South Dakota,9.1,2.3
+2023-02-10,Colorado,10.8,
+2023-02-10,Illinois,12.2,6.7
+2023-02-10,Indiana,4.2,
+2023-02-10,Iowa,23.4,59.5
+2023-02-10,Kansas,,1.4
+2023-02-10,Manitoba CAN,12.9,
+2023-02-10,Michigan,,2.8
+2023-02-10,Minnesota,1.5,18.1
+2023-02-10,Missouri,3.1,
+2023-02-10,Montana,1.8,
+2023-02-10,Nebraska,,7.0
+2023-02-10,Ohio,,2.9
+2023-02-10,Ontario CAN,14.3,
+2023-02-10,Saskatchewan CAN,5.8,
+2023-02-10,South Dakota,7.2,1.8
+2023-02-10,Wisconsin,2.9,
+2023-02-17,Colorado,17.1,
+2023-02-17,Illinois,8.6,
+2023-02-17,Indiana,1.2,1.3
+2023-02-17,Iowa,10.8,52.4
+2023-02-17,Kansas,1.8,
+2023-02-17,Manitoba CAN,23.1,
+2023-02-17,Michigan,,1.8
+2023-02-17,Minnesota,5.2,13.6
+2023-02-17,Missouri,6.1,3.4
+2023-02-17,Montana,2.4,
+2023-02-17,Nebraska,7.0,20.6
+2023-02-17,Noth Carolina,1.3,
+2023-02-17,Ohio,1.8,4.5
+2023-02-17,Saskatchewan CAN,11.8,
+2023-02-17,South Dakota,1.8,2.4
+2023-02-24,Colorado,6.7,
+2023-02-24,Illinois,17.4,6.5
+2023-02-24,Indiana,3.5,4.4
+2023-02-24,Iowa,5.5,48.3
+2023-02-24,Kansas,2.6,
+2023-02-24,Manitoba CAN,6.7,
+2023-02-24,Michigan,,1.4
+2023-02-24,Minnesota,10.3,20.6
+2023-02-24,Missouri,4.6,
+2023-02-24,Montana,1.6,
+2023-02-24,Nebraska,8.0,7.5
+2023-02-24,North Dakota,2.7,
+2023-02-24,Noth Carolina,3.4,
+2023-02-24,Ohio,2.8,11.3
+2023-02-24,Ontario CAN,7.5,
+2023-02-24,Quebec CAN,2.8,
+2023-02-24,Saskatchewan CAN,5.5,
+2023-02-24,South Dakota,5.8,
+2023-02-24,Wisconsin,2.5,
+2023-03-03,Colorado,15.5,
+2023-03-03,Illinois,18.8,3.9
+2023-03-03,Indiana,,3.1
+2023-03-03,Iowa,2.4,74.7
+2023-03-03,Manitoba CAN,20.0,
+2023-03-03,Michigan,,1.4
+2023-03-03,Minnesota,2.9,2.9
+2023-03-03,Missouri,5.4,
+2023-03-03,Montana,1.7,
+2023-03-03,Nebraska,6.9,4.5
+2023-03-03,Noth Carolina,0.7,
+2023-03-03,Ohio,1.4,4.0
+2023-03-03,Ontario CAN,2.0,
+2023-03-03,Quebec CAN,2.6,
+2023-03-03,Saskatchewan CAN,5.5,
+2023-03-03,South Dakota,14.3,5.6
+2023-03-10,Colorado,4.9,
+2023-03-10,Illinois,20.7,9.5
+2023-03-10,Indiana,4.7,
+2023-03-10,Iowa,7.9,62.4
+2023-03-10,Manitoba CAN,17.0,
+2023-03-10,Michigan,,2.4
+2023-03-10,Minnesota,6.0,19.1
+2023-03-10,Missouri,4.8,
+2023-03-10,Nebraska,,1.0
+2023-03-10,North Dakota,4.2,
+2023-03-10,Noth Carolina,3.3,
+2023-03-10,Ohio,2.4,
+2023-03-10,Ontario CAN,5.0,
+2023-03-10,Saskatchewan CAN,2.8,
+2023-03-10,South Dakota,13.9,3.5
+2023-03-10,Wisconsin,2.3,2.0
+2023-03-17,Colorado,16.3,
+2023-03-17,Illinois,14.9,1.7
+2023-03-17,Indiana,6.6,
+2023-03-17,Iowa,3.4,77.5
+2023-03-17,Manitoba CAN,13.9,
+2023-03-17,Michigan,,1.9
+2023-03-17,Minnesota,3.1,12.2
+2023-03-17,Missouri,3.1,
+2023-03-17,Montana,2.1,
+2023-03-17,Nebraska,6.7,1.7
+2023-03-17,Ohio,1.9,3.4
+2023-03-17,Ontario CAN,7.1,
+2023-03-17,Quebec CAN,3.2,
+2023-03-17,Saskatchewan CAN,6.5,
+2023-03-17,South Dakota,11.4,1.6
+2023-03-24,Colorado,16.5,
+2023-03-24,Illinois,17.5,8.0
+2023-03-24,Indiana,5.1,
+2023-03-24,Iowa,2.0,50.7
+2023-03-24,Kentucky,3.1,
+2023-03-24,Manitoba CAN,11.5,
+2023-03-24,Michigan,,2.7
+2023-03-24,Minnesota,6.5,21.2
+2023-03-24,Missouri,2.5,
+2023-03-24,Montana,1.7,
+2023-03-24,Nebraska,5.4,4.5
+2023-03-24,Noth Carolina,0.5,0.5
+2023-03-24,Ohio,1.4,5.2
+2023-03-24,Ontario CAN,5.1,
+2023-03-24,Quebec CAN,3.0,
+2023-03-24,Saskatchewan CAN,5.6,
+2023-03-24,South Dakota,12.6,7.2
+2023-03-31,Colorado,13.9,
+2023-03-31,Illinois,19.0,6.6
+2023-03-31,Indiana,3.0,
+2023-03-31,Iowa,8.5,60.9
+2023-03-31,Manitoba CAN,22.4,
+2023-03-31,Michigan,1.3,
+2023-03-31,Minnesota,4.1,26.7
+2023-03-31,Missouri,2.2,
+2023-03-31,Montana,2.1,
+2023-03-31,Nebraska,,1.5
+2023-03-31,North Dakota,2.5,
+2023-03-31,Ohio,,2.0
+2023-03-31,Ontario CAN,6.6,
+2023-03-31,Saskatchewan CAN,6.7,
+2023-03-31,South Dakota,7.8,2.4
+2023-04-07,Colorado,6.4,
+2023-04-07,Illinois,19.7,6.9
+2023-04-07,Indiana,4.5,
+2023-04-07,Iowa,12.2,50.3
+2023-04-07,Kansas,4.1,
+2023-04-07,Michigan,,7.1
+2023-04-07,Minnesota,23.2,20.2
+2023-04-07,Missouri,2.4,
+2023-04-07,Montana,2.1,
+2023-04-07,Nebraska,10.8,15.4
+2023-04-07,North Dakota,6.1,
+2023-04-07,Ohio,2.0,
+2023-04-07,Saskatchewan CAN,6.6,
+2023-04-14,Colorado,11.6,
+2023-04-14,Illinois,16.8,7.8
+2023-04-14,Indiana,3.2,5.4
+2023-04-14,Iowa,14.8,61.2
+2023-04-14,Manitoba CAN,4.9,
+2023-04-14,Maryland,6.3,
+2023-04-14,Michigan,,2.4
+2023-04-14,Minnesota,10.6,6.9
+2023-04-14,Missouri,5.5,
+2023-04-14,Montana,1.3,
+2023-04-14,Nebraska,2.3,9.4
+2023-04-14,North Dakota,2.6,
+2023-04-14,Noth Carolina,2.3,2.3
+2023-04-14,Ohio,1.2,1.8
+2023-04-14,Ontario CAN,2.1,
+2023-04-14,South Dakota,11.6,2.8
+2023-04-14,Wisconsin,2.9,
+2023-04-21,Colorado,12.0,
+2023-04-21,Illinois,15.8,8.8
+2023-04-21,Indiana,1.0,
+2023-04-21,Iowa,7.0,62.8
+2023-04-21,Kansas,,1.5
+2023-04-21,Kentucky,4.9,
+2023-04-21,Manitoba CAN,13.6,
+2023-04-21,Michigan,,1.8
+2023-04-21,Minnesota,20.0,21.2
+2023-04-21,Montana,2.1,
+2023-04-21,Nebraska,4.4,3.8
+2023-04-21,Ohio,1.8,
+2023-04-21,Saskatchewan CAN,7.9,
+2023-04-21,South Dakota,9.5,
+2023-04-28,Colorado,8.2,0.5
+2023-04-28,Illinois,18.4,2.7
+2023-04-28,Indiana,3.1,1.8
+2023-04-28,Iowa,10.2,62.4
+2023-04-28,Manitoba CAN,13.5,
+2023-04-28,Michigan,,1.3
+2023-04-28,Minnesota,8.3,23.4
+2023-04-28,Missouri,5.0,
+2023-04-28,Montana,1.5,
+2023-04-28,Nebraska,8.0,4.3
+2023-04-28,Ohio,1.3,1.6
+2023-04-28,Ontario CAN,5.1,
+2023-04-28,Saskatchewan CAN,0.9,
+2023-04-28,South Dakota,16.4,2.0
+2023-05-05,Colorado,10.3,
+2023-05-05,Illinois,24.8,1.9
+2023-05-05,Indiana,2.1,
+2023-05-05,Iowa,2.5,59.7
+2023-05-05,Louisiana,,2.6
+2023-05-05,Manitoba CAN,10.7,
+2023-05-05,Michigan,,1.5
+2023-05-05,Minnesota,9.4,24.9
+2023-05-05,Missouri,5.3,
+2023-05-05,Montana,3.6,
+2023-05-05,Nebraska,2.6,4.0
+2023-05-05,Noth Carolina,9.3,
+2023-05-05,Ohio,1.5,2.5
+2023-05-05,Saskatchewan CAN,0.7,
+2023-05-05,South Dakota,15.8,2.9
+2023-05-05,Wisconsin,1.5,
+2023-05-12,Colorado,14.7,
+2023-05-12,Illinois,12.2,3.3
+2023-05-12,Indiana,2.3,2.3
+2023-05-12,Iowa,1.4,60.0
+2023-05-12,Kansas,1.5,
+2023-05-12,Kentucky,1.9,
+2023-05-12,Manitoba CAN,14.4,
+2023-05-12,Michigan,,4.3
+2023-05-12,Minnesota,4.0,19.1
+2023-05-12,Missouri,12.9,
+2023-05-12,Montana,1.9,
+2023-05-12,Nebraska,1.4,1.3
+2023-05-12,North Dakota,1.5,
+2023-05-12,Noth Carolina,0.9,
+2023-05-12,Ohio,1.7,3.5
+2023-05-12,Ontario CAN,9.1,
+2023-05-12,Pennsylvania,,1.2
+2023-05-12,Saskatchewan CAN,6.5,
+2023-05-12,South Dakota,12.0,2.1
+2023-05-12,Washington,,1.5
+2023-05-12,Wisconsin,,1.4
+2023-05-19,Colorado,14.0,
+2023-05-19,Illinois,14.8,2.0
+2023-05-19,Indiana,5.4,
+2023-05-19,Iowa,3.1,76.8
+2023-05-19,Manitoba CAN,17.6,
+2023-05-19,Michigan,,1.0
+2023-05-19,Minnesota,8.3,10.0
+2023-05-19,Missouri,1.1,
+2023-05-19,Montana,1.4,
+2023-05-19,Nebraska,13.1,3.5
+2023-05-19,North Dakota,2.2,
+2023-05-19,Ohio,1.0,
+2023-05-19,Ontario CAN,4.1,
+2023-05-19,Pennsylvania,,4.2
+2023-05-19,Quebec CAN,4.2,
+2023-05-19,Saskatchewan CAN,4.1,
+2023-05-19,South Dakota,5.5,2.5
+2023-05-26,Colorado,10.6,
+2023-05-26,Illinois,8.1,1.5
+2023-05-26,Indiana,3.5,1.0
+2023-05-26,Iowa,3.8,69.9
+2023-05-26,Kentucky,2.2,
+2023-05-26,Manitoba CAN,16.3,
+2023-05-26,Michigan,,1.5
+2023-05-26,Minnesota,9.8,21.7
+2023-05-26,Missouri,5.4,
+2023-05-26,Montana,2.0,
+2023-05-26,Nebraska,12.9,4.5
+2023-05-26,North Dakota,3.9,
+2023-05-26,Ohio,1.5,
+2023-05-26,Ontario CAN,1.4,
+2023-05-26,Saskatchewan CAN,7.6,
+2023-05-26,South Dakota,11.1,
+2023-06-02,Colorado,13.7,
+2023-06-02,Illinois,22.3,6.9
+2023-06-02,Indiana,5.7,2.8
+2023-06-02,Iowa,10.7,70.9
+2023-06-02,Kansas,,3.6
+2023-06-02,Kentucky,1.4,
+2023-06-02,Manitoba CAN,10.1,
+2023-06-02,Minnesota,3.7,13.1
+2023-06-02,Missouri,11.7,
+2023-06-02,Montana,4.7,
+2023-06-02,Nebraska,1.7,2.7
+2023-06-02,Ontario CAN,10.0,
+2023-06-02,Saskatchewan CAN,0.9,
+2023-06-02,South Dakota,3.4,
+2023-06-09,Colorado,9.0,
+2023-06-09,Idaho,3.1,
+2023-06-09,Illinois,12.5,4.4
+2023-06-09,Indiana,2.4,
+2023-06-09,Iowa,3.4,63.3
+2023-06-09,Kansas,1.6,
+2023-06-09,Kentucky,1.9,
+2023-06-09,Manitoba CAN,28.8,
+2023-06-09,Michigan,,1.8
+2023-06-09,Minnesota,5.7,27.5
+2023-06-09,Missouri,3.9,
+2023-06-09,Montana,2.0,
+2023-06-09,Nebraska,3.0,
+2023-06-09,North Dakota,3.0,
+2023-06-09,Ohio,1.8,
+2023-06-09,South Dakota,13.1,3.0
+2023-06-09,Wisconsin,4.6,
+2023-06-16,Colorado,14.9,
+2023-06-16,Illinois,18.4,1.6
+2023-06-16,Indiana,3.2,0.7
+2023-06-16,Iowa,4.4,70.0
+2023-06-16,Kansas,3.0,1.5
+2023-06-16,Kentucky,2.8,
+2023-06-16,Manitoba CAN,10.7,
+2023-06-16,Michigan,,3.8
+2023-06-16,Minnesota,4.5,13.5
+2023-06-16,Montana,2.0,
+2023-06-16,Nebraska,6.3,7.3
+2023-06-16,North Dakota,3.1,
+2023-06-16,Ohio,1.8,
+2023-06-16,Quebec CAN,1.5,
+2023-06-16,Saskatchewan CAN,8.1,
+2023-06-16,South Dakota,15.5,1.7
+2023-06-23,Colorado,13.2,
+2023-06-23,Illinois,7.5,6.5
+2023-06-23,Indiana,3.5,
+2023-06-23,Iowa,7.3,66.0
+2023-06-23,Kansas,,1.1
+2023-06-23,Kentucky,1.9,
+2023-06-23,Manitoba CAN,30.8,
+2023-06-23,Michigan,1.1,2.3
+2023-06-23,Minnesota,1.2,17.7
+2023-06-23,Missouri,2.7,
+2023-06-23,Montana,1.5,
+2023-06-23,Nebraska,3.5,2.9
+2023-06-23,Noth Carolina,2.1,
+2023-06-23,Ohio,3.4,3.5
+2023-06-23,Ontario CAN,5.4,
+2023-06-23,Saskatchewan CAN,4.9,
+2023-06-23,South Dakota,9.9,
+2023-06-30,Arkansas,0.3,
+2023-06-30,Colorado,7.0,
+2023-06-30,Georgia,,4.5
+2023-06-30,Illinois,13.2,1.3
+2023-06-30,Indiana,2.5,
+2023-06-30,Iowa,0.9,63.7
+2023-06-30,Kansas,6.4,
+2023-06-30,Manitoba CAN,25.1,
+2023-06-30,Michigan,,5.8
+2023-06-30,Minnesota,5.6,20.3
+2023-06-30,Missouri,2.5,
+2023-06-30,Montana,1.6,
+2023-06-30,Nebraska,9.5,3.7
+2023-06-30,North Dakota,6.4,
+2023-06-30,Ohio,5.8,
+2023-06-30,Saskatchewan CAN,5.0,
+2023-06-30,South Dakota,8.1,0.6
+2023-07-07,Arkansas,3.4,
+2023-07-07,Colorado,3.6,
+2023-07-07,Illinois,6.3,1.2
+2023-07-07,Indiana,2.3,
+2023-07-07,Iowa,3.5,53.6
+2023-07-07,Kansas,2.3,
+2023-07-07,Manitoba CAN,42.9,
+2023-07-07,Michigan,,2.5
+2023-07-07,Minnesota,4.3,25.9
+2023-07-07,Missouri,5.5,
+2023-07-07,Montana,1.6,
+2023-07-07,Nebraska,0.4,1.6
+2023-07-07,North Dakota,2.3,
+2023-07-07,Ohio,2.5,
+2023-07-07,Ontario CAN,2.3,
+2023-07-07,Saskatchewan CAN,2.8,
+2023-07-07,South Dakota,14.0,15.2
+2023-07-14,Arkansas,1.9,
+2023-07-14,Colorado,3.1,
+2023-07-14,Illinois,5.0,
+2023-07-14,Indiana,3.2,
+2023-07-14,Iowa,5.0,67.8
+2023-07-14,Kansas,1.8,
+2023-07-14,Kentucky,2.7,
+2023-07-14,Manitoba CAN,32.6,
+2023-07-14,Maryland,1.6,
+2023-07-14,Michigan,,1.1
+2023-07-14,Minnesota,3.3,15.9
+2023-07-14,Missouri,2.1,
+2023-07-14,Montana,1.5,
+2023-07-14,Nebraska,10.9,4.3
+2023-07-14,North Dakota,4.0,
+2023-07-14,Ohio,1.1,
+2023-07-14,Ontario CAN,2.7,
+2023-07-14,Saskatchewan CAN,6.3,
+2023-07-14,South Carolina,2.1,4.2
+2023-07-14,South Dakota,9.0,5.7
+2023-07-14,Wisconsin,,1.0
+2023-07-21,Arkansas,1.7,
+2023-07-21,Colorado,5.0,
+2023-07-21,Illinois,4.5,1.4
+2023-07-21,Indiana,6.1,
+2023-07-21,Iowa,15.4,69.2
+2023-07-21,Kansas,2.6,
+2023-07-21,Kentucky,2.9,
+2023-07-21,Manitoba CAN,27.0,
+2023-07-21,Michigan,,2.5
+2023-07-21,Minnesota,1.4,22.7
+2023-07-21,Missouri,2.9,
+2023-07-21,Montana,1.9,
+2023-07-21,Nebraska,0.7,2.7
+2023-07-21,Ohio,2.5,
+2023-07-21,Saskatchewan CAN,5.0,
+2023-07-21,South Dakota,20.4,1.5
+2023-07-28,Arkansas,1.9,
+2023-07-28,Colorado,3.1,
+2023-07-28,Illinois,20.4,4.9
+2023-07-28,Iowa,7.8,76.8
+2023-07-28,Kansas,3.9,
+2023-07-28,Manitoba CAN,39.5,
+2023-07-28,Maryland,1.1,
+2023-07-28,Michigan,0.6,
+2023-07-28,Minnesota,6.4,13.9
+2023-07-28,Missouri,1.7,
+2023-07-28,Montana,1.5,
+2023-07-28,Nebraska,,2.2
+2023-07-28,Ontario CAN,1.2,
+2023-07-28,South Dakota,7.9,2.3
+2023-07-28,Wisconsin,2.9,
+2023-08-04,British Columbia CAN,1.5,
+2023-08-04,Colorado,4.1,
+2023-08-04,Illinois,23.2,3.7
+2023-08-04,Indiana,7.0,
+2023-08-04,Iowa,6.6,76.2
+2023-08-04,Kansas,,1.2
+2023-08-04,Kentucky,3.0,
+2023-08-04,Manitoba CAN,22.7,
+2023-08-04,Michigan,0.7,
+2023-08-04,Minnesota,4.9,15.8
+2023-08-04,Missouri,1.5,
+2023-08-04,Montana,1.9,
+2023-08-04,Nebraska,7.0,3.1
+2023-08-04,North Dakota,4.3,
+2023-08-04,Saskatchewan CAN,1.3,
+2023-08-04,South Dakota,7.3,
+2023-08-04,Wisconsin,3.0,
+2023-08-11,Idaho,,1.3
+2023-08-11,Illinois,13.6,1.9
+2023-08-11,Indiana,3.2,1.5
+2023-08-11,Iowa,4.2,71.5
+2023-08-11,Kansas,,2.7
+2023-08-11,Kentucky,1.5,
+2023-08-11,Manitoba CAN,22.6,
+2023-08-11,Minnesota,7.2,20.7
+2023-08-11,Mississippi,10.8,
+2023-08-11,Nebraska,11.8,0.3
+2023-08-11,North Dakota,2.3,
+2023-08-11,Noth Carolina,0.9,
+2023-08-11,Ontario CAN,0.5,
+2023-08-11,Saskatchewan CAN,10.2,
+2023-08-11,South Dakota,8.6,
+2023-08-11,Wisconsin,2.6,
+2023-08-18,Arkansas,1.9,
+2023-08-18,Colorado,5.3,0.4
+2023-08-18,Illinois,18.6,5.4
+2023-08-18,Indiana,2.0,
+2023-08-18,Iowa,4.2,68.8
+2023-08-18,Kansas,3.2,
+2023-08-18,Kentucky,1.4,
+2023-08-18,Manitoba CAN,22.6,
+2023-08-18,Michigan,,4.3
+2023-08-18,Minnesota,9.9,16.0
+2023-08-18,Missouri,1.5,
+2023-08-18,Montana,2.7,
+2023-08-18,Nebraska,1.0,2.9
+2023-08-18,North Dakota,5.2,
+2023-08-18,Noth Carolina,0.7,
+2023-08-18,Ohio,4.3,
+2023-08-18,Saskatchewan CAN,4.2,
+2023-08-18,South Dakota,9.3,2.2
+2023-08-18,Wisconsin,2.0,
+2023-08-25,Arkansas,1.3,
+2023-08-25,Illinois,18.1,5.5
+2023-08-25,Indiana,3.5,0.4
+2023-08-25,Iowa,3.5,74.4
+2023-08-25,Kansas,2.9,
+2023-08-25,Manitoba CAN,44.6,
+2023-08-25,Michigan,2.2,2.8
+2023-08-25,Minnesota,4.9,12.1
+2023-08-25,Missouri,1.8,
+2023-08-25,Montana,1.9,
+2023-08-25,Nebraska,4.4,1.9
+2023-08-25,Ohio,2.8,
+2023-08-25,Saskatchewan CAN,0.6,
+2023-08-25,South Dakota,5.1,2.4
+2023-08-25,Wisconsin,2.5,0.5
+2023-09-01,Arkansas,3.9,
+2023-09-01,Colorado,2.0,
+2023-09-01,Illinois,9.3,6.3
+2023-09-01,Indiana,2.1,
+2023-09-01,Iowa,4.3,67.8
+2023-09-01,Kansas,2.0,
+2023-09-01,Manitoba CAN,30.0,
+2023-09-01,Michigan,,2.4
+2023-09-01,Minnesota,7.1,15.8
+2023-09-01,Missouri,5.1,
+2023-09-01,Montana,1.5,
+2023-09-01,Nebraska,2.8,3.5
+2023-09-01,North Dakota,2.7,
+2023-09-01,Ohio,2.4,
+2023-09-01,Ontario CAN,0.6,
+2023-09-01,Saskatchewan CAN,7.9,
+2023-09-01,South Dakota,13.1,4.3
+2023-09-01,Wisconsin,2.1,
+2023-09-08,Colorado,1.4,
+2023-09-08,Illinois,17.7,5.4
+2023-09-08,Indiana,2.8,2.9
+2023-09-08,Iowa,1.1,74.1
+2023-09-08,Kansas,1.9,
+2023-09-08,Kentucky,1.9,
+2023-09-08,Manitoba CAN,21.4,
+2023-09-08,Michigan,,2.3
+2023-09-08,Minnesota,8.8,12.9
+2023-09-08,Missouri,1.6,
+2023-09-08,Montana,1.4,
+2023-09-08,Nebraska,12.2,1.4
+2023-09-08,Ohio,2.8,
+2023-09-08,Ontario CAN,2.6,
+2023-09-08,Saskatchewan CAN,8.6,
+2023-09-08,South Dakota,8.6,0.9
+2023-09-08,Wisconsin,1.9,
+2023-09-08,Wyoming,3.1,
+2023-09-15,Illinois,13.7,0.7
+2023-09-15,Indiana,0.7,5.3
+2023-09-15,Iowa,8.5,73.2
+2023-09-15,Kansas,8.3,
+2023-09-15,Manitoba CAN,24.2,
+2023-09-15,Minnesota,1.3,11.0
+2023-09-15,Nebraska,3.3,6.9
+2023-09-15,Noth Carolina,5.3,
+2023-09-15,Ontario CAN,5.2,
+2023-09-15,Saskatchewan CAN,13.9,
+2023-09-15,South Dakota,12.2,2.9
+2023-09-15,Wisconsin,2.3,
+2023-09-15,Wyoming,1.2,
+2023-09-22,Arkansas,1.8,
+2023-09-22,Colorado,1.0,
+2023-09-22,Illinois,9.3,4.2
+2023-09-22,Indiana,3.1,
+2023-09-22,Iowa,,71.4
+2023-09-22,Kansas,13.9,
+2023-09-22,Manitoba CAN,30.6,
+2023-09-22,Michigan,,1.1
+2023-09-22,Minnesota,6.0,19.4
+2023-09-22,Missouri,5.6,
+2023-09-22,Montana,1.7,
+2023-09-22,Nebraska,9.7,2.2
+2023-09-22,North Dakota,2.2,
+2023-09-22,Ohio,1.6,
+2023-09-22,Saskatchewan CAN,2.2,
+2023-09-22,South Dakota,9.0,1.6
+2023-09-22,Wisconsin,2.2,
+2023-09-29,Colorado,5.1,0.5
+2023-09-29,Illinois,14.2,16.7
+2023-09-29,Indiana,2.4,3.3
+2023-09-29,Iowa,6.2,61.8
+2023-09-29,Kansas,1.3,
+2023-09-29,Kentucky,1.7,
+2023-09-29,Manitoba CAN,8.6,
+2023-09-29,Minnesota,7.5,16.0
+2023-09-29,Missouri,3.9,
+2023-09-29,Montana,1.8,
+2023-09-29,Nebraska,1.3,1.7
+2023-09-29,Ontario CAN,13.2,
+2023-09-29,Saskatchewan CAN,8.0,
+2023-09-29,South Dakota,16.3,
+2023-09-29,Wisconsin,8.5,
+2023-10-06,Arkansas,1.8,
+2023-10-06,Colorado,8.5,
+2023-10-06,Illinois,8.6,6.7
+2023-10-06,Indiana,2.8,
+2023-10-06,Iowa,7.3,52.9
+2023-10-06,Kansas,3.6,
+2023-10-06,Kentucky,1.9,
+2023-10-06,Manitoba CAN,29.3,
+2023-10-06,Michigan,1.8,
+2023-10-06,Minnesota,4.8,30.7
+2023-10-06,Missouri,1.7,
+2023-10-06,Montana,1.5,
+2023-10-06,Nebraska,,2.3
+2023-10-06,Noth Carolina,2.8,
+2023-10-06,Ohio,4.6,7.4
+2023-10-06,Saskatchewan CAN,8.5,
+2023-10-06,South Dakota,6.0,
+2023-10-06,Wisconsin,4.4,
+2023-10-13,British Columbia CAN,2.9,
+2023-10-13,Colorado,9.3,
+2023-10-13,Illinois,8.3,1.6
+2023-10-13,Indiana,5.6,3.4
+2023-10-13,Iowa,8.6,67.0
+2023-10-13,Kansas,2.4,
+2023-10-13,Manitoba CAN,30.4,
+2023-10-13,Maryland,1.1,
+2023-10-13,Michigan,1.8,1.1
+2023-10-13,Minnesota,2.0,25.8
+2023-10-13,Missouri,1.8,
+2023-10-13,Montana,1.5,
+2023-10-13,Nebraska,0.8,1.0
+2023-10-13,North Dakota,2.2,
+2023-10-13,Ohio,1.1,
+2023-10-13,Ontario CAN,0.9,
+2023-10-13,Saskatchewan CAN,4.9,
+2023-10-13,South Dakota,14.2,0.2
+2023-10-20,Colorado,10.0,
+2023-10-20,Idaho,,0.4
+2023-10-20,Illinois,15.0,4.1
+2023-10-20,Indiana,,1.1
+2023-10-20,Iowa,2.5,74.4
+2023-10-20,Kansas,3.4,2.1
+2023-10-20,Kentucky,1.1,
+2023-10-20,Manitoba CAN,29.1,
+2023-10-20,Michigan,,2.4
+2023-10-20,Minnesota,9.5,11.9
+2023-10-20,Missouri,3.8,
+2023-10-20,Nebraska,,3.2
+2023-10-20,North Dakota,5.5,
+2023-10-20,Ohio,2.4,
+2023-10-20,Ontario CAN,3.9,
+2023-10-20,Saskatchewan CAN,5.0,
+2023-10-20,South Dakota,8.9,0.5
+2023-10-27,Colorado,12.3,
+2023-10-27,Illinois,6.7,
+2023-10-27,Indiana,1.6,1.2
+2023-10-27,Iowa,4.8,59.6
+2023-10-27,Kentucky,1.9,
+2023-10-27,Manitoba CAN,35.4,
+2023-10-27,Michigan,,2.1
+2023-10-27,Minnesota,2.9,17.3
+2023-10-27,Missouri,3.1,
+2023-10-27,Montana,1.5,
+2023-10-27,Nebraska,,12.2
+2023-10-27,Ohio,2.1,2.1
+2023-10-27,Ontario CAN,10.6,
+2023-10-27,Saskatchewan CAN,0.5,
+2023-10-27,South Dakota,12.1,4.4
+2023-10-27,Wisconsin,4.4,
+2023-11-03,Colorado,7.5,
+2023-11-03,Illinois,11.9,2.5
+2023-11-03,Indiana,3.6,1.5
+2023-11-03,Iowa,6.8,76.8
+2023-11-03,Kansas,1.3,
+2023-11-03,Kentucky,5.8,
+2023-11-03,Manitoba CAN,36.9,
+2023-11-03,Maryland,0.7,
+2023-11-03,Michigan,,2.3
+2023-11-03,Minnesota,3.8,10.7
+2023-11-03,Montana,1.6,
+2023-11-03,Nebraska,0.8,5.0
+2023-11-03,Noth Carolina,4.9,
+2023-11-03,Ohio,2.3,
+2023-11-03,Saskatchewan CAN,1.0,
+2023-11-03,South Dakota,8.8,1.3
+2023-11-03,Wisconsin,2.3,
+2023-11-10,Arkansas,0.3,
+2023-11-10,Colorado,1.5,
+2023-11-10,Illinois,5.7,2.7
+2023-11-10,Indiana,4.8,
+2023-11-10,Iowa,2.2,64.8
+2023-11-10,Kentucky,1.0,
+2023-11-10,Manitoba CAN,31.8,
+2023-11-10,Michigan,,1.0
+2023-11-10,Minnesota,13.3,24.4
+2023-11-10,Missouri,3.1,
+2023-11-10,Montana,1.3,
+2023-11-10,Nebraska,6.1,0.5
+2023-11-10,Noth Carolina,0.8,
+2023-11-10,Ohio,1.0,0.8
+2023-11-10,Ontario CAN,3.3,
+2023-11-10,Saskatchewan CAN,10.2,
+2023-11-10,South Dakota,7.5,5.8
+2023-11-10,Wisconsin,4.2,
+2023-11-17,Colorado,5.2,
+2023-11-17,Illinois,7.4,4.9
+2023-11-17,Indiana,3.2,6.7
+2023-11-17,Iowa,2.7,70.2
+2023-11-17,Kansas,4.2,
+2023-11-17,Manitoba CAN,25.7,
+2023-11-17,Michigan,,1.0
+2023-11-17,Minnesota,6.1,13.3
+2023-11-17,Missouri,6.0,
+2023-11-17,Montana,1.2,
+2023-11-17,Nebraska,10.9,0.4
+2023-11-17,Noth Carolina,1.1,
+2023-11-17,Ohio,1.4,1.1
+2023-11-17,Ontario CAN,0.5,
+2023-11-17,Saskatchewan CAN,5.1,
+2023-11-17,South Dakota,15.9,1.6
+2023-11-17,Wisconsin,1.7,0.8
+2023-11-24,Colorado,7.0,
+2023-11-24,Illinois,1.3,2.0
+2023-11-24,Indiana,2.2,0.8
+2023-11-24,Iowa,4.5,69.8
+2023-11-24,Kentucky,0.8,
+2023-11-24,Maine,6.4,
+2023-11-24,Manitoba CAN,21.0,
+2023-11-24,Michigan,,1.5
+2023-11-24,Minnesota,15.9,19.1
+2023-11-24,Missouri,4.4,
+2023-11-24,Montana,1.5,
+2023-11-24,Nebraska,6.7,2.8
+2023-11-24,Noth Carolina,1.6,
+2023-11-24,Ohio,1.5,4.0
+2023-11-24,Ontario CAN,7.7,
+2023-11-24,Saskatchewan CAN,1.4,
+2023-11-24,South Dakota,9.6,
+2023-11-24,Wisconsin,5.1,
+2023-12-01,Colorado,6.9,
+2023-12-01,Illinois,17.1,
+2023-12-01,Indiana,1.9,
+2023-12-01,Iowa,9.2,74.2
+2023-12-01,Manitoba CAN,35.7,
+2023-12-01,Maryland,2.2,
+2023-12-01,Michigan,,1.2
+2023-12-01,Minnesota,6.2,22.6
+2023-12-01,Missouri,1.1,
+2023-12-01,Montana,1.5,
+2023-12-01,Nebraska,,2.0
+2023-12-01,North Dakota,6.5,
+2023-12-01,Ohio,1.2,
+2023-12-01,Ontario CAN,2.1,
+2023-12-01,South Dakota,8.2,
+2023-12-08,Colorado,3.4,
+2023-12-08,Illinois,11.4,0.5
+2023-12-08,Indiana,2.6,5.4
+2023-12-08,Iowa,4.5,72.4
+2023-12-08,Kansas,3.1,
+2023-12-08,Kentucky,1.5,
+2023-12-08,Manitoba CAN,17.6,0.7
+2023-12-08,Michigan,0.3,0.8
+2023-12-08,Minnesota,6.6,12.6
+2023-12-08,Missouri,1.5,
+2023-12-08,Montana,0.9,
+2023-12-08,Nebraska,16.0,0.6
+2023-12-08,North Dakota,5.2,
+2023-12-08,Noth Carolina,1.9,
+2023-12-08,Ohio,1.2,7.1
+2023-12-08,Ontario CAN,12.8,
+2023-12-08,Saskatchewan CAN,0.6,
+2023-12-08,South Dakota,7.6,
+2023-12-08,Wisconsin,1.2,
+2023-12-15,Colorado,8.9,
+2023-12-15,Illinois,7.2,2.1
+2023-12-15,Indiana,2.5,
+2023-12-15,Iowa,4.4,84.2
+2023-12-15,Kansas,3.0,1.0
+2023-12-15,Manitoba CAN,33.3,
+2023-12-15,Michigan,2.5,1.2
+2023-12-15,Minnesota,3.1,7.2
+2023-12-15,Missouri,2.6,
+2023-12-15,Montana,1.4,
+2023-12-15,Nebraska,10.4,3.5
+2023-12-15,Ontario CAN,2.4,
+2023-12-15,Saskatchewan CAN,4.1,
+2023-12-15,South Dakota,12.2,0.9
+2023-12-15,Wisconsin,2.0,
+2023-12-22,Colorado,2.3,
+2023-12-22,Illinois,15.2,1.2
+2023-12-22,Indiana,1.4,
+2023-12-22,Iowa,2.0,75.1
+2023-12-22,Kansas,1.6,0.8
+2023-12-22,Kentucky,1.5,
+2023-12-22,Manitoba CAN,27.2,
+2023-12-22,Michigan,0.8,1.8
+2023-12-22,Minnesota,10.1,12.0
+2023-12-22,Missouri,8.9,
+2023-12-22,Montana,1.0,
+2023-12-22,Nebraska,13.3,2.7
+2023-12-22,Ohio,1.8,6.4
+2023-12-22,Ontario CAN,2.9,
+2023-12-22,Saskatchewan CAN,3.7,
+2023-12-22,South Dakota,5.9,
+2023-12-22,Wisconsin,0.3,
+2023-12-29,Colorado,10.6,
+2023-12-29,Illinois,10.6,
+2023-12-29,Indiana,1.9,
+2023-12-29,Iowa,3.7,76.0
+2023-12-29,Kansas,1.0,1.0
+2023-12-29,Kentucky,2.8,
+2023-12-29,Manitoba CAN,36.2,
+2023-12-29,Michigan,,2.0
+2023-12-29,Minnesota,2.3,17.6
+2023-12-29,Missouri,3.8,
+2023-12-29,Montana,1.6,
+2023-12-29,Nebraska,9.2,2.8
+2023-12-29,North Dakota,6.0,
+2023-12-29,Noth Carolina,1.2,
+2023-12-29,Ohio,2.0,
+2023-12-29,Ontario CAN,1.1,
+2023-12-29,South Dakota,1.7,0.6
+2023-12-29,Wisconsin,4.3,
+2024-01-05,Colorado,2.7,
+2024-01-05,Illinois,17.5,8.6
+2024-01-05,Indiana,7.1,1.7
+2024-01-05,Iowa,0.8,79.1
+2024-01-05,Manitoba CAN,47.4,
+2024-01-05,Michigan,,2.0
+2024-01-05,Minnesota,5.3,8.5
+2024-01-05,Missouri,1.0,
+2024-01-05,Montana,1.2,
+2024-01-05,Nebraska,2.5,
+2024-01-05,Ohio,2.6,
+2024-01-05,Ontario CAN,2.5,
+2024-01-05,Saskatchewan CAN,4.7,
+2024-01-05,South Dakota,3.7,
+2024-01-05,Wisconsin,0.9,
+2024-01-12,Colorado,6.1,
+2024-01-12,Illinois,5.9,2.2
+2024-01-12,Indiana,2.3,0.9
+2024-01-12,Iowa,4.0,70.5
+2024-01-12,Kansas,5.2,
+2024-01-12,Kentucky,0.9,
+2024-01-12,Manitoba CAN,31.1,
+2024-01-12,Michigan,1.6,2.0
+2024-01-12,Minnesota,3.0,20.0
+2024-01-12,Missouri,3.0,
+2024-01-12,Montana,1.4,
+2024-01-12,Nebraska,5.9,1.9
+2024-01-12,North Dakota,2.8,
+2024-01-12,Ohio,2.0,0.7
+2024-01-12,Ontario CAN,2.4,
+2024-01-12,Saskatchewan CAN,4.7,
+2024-01-12,South Dakota,17.2,1.8
+2024-01-12,Wisconsin,0.5,
+2024-01-19,Colorado,3.8,
+2024-01-19,Illinois,3.9,5.0
+2024-01-19,Indiana,1.9,
+2024-01-19,Iowa,9.5,77.6
+2024-01-19,Kansas,3.7,
+2024-01-19,Manitoba CAN,44.3,
+2024-01-19,Michigan,,1.0
+2024-01-19,Minnesota,6.8,11.7
+2024-01-19,Missouri,6.5,
+2024-01-19,Montana,1.2,
+2024-01-19,North Dakota,3.6,
+2024-01-19,Noth Carolina,1.1,
+2024-01-19,Ohio,1.0,1.3
+2024-01-19,South Dakota,10.7,2.6
+2024-01-19,Wisconsin,1.9,0.9
+2024-01-26,Colorado,2.6,
+2024-01-26,Illinois,8.9,1.2
+2024-01-26,Indiana,1.6,3.7
+2024-01-26,Iowa,4.1,67.0
+2024-01-26,Kansas,5.2,0.9
+2024-01-26,Kentucky,1.0,
+2024-01-26,Manitoba CAN,20.5,
+2024-01-26,Michigan,,0.9
+2024-01-26,Minnesota,8.4,18.5
+2024-01-26,Missouri,2.8,
+2024-01-26,Montana,1.1,
+2024-01-26,Nebraska,13.2,1.7
+2024-01-26,North Dakota,4.8,
+2024-01-26,Noth Carolina,1.4,
+2024-01-26,Ohio,0.9,
+2024-01-26,Ontario CAN,3.0,
+2024-01-26,Saskatchewan CAN,3.5,
+2024-01-26,South Dakota,14.7,6.1
+2024-01-26,Wisconsin,2.4,
+2024-02-02,Colorado,4.2,
+2024-02-02,Illinois,8.5,9.8
+2024-02-02,Indiana,9.8,1.1
+2024-02-02,Iowa,3.2,65.7
+2024-02-02,Kansas,3.9,
+2024-02-02,Kentucky,1.1,
+2024-02-02,Manitoba CAN,30.1,
+2024-02-02,Michigan,0.7,
+2024-02-02,Minnesota,15.2,19.7
+2024-02-02,Missouri,2.1,0.7
+2024-02-02,Montana,1.2,
+2024-02-02,Nebraska,3.8,3.0
+2024-02-02,Noth Carolina,1.5,
+2024-02-02,Ontario CAN,1.8,
+2024-02-02,Saskatchewan CAN,3.8,
+2024-02-02,South Dakota,3.8,
+2024-02-02,Wisconsin,5.2,
+2024-02-09,Colorado,4.4,
+2024-02-09,Illinois,17.5,13.1
+2024-02-09,Indiana,7.1,0.8
+2024-02-09,Iowa,0.9,68.0
+2024-02-09,Kansas,1.2,
+2024-02-09,Manitoba CAN,32.3,
+2024-02-09,Michigan,,1.2
+2024-02-09,Minnesota,4.7,10.4
+2024-02-09,Missouri,4.8,
+2024-02-09,Montana,1.8,
+2024-02-09,Nebraska,3.6,0.5
+2024-02-09,Noth Carolina,3.6,
+2024-02-09,Ohio,3.2,2.3
+2024-02-09,Ontario CAN,3.1,
+2024-02-09,Saskatchewan CAN,1.0,
+2024-02-09,South Dakota,10.9,3.9
+2024-02-16,British Columbia CAN,2.5,
+2024-02-16,Colorado,9.9,
+2024-02-16,Illinois,8.4,5.4
+2024-02-16,Indiana,4.2,1.8
+2024-02-16,Iowa,2.9,78.0
+2024-02-16,Kansas,2.9,
+2024-02-16,Manitoba CAN,29.9,
+2024-02-16,Minnesota,2.8,11.1
+2024-02-16,Missouri,3.1,
+2024-02-16,Montana,1.3,
+2024-02-16,Nebraska,5.7,
+2024-02-16,North Dakota,8.1,
+2024-02-16,Noth Carolina,0.4,
+2024-02-16,Ohio,0.7,
+2024-02-16,Ontario CAN,7.5,
+2024-02-16,South Dakota,9.8,3.8
+2024-02-23,Colorado,6.0,
+2024-02-23,Illinois,4.5,5.5
+2024-02-23,Indiana,7.1,0.6
+2024-02-23,Iowa,0.8,85.3
+2024-02-23,Manitoba CAN,37.7,
+2024-02-23,Michigan,,2.3
+2024-02-23,Minnesota,4.5,5.9
+2024-02-23,Missouri,2.3,
+2024-02-23,Montana,1.6,
+2024-02-23,Nebraska,2.3,0.5
+2024-02-23,North Dakota,1.2,
+2024-02-23,Ohio,3.3,
+2024-02-23,Ontario CAN,8.3,
+2024-02-23,Saskatchewan CAN,4.6,
+2024-02-23,South Dakota,15.7,
+2024-03-01,Colorado,4.4,
+2024-03-01,Illinois,22.3,16.9
+2024-03-01,Indiana,5.8,
+2024-03-01,Iowa,3.8,66.6
+2024-03-01,Kansas,4.6,0.9
+2024-03-01,Manitoba CAN,16.3,
+2024-03-01,Michigan,,2.8
+2024-03-01,Minnesota,4.8,10.0
+2024-03-01,Missouri,4.7,
+2024-03-01,Montana,1.2,
+2024-03-01,Nebraska,9.6,
+2024-03-01,North Dakota,4.0,
+2024-03-01,Ohio,2.8,
+2024-03-01,Ontario CAN,7.5,
+2024-03-01,South Dakota,8.2,2.8
+2024-03-08,Colorado,4.9,
+2024-03-08,Illinois,13.7,12.9
+2024-03-08,Indiana,5.9,
+2024-03-08,Iowa,6.9,66.6
+2024-03-08,Kansas,3.8,1.2
+2024-03-08,Manitoba CAN,32.4,
+2024-03-08,Michigan,0.8,2.6
+2024-03-08,Minnesota,6.4,8.4
+2024-03-08,Montana,1.7,
+2024-03-08,Nebraska,3.5,1.9
+2024-03-08,North Dakota,4.8,
+2024-03-08,Ohio,3.5,
+2024-03-08,Ontario CAN,5.7,
+2024-03-08,South Dakota,6.1,6.4
+2024-03-15,Arkansas,4.0,
+2024-03-15,Illinois,20.0,14.1
+2024-03-15,Indiana,2.5,
+2024-03-15,Iowa,5.9,75.0
+2024-03-15,Kansas,3.0,
+2024-03-15,Manitoba CAN,18.8,
+2024-03-15,Michigan,,1.7
+2024-03-15,Minnesota,8.3,7.6
+2024-03-15,Missouri,2.5,
+2024-03-15,Montana,1.1,
+2024-03-15,Nebraska,5.3,1.6
+2024-03-15,North Dakota,4.3,
+2024-03-15,Ohio,1.7,
+2024-03-15,Ontario CAN,10.2,
+2024-03-15,Saskatchewan CAN,3.9,
+2024-03-15,South Dakota,8.4,
+2024-03-22,Colorado,11.0,
+2024-03-22,Idaho,,0.7
+2024-03-22,Illinois,17.6,7.0
+2024-03-22,Indiana,3.6,0.3
+2024-03-22,Iowa,10.6,86.4
+2024-03-22,Kentucky,0.3,
+2024-03-22,Manitoba CAN,30.0,
+2024-03-22,Michigan,,0.8
+2024-03-22,Minnesota,1.1,2.9
+2024-03-22,Missouri,6.1,
+2024-03-22,Nebraska,4.3,1.2
+2024-03-22,North Dakota,3.9,
+2024-03-22,Noth Carolina,3.3,
+2024-03-22,Ohio,1.3,
+2024-03-22,Ontario CAN,4.1,
+2024-03-22,Saskatchewan CAN,1.8,
+2024-03-22,South Dakota,0.7,
+2024-03-22,Wisconsin,0.2,0.7
+2024-03-29,Illinois,4.2,5.7
+2024-03-29,Indiana,5.8,1.2
+2024-03-29,Iowa,16.3,76.7
+2024-03-29,Kansas,5.3,
+2024-03-29,Manitoba CAN,29.2,
+2024-03-29,Michigan,,1.1
+2024-03-29,Minnesota,5.8,12.5
+2024-03-29,Missouri,6.0,
+2024-03-29,Montana,1.5,
+2024-03-29,Nebraska,1.7,2.9
+2024-03-29,North Dakota,1.0,
+2024-03-29,Ohio,1.3,
+2024-03-29,Ontario CAN,8.0,
+2024-03-29,Saskatchewan CAN,4.2,
+2024-03-29,South Dakota,9.6,
+2024-04-05,Colorado,10.6,
+2024-04-05,Illinois,4.6,12.8
+2024-04-05,Indiana,10.2,1.4
+2024-04-05,Iowa,1.2,66.2
+2024-04-05,Kansas,,1.4
+2024-04-05,Manitoba CAN,16.5,
+2024-04-05,Minnesota,1.2,4.4
+2024-04-05,Missouri,3.5,
+2024-04-05,Montana,1.9,
+2024-04-05,Nebraska,9.5,13.9
+2024-04-05,North Dakota,2.8,
+2024-04-05,Ohio,1.4,
+2024-04-05,Ontario CAN,10.6,
+2024-04-05,Saskatchewan CAN,7.9,
+2024-04-05,South Dakota,17.9,
+2024-04-12,Colorado,5.3,
+2024-04-12,Illinois,14.9,8.6
+2024-04-12,Indiana,5.0,0.4
+2024-04-12,Iowa,14.2,71.6
+2024-04-12,Kansas,1.0,
+2024-04-12,Manitoba CAN,28.3,
+2024-04-12,Michigan,,1.0
+2024-04-12,Minnesota,6.0,14.0
+2024-04-12,Missouri,1.1,
+2024-04-12,Montana,1.3,
+2024-04-12,Nebraska,,1.2
+2024-04-12,Nevada,,0.5
+2024-04-12,North Dakota,1.5,
+2024-04-12,Ohio,1.0,
+2024-04-12,Ontario CAN,4.5,
+2024-04-12,Saskatchewan CAN,3.0,
+2024-04-12,South Dakota,13.0,2.2
+2024-04-12,Wisconsin,,0.5
+2024-04-19,Colorado,4.2,
+2024-04-19,Illinois,3.7,2.1
+2024-04-19,Indiana,7.2,
+2024-04-19,Iowa,4.6,84.8
+2024-04-19,Kansas,6.1,
+2024-04-19,Manitoba CAN,45.0,
+2024-04-19,Michigan,,1.2
+2024-04-19,Minnesota,7.9,7.8
+2024-04-19,Montana,1.6,
+2024-04-19,Nebraska,0.7,2.4
+2024-04-19,Ohio,1.2,
+2024-04-19,Ontario CAN,2.6,
+2024-04-19,Pennsylvania,,1.5
+2024-04-19,South Dakota,15.3,0.2
+2024-04-26,Colorado,8.6,
+2024-04-26,Illinois,6.2,4.0
+2024-04-26,Indiana,6.0,
+2024-04-26,Iowa,2.6,84.3
+2024-04-26,Kansas,1.1,1.1
+2024-04-26,Manitoba CAN,42.4,
+2024-04-26,Michigan,,2.2
+2024-04-26,Minnesota,2.5,6.5
+2024-04-26,Missouri,3.3,
+2024-04-26,Montana,1.4,
+2024-04-26,Nebraska,7.0,1.9
+2024-04-26,North Dakota,5.1,
+2024-04-26,Ohio,1.1,
+2024-04-26,Ontario CAN,3.4,
+2024-04-26,South Dakota,9.3,
+2024-05-03,Arkansas,0.9,
+2024-05-03,Colorado,2.3,
+2024-05-03,Illinois,13.2,3.5
+2024-05-03,Indiana,4.9,
+2024-05-03,Iowa,1.8,74.6
+2024-05-03,Kansas,0.9,4.5
+2024-05-03,Kentucky,0.9,
+2024-05-03,Manitoba CAN,31.0,
+2024-05-03,Michigan,0.9,2.7
+2024-05-03,Minnesota,1.8,6.0
+2024-05-03,Missouri,7.6,
+2024-05-03,Montana,1.2,
+2024-05-03,Nebraska,2.4,1.7
+2024-05-03,New Brunswick CAN,2.1,
+2024-05-03,Noth Carolina,1.2,1.2
+2024-05-03,Ohio,1.8,
+2024-05-03,Ontario CAN,5.2,
+2024-05-03,Pennsylvania,,2.1
+2024-05-03,Saskatchewan CAN,4.7,
+2024-05-03,South Dakota,15.3,3.6
+2024-05-10,Arkansas,3.3,
+2024-05-10,Colorado,1.7,
+2024-05-10,Illinois,16.7,4.1
+2024-05-10,Indiana,5.9,
+2024-05-10,Iowa,2.7,88.3
+2024-05-10,Kansas,6.3,
+2024-05-10,Manitoba CAN,32.7,
+2024-05-10,Michigan,0.6,1.8
+2024-05-10,Minnesota,2.3,5.8
+2024-05-10,Missouri,1.8,
+2024-05-10,Montana,1.2,
+2024-05-10,Nebraska,3.2,
+2024-05-10,North Dakota,2.0,
+2024-05-10,Ohio,0.8,
+2024-05-10,Ontario CAN,5.9,
+2024-05-10,Saskatchewan CAN,5.3,
+2024-05-10,South Dakota,5.9,
+2024-05-10,Wisconsin,1.8,
+2024-05-17,Colorado,1.9,
+2024-05-17,Illinois,10.7,
+2024-05-17,Indiana,7.0,
+2024-05-17,Iowa,12.1,78.9
+2024-05-17,Kansas,2.9,
+2024-05-17,Manitoba CAN,33.4,
+2024-05-17,Michigan,,2.1
+2024-05-17,Minnesota,,11.6
+2024-05-17,Missouri,1.4,1.9
+2024-05-17,Nebraska,3.2,5.5
+2024-05-17,North Dakota,2.0,
+2024-05-17,Noth Carolina,1.0,
+2024-05-17,Ohio,1.0,
+2024-05-17,Ontario CAN,6.9,
+2024-05-17,Saskatchewan CAN,7.5,
+2024-05-17,South Dakota,7.7,
+2024-05-17,Wisconsin,1.1,
+2024-05-24,Arkansas,2.8,
+2024-05-24,British Columbia CAN,1.1,
+2024-05-24,Colorado,1.0,
+2024-05-24,Illinois,7.4,
+2024-05-24,Indiana,7.1,2.8
+2024-05-24,Iowa,4.0,82.5
+2024-05-24,Kansas,1.0,
+2024-05-24,Manitoba CAN,44.4,
+2024-05-24,Michigan,0.8,1.0
+2024-05-24,Minnesota,8.2,5.4
+2024-05-24,Missouri,6.3,2.0
+2024-05-24,Montana,1.6,
+2024-05-24,Nebraska,,6.3
+2024-05-24,North Dakota,2.1,
+2024-05-24,Ohio,1.0,
+2024-05-24,Ontario CAN,1.0,
+2024-05-24,Saskatchewan CAN,4.2,
+2024-05-24,South Dakota,6.0,
+2024-05-31,Arkansas,1.6,
+2024-05-31,Colorado,1.7,
+2024-05-31,Illinois,8.9,1.1
+2024-05-31,Indiana,4.8,1.4
+2024-05-31,Iowa,7.3,85.6
+2024-05-31,Kansas,0.8,1.5
+2024-05-31,Manitoba CAN,46.0,
+2024-05-31,Michigan,1.2,
+2024-05-31,Minnesota,0.5,3.8
+2024-05-31,Missouri,2.5,1.7
+2024-05-31,Montana,1.3,
+2024-05-31,Nebraska,1.5,1.4
+2024-05-31,Noth Carolina,1.1,
+2024-05-31,Ohio,3.0,
+2024-05-31,Ontario CAN,1.7,
+2024-05-31,Saskatchewan CAN,10.5,
+2024-05-31,South Dakota,5.5,3.5
+2024-06-07,Alberta CAN,3.0,
+2024-06-07,Illinois,15.3,
+2024-06-07,Indiana,3.0,1.5
+2024-06-07,Iowa,5.6,80.8
+2024-06-07,Kansas,1.9,3.7
+2024-06-07,Manitoba CAN,37.6,
+2024-06-07,Minnesota,5.9,12.1
+2024-06-07,Missouri,5.8,1.8
+2024-06-07,North Dakota,0.5,
+2024-06-07,Ohio,1.8,
+2024-06-07,Ontario CAN,1.9,
+2024-06-07,Saskatchewan CAN,5.6,
+2024-06-07,South Dakota,12.3,
+2024-06-14,Colorado,5.2,
+2024-06-14,Illinois,8.7,
+2024-06-14,Indiana,5.0,0.9
+2024-06-14,Iowa,3.6,80.7
+2024-06-14,Kansas,1.0,
+2024-06-14,Manitoba CAN,48.0,
+2024-06-14,Michigan,,2.0
+2024-06-14,Minnesota,1.0,10.6
+2024-06-14,Missouri,1.9,1.9
+2024-06-14,Montana,1.4,
+2024-06-14,Nebraska,,3.8
+2024-06-14,Ohio,3.0,
+2024-06-14,Ontario CAN,4.0,
+2024-06-14,Saskatchewan CAN,3.2,
+2024-06-14,South Dakota,10.7,
+2024-06-14,Wisconsin,3.2,
+2024-06-21,Colorado,2.2,
+2024-06-21,Illinois,9.7,2.5
+2024-06-21,Indiana,6.3,
+2024-06-21,Iowa,5.7,93.1
+2024-06-21,Manitoba CAN,32.9,
+2024-06-21,Michigan,,1.2
+2024-06-21,Minnesota,12.1,3.1
+2024-06-21,Missouri,5.1,
+2024-06-21,Montana,1.4,
+2024-06-21,North Dakota,0.6,
+2024-06-21,Ohio,2.7,
+2024-06-21,Ontario CAN,2.0,
+2024-06-21,Saskatchewan CAN,9.1,
+2024-06-21,South Dakota,10.4,
+2024-06-28,Illinois,9.6,5.0
+2024-06-28,Indiana,2.9,
+2024-06-28,Iowa,6.8,75.3
+2024-06-28,Kansas,11.7,1.0
+2024-06-28,Manitoba CAN,44.0,
+2024-06-28,Michigan,,0.9
+2024-06-28,Minnesota,3.2,11.3
+2024-06-28,Missouri,3.7,1.8
+2024-06-28,Montana,1.4,
+2024-06-28,Nebraska,0.5,0.9
+2024-06-28,North Dakota,3.1,
+2024-06-28,Ohio,1.0,
+2024-06-28,Saskatchewan CAN,3.8,
+2024-06-28,South Dakota,8.5,3.8
+2024-07-05,Illinois,7.9,5.7
+2024-07-05,Indiana,1.2,
+2024-07-05,Iowa,17.1,82.0
+2024-07-05,Kansas,3.2,
+2024-07-05,Manitoba CAN,44.3,
+2024-07-05,Michigan,,0.6
+2024-07-05,Minnesota,3.6,6.1
+2024-07-05,Missouri,4.3,2.1
+2024-07-05,Montana,1.5,
+2024-07-05,Nebraska,1.1,0.3
+2024-07-05,Ohio,1.7,
+2024-07-05,Ontario CAN,1.6,
+2024-07-05,Saskatchewan CAN,6.5,
+2024-07-05,South Dakota,5.9,3.2
+2024-07-12,Illinois,10.1,5.8
+2024-07-12,Indiana,1.8,6.1
+2024-07-12,Iowa,15.3,80.0
+2024-07-12,Kansas,1.5,
+2024-07-12,Kentucky,2.7,
+2024-07-12,Manitoba CAN,34.9,
+2024-07-12,Michigan,1.6,
+2024-07-12,Minnesota,6.2,5.2
+2024-07-12,Missouri,7.7,
+2024-07-12,Nebraska,3.2,0.6
+2024-07-12,North Dakota,1.9,
+2024-07-12,Ohio,,2.3
+2024-07-12,Ontario CAN,5.3,
+2024-07-12,Saskatchewan CAN,1.4,
+2024-07-12,South Dakota,3.2,
+2024-07-12,Wisconsin,3.2,
+2024-07-19,Illinois,10.3,4.8
+2024-07-19,Indiana,2.3,
+2024-07-19,Iowa,4.4,81.4
+2024-07-19,Kansas,1.2,1.0
+2024-07-19,Manitoba CAN,25.5,
+2024-07-19,Michigan,1.2,
+2024-07-19,Minnesota,5.1,11.9
+2024-07-19,Nebraska,1.0,
+2024-07-19,North Dakota,1.0,
+2024-07-19,Ontario CAN,5.8,1.0
+2024-07-19,South Dakota,32.6,
+2024-07-19,Wisconsin,9.7,
+2024-07-26,Illinois,4.6,3.0
+2024-07-26,Indiana,7.3,
+2024-07-26,Iowa,5.4,73.3
+2024-07-26,Kansas,7.0,2.6
+2024-07-26,Manitoba CAN,25.4,
+2024-07-26,Michigan,,1.6
+2024-07-26,Minnesota,15.2,16.8
+2024-07-26,Missouri,2.1,
+2024-07-26,Montana,1.7,
+2024-07-26,Nebraska,3.7,
+2024-07-26,North Dakota,2.1,
+2024-07-26,Ohio,0.3,
+2024-07-26,Ontario CAN,5.2,
+2024-07-26,Saskatchewan CAN,2.0,
+2024-07-26,South Dakota,14.6,2.8
+2024-07-26,Wisconsin,3.4,
+2024-08-02,Illinois,14.8,2.6
+2024-08-02,Indiana,5.4,3.5
+2024-08-02,Iowa,5.7,78.4
+2024-08-02,Kansas,2.7,0.9
+2024-08-02,Kentucky,0.5,
+2024-08-02,Manitoba CAN,18.4,
+2024-08-02,Michigan,,1.0
+2024-08-02,Minnesota,7.4,10.6
+2024-08-02,Missouri,10.9,
+2024-08-02,Montana,1.3,
+2024-08-02,Nebraska,0.9,
+2024-08-02,Ohio,1.8,2.6
+2024-08-02,Ontario CAN,4.9,
+2024-08-02,Saskatchewan CAN,5.9,
+2024-08-02,South Dakota,18.5,
+2024-08-02,Wisconsin,,0.4
+2024-08-02,Wyoming,0.9,
+2024-08-09,Illinois,8.8,2.6
+2024-08-09,Indiana,10.4,
+2024-08-09,Iowa,1.1,75.5
+2024-08-09,Kansas,4.2,
+2024-08-09,Manitoba CAN,36.2,
+2024-08-09,Michigan,,0.9
+2024-08-09,Minnesota,5.5,9.0
+2024-08-09,Missouri,3.4,2.4
+2024-08-09,Montana,1.2,
+2024-08-09,Nebraska,4.7,2.3
+2024-08-09,Noth Carolina,3.0,
+2024-08-09,Ohio,1.7,2.1
+2024-08-09,Ontario CAN,1.7,
+2024-08-09,Pennsylvania,,0.8
+2024-08-09,Saskatchewan CAN,3.4,
+2024-08-09,South Dakota,14.8,3.5
+2024-08-09,Wisconsin,0.1,0.8
+2024-08-16,Illinois,9.4,5.0
+2024-08-16,Indiana,3.1,
+2024-08-16,Iowa,6.6,72.5
+2024-08-16,Kansas,3.4,1.6
+2024-08-16,Kentucky,0.8,
+2024-08-16,Manitoba CAN,20.9,
+2024-08-16,Michigan,,1.0
+2024-08-16,Minnesota,12.0,8.9
+2024-08-16,Missouri,5.1,3.0
+2024-08-16,Montana,1.5,
+2024-08-16,Nebraska,9.9,1.0
+2024-08-16,Ohio,5.0,1.8
+2024-08-16,Ontario CAN,0.5,
+2024-08-16,Saskatchewan CAN,6.3,
+2024-08-16,South Dakota,15.1,4.6
+2024-08-16,Wisconsin,0.4,0.4
+2024-08-23,Illinois,8.4,8.5
+2024-08-23,Indiana,0.5,
+2024-08-23,Iowa,6.0,78.0
+2024-08-23,Kansas,0.6,
+2024-08-23,Manitoba CAN,18.4,
+2024-08-23,Minnesota,19.5,12.0
+2024-08-23,Missouri,2.1,
+2024-08-23,Montana,1.3,
+2024-08-23,North Dakota,2.1,
+2024-08-23,Noth Carolina,10.3,
+2024-08-23,Ohio,2.7,
+2024-08-23,Ontario CAN,10.3,
+2024-08-23,Saskatchewan CAN,0.5,
+2024-08-23,South Dakota,16.0,1.5
+2024-08-23,Wisconsin,1.3,
+2024-08-30,Illinois,4.2,2.7
+2024-08-30,Indiana,5.7,
+2024-08-30,Iowa,7.0,79.4
+2024-08-30,Kansas,2.6,
+2024-08-30,Manitoba CAN,34.9,
+2024-08-30,Maryland,0.8,
+2024-08-30,Michigan,,1.0
+2024-08-30,Minnesota,10.1,7.9
+2024-08-30,Missouri,4.9,
+2024-08-30,Montana,1.2,
+2024-08-30,Nebraska,0.9,
+2024-08-30,Noth Carolina,5.3,
+2024-08-30,Ohio,,2.0
+2024-08-30,Ontario CAN,1.4,
+2024-08-30,Saskatchewan CAN,6.3,
+2024-08-30,South Dakota,14.2,7.0
+2024-08-30,Wisconsin,0.5,
+2024-09-06,Illinois,14.2,2.9
+2024-09-06,Indiana,3.4,
+2024-09-06,Iowa,5.0,80.9
+2024-09-06,Kansas,4.0,1.1
+2024-09-06,Manitoba CAN,25.4,
+2024-09-06,Michigan,,1.8
+2024-09-06,Minnesota,5.2,8.7
+2024-09-06,Montana,1.4,
+2024-09-06,Nebraska,12.7,3.3
+2024-09-06,North Dakota,2.2,
+2024-09-06,Noth Carolina,1.4,
+2024-09-06,Ohio,1.7,
+2024-09-06,Ontario CAN,5.9,
+2024-09-06,Saskatchewan CAN,0.5,
+2024-09-06,South Dakota,16.9,1.4
+2024-09-13,Illinois,6.6,0.9
+2024-09-13,Indiana,11.2,2.5
+2024-09-13,Iowa,5.4,84.6
+2024-09-13,Kansas,3.5,
+2024-09-13,Manitoba CAN,25.7,
+2024-09-13,Michigan,,1.2
+2024-09-13,Minnesota,5.7,5.1
+2024-09-13,Missouri,0.8,
+2024-09-13,Montana,1.4,
+2024-09-13,Nebraska,1.7,0.5
+2024-09-13,Ohio,2.1,
+2024-09-13,Ontario CAN,8.6,
+2024-09-13,Saskatchewan CAN,8.9,
+2024-09-13,South Dakota,18.0,5.2
+2024-09-13,Wisconsin,0.3,
+2024-09-20,Illinois,4.8,6.8
+2024-09-20,Iowa,2.1,71.4
+2024-09-20,Kansas,0.8,
+2024-09-20,Manitoba CAN,27.9,
+2024-09-20,Michigan,,1.3
+2024-09-20,Minnesota,21.9,12.5
+2024-09-20,Missouri,5.1,
+2024-09-20,Nebraska,9.1,
+2024-09-20,North Dakota,6.4,
+2024-09-20,Ohio,3.3,
+2024-09-20,Ontario CAN,0.5,
+2024-09-20,Saskatchewan CAN,2.7,
+2024-09-20,South Dakota,15.4,7.9
+2024-09-27,Illinois,5.7,6.0
+2024-09-27,Indiana,2.2,1.7
+2024-09-27,Iowa,8.4,75.4
+2024-09-27,Kansas,14.2,2.4
+2024-09-27,Manitoba CAN,31.7,
+2024-09-27,Michigan,,1.8
+2024-09-27,Minnesota,7.8,9.8
+2024-09-27,Missouri,1.2,
+2024-09-27,Montana,1.3,
+2024-09-27,Nebraska,6.4,
+2024-09-27,Ohio,1.0,
+2024-09-27,Oklahoma,3.2,
+2024-09-27,Ontario CAN,6.1,
+2024-09-27,Saskatchewan CAN,1.6,
+2024-09-27,South Dakota,9.4,2.0
+2024-09-27,Wisconsin,,1.0
+2024-10-04,Alberta CAN,2.0,
+2024-10-04,Illinois,1.7,7.1
+2024-10-04,Indiana,5.1,2.5
+2024-10-04,Iowa,15.8,76.7
+2024-10-04,Kansas,0.9,2.3
+2024-10-04,Manitoba CAN,26.6,
+2024-10-04,Michigan,,1.1
+2024-10-04,Minnesota,9.9,5.8
+2024-10-04,Missouri,0.8,
+2024-10-04,Montana,1.4,
+2024-10-04,Nebraska,6.7,1.3
+2024-10-04,Noth Carolina,4.5,
+2024-10-04,Ohio,1.3,1.3
+2024-10-04,Ontario CAN,9.4,
+2024-10-04,Saskatchewan CAN,1.0,
+2024-10-04,South Dakota,12.9,1.9
+2024-10-11,Alberta CAN,2.0,
+2024-10-11,Arkansas,2.0,
+2024-10-11,Illinois,7.3,3.1
+2024-10-11,Indiana,4.2,
+2024-10-11,Iowa,4.2,84.5
+2024-10-11,Kansas,1.0,
+2024-10-11,Manitoba CAN,32.1,
+2024-10-11,Michigan,,1.1
+2024-10-11,Minnesota,8.3,7.4
+2024-10-11,Missouri,2.9,
+2024-10-11,Montana,1.3,
+2024-10-11,Nebraska,10.4,
+2024-10-11,North Dakota,2.2,
+2024-10-11,Noth Carolina,0.5,
+2024-10-11,Ohio,3.2,1.3
+2024-10-11,Ontario CAN,7.7,
+2024-10-11,Saskatchewan CAN,0.5,
+2024-10-11,South Dakota,10.2,2.0
+2024-10-11,Wisconsin,,0.6
+2024-10-18,Arkansas,0.8,
+2024-10-18,Illinois,9.1,7.1
+2024-10-18,Indiana,2.5,
+2024-10-18,Iowa,5.0,73.3
+2024-10-18,Kansas,4.9,1.4
+2024-10-18,Manitoba CAN,19.3,
+2024-10-18,Michigan,,1.3
+2024-10-18,Minnesota,13.2,15.6
+2024-10-18,Missouri,4.2,
+2024-10-18,Montana,1.5,
+2024-10-18,Nebraska,10.6,0.3
+2024-10-18,Ohio,1.5,0.4
+2024-10-18,Ontario CAN,4.9,
+2024-10-18,Saskatchewan CAN,5.1,
+2024-10-18,South Dakota,9.8,
+2024-10-18,Washington,,0.5
+2024-10-18,Wyoming,7.6,
+2024-10-25,Arkansas,1.9,
+2024-10-25,Illinois,12.9,1.9
+2024-10-25,Indiana,4.7,0.4
+2024-10-25,Iowa,7.1,85.3
+2024-10-25,Kansas,1.0,
+2024-10-25,Manitoba CAN,33.7,
+2024-10-25,Michigan,,1.0
+2024-10-25,Minnesota,14.3,6.6
+2024-10-25,Missouri,2.9,
+2024-10-25,Montana,1.2,
+2024-10-25,Nebraska,2.9,
+2024-10-25,Noth Carolina,6.0,
+2024-10-25,Ohio,2.5,
+2024-10-25,Ontario CAN,5.4,3.7
+2024-10-25,South Dakota,2.3,1.2
+2024-10-25,Wisconsin,0.3,
+2024-11-01,Alberta CAN,1.0,
+2024-11-01,Arkansas,0.4,
+2024-11-01,Illinois,7.7,1.1
+2024-11-01,Indiana,4.8,
+2024-11-01,Iowa,4.4,77.2
+2024-11-01,Kansas,2.0,
+2024-11-01,Manitoba CAN,32.8,
+2024-11-01,Michigan,,2.5
+2024-11-01,Minnesota,10.2,14.8
+2024-11-01,Missouri,3.6,
+2024-11-01,Montana,1.7,
+2024-11-01,Nebraska,2.3,2.4
+2024-11-01,Noth Carolina,4.2,
+2024-11-01,Ohio,2.5,1.0
+2024-11-01,Ontario CAN,4.6,
+2024-11-01,South Dakota,17.9,1.0
+2024-11-08,Alberta CAN,0.7,
+2024-11-08,Arkansas,1.4,
+2024-11-08,Illinois,8.1,1.7
+2024-11-08,Indiana,6.3,1.8
+2024-11-08,Iowa,11.8,79.4
+2024-11-08,Kansas,14.0,1.4
+2024-11-08,Manitoba CAN,22.9,
+2024-11-08,Massachusetts,0.9,
+2024-11-08,Michigan,,1.1
+2024-11-08,Minnesota,4.3,11.7
+2024-11-08,Mississippi,1.8,
+2024-11-08,Missouri,2.7,
+2024-11-08,Montana,1.2,
+2024-11-08,Nebraska,,1.8
+2024-11-08,North Dakota,2.9,
+2024-11-08,Ohio,2.2,
+2024-11-08,Saskatchewan CAN,0.4,
+2024-11-08,South Dakota,17.7,1.2
+2024-11-08,Wisconsin,0.9,
+2024-11-15,Illinois,16.5,9.3
+2024-11-15,Indiana,5.0,1.2
+2024-11-15,Iowa,8.2,72.8
+2024-11-15,Kansas,7.3,
+2024-11-15,Kentucky,3.7,
+2024-11-15,Manitoba CAN,30.9,
+2024-11-15,Michigan,,1.2
+2024-11-15,Minnesota,2.4,13.7
+2024-11-15,Missouri,2.5,
+2024-11-15,Montana,1.7,
+2024-11-15,Nebraska,1.0,
+2024-11-15,Noth Carolina,2.5,
+2024-11-15,Ohio,2.4,
+2024-11-15,Ontario CAN,1.1,
+2024-11-15,Saskatchewan CAN,0.3,
+2024-11-15,South Dakota,11.3,1.7
+2024-11-15,Wisconsin,3.3,
+2024-11-22,Arkansas,5.5,
+2024-11-22,Illinois,13.2,5.9
+2024-11-22,Indiana,1.5,
+2024-11-22,Iowa,3.6,66.2
+2024-11-22,Kansas,0.9,
+2024-11-22,Kentucky,1.4,
+2024-11-22,Manitoba CAN,22.8,2.7
+2024-11-22,Michigan,,1.9
+2024-11-22,Minnesota,17.0,23.4
+2024-11-22,Missouri,6.3,
+2024-11-22,Montana,2.0,
+2024-11-22,Noth Carolina,0.7,
+2024-11-22,Ohio,6.4,
+2024-11-22,Ontario CAN,2.3,
+2024-11-22,South Dakota,16.4,
+2024-11-29,Alberta CAN,2.2,
+2024-11-29,Arkansas,1.5,
+2024-11-29,Illinois,5.7,1.7
+2024-11-29,Indiana,1.3,
+2024-11-29,Iowa,9.8,77.1
+2024-11-29,Kansas,,2.5
+2024-11-29,Manitoba CAN,31.6,
+2024-11-29,Minnesota,4.9,16.0
+2024-11-29,Missouri,3.7,
+2024-11-29,Montana,1.6,
+2024-11-29,Nebraska,,1.6
+2024-11-29,North Dakota,1.5,
+2024-11-29,Ohio,1.2,
+2024-11-29,Ontario CAN,2.3,
+2024-11-29,Saskatchewan CAN,3.4,
+2024-11-29,South Dakota,27.9,
+2024-11-29,Wisconsin,0.3,1.2
+2024-12-06,Arkansas,2.8,
+2024-12-06,Illinois,7.4,4.7
+2024-12-06,Indiana,4.9,
+2024-12-06,Iowa,4.5,63.7
+2024-12-06,Manitoba CAN,33.8,
+2024-12-06,Michigan,,1.4
+2024-12-06,Minnesota,1.7,23.8
+2024-12-06,Missouri,1.4,
+2024-12-06,Montana,1.8,
+2024-12-06,Nebraska,2.8,
+2024-12-06,North Dakota,4.3,
+2024-12-06,Ohio,2.9,5.8
+2024-12-06,Ontario CAN,8.1,
+2024-12-06,South Dakota,20.6,
+2024-12-06,Wisconsin,3.0,0.6
+2024-12-13,Illinois,5.0,5.2
+2024-12-13,Indiana,8.6,
+2024-12-13,Iowa,,67.1
+2024-12-13,Kansas,1.4,
+2024-12-13,Manitoba CAN,44.3,
+2024-12-13,Michigan,,1.6
+2024-12-13,Minnesota,10.9,17.4
+2024-12-13,Montana,2.2,
+2024-12-13,Nebraska,2.0,
+2024-12-13,North Dakota,3.2,
+2024-12-13,Noth Carolina,0.8,
+2024-12-13,Ohio,4.7,6.3
+2024-12-13,Ontario CAN,7.1,
+2024-12-13,Prince Edward Island CAN,,2.0
+2024-12-13,South Dakota,9.8,0.3
+2024-12-20,Arkansas,2.8,
+2024-12-20,Illinois,6.4,
+2024-12-20,Indiana,3.1,
+2024-12-20,Iowa,5.4,78.4
+2024-12-20,Kansas,1.4,
+2024-12-20,Manitoba CAN,23.6,
+2024-12-20,Michigan,,1.5
+2024-12-20,Minnesota,9.8,12.9
+2024-12-20,Missouri,6.3,
+2024-12-20,Montana,2.0,
+2024-12-20,Nebraska,12.3,
+2024-12-20,Ohio,2.4,5.3
+2024-12-20,Ontario CAN,11.9,
+2024-12-20,South Dakota,12.7,2.0
+2024-12-27,Arkansas,3.3,
+2024-12-27,Illinois,11.7,9.8
+2024-12-27,Indiana,5.5,1.8
+2024-12-27,Iowa,7.2,72.0
+2024-12-27,Kansas,11.8,
+2024-12-27,Manitoba CAN,17.6,
+2024-12-27,Michigan,,2.0
+2024-12-27,Minnesota,10.3,6.9
+2024-12-27,Montana,2.4,
+2024-12-27,Nebraska,3.3,
+2024-12-27,North Dakota,3.5,
+2024-12-27,Noth Carolina,2.6,
+2024-12-27,Ohio,5.2,3.3
+2024-12-27,Ontario CAN,5.2,
+2024-12-27,South Dakota,8.7,4.1
+2025-01-03,Arkansas,2.4,
+2025-01-03,Illinois,6.1,2.3
+2025-01-03,Indiana,3.9,
+2025-01-03,Iowa,7.1,74.4
+2025-01-03,Kansas,0.7,
+2025-01-03,Manitoba CAN,26.6,
+2025-01-03,Michigan,,3.5
+2025-01-03,Minnesota,,11.5
+2025-01-03,Montana,1.5,
+2025-01-03,Nebraska,,0.6
+2025-01-03,Ohio,2.3,6.2
+2025-01-03,Ontario CAN,25.9,
+2025-01-03,Quebec CAN,4.6,
+2025-01-03,South Dakota,18.9,1.5
+2025-01-10,Arkansas,2.3,1.1
+2025-01-10,Illinois,9.1,3.2
+2025-01-10,Indiana,1.1,
+2025-01-10,Iowa,0.6,77.9
+2025-01-10,Kansas,4.3,
+2025-01-10,Manitoba CAN,34.5,
+2025-01-10,Michigan,,1.3
+2025-01-10,Minnesota,6.5,11.1
+2025-01-10,Montana,1.5,
+2025-01-10,Nebraska,14.4,2.4
+2025-01-10,Ohio,3.5,1.6
+2025-01-10,Ontario CAN,13.3,
+2025-01-10,South Dakota,8.7,1.5
+2025-01-17,Arkansas,1.1,
+2025-01-17,Colorado,6.1,
+2025-01-17,Illinois,9.7,8.6
+2025-01-17,Indiana,5.0,
+2025-01-17,Iowa,11.4,74.2
+2025-01-17,Kansas,2.5,0.4
+2025-01-17,Kentucky,3.1,
+2025-01-17,Manitoba CAN,25.5,
+2025-01-17,Michigan,,1.9
+2025-01-17,Minnesota,3.3,10.3
+2025-01-17,Montana,1.4,
+2025-01-17,Nebraska,2.0,
+2025-01-17,North Dakota,1.0,
+2025-01-17,Ohio,2.0,3.2
+2025-01-17,Oklahoma,4.6,
+2025-01-17,Ontario CAN,15.9,
+2025-01-17,South Dakota,5.4,1.4
+2025-01-24,Arkansas,2.9,
+2025-01-24,Colorado,7.1,
+2025-01-24,Illinois,10.3,5.0
+2025-01-24,Indiana,4.4,
+2025-01-24,Iowa,5.3,89.5
+2025-01-24,Kansas,7.1,
+2025-01-24,Manitoba CAN,28.4,
+2025-01-24,Michigan,,2.8
+2025-01-24,Minnesota,9.7,2.7
+2025-01-24,Missouri,1.3,
+2025-01-24,Montana,1.9,
+2025-01-24,Nebraska,1.5,
+2025-01-24,Ohio,2.8,
+2025-01-24,Ontario CAN,10.5,
+2025-01-24,South Dakota,7.0,
+2025-01-31,Alberta CAN,0.5,
+2025-01-31,Arkansas,3.6,
+2025-01-31,Colorado,6.7,
+2025-01-31,Illinois,4.2,6.0
+2025-01-31,Indiana,5.0,
+2025-01-31,Iowa,6.1,76.2
+2025-01-31,Kansas,1.0,
+2025-01-31,Kentucky,3.3,
+2025-01-31,Manitoba CAN,35.5,
+2025-01-31,Michigan,,0.7
+2025-01-31,Minnesota,7.5,11.6
+2025-01-31,Montana,1.4,
+2025-01-31,Nebraska,2.2,5.0
+2025-01-31,North Dakota,0.6,
+2025-01-31,Ohio,1.0,
+2025-01-31,Ontario CAN,6.4,
+2025-01-31,Quebec CAN,2.0,
+2025-01-31,Saskatchewan CAN,0.9,
+2025-01-31,South Dakota,12.3,
+2025-01-31,Washington,,0.5
+2025-02-07,Arkansas,2.8,
+2025-02-07,Colorado,5.7,
+2025-02-07,Illinois,9.0,4.5
+2025-02-07,Indiana,8.6,
+2025-02-07,Iowa,5.1,71.0
+2025-02-07,Kansas,2.5,
+2025-02-07,Manitoba CAN,34.3,
+2025-02-07,Michigan,,1.2
+2025-02-07,Minnesota,3.6,18.8
+2025-02-07,Missouri,4.0,
+2025-02-07,Montana,1.5,
+2025-02-07,Nebraska,7.7,1.6
+2025-02-07,North Dakota,3.5,
+2025-02-07,Ohio,3.8,2.8
+2025-02-07,Oklahoma,2.8,
+2025-02-07,Ontario CAN,0.6,
+2025-02-07,Saskatchewan CAN,1.0,
+2025-02-07,South Dakota,3.5,
+2025-02-14,Colorado,7.6,
+2025-02-14,Illinois,9.4,4.1
+2025-02-14,Indiana,2.9,1.0
+2025-02-14,Iowa,3.2,70.1
+2025-02-14,Kansas,0.9,
+2025-02-14,Manitoba CAN,32.8,
+2025-02-14,Michigan,,1.9
+2025-02-14,Minnesota,4.6,20.9
+2025-02-14,Missouri,1.3,
+2025-02-14,Montana,1.2,
+2025-02-14,Nebraska,0.3,
+2025-02-14,Noth Carolina,6.0,
+2025-02-14,Ohio,3.0,2.1
+2025-02-14,Oklahoma,2.2,
+2025-02-14,Ontario CAN,4.2,
+2025-02-14,Quebec CAN,2.0,
+2025-02-14,Saskatchewan CAN,5.0,
+2025-02-14,South Dakota,13.3,
+2025-02-21,Colorado,8.2,
+2025-02-21,Illinois,10.8,5.5
+2025-02-21,Indiana,2.7,
+2025-02-21,Iowa,8.5,77.8
+2025-02-21,Kansas,2.1,
+2025-02-21,Kentucky,1.1,
+2025-02-21,Manitoba CAN,26.3,
+2025-02-21,Michigan,,1.3
+2025-02-21,Minnesota,5.2,9.9
+2025-02-21,Missouri,1.1,
+2025-02-21,Montana,1.5,
+2025-02-21,Nebraska,2.3,0.9
+2025-02-21,Noth Carolina,1.4,
+2025-02-21,Ohio,1.1,4.5
+2025-02-21,Ontario CAN,4.8,
+2025-02-21,Quebec CAN,6.8,
+2025-02-21,Saskatchewan CAN,0.6,
+2025-02-21,South Dakota,15.4,
+2025-02-28,Alberta CAN,0.5,
+2025-02-28,Arkansas,3.7,
+2025-02-28,Colorado,5.7,
+2025-02-28,Illinois,5.5,3.3
+2025-02-28,Indiana,2.9,
+2025-02-28,Iowa,6.1,73.3
+2025-02-28,Kansas,3.5,
+2025-02-28,Manitoba CAN,31.9,
+2025-02-28,Michigan,,1.3
+2025-02-28,Minnesota,,17.1
+2025-02-28,Missouri,2.1,
+2025-02-28,Montana,1.4,
+2025-02-28,North Dakota,4.7,
+2025-02-28,Ohio,2.9,2.1
+2025-02-28,Ontario CAN,13.8,
+2025-02-28,Quebec CAN,4.3,
+2025-02-28,South Dakota,11.0,2.4
+2025-02-28,Washington,,0.5
+2025-03-07,Colorado,8.0,
+2025-03-07,Illinois,4.2,0.3
+2025-03-07,Indiana,2.4,
+2025-03-07,Iowa,0.3,85.9
+2025-03-07,Kansas,4.1,
+2025-03-07,Manitoba CAN,38.0,
+2025-03-07,Michigan,,1.2
+2025-03-07,Minnesota,,9.7
+2025-03-07,Montana,1.3,
+2025-03-07,Nebraska,3.7,1.0
+2025-03-07,North Dakota,9.2,
+2025-03-07,Ohio,,1.9
+2025-03-07,Ontario CAN,17.0,
+2025-03-07,Saskatchewan CAN,3.8,
+2025-03-07,South Dakota,8.1,
+2025-03-14,Illinois,11.6,4.1
+2025-03-14,Indiana,4.0,
+2025-03-14,Iowa,5.6,72.9
+2025-03-14,Kansas,,1.1
+2025-03-14,Manitoba CAN,17.5,
+2025-03-14,Michigan,,2.3
+2025-03-14,Minnesota,6.8,15.9
+2025-03-14,Missouri,4.4,
+2025-03-14,Montana,1.5,
+2025-03-14,Nebraska,10.7,1.2
+2025-03-14,North Dakota,2.2,
+2025-03-14,Ohio,3.7,1.0
+2025-03-14,Ontario CAN,15.4,
+2025-03-14,Quebec CAN,2.8,
+2025-03-14,Saskatchewan CAN,4.5,
+2025-03-14,South Dakota,4.9,1.5
+2025-03-14,Wisconsin,4.4,
+2025-03-21,Colorado,13.2,
+2025-03-21,Illinois,7.4,5.5
+2025-03-21,Indiana,10.1,0.3
+2025-03-21,Iowa,4.2,78.4
+2025-03-21,Kansas,1.1,
+2025-03-21,Manitoba CAN,17.3,
+2025-03-21,Michigan,,2.1
+2025-03-21,Minnesota,8.2,12.3
+2025-03-21,Missouri,1.1,
+2025-03-21,Montana,1.4,
+2025-03-21,Ohio,5.4,
+2025-03-21,Ontario CAN,13.4,
+2025-03-21,South Dakota,17.4,1.4
+2025-03-28,Arkansas,2.3,
+2025-03-28,Colorado,7.8,
+2025-03-28,Illinois,10.0,2.3
+2025-03-28,Indiana,6.6,0.6
+2025-03-28,Iowa,2.9,77.8
+2025-03-28,Kansas,5.2,
+2025-03-28,Manitoba CAN,35.1,
+2025-03-28,Michigan,,2.4
+2025-03-28,Minnesota,3.6,13.7
+2025-03-28,Missouri,1.3,2.3
+2025-03-28,Montana,1.7,
+2025-03-28,Nebraska,,1.0
+2025-03-28,Ohio,3.5,
+2025-03-28,Ontario CAN,6.2,
+2025-03-28,South Dakota,13.8,
+2025-04-04,Alberta CAN,9.6,
+2025-04-04,Arkansas,2.5,
+2025-04-04,Colorado,8.8,
+2025-04-04,Illinois,3.5,
+2025-04-04,Indiana,2.3,1.1
+2025-04-04,Iowa,5.3,85.9
+2025-04-04,Kansas,4.8,
+2025-04-04,Kentucky,3.1,
+2025-04-04,Manitoba CAN,30.8,
+2025-04-04,Michigan,,1.1
+2025-04-04,Minnesota,0.4,6.3
+2025-04-04,Missouri,,2.1
+2025-04-04,Montana,1.6,
+2025-04-04,Nebraska,2.1,2.5
+2025-04-04,Ohio,2.2,
+2025-04-04,Ontario CAN,3.1,
+2025-04-04,Saskatchewan CAN,5.2,
+2025-04-04,South Dakota,14.7,
+2025-04-04,Wisconsin,,1.1
+2025-04-11,Colorado,19.0,1.7
+2025-04-11,Illinois,4.0,5.3
+2025-04-11,Indiana,10.2,5.5
+2025-04-11,Iowa,4.1,72.0
+2025-04-11,Kansas,2.1,
+2025-04-11,Manitoba CAN,19.8,
+2025-04-11,Michigan,,2.2
+2025-04-11,Minnesota,0.9,4.3
+2025-04-11,Nebraska,,2.8
+2025-04-11,Ohio,5.3,
+2025-04-11,Ontario CAN,4.1,
+2025-04-11,Saskatchewan CAN,4.1,
+2025-04-11,South Dakota,26.3,6.0
+2025-04-18,Alberta CAN,2.0,
+2025-04-18,Colorado,10.2,0.9
+2025-04-18,Illinois,5.1,5.5
+2025-04-18,Indiana,3.3,4.0
+2025-04-18,Iowa,5.9,79.6
+2025-04-18,Kansas,1.8,
+2025-04-18,Manitoba CAN,41.2,
+2025-04-18,Michigan,,1.0
+2025-04-18,Minnesota,4.9,5.7
+2025-04-18,Missouri,3.7,
+2025-04-18,Montana,1.4,
+2025-04-18,Nebraska,,0.9
+2025-04-18,North Dakota,1.0,
+2025-04-18,Ohio,2.2,1.0
+2025-04-18,Ontario CAN,10.6,
+2025-04-18,Saskatchewan CAN,3.7,
+2025-04-18,South Dakota,2.8,1.5
+2025-04-25,Alberta CAN,2.1,
+2025-04-25,Colorado,19.5,0.5
+2025-04-25,Illinois,3.2,4.2
+2025-04-25,Indiana,13.3,4.4
+2025-04-25,Iowa,5.0,74.3
+2025-04-25,Kansas,4.6,
+2025-04-25,Manitoba CAN,13.1,
+2025-04-25,Michigan,,1.4
+2025-04-25,Minnesota,1.3,11.7
+2025-04-25,Missouri,3.2,
+2025-04-25,Montana,1.6,
+2025-04-25,Nebraska,0.8,
+2025-04-25,North Dakota,6.1,
+2025-04-25,Ohio,2.3,3.6
+2025-04-25,Ontario CAN,11.2,
+2025-04-25,Saskatchewan CAN,2.7,
+2025-04-25,South Dakota,10.0,
+2025-05-02,Alberta CAN,3.4,
+2025-05-02,Colorado,5.8,
+2025-05-02,Illinois,7.3,2.6
+2025-05-02,Indiana,6.2,3.7
+2025-05-02,Iowa,4.8,79.1
+2025-05-02,Kansas,3.0,
+2025-05-02,Manitoba CAN,30.0,
+2025-05-02,Michigan,,1.2
+2025-05-02,Minnesota,2.6,10.1
+2025-05-02,Missouri,2.6,
+2025-05-02,Montana,1.4,
+2025-05-02,Nebraska,1.7,
+2025-05-02,Ohio,2.6,3.3
+2025-05-02,Ontario CAN,13.6,
+2025-05-02,Saskatchewan CAN,2.6,
+2025-05-02,South Dakota,12.2,
+2025-05-09,Arkansas,4.2,
+2025-05-09,Colorado,6.0,
+2025-05-09,Illinois,3.6,3.6
+2025-05-09,Indiana,10.1,0.8
+2025-05-09,Iowa,2.8,73.9
+2025-05-09,Kansas,5.2,0.9
+2025-05-09,Manitoba CAN,31.1,
+2025-05-09,Michigan,,1.0
+2025-05-09,Minnesota,7.1,16.5
+2025-05-09,Missouri,0.8,
+2025-05-09,Montana,1.2,
+2025-05-09,Ohio,3.8,
+2025-05-09,Ontario CAN,5.5,
+2025-05-09,Saskatchewan CAN,6.4,
+2025-05-09,South Dakota,9.6,3.3
+2025-05-09,Wisconsin,2.6,
+2025-05-16,Colorado,8.3,
+2025-05-16,Illinois,8.5,1.9
+2025-05-16,Indiana,7.9,4.8
+2025-05-16,Iowa,7.3,83.1
+2025-05-16,Kansas,0.9,
+2025-05-16,Manitoba CAN,27.5,
+2025-05-16,Michigan,,2.8
+2025-05-16,Minnesota,4.6,4.9
+2025-05-16,Missouri,0.9,
+2025-05-16,Montana,1.3,
+2025-05-16,Nebraska,0.7,0.7
+2025-05-16,North Dakota,0.9,
+2025-05-16,Ohio,2.7,
+2025-05-16,Ontario CAN,8.8,
+2025-05-16,Quebec CAN,1.8,
+2025-05-16,Saskatchewan CAN,8.8,
+2025-05-16,South Dakota,9.0,1.8
+2025-05-23,Alberta CAN,7.6,
+2025-05-23,Colorado,10.7,
+2025-05-23,Illinois,5.9,2.1
+2025-05-23,Indiana,3.6,
+2025-05-23,Iowa,5.9,71.8
+2025-05-23,Kansas,3.0,
+2025-05-23,Manitoba CAN,17.8,
+2025-05-23,Michigan,,1.8
+2025-05-23,Minnesota,1.1,20.3
+2025-05-23,Missouri,2.4,
+2025-05-23,Montana,1.3,
+2025-05-23,Nebraska,3.9,
+2025-05-23,North Dakota,1.9,
+2025-05-23,Noth Carolina,4.1,
+2025-05-23,Ohio,1.0,
+2025-05-23,Ontario CAN,14.2,
+2025-05-23,Saskatchewan CAN,6.3,
+2025-05-23,South Dakota,9.3,3.9
+2025-05-30,Alberta CAN,8.0,
+2025-05-30,Colorado,6.4,
+2025-05-30,Illinois,14.9,2.1
+2025-05-30,Indiana,3.4,2.2
+2025-05-30,Iowa,1.1,62.4
+2025-05-30,Kansas,1.1,
+2025-05-30,Manitoba CAN,21.7,
+2025-05-30,Michigan,,1.6
+2025-05-30,Minnesota,3.9,30.8
+2025-05-30,Missouri,2.6,
+2025-05-30,Montana,2.4,
+2025-05-30,Nebraska,3.8,0.8
+2025-05-30,Ohio,0.8,
+2025-05-30,Ontario CAN,8.4,
+2025-05-30,Saskatchewan CAN,5.6,
+2025-05-30,South Dakota,15.8,0.1
+2025-06-06,Alberta CAN,8.6,
+2025-06-06,Colorado,17.8,
+2025-06-06,Illinois,5.1,3.2
+2025-06-06,Indiana,4.2,3.9
+2025-06-06,Iowa,1.7,78.4
+2025-06-06,Kansas,7.4,
+2025-06-06,Manitoba CAN,26.3,
+2025-06-06,Michigan,,0.9
+2025-06-06,Minnesota,1.3,9.4
+2025-06-06,Montana,3.1,
+2025-06-06,Nebraska,2.7,
+2025-06-06,North Dakota,2.1,
+2025-06-06,Ohio,1.1,4.2
+2025-06-06,Ontario CAN,10.7,
+2025-06-06,Saskatchewan CAN,0.4,
+2025-06-06,South Dakota,7.5,
+2025-06-13,Alberta CAN,10.7,
+2025-06-13,Colorado,9.5,
+2025-06-13,Illinois,3.3,0.3
+2025-06-13,Indiana,4.2,0.7
+2025-06-13,Iowa,3.0,71.4
+2025-06-13,Kansas,2.1,
+2025-06-13,Manitoba CAN,15.0,
+2025-06-13,Michigan,,0.8
+2025-06-13,Minnesota,9.6,24.9
+2025-06-13,Missouri,4.4,
+2025-06-13,Montana,1.0,
+2025-06-13,Nebraska,3.9,
+2025-06-13,North Dakota,1.9,
+2025-06-13,Noth Carolina,2.9,
+2025-06-13,Ohio,2.3,0.9
+2025-06-13,Ontario CAN,7.8,
+2025-06-13,Saskatchewan CAN,9.7,
+2025-06-13,South Dakota,8.0,
+2025-06-13,Wisconsin,0.7,1.0
+2025-06-20,Alberta CAN,9.8,
+2025-06-20,Arkansas,0.9,
+2025-06-20,Colorado,18.9,
+2025-06-20,Illinois,11.0,5.9
+2025-06-20,Indiana,3.1,1.2
+2025-06-20,Iowa,4.0,71.2
+2025-06-20,Kansas,3.2,
+2025-06-20,Manitoba CAN,13.9,
+2025-06-20,Minnesota,1.8,14.6
+2025-06-20,Missouri,1.6,
+2025-06-20,Montana,1.4,
+2025-06-20,Nebraska,5.8,2.7
+2025-06-20,Noth Carolina,2.0,
+2025-06-20,Ohio,0.9,4.3
+2025-06-20,Ontario CAN,11.4,
+2025-06-20,Saskatchewan CAN,1.4,
+2025-06-20,South Dakota,4.9,
+2025-06-20,Wisconsin,3.9,
+2025-06-27,Alberta CAN,5.8,
+2025-06-27,Arkansas,0.3,
+2025-06-27,Colorado,9.0,
+2025-06-27,Illinois,10.6,
+2025-06-27,Indiana,4.5,2.8
+2025-06-27,Iowa,6.6,74.1
+2025-06-27,Kansas,0.8,
+2025-06-27,Manitoba CAN,35.1,
+2025-06-27,Minnesota,2.5,21.6
+2025-06-27,Montana,1.2,
+2025-06-27,Nebraska,0.8,
+2025-06-27,North Dakota,2.7,
+2025-06-27,Ohio,4.4,1.2
+2025-06-27,Ontario CAN,7.2,
+2025-06-27,Saskatchewan CAN,1.4,
+2025-06-27,South Dakota,6.0,0.2
+2025-06-27,Wisconsin,1.0,
+2025-07-04,Alberta CAN,5.2,
+2025-07-04,Colorado,12.2,
+2025-07-04,Illinois,17.3,1.7
+2025-07-04,Indiana,6.1,1.5
+2025-07-04,Iowa,2.4,66.3
+2025-07-04,Kansas,3.9,
+2025-07-04,Manitoba CAN,14.8,
+2025-07-04,Minnesota,3.4,23.9
+2025-07-04,Missouri,3.4,
+2025-07-04,Montana,1.5,
+2025-07-04,Nebraska,1.1,
+2025-07-04,New Hampshire,,0.5
+2025-07-04,Noth Carolina,4.5,
+2025-07-04,Ohio,3.8,6.1
+2025-07-04,Ontario CAN,8.4,
+2025-07-04,South Dakota,10.8,
+2025-07-04,Wisconsin,1.1,
+2025-07-11,Alberta CAN,8.7,
+2025-07-11,Colorado,7.1,
+2025-07-11,Illinois,4.9,2.9
+2025-07-11,Indiana,5.7,
+2025-07-11,Iowa,,78.0
+2025-07-11,Kansas,0.9,
+2025-07-11,Manitoba CAN,25.8,
+2025-07-11,Michigan,,1.8
+2025-07-11,Minnesota,6.1,12.1
+2025-07-11,Missouri,0.9,
+2025-07-11,Montana,1.3,
+2025-07-11,Nebraska,10.5,0.4
+2025-07-11,Noth Carolina,3.7,
+2025-07-11,Ohio,0.9,
+2025-07-11,Ontario CAN,12.4,
+2025-07-11,Saskatchewan CAN,1.8,
+2025-07-11,South Dakota,9.3,4.8
+2025-07-18,Alberta CAN,3.0,
+2025-07-18,Colorado,10.0,
+2025-07-18,Illinois,9.3,0.9
+2025-07-18,Indiana,5.8,1.7
+2025-07-18,Iowa,5.5,63.5
+2025-07-18,Kansas,3.8,
+2025-07-18,Kentucky,1.1,
+2025-07-18,Manitoba CAN,30.5,
+2025-07-18,Michigan,,2.2
+2025-07-18,Minnesota,,26.5
+2025-07-18,Missouri,5.7,
+2025-07-18,Montana,2.9,
+2025-07-18,Nebraska,5.7,
+2025-07-18,Noth Carolina,1.5,
+2025-07-18,Ohio,1.8,1.1
+2025-07-18,Ontario CAN,2.6,
+2025-07-18,Quebec CAN,0.9,
+2025-07-18,South Dakota,6.1,4.1
+2025-07-18,Wisconsin,3.8,
+2025-07-25,Alberta CAN,2.8,
+2025-07-25,Colorado,2.2,
+2025-07-25,Illinois,16.6,4.8
+2025-07-25,Indiana,3.3,1.0
+2025-07-25,Iowa,10.5,57.8
+2025-07-25,Kansas,8.9,1.1
+2025-07-25,Kentucky,1.1,
+2025-07-25,Manitoba CAN,11.7,
+2025-07-25,Michigan,,1.0
+2025-07-25,Minnesota,0.8,24.1
+2025-07-25,Missouri,4.0,
+2025-07-25,Montana,1.4,
+2025-07-25,Nebraska,6.1,
+2025-07-25,North Dakota,2.3,
+2025-07-25,Noth Carolina,6.9,
+2025-07-25,Ohio,3.1,2.3
+2025-07-25,Ontario CAN,2.3,
+2025-07-25,Saskatchewan CAN,2.4,
+2025-07-25,South Dakota,13.8,7.9
+2025-08-01,Colorado,13.0,
+2025-08-01,Illinois,5.4,
+2025-08-01,Indiana,3.2,1.2
+2025-08-01,Iowa,7.8,81.8
+2025-08-01,Kansas,0.9,
+2025-08-01,Kentucky,1.0,
+2025-08-01,Manitoba CAN,35.7,
+2025-08-01,Michigan,,1.0
+2025-08-01,Minnesota,2.5,13.3
+2025-08-01,Missouri,1.8,
+2025-08-01,Montana,1.2,
+2025-08-01,Nebraska,1.8,1.8
+2025-08-01,North Dakota,1.8,
+2025-08-01,Noth Carolina,10.4,
+2025-08-01,Ohio,2.0,1.0
+2025-08-01,Ontario CAN,2.5,
+2025-08-01,Saskatchewan CAN,0.7,
+2025-08-01,South Dakota,8.1,
+2025-08-08,Alberta CAN,6.5,
+2025-08-08,Arkansas,0.9,
+2025-08-08,Colorado,15.7,
+2025-08-08,Illinois,10.6,3.7
+2025-08-08,Indiana,4.2,
+2025-08-08,Iowa,7.2,68.5
+2025-08-08,Kansas,1.9,
+2025-08-08,Manitoba CAN,27.7,
+2025-08-08,Minnesota,4.8,26.1
+2025-08-08,Missouri,2.4,
+2025-08-08,Montana,1.3,
+2025-08-08,Nebraska,2.8,0.5
+2025-08-08,Noth Carolina,4.3,
+2025-08-08,Ohio,1.0,1.2
+2025-08-08,Ontario CAN,4.1,
+2025-08-08,South Dakota,4.5,
+2025-08-15,Alberta CAN,7.9,
+2025-08-15,Colorado,12.7,
+2025-08-15,Illinois,6.5,4.1
+2025-08-15,Indiana,5.0,1.0
+2025-08-15,Iowa,7.8,60.2
+2025-08-15,Kansas,6.7,1.3
+2025-08-15,Manitoba CAN,24.8,
+2025-08-15,Michigan,,1.0
+2025-08-15,Minnesota,,18.1
+2025-08-15,Missouri,0.6,
+2025-08-15,Montana,1.3,
+2025-08-15,Nebraska,2.1,5.1
+2025-08-15,Noth Carolina,14.3,
+2025-08-15,Ohio,3.1,
+2025-08-15,Ontario CAN,2.9,
+2025-08-15,South Dakota,4.4,8.1
+2025-08-15,Wisconsin,,1.1
+2025-08-22,Colorado,8.7,
+2025-08-22,Illinois,7.4,1.4
+2025-08-22,Indiana,5.5,
+2025-08-22,Iowa,4.8,61.0
+2025-08-22,Kansas,3.0,1.0
+2025-08-22,Manitoba CAN,12.8,
+2025-08-22,Minnesota,2.0,28.8
+2025-08-22,Missouri,2.9,
+2025-08-22,Montana,1.3,
+2025-08-22,Nebraska,8.4,3.7
+2025-08-22,North Dakota,1.0,
+2025-08-22,Noth Carolina,17.0,
+2025-08-22,Ohio,2.9,2.8
+2025-08-22,Ontario CAN,10.1,
+2025-08-22,South Carolina,2.0,
+2025-08-22,South Dakota,10.2,1.4
+2025-08-29,Alberta CAN,2.0,
+2025-08-29,Colorado,8.1,
+2025-08-29,Illinois,7.1,3.1
+2025-08-29,Indiana,4.0,2.0
+2025-08-29,Iowa,6.0,65.9
+2025-08-29,Kansas,5.3,1.1
+2025-08-29,Manitoba CAN,31.7,
+2025-08-29,Michigan,,1.0
+2025-08-29,Minnesota,,13.8
+2025-08-29,Missouri,0.9,
+2025-08-29,Montana,1.5,
+2025-08-29,Nebraska,5.0,3.7
+2025-08-29,North Dakota,3.2,
+2025-08-29,Noth Carolina,10.7,
+2025-08-29,Ohio,2.0,2.5
+2025-08-29,Ontario CAN,5.8,
+2025-08-29,Saskatchewan CAN,0.5,
+2025-08-29,South Dakota,6.3,6.9
+2025-09-05,Alberta CAN,10.5,
+2025-09-05,Colorado,8.5,
+2025-09-05,Illinois,3.0,1.0
+2025-09-05,Indiana,8.6,
+2025-09-05,Iowa,15.4,74.3
+2025-09-05,Kansas,1.0,1.0
+2025-09-05,Manitoba CAN,25.8,
+2025-09-05,Michigan,,1.2
+2025-09-05,Minnesota,2.1,12.4
+2025-09-05,Montana,3.1,
+2025-09-05,Nebraska,2.1,0.4
+2025-09-05,North Dakota,2.1,
+2025-09-05,Noth Carolina,3.3,
+2025-09-05,Ohio,2.0,1.0
+2025-09-05,Ontario CAN,2.2,
+2025-09-05,Saskatchewan CAN,0.4,
+2025-09-05,South Dakota,9.9,8.6
+2025-09-12,Alberta CAN,5.4,
+2025-09-12,Colorado,6.8,
+2025-09-12,Illinois,3.8,0.8
+2025-09-12,Indiana,2.8,
+2025-09-12,Iowa,5.6,61.5
+2025-09-12,Kansas,1.0,1.0
+2025-09-12,Manitoba CAN,21.6,
+2025-09-12,Michigan,,2.0
+2025-09-12,Minnesota,5.6,29.2
+2025-09-12,Missouri,1.9,
+2025-09-12,Montana,1.2,
+2025-09-12,Nebraska,3.0,
+2025-09-12,Noth Carolina,14.9,
+2025-09-12,Ohio,1.8,
+2025-09-12,Ontario CAN,6.1,
+2025-09-12,South Dakota,18.5,5.6
+2025-09-19,Colorado,1.1,
+2025-09-19,Illinois,2.7,0.9
+2025-09-19,Indiana,5.4,
+2025-09-19,Iowa,4.3,66.9
+2025-09-19,Kansas,5.3,
+2025-09-19,Manitoba CAN,27.9,
+2025-09-19,Michigan,,2.7
+2025-09-19,Minnesota,1.1,24.7
+2025-09-19,Missouri,1.1,
+2025-09-19,Montana,1.2,
+2025-09-19,Nebraska,4.0,4.5
+2025-09-19,North Dakota,0.9,
+2025-09-19,Noth Carolina,18.7,
+2025-09-19,Ohio,3.5,
+2025-09-19,Ontario CAN,6.3,
+2025-09-19,Saskatchewan CAN,1.5,
+2025-09-19,South Dakota,12.6,0.2
+2025-09-19,Wisconsin,2.6,
+2025-09-26,Alberta CAN,8.2,
+2025-09-26,Colorado,11.5,
+2025-09-26,Illinois,8.5,2.4
+2025-09-26,Indiana,5.4,0.4
+2025-09-26,Iowa,1.9,78.3
+2025-09-26,Kansas,1.0,0.9
+2025-09-26,Manitoba CAN,23.2,
+2025-09-26,Michigan,,1.9
+2025-09-26,Minnesota,4.4,10.2
+2025-09-26,Montana,1.4,
+2025-09-26,Nebraska,3.7,
+2025-09-26,Noth Carolina,6.3,
+2025-09-26,Ohio,4.7,
+2025-09-26,Ontario CAN,16.9,
+2025-09-26,South Dakota,1.0,5.9
+2025-09-26,Wisconsin,1.9,
+2025-10-03,Alberta CAN,9.2,
+2025-10-03,Colorado,12.0,
+2025-10-03,Illinois,6.0,7.7
+2025-10-03,Indiana,2.5,
+2025-10-03,Iowa,11.3,67.4
+2025-10-03,Kansas,3.5,1.2
+2025-10-03,Manitoba CAN,8.8,
+2025-10-03,Massachusetts,2.4,
+2025-10-03,Michigan,,2.3
+2025-10-03,Minnesota,7.6,18.2
+2025-10-03,Missouri,3.2,
+2025-10-03,Montana,1.6,
+2025-10-03,Nebraska,2.4,
+2025-10-03,Noth Carolina,6.6,
+2025-10-03,Ohio,1.1,1.3
+2025-10-03,Ontario CAN,4.4,
+2025-10-03,South Dakota,16.5,2.0
+2025-10-03,Wisconsin,0.8,
+2025-10-10,Colorado,6.8,
+2025-10-10,Illinois,8.5,2.1
+2025-10-10,Indiana,2.6,
+2025-10-10,Iowa,10.8,83.8
+2025-10-10,Kansas,1.1,1.1
+2025-10-10,Manitoba CAN,32.6,
+2025-10-10,Massachusetts,1.0,
+2025-10-10,Michigan,,1.0
+2025-10-10,Minnesota,5.5,11.2
+2025-10-10,Missouri,2.2,
+2025-10-10,Montana,2.9,
+2025-10-10,Nebraska,2.1,
+2025-10-10,North Dakota,1.1,
+2025-10-10,Noth Carolina,5.8,
+2025-10-10,Ohio,3.1,0.9
+2025-10-10,Ontario CAN,5.4,
+2025-10-10,Quebec CAN,1.7,
+2025-10-10,Saskatchewan CAN,0.9,
+2025-10-10,South Dakota,5.9,
+2025-10-17,Colorado,9.7,
+2025-10-17,Illinois,8.7,5.6
+2025-10-17,Indiana,2.2,1.0
+2025-10-17,Iowa,13.1,72.9
+2025-10-17,Kansas,2.2,
+2025-10-17,Manitoba CAN,33.8,
+2025-10-17,Michigan,,1.0
+2025-10-17,Minnesota,0.6,13.5
+2025-10-17,Montana,1.5,
+2025-10-17,Nebraska,1.9,
+2025-10-17,North Dakota,1.2,
+2025-10-17,Noth Carolina,1.8,
+2025-10-17,Ohio,2.1,
+2025-10-17,Ontario CAN,6.7,
+2025-10-17,Quebec CAN,2.8,
+2025-10-17,Saskatchewan CAN,1.8,
+2025-10-17,South Dakota,8.9,4.9
+2025-10-17,Wisconsin,1.1,1.1
+2025-10-24,Alberta CAN,4.3,
+2025-10-24,Colorado,11.4,
+2025-10-24,Illinois,2.7,4.5
+2025-10-24,Indiana,2.9,2.2
+2025-10-24,Iowa,2.3,70.8
+2025-10-24,Kansas,1.2,1.2
+2025-10-24,Manitoba CAN,33.3,
+2025-10-24,Michigan,,2.3
+2025-10-24,Minnesota,3.4,15.1
+2025-10-24,Montana,1.5,
+2025-10-24,Nebraska,3.1,2.8
+2025-10-24,North Dakota,3.6,
+2025-10-24,Noth Carolina,6.2,
+2025-10-24,Ohio,2.2,
+2025-10-24,Ontario CAN,11.3,
+2025-10-24,Quebec CAN,5.1,
+2025-10-24,Saskatchewan CAN,2.1,
+2025-10-24,South Dakota,3.5,1.2
+2025-10-31,Alberta CAN,3.9,
+2025-10-31,Colorado,13.1,
+2025-10-31,Illinois,3.4,3.1
+2025-10-31,Indiana,2.4,
+2025-10-31,Iowa,2.8,69.3
+2025-10-31,Kansas,2.8,0.9
+2025-10-31,Kentucky,1.5,
+2025-10-31,Manitoba CAN,32.9,
+2025-10-31,Michigan,,0.8
+2025-10-31,Minnesota,6.5,19.3
+2025-10-31,Montana,1.1,
+2025-10-31,Nebraska,1.3,1.8
+2025-10-31,Noth Carolina,4.1,
+2025-10-31,Ohio,1.6,4.6
+2025-10-31,Ontario CAN,7.9,
+2025-10-31,Quebec CAN,2.2,
+2025-10-31,Saskatchewan CAN,2.1,
+2025-10-31,South Dakota,6.2,0.2
+2025-10-31,Wisconsin,4.2,
+2025-11-07,Alberta CAN,8.8,
+2025-11-07,Arkansas,0.3,
+2025-11-07,Colorado,8.3,
+2025-11-07,Illinois,6.0,4.0
+2025-11-07,Indiana,3.1,0.8
+2025-11-07,Iowa,5.6,66.3
+2025-11-07,Kansas,4.4,1.0
+2025-11-07,Manitoba CAN,26.7,
+2025-11-07,Michigan,,1.1
+2025-11-07,Minnesota,8.2,20.2
+2025-11-07,Missouri,0.4,
+2025-11-07,Montana,1.4,
+2025-11-07,Nebraska,1.6,
+2025-11-07,North Dakota,1.0,
+2025-11-07,Noth Carolina,5.2,
+2025-11-07,Ohio,2.6,3.8
+2025-11-07,Ontario CAN,5.2,
+2025-11-07,Quebec CAN,2.8,
+2025-11-07,Saskatchewan CAN,2.7,
+2025-11-07,South Dakota,5.7,2.9
+2025-11-14,Alberta CAN,2.0,
+2025-11-14,Arkansas,2.4,
+2025-11-14,Colorado,11.8,
+2025-11-14,Illinois,3.3,8.5
+2025-11-14,Indiana,4.3,
+2025-11-14,Iowa,3.1,67.2
+2025-11-14,Kansas,6.1,1.2
+2025-11-14,Manitoba CAN,21.3,
+2025-11-14,Michigan,,1.2
+2025-11-14,Minnesota,4.7,16.9
+2025-11-14,Missouri,7.0,
+2025-11-14,Montana,1.6,
+2025-11-14,Nebraska,5.1,
+2025-11-14,Noth Carolina,6.5,
+2025-11-14,Ohio,2.4,
+2025-11-14,Ontario CAN,7.5,
+2025-11-14,Quebec CAN,2.3,
+2025-11-14,Saskatchewan CAN,1.5,
+2025-11-14,South Dakota,7.2,5.0
+2025-11-21,Arkansas,1.3,
+2025-11-21,Colorado,12.8,
+2025-11-21,Illinois,12.2,5.2
+2025-11-21,Indiana,2.7,
+2025-11-21,Iowa,6.2,75.9
+2025-11-21,Kansas,1.3,
+2025-11-21,Manitoba CAN,22.3,
+2025-11-21,Michigan,,1.3
+2025-11-21,Minnesota,2.2,13.5
+2025-11-21,Missouri,2.1,
+2025-11-21,Montana,1.9,
+2025-11-21,Nebraska,1.9,0.3
+2025-11-21,Noth Carolina,7.3,
+2025-11-21,Ohio,5.2,2.9
+2025-11-21,Ontario CAN,8.2,
+2025-11-21,Quebec CAN,1.6,
+2025-11-21,Saskatchewan CAN,2.9,
+2025-11-21,South Dakota,7.9,0.7
+2025-11-28,Alberta CAN,3.8,
+2025-11-28,Colorado,7.7,
+2025-11-28,Illinois,7.1,
+2025-11-28,Indiana,2.9,
+2025-11-28,Iowa,1.6,79.8
+2025-11-28,Kansas,1.0,1.4
+2025-11-28,Manitoba CAN,36.1,
+2025-11-28,Michigan,,2.0
+2025-11-28,Minnesota,1.9,13.3
+2025-11-28,Missouri,8.0,0.9
+2025-11-28,Montana,3.2,
+2025-11-28,North Dakota,3.5,
+2025-11-28,Noth Carolina,3.8,
+2025-11-28,Ohio,2.0,
+2025-11-28,Ontario CAN,4.9,
+2025-11-28,Quebec CAN,1.9,
+2025-11-28,Saskatchewan CAN,1.2,
+2025-11-28,South Dakota,9.5,2.5
+2025-12-05,Alberta CAN,3.4,
+2025-12-05,Arkansas,0.9,
+2025-12-05,Colorado,6.6,
+2025-12-05,Illinois,4.1,3.3
+2025-12-05,Indiana,4.2,2.2
+2025-12-05,Iowa,13.3,71.1
+2025-12-05,Kansas,0.9,0.9
+2025-12-05,Manitoba CAN,28.1,
+2025-12-05,Massachusetts,0.9,
+2025-12-05,Michigan,,1.5
+2025-12-05,Minnesota,,14.6
+2025-12-05,Missouri,2.2,
+2025-12-05,Nebraska,1.0,1.2
+2025-12-05,Noth Carolina,3.1,
+2025-12-05,Ohio,1.8,1.5
+2025-12-05,Ontario CAN,9.2,
+2025-12-05,Quebec CAN,4.6,
+2025-12-05,Saskatchewan CAN,3.3,
+2025-12-05,South Dakota,12.4,3.7
+2025-12-12,Arkansas,4.6,
+2025-12-12,Colorado,9.5,
+2025-12-12,Illinois,11.1,5.5
+2025-12-12,Indiana,5.1,
+2025-12-12,Iowa,7.7,73.9
+2025-12-12,Kansas,3.8,1.3
+2025-12-12,Kentucky,1.1,
+2025-12-12,Manitoba CAN,20.6,
+2025-12-12,Minnesota,3.8,15.9
+2025-12-12,Montana,1.6,
+2025-12-12,Nebraska,2.6,1.2
+2025-12-12,North Dakota,9.0,
+2025-12-12,Noth Carolina,4.7,
+2025-12-12,Ohio,3.8,2.1
+2025-12-12,Ontario CAN,10.0,
+2025-12-12,South Dakota,0.9,
+2025-12-19,Alberta CAN,5.7,
+2025-12-19,Arkansas,2.6,
+2025-12-19,Colorado,14.9,
+2025-12-19,Illinois,6.5,7.9
+2025-12-19,Indiana,2.9,
+2025-12-19,Iowa,4.4,69.5
+2025-12-19,Kentucky,1.3,
+2025-12-19,Manitoba CAN,20.1,
+2025-12-19,Michigan,,1.4
+2025-12-19,Minnesota,,13.8
+2025-12-19,Missouri,6.5,
+2025-12-19,Montana,1.8,
+2025-12-19,Nebraska,5.8,2.1
+2025-12-19,North Dakota,1.5,
+2025-12-19,Ohio,4.5,5.3
+2025-12-19,Ontario CAN,7.4,
+2025-12-19,Quebec CAN,8.1,
+2025-12-19,Saskatchewan CAN,1.1,
+2025-12-19,South Dakota,5.1,
+2025-12-26,Alberta CAN,3.4,
+2025-12-26,Arkansas,1.6,
+2025-12-26,Colorado,3.8,
+2025-12-26,Illinois,8.3,6.4
+2025-12-26,Indiana,0.9,
+2025-12-26,Iowa,15.8,74.6
+2025-12-26,Kansas,1.8,
+2025-12-26,Kentucky,0.8,
+2025-12-26,Manitoba CAN,24.3,
+2025-12-26,Michigan,,1.3
+2025-12-26,Minnesota,6.3,12.8
+2025-12-26,Missouri,3.6,
+2025-12-26,Montana,2.4,
+2025-12-26,Nebraska,0.9,
+2025-12-26,Noth Carolina,1.4,
+2025-12-26,Ohio,2.0,4.0
+2025-12-26,Ontario CAN,14.9,
+2025-12-26,Quebec CAN,4.6,
+2025-12-26,Saskatchewan CAN,1.7,
+2025-12-26,South Dakota,1.6,
+2025-12-26,Wisconsin,,0.9
+2026-01-02,Alberta CAN,2.5,
+2026-01-02,Arkansas,2.4,
+2026-01-02,Colorado,3.2,
+2026-01-02,Illinois,5.7,4.1
+2026-01-02,Indiana,3.6,4.0
+2026-01-02,Iowa,7.7,68.0
+2026-01-02,Kansas,2.5,
+2026-01-02,Manitoba CAN,26.9,
+2026-01-02,Minnesota,7.5,19.7
+2026-01-02,Missouri,4.6,
+2026-01-02,Nebraska,10.4,1.6
+2026-01-02,Noth Carolina,4.6,
+2026-01-02,Ontario CAN,3.7,
+2026-01-02,Quebec CAN,1.6,
+2026-01-02,Saskatchewan CAN,1.0,
+2026-01-02,South Dakota,11.9,2.5
+2026-01-09,Alberta CAN,1.8,
+2026-01-09,Arkansas,1.8,
+2026-01-09,California,1.5,
+2026-01-09,Colorado,7.4,
+2026-01-09,Illinois,7.1,2.3
+2026-01-09,Indiana,4.6,0.8
+2026-01-09,Iowa,7.4,78.3
+2026-01-09,Kansas,1.9,
+2026-01-09,Kentucky,0.8,
+2026-01-09,Manitoba CAN,24.3,
+2026-01-09,Massachusetts,1.4,
+2026-01-09,Michigan,,1.9
+2026-01-09,Minnesota,6.8,16.3
+2026-01-09,Missouri,2.7,
+2026-01-09,Montana,1.3,
+2026-01-09,Nebraska,7.2,0.4
+2026-01-09,North Dakota,1.1,
+2026-01-09,Noth Carolina,1.9,
+2026-01-09,Ohio,2.7,
+2026-01-09,Ontario CAN,11.3,
+2026-01-09,South Dakota,4.9,
+2026-01-16,Arkansas,2.9,
+2026-01-16,Colorado,2.5,
+2026-01-16,Illinois,4.4,1.1
+2026-01-16,Indiana,3.1,
+2026-01-16,Iowa,9.6,81.1
+2026-01-16,Kentucky,6.0,
+2026-01-16,Manitoba CAN,22.9,
+2026-01-16,Massachusetts,1.6,
+2026-01-16,Michigan,,3.2
+2026-01-16,Minnesota,18.4,2.6
+2026-01-16,Montana,2.1,
+2026-01-16,Nebraska,15.6,6.0
+2026-01-16,Ohio,2.9,6.0
+2026-01-16,Ontario CAN,1.4,
+2026-01-16,South Dakota,6.7,
+2026-01-23,Arkansas,3.1,
+2026-01-23,Illinois,8.6,2.3
+2026-01-23,Indiana,9.3,2.9
+2026-01-23,Iowa,1.9,75.5
+2026-01-23,Manitoba CAN,33.4,
+2026-01-23,Michigan,,5.1
+2026-01-23,Minnesota,12.9,4.7
+2026-01-23,Missouri,4.7,
+2026-01-23,Montana,2.0,
+2026-01-23,Ohio,3.1,
+2026-01-23,Ontario CAN,7.3,
+2026-01-23,South Carolina,2.9,
+2026-01-23,South Dakota,10.8,9.6
+2026-01-30,Arkansas,2.7,
+2026-01-30,Illinois,6.1,2.4
+2026-01-30,Indiana,1.4,
+2026-01-30,Iowa,3.9,75.1
+2026-01-30,Manitoba CAN,32.7,
+2026-01-30,Michigan,,4.1
+2026-01-30,Minnesota,17.8,13.2
+2026-01-30,Montana,1.7,
+2026-01-30,Nebraska,2.7,5.1
+2026-01-30,North Dakota,2.8,
+2026-01-30,Ohio,5.4,
+2026-01-30,Ontario CAN,8.2,
+2026-01-30,South Dakota,14.6,
+2026-02-06,Arkansas,1.9,
+2026-02-06,Colorado,12.8,
+2026-02-06,Illinois,2.2,2.9
+2026-02-06,Indiana,1.7,
+2026-02-06,Iowa,4.3,80.8
+2026-02-06,Kansas,3.0,1.0
+2026-02-06,Kentucky,1.9,
+2026-02-06,Manitoba CAN,30.5,
+2026-02-06,Michigan,,1.9
+2026-02-06,Minnesota,5.9,10.0
+2026-02-06,Missouri,,0.6
+2026-02-06,Montana,6.5,
+2026-02-06,Nebraska,14.0,0.4
+2026-02-06,Ohio,1.0,
+2026-02-06,Ontario CAN,4.5,
+2026-02-06,Quebec CAN,2.0,
+2026-02-06,Saskatchewan CAN,0.4,
+2026-02-06,South Dakota,7.3,2.2
+2026-02-13,Arkansas,2.5,
+2026-02-13,Colorado,13.6,
+2026-02-13,Illinois,5.1,1.3
+2026-02-13,Indiana,3.5,
+2026-02-13,Iowa,8.9,82.9
+2026-02-13,Kansas,1.4,
+2026-02-13,Manitoba CAN,24.9,
+2026-02-13,Michigan,0.9,1.3
+2026-02-13,Minnesota,4.9,11.4
+2026-02-13,Missouri,5.0,
+2026-02-13,Montana,7.9,
+2026-02-13,Nebraska,,0.4
+2026-02-13,Ohio,7.9,
+2026-02-13,Ontario CAN,2.2,
+2026-02-13,Saskatchewan CAN,1.3,
+2026-02-13,South Dakota,10.1,2.7
+2026-02-20,Alberta CAN,4.5,
+2026-02-20,Arkansas,1.6,
+2026-02-20,Colorado,8.4,
+2026-02-20,Illinois,7.8,4.0
+2026-02-20,Indiana,1.5,1.0
+2026-02-20,Iowa,2.5,78.5
+2026-02-20,Kansas,3.8,1.7
+2026-02-20,Kentucky,1.6,
+2026-02-20,Manitoba CAN,22.1,
+2026-02-20,Michigan,,0.9
+2026-02-20,Minnesota,4.7,9.1
+2026-02-20,Missouri,2.7,
+2026-02-20,Montana,2.5,
+2026-02-20,Nebraska,5.5,0.3
+2026-02-20,Ohio,2.6,0.8
+2026-02-20,Ontario CAN,10.2,
+2026-02-20,Quebec CAN,4.8,
+2026-02-20,Saskatchewan CAN,2.0,
+2026-02-20,South Dakota,11.0,3.8
+2026-02-27,Alberta CAN,4.0,
+2026-02-27,Arkansas,1.7,
+2026-02-27,Colorado,6.5,
+2026-02-27,Illinois,5.4,3.0
+2026-02-27,Indiana,2.3,3.2
+2026-02-27,Iowa,7.7,78.3
+2026-02-27,Kansas,2.7,
+2026-02-27,Manitoba CAN,18.0,
+2026-02-27,Massachusetts,2.7,
+2026-02-27,Michigan,,1.6
+2026-02-27,Minnesota,0.9,11.9
+2026-02-27,Missouri,2.2,
+2026-02-27,Montana,3.6,
+2026-02-27,Nebraska,7.9,
+2026-02-27,Noth Carolina,1.9,
+2026-02-27,Ohio,2.7,
+2026-02-27,Ontario CAN,9.3,
+2026-02-27,Quebec CAN,4.3,
+2026-02-27,Saskatchewan CAN,2.4,
+2026-02-27,South Dakota,13.8,2.0
+2026-03-06,Alberta CAN,4.5,
+2026-03-06,Arkansas,1.5,
+2026-03-06,Colorado,8.7,
+2026-03-06,Illinois,5.4,6.4
+2026-03-06,Indiana,4.5,2.2
+2026-03-06,Iowa,4.0,71.6
+2026-03-06,Kansas,2.3,
+2026-03-06,Manitoba CAN,26.6,
+2026-03-06,Michigan,,0.9
+2026-03-06,Minnesota,4.4,12.3
+2026-03-06,Missouri,1.7,
+2026-03-06,Montana,2.2,
+2026-03-06,Nebraska,,1.0
+2026-03-06,North Dakota,2.1,
+2026-03-06,Ohio,2.2,
+2026-03-06,Ontario CAN,5.4,
+2026-03-06,Quebec CAN,4.2,
+2026-03-06,Saskatchewan CAN,0.7,
+2026-03-06,South Dakota,17.8,5.6
+2026-03-06,Wisconsin,1.5,
+2026-03-13,Alberta CAN,3.4,
+2026-03-13,Arkansas,1.7,
+2026-03-13,Colorado,6.9,
+2026-03-13,Illinois,0.9,3.4
+2026-03-13,Indiana,3.0,0.9
+2026-03-13,Iowa,3.4,77.9
+2026-03-13,Kansas,1.0,
+2026-03-13,Manitoba CAN,20.7,
+2026-03-13,Michigan,,1.0
+2026-03-13,Minnesota,11.2,8.6
+2026-03-13,Missouri,3.7,
+2026-03-13,Montana,2.6,
+2026-03-13,Nebraska,10.9,
+2026-03-13,Ohio,2.7,4.6
+2026-03-13,Ontario CAN,10.0,
+2026-03-13,Quebec CAN,4.0,
+2026-03-13,Saskatchewan CAN,2.7,
+2026-03-13,South Dakota,11.2,3.6
+2026-03-20,Colorado,6.7,
+2026-03-20,Illinois,3.8,2.0
+2026-03-20,Indiana,5.6,2.1
+2026-03-20,Iowa,9.7,76.3
+2026-03-20,Manitoba CAN,33.7,
+2026-03-20,Michigan,,1.4
+2026-03-20,Minnesota,7.6,7.0
+2026-03-20,Missouri,1.7,
+2026-03-20,Montana,3.6,
+2026-03-20,Nebraska,5.9,4.9
+2026-03-20,North Dakota,3.9,
+2026-03-20,Ohio,,6.3
+2026-03-20,Ontario CAN,5.7,
+2026-03-20,Quebec CAN,4.1,
+2026-03-20,South Dakota,8.0,
+2026-03-27,Alberta CAN,5.4,
+2026-03-27,Arkansas,1.4,
+2026-03-27,Colorado,7.1,
+2026-03-27,Illinois,2.5,1.4
+2026-03-27,Indiana,1.2,
+2026-03-27,Iowa,7.5,81.9
+2026-03-27,Kansas,3.3,
+2026-03-27,Manitoba CAN,22.5,
+2026-03-27,Michigan,,1.4
+2026-03-27,Minnesota,11.3,12.1
+2026-03-27,Missouri,2.0,
+2026-03-27,Montana,4.2,
+2026-03-27,Nebraska,2.4,
+2026-03-27,Ohio,2.8,3.0
+2026-03-27,Ontario CAN,9.6,
+2026-03-27,Quebec CAN,5.4,
+2026-03-27,Saskatchewan CAN,0.9,
+2026-03-27,South Dakota,10.4,0.1
+2026-04-03,Alberta CAN,7.3,
+2026-04-03,Arkansas,1.6,
+2026-04-03,Colorado,8.1,
+2026-04-03,Illinois,3.2,2.2
+2026-04-03,Indiana,0.7,2.7
+2026-04-03,Iowa,7.9,76.1
+2026-04-03,Kansas,1.6,0.7
+2026-04-03,Manitoba CAN,30.7,
+2026-04-03,Michigan,0.7,0.7
+2026-04-03,Minnesota,0.7,14.1
+2026-04-03,Missouri,4.2,0.7
+2026-04-03,Montana,2.2,
+2026-04-03,Nebraska,4.1,
+2026-04-03,North Dakota,1.4,0.8
+2026-04-03,Ohio,2.2,0.9
+2026-04-03,Ontario CAN,4.4,
+2026-04-03,Quebec CAN,4.6,
+2026-04-03,Saskatchewan CAN,5.0,
+2026-04-03,South Dakota,9.4,1.0
+2026-04-10,Alberta CAN,5.8,
+2026-04-10,Arkansas,1.7,
+2026-04-10,Colorado,5.0,
+2026-04-10,Illinois,2.6,2.1
+2026-04-10,Indiana,0.8,
+2026-04-10,Iowa,8.1,77.1
+2026-04-10,Kansas,2.1,
+2026-04-10,Manitoba CAN,31.4,
+2026-04-10,Michigan,,1.5
+2026-04-10,Minnesota,4.9,18.9
+2026-04-10,Missouri,1.9,
+2026-04-10,Montana,1.0,
+2026-04-10,Nebraska,4.8,
+2026-04-10,North Dakota,0.8,
+2026-04-10,Ohio,0.8,
+2026-04-10,Ontario CAN,7.8,
+2026-04-10,Quebec CAN,3.7,
+2026-04-10,Saskatchewan CAN,0.8,
+2026-04-10,South Dakota,16.2,0.3
+2026-04-17,Alberta CAN,5.0,
+2026-04-17,Arkansas,1.9,
+2026-04-17,Illinois,2.1,7.6
+2026-04-17,Indiana,2.7,
+2026-04-17,Iowa,8.9,82.4
+2026-04-17,Kansas,4.3,
+2026-04-17,Manitoba CAN,36.9,
+2026-04-17,Michigan,,0.8
+2026-04-17,Minnesota,3.6,6.4
+2026-04-17,Missouri,3.3,
+2026-04-17,Montana,1.9,
+2026-04-17,Nebraska,3.5,
+2026-04-17,North Dakota,0.9,
+2026-04-17,Ohio,1.7,1.0
+2026-04-17,Ontario CAN,14.3,
+2026-04-17,South Dakota,9.3,1.7
+2026-04-24,Alberta CAN,2.6,
+2026-04-24,Arkansas,1.5,
+2026-04-24,Colorado,9.6,
+2026-04-24,Illinois,4.3,7.3
+2026-04-24,Indiana,1.2,0.7
+2026-04-24,Iowa,7.5,76.1
+2026-04-24,Kansas,2.1,
+2026-04-24,Manitoba CAN,31.1,
+2026-04-24,Michigan,0.4,2.9
+2026-04-24,Minnesota,4.7,12.5
+2026-04-24,Missouri,2.9,
+2026-04-24,Montana,5.6,
+2026-04-24,Nebraska,3.7,
+2026-04-24,Ohio,0.7,0.5
+2026-04-24,Ontario CAN,10.7,
+2026-04-24,Saskatchewan CAN,0.3,
+2026-04-24,South Dakota,9.5,
+2026-04-24,Wisconsin,1.4,
+2026-05-01,Alberta CAN,3.1,
+2026-05-01,Arkansas,1.9,
+2026-05-01,Colorado,7.4,
+2026-05-01,Illinois,3.7,8.6
+2026-05-01,Indiana,2.0,
+2026-05-01,Iowa,8.5,69.1
+2026-05-01,Kansas,3.7,
+2026-05-01,Manitoba CAN,23.7,
+2026-05-01,Michigan,,2.9
+2026-05-01,Minnesota,10.7,12.7
+2026-05-01,Missouri,2.5,
+2026-05-01,Montana,1.3,
+2026-05-01,Nebraska,0.5,1.8
+2026-05-01,North Dakota,1.8,
+2026-05-01,Ohio,2.6,2.7
+2026-05-01,Ontario CAN,12.6,
+2026-05-01,Quebec CAN,1.0,
+2026-05-01,Saskatchewan CAN,3.8,
+2026-05-01,South Dakota,9.4,1.7
+2026-05-01,Wisconsin,,0.5
+2026-05-08,Alberta CAN,3.9,
+2026-05-08,Arkansas,1.6,
+2026-05-08,Colorado,7.1,
+2026-05-08,Illinois,3.8,3.9
+2026-05-08,Indiana,1.4,4.5
+2026-05-08,Iowa,10.1,76.3
+2026-05-08,Kansas,1.2,
+2026-05-08,Manitoba CAN,27.4,
+2026-05-08,Michigan,,0.7
+2026-05-08,Minnesota,5.3,9.5
+2026-05-08,Missouri,5.6,
+2026-05-08,Montana,4.6,
+2026-05-08,Nebraska,,3.0
+2026-05-08,North Dakota,0.8,
+2026-05-08,Ohio,2.1,2.2
+2026-05-08,Ontario CAN,5.9,
+2026-05-08,Quebec CAN,0.9,
+2026-05-08,Saskatchewan CAN,5.0,
+2026-05-08,South Dakota,10.2,
+2026-05-08,Wisconsin,3.0,
+2026-05-15,Alberta CAN,5.2,
+2026-05-15,Arkansas,1.6,
+2026-05-15,Colorado,5.7,
+2026-05-15,Illinois,7.2,5.8
+2026-05-15,Indiana,1.9,1.3
+2026-05-15,Iowa,7.5,79.6
+2026-05-15,Kansas,3.1,
+2026-05-15,Manitoba CAN,32.5,
+2026-05-15,Michigan,,0.8
+2026-05-15,Minnesota,5.4,7.3
+2026-05-15,Missouri,1.2,0.5
+2026-05-15,Montana,3.4,
+2026-05-15,Nebraska,3.1,1.0
+2026-05-15,Ohio,3.4,2.1
+2026-05-15,Ontario CAN,5.4,
+2026-05-15,Quebec CAN,1.8,
+2026-05-15,Saskatchewan CAN,2.6,
+2026-05-15,South Dakota,8.2,1.6
+2026-05-15,Wisconsin,0.7,
+2026-05-22,Alberta CAN,7.1,
+2026-05-22,Arkansas,1.9,
+2026-05-22,Colorado,4.6,
+2026-05-22,Illinois,0.4,1.6
+2026-05-22,Indiana,1.9,1.1
+2026-05-22,Iowa,7.3,79.4
+2026-05-22,Kansas,0.8,
+2026-05-22,Manitoba CAN,28.0,
+2026-05-22,Michigan,,1.9
+2026-05-22,Minnesota,10.0,14.3
+2026-05-22,Missouri,0.7,
+2026-05-22,Montana,4.1,
+2026-05-22,Nebraska,2.1,0.9
+2026-05-22,Ohio,1.9,
+2026-05-22,Ontario CAN,7.7,
+2026-05-22,Quebec CAN,3.2,
+2026-05-22,Saskatchewan CAN,3.1,
+2026-05-22,South Dakota,15.0,0.8
+2026-05-29,Alberta CAN,4.1,
+2026-05-29,Arkansas,1.6,
+2026-05-29,Illinois,1.1,4.9
+2026-05-29,Indiana,3.0,2.3
+2026-05-29,Iowa,8.6,77.9
+2026-05-29,Kansas,7.4,
+2026-05-29,Kentucky,0.9,
+2026-05-29,Manitoba CAN,29.4,
+2026-05-29,Michigan,,1.5
+2026-05-29,Minnesota,5.0,12.2
+2026-05-29,Missouri,4.5,
+2026-05-29,Montana,1.2,
+2026-05-29,Nebraska,3.3,
+2026-05-29,North Dakota,2.3,
+2026-05-29,Ohio,2.9,
+2026-05-29,Ontario CAN,6.4,
+2026-05-29,Quebec CAN,1.1,
+2026-05-29,Saskatchewan CAN,1.5,
+2026-05-29,South Dakota,15.6,1.2
+2026-06-05,Alberta CAN,3.6,
+2026-06-05,Colorado,12.4,
+2026-06-05,Illinois,4.4,2.5
+2026-06-05,Indiana,0.7,0.7
+2026-06-05,Iowa,5.5,81.5
+2026-06-05,Kansas,1.8,1.1
+2026-06-05,Kentucky,0.7,
+2026-06-05,Manitoba CAN,25.7,
+2026-06-05,Michigan,,1.4
+2026-06-05,Minnesota,4.5,10.6
+2026-06-05,Missouri,1.2,
+2026-06-05,Montana,2.3,
+2026-06-05,Nebraska,2.9,1.1
+2026-06-05,Ohio,0.7,
+2026-06-05,Ontario CAN,5.1,
+2026-06-05,Quebec CAN,7.1,
+2026-06-05,Saskatchewan CAN,1.3,
+2026-06-05,South Dakota,20.0,1.1
+2026-06-12,Alberta CAN,4.0,
+2026-06-12,Colorado,5.1,
+2026-06-12,Illinois,2.0,7.7
+2026-06-12,Indiana,3.0,1.0
+2026-06-12,Iowa,4.8,69.0
+2026-06-12,Manitoba CAN,24.4,
+2026-06-12,Michigan,,5.2
+2026-06-12,Minnesota,7.2,13.2
+2026-06-12,Montana,3.0,
+2026-06-12,Nebraska,2.8,
+2026-06-12,North Dakota,1.1,
+2026-06-12,Ohio,3.3,4.0
+2026-06-12,Ontario CAN,18.2,
+2026-06-12,Quebec CAN,5.5,
+2026-06-12,Saskatchewan CAN,6.4,
+2026-06-12,South Dakota,9.1,
+2026-06-19,Alberta CAN,4.2,
+2026-06-19,Arkansas,1.4,
+2026-06-19,Colorado,5.8,
+2026-06-19,Illinois,6.2,8.2
+2026-06-19,Indiana,1.8,
+2026-06-19,Iowa,3.2,76.6
+2026-06-19,Kansas,0.7,
+2026-06-19,Manitoba CAN,31.6,
+2026-06-19,Minnesota,4.4,5.9
+2026-06-19,Missouri,7.7,2.6
+2026-06-19,Montana,2.9,
+2026-06-19,Nebraska,7.5,5.1
+2026-06-19,North Dakota,0.7,
+2026-06-19,Noth Carolina,0.9,
+2026-06-19,Ohio,1.3,1.6
+2026-06-19,Ontario CAN,11.3,
+2026-06-19,Quebec CAN,1.5,
+2026-06-19,Saskatchewan CAN,0.6,
+2026-06-19,South Dakota,6.3,
+2026-06-26,Alberta CAN,5.7,
+2026-06-26,Arkansas,1.9,
+2026-06-26,Colorado,4.5,
+2026-06-26,Illinois,4.3,4.2
+2026-06-26,Indiana,4.1,2.0
+2026-06-26,Iowa,7.0,72.2
+2026-06-26,Kansas,1.8,
+2026-06-26,Kentucky,0.8,
+2026-06-26,Manitoba CAN,34.6,
+2026-06-26,Michigan,,2.5
+2026-06-26,Minnesota,7.5,14.9
+2026-06-26,Missouri,3.9,3.4
+2026-06-26,Montana,2.7,
+2026-06-26,Nebraska,5.1,
+2026-06-26,Ohio,2.0,0.8
+2026-06-26,Ontario CAN,3.7,
+2026-06-26,Quebec CAN,3.4,
+2026-06-26,Saskatchewan CAN,1.7,
+2026-06-26,South Dakota,5.5,
+2026-07-03,Alberta CAN,4.7,
+2026-07-03,Arkansas,1.9,
+2026-07-03,Colorado,3.5,
+2026-07-03,Illinois,4.3,8.0
+2026-07-03,Indiana,3.4,4.5
+2026-07-03,Iowa,3.4,76.3
+2026-07-03,Kansas,0.9,0.9
+2026-07-03,Kentucky,1.7,
+2026-07-03,Manitoba CAN,33.1,
+2026-07-03,Michigan,,2.6
+2026-07-03,Minnesota,5.6,5.4
+2026-07-03,Missouri,3.8,
+2026-07-03,Montana,4.0,
+2026-07-03,Nebraska,4.7,
+2026-07-03,North Dakota,0.5,
+2026-07-03,Ohio,0.9,2.3
+2026-07-03,Ontario CAN,7.5,
+2026-07-03,Quebec CAN,9.0,
+2026-07-03,Saskatchewan CAN,1.5,
+2026-07-03,South Dakota,5.6,
+2026-07-10,Alberta CAN,4.1,
+2026-07-10,Arkansas,1.8,
+2026-07-10,Colorado,8.0,
+2026-07-10,Illinois,4.4,8.4
+2026-07-10,Indiana,3.5,7.0
+2026-07-10,Iowa,7.3,68.0
+2026-07-10,Kansas,0.4,
+2026-07-10,Manitoba CAN,24.8,
+2026-07-10,Michigan,,1.7
+2026-07-10,Minnesota,10.1,10.3
+2026-07-10,Montana,1.2,
+2026-07-10,Nebraska,5.2,0.5
+2026-07-10,Ohio,2.5,2.3
+2026-07-10,Ontario CAN,4.6,
+2026-07-10,Quebec CAN,10.2,
+2026-07-10,Saskatchewan CAN,1.4,
+2026-07-10,South Dakota,10.6,1.7
+2026-07-17,Alberta CAN,4.9,
+2026-07-17,Arkansas,2.1,
+2026-07-17,Colorado,8.4,
+2026-07-17,Illinois,2.2,4.6
+2026-07-17,Indiana,3.6,2.3
+2026-07-17,Iowa,5.3,64.1
+2026-07-17,Kansas,3.9,
+2026-07-17,Manitoba CAN,16.8,
+2026-07-17,Minnesota,8.0,22.5
+2026-07-17,Missouri,1.5,
+2026-07-17,Montana,3.0,
+2026-07-17,Nebraska,4.6,2.8
+2026-07-17,Ohio,,2.1
+2026-07-17,Ontario CAN,8.9,
+2026-07-17,Quebec CAN,3.9,
+2026-07-17,Saskatchewan CAN,1.1,
+2026-07-17,South Dakota,20.1,1.7
+2026-07-17,Wisconsin,1.9,
+2026-07-24,Alberta CAN,1.1,
+2026-07-24,Arkansas,1.5,
+2026-07-24,Colorado,6.6,
+2026-07-24,Illinois,3.8,2.4
+2026-07-24,Indiana,2.0,1.1
+2026-07-24,Iowa,3.0,69.8
+2026-07-24,Kansas,2.2,
+2026-07-24,Kentucky,0.7,
+2026-07-24,Manitoba CAN,30.0,
+2026-07-24,Michigan,,2.2
+2026-07-24,Minnesota,7.7,16.9
+2026-07-24,Missouri,4.7,
+2026-07-24,Montana,3.3,
+2026-07-24,Nebraska,6.1,6.0
+2026-07-24,North Dakota,3.6,
+2026-07-24,Ohio,2.7,1.3
+2026-07-24,Ontario CAN,7.9,
+2026-07-24,Quebec CAN,2.2,
+2026-07-24,Saskatchewan CAN,1.1,
+2026-07-24,South Dakota,8.8,
+2026-07-24,Wisconsin,0.7,0.3
+2026-07-31,Alberta CAN,3.7,
+2026-07-31,Arkansas,1.8,
+2026-07-31,Colorado,2.9,
+2026-07-31,Illinois,4.9,6.6
+2026-07-31,Indiana,3.5,1.8
+2026-07-31,Iowa,5.7,73.2
+2026-07-31,Kansas,1.0,
+2026-07-31,Manitoba CAN,24.8,
+2026-07-31,Michigan,,0.9
+2026-07-31,Minnesota,6.3,13.4
+2026-07-31,Missouri,1.3,
+2026-07-31,Montana,2.5,
+2026-07-31,Nebraska,12.6,1.0
+2026-07-31,Ohio,,1.4
+2026-07-31,Ontario CAN,8.0,
+2026-07-31,Quebec CAN,6.9,
+2026-07-31,Saskatchewan CAN,1.0,
+2026-07-31,South Dakota,13.2,1.6
+2026-08-07,Alberta CAN,5.4,
+2026-08-07,Arkansas,1.7,
+2026-08-07,Colorado,6.7,
+2026-08-07,Illinois,5.7,9.7
+2026-08-07,Indiana,3.1,
+2026-08-07,Iowa,7.0,72.1
+2026-08-07,Kansas,0.8,2.5
+2026-08-07,Manitoba CAN,27.4,
+2026-08-07,Michigan,,1.7
+2026-08-07,Minnesota,8.2,11.7
+2026-08-07,Missouri,0.7,
+2026-08-07,Montana,1.1,
+2026-08-07,Nebraska,3.4,0.4
+2026-08-07,North Dakota,0.8,
+2026-08-07,Ohio,3.4,2.0
+2026-08-07,Ontario CAN,8.0,
+2026-08-07,Quebec CAN,4.9,
+2026-08-07,Saskatchewan CAN,3.2,
+2026-08-07,South Dakota,8.6,
+2026-08-14,Alberta CAN,5.3,
+2026-08-14,Arkansas,2.2,
+2026-08-14,Colorado,4.5,
+2026-08-14,Illinois,5.1,11.1
+2026-08-14,Indiana,3.3,1.0
+2026-08-14,Iowa,3.2,76.0
+2026-08-14,Kansas,2.1,
+2026-08-14,Manitoba CAN,29.0,
+2026-08-14,Michigan,,1.0
+2026-08-14,Minnesota,2.0,10.0
+2026-08-14,Missouri,7.6,
+2026-08-14,Montana,4.9,
+2026-08-14,Nebraska,4.0,
+2026-08-14,Ohio,2.9,0.9
+2026-08-14,Ontario CAN,12.1,
+2026-08-14,Quebec CAN,4.7,
+2026-08-14,Saskatchewan CAN,1.6,
+2026-08-14,South Dakota,4.3,
+2026-08-14,Wisconsin,1.0,
+2026-08-21,Alberta CAN,1.5,
+2026-08-21,Arkansas,2.3,
+2026-08-21,Colorado,0.9,
+2026-08-21,Illinois,7.1,6.9
+2026-08-21,Indiana,3.7,
+2026-08-21,Iowa,5.4,69.4
+2026-08-21,Kansas,4.3,
+2026-08-21,Kentucky,1.0,
+2026-08-21,Manitoba CAN,36.0,
+2026-08-21,Michigan,,0.7
+2026-08-21,Minnesota,4.5,14.1
+2026-08-21,Missouri,2.2,
+2026-08-21,Montana,5.1,
+2026-08-21,Nebraska,1.5,
+2026-08-21,North Dakota,2.1,
+2026-08-21,Ohio,,6.0
+2026-08-21,Ontario CAN,5.5,
+2026-08-21,Quebec CAN,10.2,
+2026-08-21,South Dakota,6.6,2.9
+2026-08-28,Alberta CAN,2.6,
+2026-08-28,Arkansas,1.7,
+2026-08-28,Colorado,7.5,
+2026-08-28,Illinois,4.3,2.7
+2026-08-28,Indiana,2.2,1.5
+2026-08-28,Iowa,2.5,72.4
+2026-08-28,Kansas,3.2,
+2026-08-28,Kentucky,0.7,
+2026-08-28,Manitoba CAN,33.8,
+2026-08-28,Michigan,,0.8
+2026-08-28,Minnesota,4.2,20.6
+2026-08-28,Missouri,3.3,
+2026-08-28,Montana,2.9,
+2026-08-28,Nebraska,5.5,
+2026-08-28,North Dakota,1.5,
+2026-08-28,Ohio,2.3,
+2026-08-28,Ontario CAN,4.5,
+2026-08-28,Quebec CAN,5.3,
+2026-08-28,Saskatchewan CAN,0.5,
+2026-08-28,South Dakota,11.5,2.1
+2026-09-04,Alberta CAN,2.8,
+2026-09-04,Arkansas,2.0,
+2026-09-04,Colorado,5.9,
+2026-09-04,Illinois,5.7,6.1
+2026-09-04,Indiana,2.9,0.9
+2026-09-04,Iowa,7.4,72.5
+2026-09-04,Kansas,1.9,
+2026-09-04,Kentucky,0.9,
+2026-09-04,Manitoba CAN,24.0,
+2026-09-04,Michigan,,0.9
+2026-09-04,Minnesota,6.6,17.5
+2026-09-04,Missouri,7.2,
+2026-09-04,Montana,2.7,
+2026-09-04,Nebraska,4.6,
+2026-09-04,Ohio,3.2,0.9
+2026-09-04,Ontario CAN,9.1,
+2026-09-04,Quebec CAN,4.1,
+2026-09-04,Saskatchewan CAN,3.7,
+2026-09-04,South Dakota,3.5,1.1
+2026-09-04,Wisconsin,1.9,
+2026-09-11,Alberta CAN,8.6,
+2026-09-11,Illinois,4.5,3.2
+2026-09-11,Indiana,,1.4
+2026-09-11,Iowa,3.4,75.3
+2026-09-11,Kansas,1.8,
+2026-09-11,Manitoba CAN,28.1,
+2026-09-11,Minnesota,9.5,18.3
+2026-09-11,Missouri,5.0,
+2026-09-11,Montana,2.9,
+2026-09-11,Nebraska,4.5,
+2026-09-11,North Dakota,1.8,
+2026-09-11,Noth Carolina,1.7,
+2026-09-11,Ontario CAN,4.9,
+2026-09-11,Quebec CAN,6.9,
+2026-09-11,Saskatchewan CAN,1.4,
+2026-09-11,South Dakota,12.0,1.8
+2026-09-11,Wyoming,3.2,
+2026-09-18,Alberta CAN,4.2,
+2026-09-18,Colorado,5.8,
+2026-09-18,Illinois,3.2,7.6
+2026-09-18,Indiana,1.8,2.0
+2026-09-18,Iowa,1.4,76.5
+2026-09-18,Kansas,0.9,
+2026-09-18,Kentucky,2.7,
+2026-09-18,Manitoba CAN,23.4,
+2026-09-18,Michigan,,1.0
+2026-09-18,Minnesota,6.7,12.5
+2026-09-18,Missouri,3.1,
+2026-09-18,Montana,4.7,
+2026-09-18,Nebraska,4.8,
+2026-09-18,Noth Carolina,5.5,
+2026-09-18,Ohio,3.1,0.4
+2026-09-18,Ontario CAN,8.1,
+2026-09-18,Quebec CAN,1.4,
+2026-09-18,Saskatchewan CAN,5.5,
+2026-09-18,South Dakota,13.8,
+2026-09-25,Alberta CAN,5.6,
+2026-09-25,Colorado,3.2,
+2026-09-25,Illinois,5.3,3.7
+2026-09-25,Indiana,3.2,1.1
+2026-09-25,Iowa,5.7,68.4
+2026-09-25,Kansas,1.6,
+2026-09-25,Manitoba CAN,22.6,
+2026-09-25,Michigan,,2.5
+2026-09-25,Minnesota,13.8,14.7
+2026-09-25,Missouri,5.0,2.5
+2026-09-25,Montana,1.4,
+2026-09-25,Nebraska,3.1,2.5
+2026-09-25,Noth Carolina,3.8,
+2026-09-25,Ohio,1.3,0.5
+2026-09-25,Ontario CAN,9.7,
+2026-09-25,Saskatchewan CAN,3.6,
+2026-09-25,South Dakota,11.0,4.1
+2026-10-02,Alberta CAN,2.3,
+2026-10-02,Arkansas,1.8,
+2026-10-02,Colorado,3.7,
+2026-10-02,Illinois,5.9,5.6
+2026-10-02,Indiana,1.2,
+2026-10-02,Iowa,3.2,77.2
+2026-10-02,Kansas,0.8,
+2026-10-02,Manitoba CAN,21.0,
+2026-10-02,Michigan,,0.8
+2026-10-02,Minnesota,15.0,12.1
+2026-10-02,Missouri,6.4,1.5
+2026-10-02,Montana,1.1,
+2026-10-02,Nebraska,3.6,2.5
+2026-10-02,North Dakota,1.7,
+2026-10-02,Noth Carolina,7.9,
+2026-10-02,Ohio,2.5,
+2026-10-02,Ontario CAN,13.0,
+2026-10-02,Quebec CAN,1.5,
+2026-10-02,South Dakota,7.3,
+2026-10-02,Wisconsin,,0.3
+2026-10-09,Alberta CAN,3.0,
+2026-10-09,Arkansas,1.9,
+2026-10-09,Colorado,6.1,
+2026-10-09,Illinois,5.7,3.7
+2026-10-09,Indiana,5.3,1.0
+2026-10-09,Iowa,8.3,56.2
+2026-10-09,Kansas,6.8,
+2026-10-09,Manitoba CAN,25.2,
+2026-10-09,Michigan,,1.7
+2026-10-09,Minnesota,5.2,32.2
+2026-10-09,Missouri,1.3,3.0
+2026-10-09,Montana,1.1,
+2026-10-09,Nebraska,4.5,
+2026-10-09,North Dakota,0.9,
+2026-10-09,Noth Carolina,1.7,
+2026-10-09,Ohio,3.7,
+2026-10-09,Ontario CAN,8.3,
+2026-10-09,South Dakota,11.2,2.1
+2026-10-16,Alberta CAN,7.2,
+2026-10-16,Arkansas,2.4,
+2026-10-16,Colorado,4.0,
+2026-10-16,Illinois,3.4,3.5
+2026-10-16,Indiana,6.3,
+2026-10-16,Iowa,3.8,65.9
+2026-10-16,Kansas,1.1,
+2026-10-16,Manitoba CAN,22.6,
+2026-10-16,Michigan,,2.3
+2026-10-16,Minnesota,7.4,19.0
+2026-10-16,Missouri,2.9,4.0
+2026-10-16,Montana,1.6,
+2026-10-16,Nebraska,10.1,1.6
+2026-10-16,Ohio,1.3,
+2026-10-16,Ontario CAN,7.9,
+2026-10-16,Saskatchewan CAN,0.5,
+2026-10-16,South Dakota,17.7,3.6
