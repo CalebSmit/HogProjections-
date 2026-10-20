@@ -65,14 +65,32 @@ def parse(text: str) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=COLUMNS)
 
 
+HEADERS = {"User-Agent": "Mozilla/5.0 (HogProjections; +https://github.com/CalebSmit)"}
+
+
 def fetch(today: date, client: httpx.Client | None = None) -> pd.DataFrame:
-    with client or httpx.Client(timeout=60, follow_redirects=True) as c:
+    """The latest WASDE issue: usda.gov first, then USDA's ESMIS archive (usda.gov sometimes
+    answers cloud servers, like the weekly GitHub refresh, with a block page)."""
+    with client or httpx.Client(timeout=60, follow_redirects=True, headers=HEADERS) as c:
         y, m = today.year, today.month
         for _ in range(3):  # this month's issue may not be out yet
-            resp = c.get(URL.format(mmyy=f"{m:02d}{y % 100:02d}"))
+            try:
+                resp = c.get(URL.format(mmyy=f"{m:02d}{y % 100:02d}"))
+                if resp.status_code == 200 and "WASDE" in resp.text[:400]:
+                    return parse(resp.text)
+            except httpx.HTTPError:
+                break
+            y, m = (y - 1, 12) if m == 1 else (y, m - 1)
+        page = c.get(ESMIS).text
+        links = sorted(
+            set(re.findall(r"release-files/(\d+)/wasde(\d{2})(\d{2})\.txt", page)),
+            key=lambda t: (t[2], t[1]),
+        )  # by year, then month
+        for folder, mm, yy in reversed(links):
+            resp = c.get(f"https://esmis.nal.usda.gov/sites/default/release-files/{folder}/"
+                         f"wasde{mm}{yy}.txt")  # fmt: skip
             if resp.status_code == 200 and "WASDE" in resp.text[:400]:
                 return parse(resp.text)
-            y, m = (y - 1, 12) if m == 1 else (y, m - 1)
     raise ValueError("No recent WASDE issue found")
 
 
@@ -100,7 +118,7 @@ HISTORY_FILE = "wasde_history.csv"
 
 def fetch_history(client: httpx.Client | None = None) -> pd.DataFrame:
     """Every WASDE text file the USDA archive page lists (about the last year), parsed."""
-    with client or httpx.Client(timeout=90, follow_redirects=True) as c:
+    with client or httpx.Client(timeout=90, follow_redirects=True, headers=HEADERS) as c:
         page = c.get(ESMIS).text
         links = sorted(set(re.findall(r"release-files/\d+/wasde\d{4}\.txt", page)))
         parts = []
