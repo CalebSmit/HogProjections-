@@ -239,6 +239,12 @@ rows = [
         "Demand section on Hog market; pigs from Canada on National view",
     ),
     (
+        "USDA FAS · Export Sales",
+        "Weekly pork (muscle cut) export sales and shipments by country",
+        "Weekly, Thursdays, about a week behind",
+        "Exports on Hog market (needs the free FAS_API_KEY from api.data.gov)",
+    ),
+    (
         "USDA AMS · weekly slaughter by class (AMS_3658)",
         "Sows slaughtered each week",
         "Weekly, about two weeks behind",

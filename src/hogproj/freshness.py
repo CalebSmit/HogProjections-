@@ -35,6 +35,7 @@ MAX_AGE_DAYS = {
     "Prime rate": 10,
     "Sow slaughter": 24,  # week ending Saturday, published ~12 days later
     "Pork exports": 105,  # month of the trade, published ~6-9 weeks after it ends
+    "Export sales (weekly)": 16,  # week ending Thursday, published the next Thursday
     "Live hog imports": 105,
     "Pork price spreads": 75,  # month, published ~3-6 weeks after it ends
 }

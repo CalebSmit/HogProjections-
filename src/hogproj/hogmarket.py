@@ -242,6 +242,43 @@ def exports_ytd(trade: pd.DataFrame | None, countries: int = 5) -> dict | None:
             "total_mlb": float(a["World total"]) / 1000, "by_country": by}  # fmt: skip
 
 
+def export_sales_weekly(es: pd.DataFrame | None, countries: int = 5) -> dict | None:
+    """USDA weekly export sales of pork: shipments so far this year vs the same weeks last year
+    (in total and for the biggest buyers), the last 4 weeks' shipments and net new sales vs a
+    year earlier, and the latest week's top buyers. Metric tons."""
+    if es is None or es.empty:
+        return None
+    x = es.assign(week_ending=pd.to_datetime(es["week_ending"]))
+    last = x["week_ending"].max()
+    wk = x.groupby("week_ending")[["exports_mt", "net_sales_mt"]].sum().sort_index()
+    year_ago = last - pd.Timedelta(days=364)
+    this_ytd = x[(x["week_ending"].dt.year == last.year)]
+    prev_ytd = x[(x["week_ending"].dt.year == last.year - 1) & (x["week_ending"] <= year_ago)]
+    a, b = this_ytd["exports_mt"].sum(), prev_ytd["exports_mt"].sum()
+    if not b:
+        return None
+    four = wk[wk.index > last - pd.Timedelta(days=28)]
+    four_ago = wk[(wk.index > year_ago - pd.Timedelta(days=28)) & (wk.index <= year_ago)]
+    by_a = this_ytd.groupby("country")["exports_mt"].sum().drop("Unknown", errors="ignore")
+    by_b = prev_ytd.groupby("country")["exports_mt"].sum()
+    top = by_a.sort_values(ascending=False).head(countries)
+    by = pd.DataFrame({"ytd": top, "ytd_last_year": by_b.reindex(top.index)})
+    by["pct"] = by["ytd"] / by["ytd_last_year"] - 1
+    by["share"] = by["ytd"] / a
+    week = x[x["week_ending"] == last].groupby("country")["net_sales_mt"].sum()
+    return {
+        "pct": float(a / b - 1), "through": _ts(last), "ytd_mt": float(a),
+        "by_country": by, "weekly": wk,
+        "ship_4wk_pct": float(four["exports_mt"].sum() / four_ago["exports_mt"].sum() - 1)
+        if four_ago["exports_mt"].sum() else float("nan"),
+        "sales_4wk_pct": float(four["net_sales_mt"].sum() / four_ago["net_sales_mt"].sum() - 1)
+        if four_ago["net_sales_mt"].sum() else float("nan"),
+        "week_sales_mt": float(week.sum()),
+        "week_top": week.drop("Unknown", errors="ignore").sort_values(ascending=False).head(3),
+        "label": f"week ending {last:%b} {last.day}",
+    }  # fmt: skip
+
+
 def farmer_share(spreads: pd.DataFrame | None) -> dict | None:
     """Net farm value as a share of the retail pork dollar: latest month and a year earlier."""
     if spreads is None or spreads.empty:
@@ -391,7 +428,9 @@ def signals(d: pd.DataFrame, supply_pct: float | None = None,
                 "bad": "Export buyers are taking less U.S. pork than last year.",
                 "neutral": "Pork exports are close to last year."}[tone]  # fmt: skip
         out.append(Signal("Pork exports", f"{p:+.1%}".replace("-", "−") + " vs last year",
-                          read + f" (through {exports['through']:%B})", tone,
+                          read + " (" + (exports.get("label")
+                                         or f"through {exports['through']:%B}") + ")",
+                          tone,
                           "3%+ more than a year ago so far this year = supportive; 3%+ less = "
                           "negative"))  # fmt: skip
 

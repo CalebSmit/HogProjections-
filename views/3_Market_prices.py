@@ -28,6 +28,7 @@ from hogproj.ui import (
     end_tag,
     ers_data,
     excel_button,
+    fas_data,
     forecast_accuracy,
     hero,
     hog_index,
@@ -538,11 +539,45 @@ if stor is not None:
 trade, trade_src, _ = ers_data("pork_trade")
 spreads, spreads_src, _ = ers_data("spreads")
 ex = hm.exports_ytd(trade)
+wx_raw, wx_src, _ = fas_data()
+wx = hm.export_sales_weekly(wx_raw)
 fs_ = hm.farmer_share(spreads)
-if ex is not None or fs_ is not None:
+if ex is not None or wx is not None or fs_ is not None:
     left, mid, right = st.columns([1, 0.06, 1])
     with left:
-        if ex is not None:
+        by, vals, amounts, unit, note, src, sheet = pd.DataFrame(), [], [], "", "", "", {}
+        big = ""
+        if wx is not None:  # USDA weekly export sales (FAS key)
+            by = wx["by_country"]
+            big = by.index[0]
+            tops = ", ".join(f"{c} {v:,.0f} t" for c, v in wx["week_top"].items())
+            chart_title(
+                f"Pork muscle-cut shipments are {abs(wx['pct']):.1%} "
+                f"{'above' if wx['pct'] >= 0 else 'below'} last year so far; {big} takes "
+                f"{by.loc[big, 'share']:.0%}",
+                f"{wx['ytd_mt'] / 1000:,.0f}k metric tons shipped this year to the "
+                f"{wx['label']} · last 4 weeks vs a year ago: shipments "
+                + f"{wx['ship_4wk_pct']:+.0%}, new sales {wx['sales_4wk_pct']:+.0%}".replace(
+                    "-", "−"
+                )
+                + f" · that week's biggest buyers: {tops}",
+            )
+            vals = [wx["pct"] * 100, *(by["pct"] * 100)]
+            amounts = [wx["ytd_mt"], *by["ytd"]]
+            unit = "t"
+            note = (
+                "weekly, about a week behind; fresh, chilled and frozen muscle cuts only, "
+                "metric tons"
+                + (
+                    f" · all pork (ERS monthly, carcass weight): {ex['pct']:+.1%} through "
+                    f"{ex['through']:%B}".replace("-", "−")
+                    if ex is not None
+                    else ""
+                )
+            )
+            src = "USDA FAS Export Sales" + (" (live)" if wx_src == "live" else " (saved)")
+            sheet = {"Weekly export sales by country": wx_raw}
+        elif ex is not None:  # ERS monthly
             by = ex["by_country"]
             big = by.index[0]
             chart_title(
@@ -552,27 +587,30 @@ if ex is not None or fs_ is not None:
                 f"{ex['total_mlb']:,.0f}M lb carcass weight so far this year · change vs the "
                 "same months last year, biggest buyers",
             )
-            names = ["All buyers", *by.index]
             vals = [ex["pct"] * 100, *(by["pct"] * 100)]
+            amounts = [ex["total_mlb"] * 1000, *by["ytd"]]
+            unit, note = "k lb", "monthly, about two months behind; carcass weight"
+            src = "USDA ERS Livestock and Meat International Trade" + (
+                " (live)" if trade_src == "live" else " (saved)"
+            )
+            sheet = {"Pork trade by country": trade}
+        if wx is not None or ex is not None:
+            names = ["All buyers", *by.index]
             fx = go.Figure(go.Bar(
                 y=names[::-1], x=vals[::-1], orientation="h",
                 marker={"color": [POS if v >= 0 else NEG for v in vals[::-1]],
                         "cornerradius": 3},
                 text=[f"{v:+.0f}%".replace("-", "−") for v in vals[::-1]],
-                textposition="outside", cliponaxis=False,
-                customdata=[ex["total_mlb"], *(by["ytd"] / 1000)][::-1],
-                hovertemplate="%{y}: %{text} · %{customdata:,.0f}M lb<extra></extra>",
+                textposition="outside", cliponaxis=False, customdata=amounts[::-1],
+                hovertemplate=f"%{{y}}: %{{text}} · %{{customdata:,.0f}} {unit}<extra></extra>",
             ))  # fmt: skip
             lim = max(abs(v) for v in vals) * 1.4 + 1
             fx.update_xaxes(range=[-lim, lim], ticksuffix="%", zeroline=True,
                             zerolinecolor="#cfc8b9")  # fmt: skip
             fx.update_layout(showlegend=False, hovermode="closest", bargap=0.35)
             chart(fx, 260, on=PAGE)
-            source_note("USDA ERS Livestock and Meat International Trade"
-                        + (" (live)" if trade_src == "live" else " (saved)"),
-                        "monthly, about two months behind; carcass weight")  # fmt: skip
-            excel_button({"Pork trade by country": trade}, "pork_trade", "Pork trade by country",
-                         "USDA ERS")  # fmt: skip
+            source_note(src, note)
+            excel_button(sheet, "pork_exports", "Pork exports by country", src)
     with mid:
         st.markdown('<div class="hp-vrule" style="height:340px"></div>', unsafe_allow_html=True)
     with right:
