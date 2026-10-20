@@ -29,6 +29,8 @@ from hogproj.ui import (
     chip,
     current_plan,
     end_tag,
+    feed_default,
+    feed_help,
     hero,
     hog_index,
     kv_table,
@@ -133,10 +135,10 @@ with assumption_bar("overview"):
             "Corn ($/bu)",
             0.0,
             20.0,
-            _d.corn_usd_per_bu,
+            feed_default("corn_cash_iowa"),
             0.05,
             key="cost_corn",
-            help="Your local cash bid. Iowa cash corn usually trades 20-40 cents under futures.",
+            help=feed_help("corn_cash_iowa"),
         )
     st.segmented_control(
         "Hog price over time",

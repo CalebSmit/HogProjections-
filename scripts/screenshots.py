@@ -64,7 +64,12 @@ def main(only: list[str]) -> None:
                         except Exception:
                             time.sleep(1)
                     page.wait_for_selector("h1", timeout=120_000)
-                    time.sleep(8)  # charts finish drawing
+                    # Wait for the script to finish (no running indicator) and charts to draw.
+                    for _ in range(90):
+                        if page.locator('[data-testid="stStatusWidget"]').count() == 0:
+                            break
+                        time.sleep(1)
+                    time.sleep(5)
                     errors = page.locator('[data-testid="stException"]').count()
                     page.screenshot(path=OUT / f"{label}_{name}.png", full_page=True)
                     print(f"{label:7} {name:10} {'EXCEPTION' if errors else 'ok'}")

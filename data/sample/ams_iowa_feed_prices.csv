@@ -1,0 +1,11 @@
+date,item,value,unit,report
+2026-10-19,corn_cash_iowa,4.24,$/bu,AMS_2850
+2026-10-19,corn_futures_2026_12,4.67,$/bu,AMS_2850
+2026-10-19,corn_futures_2027_03,4.805,$/bu,AMS_2850
+2026-10-19,corn_futures_2027_05,4.885,$/bu,AMS_2850
+2026-10-19,corn_futures_2027_07,4.95,$/bu,AMS_2850
+2026-10-19,corn_futures_2027_09,4.91,$/bu,AMS_2850
+2026-10-19,corn_futures_2027_12,5.0425,$/bu,AMS_2850
+2026-10-19,corn_futures_2028_03,5.18,$/bu,AMS_2850
+2026-10-16,sbm_iowa,383.37,$/ton,AMS_3511
+2026-10-16,ddgs_iowa,190.5,$/ton,AMS_3511

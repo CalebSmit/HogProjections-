@@ -32,6 +32,8 @@ from hogproj.ui import (
     chart_title,
     chip,
     crush_book,
+    feed_default,
+    feed_help,
     hero,
     hog_index,
     iowa_corn,
@@ -147,16 +149,26 @@ with assumption_bar("w2f"):
         )
     with st.popover(
         md(
-            f"Feed · corn {usd(cur('cost_corn', cd.corn_usd_per_bu))} · SBM "
-            f"{usd(cur('cost_sbm', cd.sbm_usd_per_ton), 0)}"
+            f"Feed · corn {usd(cur('cost_corn', feed_default('corn_cash_iowa')))} · SBM "
+            f"{usd(cur('cost_sbm', feed_default('sbm_iowa')), 0)}"
         )
     ):
         a, b = st.columns(2)
-        a.number_input("Corn ($/bu)", 0.0, 20.0, cd.corn_usd_per_bu, 0.05, key="cost_corn",
-                       help="Shared with Costs & returns." + corn_note)  # fmt: skip
-        b.number_input("Soybean meal ($/ton)", 0.0, 1000.0, cd.sbm_usd_per_ton, 5.0,
-                       key="cost_sbm", help="Shared with Costs & returns.")  # fmt: skip
-        a.number_input("DDGS ($/ton)", 0.0, 600.0, d.ddgs_usd_per_ton, 5.0, key="w2f_ddgs")
+        shared = " Shared with Costs & returns."
+        a.number_input("Corn ($/bu)", 0.0, 20.0, feed_default("corn_cash_iowa"), 0.05,
+                       key="cost_corn",
+                       help=feed_help("corn_cash_iowa") + shared + corn_note)  # fmt: skip
+        b.number_input("Soybean meal ($/ton)", 0.0, 1000.0, feed_default("sbm_iowa"), 5.0,
+                       key="cost_sbm", help=feed_help("sbm_iowa") + shared)  # fmt: skip
+        a.number_input(
+            "DDGS ($/ton)",
+            0.0,
+            600.0,
+            feed_default("ddgs_iowa"),
+            5.0,
+            key="w2f_ddgs",
+            help=feed_help("ddgs_iowa"),
+        )
         b.number_input("Other feed ($/lb)", 0.0, 5.0, d.other_feed_usd_per_lb, 0.01,
                        key="w2f_other_price", help="Premix, vitamins, additives.")  # fmt: skip
         st.caption("Pounds fed per pig, placement to market")

@@ -117,9 +117,16 @@ def load(key: str, offline: bool, years: int = 16) -> tuple[pd.DataFrame, Source
         problem = "Offline mode."
     else:
         try:
-            df = fetch(key, date.today().year - years)
+            # Incremental: with a saved copy, only the last two years can have changed.
+            saved = _read(cache) if cache.exists() else None
+            since = date.today().year - (1 if saved is not None else years)
+            df = fetch(key, since)
             if df.empty:
                 raise ValueError("USDA returned no rows")
+            if saved is not None:
+                df = pd.concat([saved, df], ignore_index=True)  # re-fetched rows win below
+                df = df.drop_duplicates(["series", "period_start", "kind"], keep="last")
+                df = df.sort_values(["series", "kind", "period_start"]).reset_index(drop=True)
             CACHE_DIR.mkdir(parents=True, exist_ok=True)
             df.to_csv(cache, index=False)
             return df, "live", "Live from USDA NASS Quick Stats (Hogs and Pigs)."

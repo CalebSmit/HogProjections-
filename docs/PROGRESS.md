@@ -202,3 +202,17 @@ Newest at the bottom.
   class hidden under 640 px (an attribute selector on the inline style didn't match).
 - Gate: ruff, pyright 0, 124 tests, all 10 pages × 2 widths screenshotted without exceptions.
 - Deferred: sow prices (HG234 is split by weight class; weak signal), NASS cold storage.
+
+## 2026-10-20 — Phase 2b: live Iowa feed prices without a key
+
+- `data/feed.py` parses the public AMS PDFs: Iowa state average cash corn + CBOT corn settlements
+  (AMS_2850, daily) and Iowa soybean meal and DDGS (AMS_3511, weekly). Feedstuff rows have a
+  varying number of columns, so the Iowa row is read by token type (price → skip changes →
+  average), not by position. History accumulates in the cache.
+- Corn, soybean meal and DDGS inputs now default to the latest USDA Iowa prices on every page
+  (help text names the report and date); `uses_benchmarks` compares against those defaults.
+- Cold start was ~11 s: the NASS Hogs and Pigs fetch pulled 16 years each time. Now incremental
+  (last two years merged into the saved copy) — 7.4 s → 1.7 s. A first version dropped the
+  Dec 1, 2024 inventory at the cut-off; regression test added.
+- Screenshot script now waits for Streamlit's running indicator to clear.
+- Gate: ruff, pyright 0, 134 tests, screenshots reviewed.

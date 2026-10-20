@@ -78,3 +78,25 @@ def test_lowest_since():
         }
     )
     assert supply.lowest_since(df, "breeding") == 2012
+
+
+def test_incremental_nass_load_keeps_older_rows_and_takes_revisions(tmp_path, monkeypatch):
+    from hogproj.data import nass
+
+    monkeypatch.setattr(nass, "CACHE_DIR", tmp_path)
+    saved = pd.DataFrame(
+        {"series": ["all_hogs", "all_hogs"],
+         "period_start": pd.to_datetime(["2024-12-01", "2026-06-01"]),
+         "kind": ["actual", "actual"], "value": [1.0, 2.0], "released": ["x", "x"]}
+    )  # fmt: skip
+    saved.to_csv(tmp_path / nass.NASS_FILE, index=False)
+    fresh = pd.DataFrame(
+        {"series": ["all_hogs", "all_hogs"],
+         "period_start": pd.to_datetime(["2026-06-01", "2026-09-01"]),
+         "kind": ["actual", "actual"], "value": [2.5, 3.0], "released": ["y", "y"]}
+    )  # fmt: skip
+    monkeypatch.setattr(nass, "fetch", lambda key, since: fresh)
+    df, source, _ = nass.load("k", offline=False)
+    assert source == "live"
+    got = dict(zip(df["period_start"].dt.strftime("%Y-%m"), df["value"], strict=True))
+    assert got == {"2024-12": 1.0, "2026-06": 2.5, "2026-09": 3.0}  # Dec 2024 kept; Jun revised

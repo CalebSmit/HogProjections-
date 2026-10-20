@@ -163,10 +163,22 @@ rows = [
         "Realized wean-to-finish margins and the corn price hint",
     ),
     (
+        "USDA AMS · Iowa grain and feedstuff reports",
+        "Iowa cash corn, soybean meal, DDGS, CBOT corn settlements",
+        "Corn daily; meal and DDGS weekly",
+        "Default feed prices on every page; public reports, no key needed",
+    ),
+    (
+        "USDA AMS · LM_PK602 pork cutout",
+        "Cutout and primal values, packer spread",
+        "Every business day",
+        "Hog market page",
+    ),
+    (
         "USDA AMS · My Market News",
-        "Local corn and soybean meal cash prices",
+        "History for the reports above",
         "Daily",
-        "Not connected yet: add USDA_MMN_API_KEY to .env",
+        "Optional: add USDA_MMN_API_KEY to .env",
     ),
 ]
 head = "".join(
@@ -196,7 +208,7 @@ st.markdown(
     f"""<div style="color:{INK_2};font-size:14.5px;line-height:1.7;max-width:900px">
 <p>Disease outbreaks, export shocks and futures-market views aren't modelled. Costs follow a
 typical Iowa farrow-to-finish operation; your contract, basis and facility costs will differ, so
-enter your own. Feed amounts per pig are estimates until local cash prices are connected. The
+enter your own. Feed prices start at Iowa averages; your bids will differ. The
 projections are planning estimates, not financial advice.</p></div>""",
     unsafe_allow_html=True,
 )

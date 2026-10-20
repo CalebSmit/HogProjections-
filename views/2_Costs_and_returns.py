@@ -28,6 +28,8 @@ from hogproj.ui import (
     chart,
     chart_title,
     end_tag,
+    feed_default,
+    feed_help,
     herd_from_state,
     hero,
     hog_index,
@@ -50,6 +52,7 @@ idx, idx_source, _ = hog_index()
 latest_index = round(float(idx["lean_hog_index_usd_per_cwt_carcass"].iloc[-1]), 2)
 latest_date = idx["index_date"].iloc[-1]
 ss = st.session_state
+corn0, sbm0 = feed_default("corn_cash_iowa"), feed_default("sbm_iowa")
 
 
 def cur(key: str, default: float) -> float:
@@ -64,8 +67,8 @@ with bar:
     # Widget keys start with "cost_" so app.py keeps them when the user switches pages.
     with st.popover(
         md(
-            f"Prices · Corn {usd(cur('cost_corn', d.corn_usd_per_bu))} · SBM "
-            f"{usd(cur('cost_sbm', d.sbm_usd_per_ton), 0)} · Hogs "
+            f"Prices · Corn {usd(cur('cost_corn', corn0))} · SBM "
+            f"{usd(cur('cost_sbm', sbm0), 0)} · Hogs "
             f"{usd(cur('cost_hog', latest_index))}"
         ),
     ):
@@ -73,14 +76,19 @@ with bar:
             "Corn ($/bu)",
             0.0,
             20.0,
-            d.corn_usd_per_bu,
+            corn0,
             0.05,
             key="cost_corn",
-            help="Default is Dec 2026 futures (early Oct). Use your local cash bid: Iowa cash "
-            "corn usually trades 20-40 cents under futures.",
+            help=feed_help("corn_cash_iowa"),
         )
         sbm = st.number_input(
-            "Soybean meal ($/ton)", 0.0, 1000.0, d.sbm_usd_per_ton, 5.0, key="cost_sbm"
+            "Soybean meal ($/ton)",
+            0.0,
+            1000.0,
+            sbm0,
+            5.0,
+            key="cost_sbm",
+            help=feed_help("sbm_iowa"),
         )
         hog = st.number_input(
             "Lean hog price ($/cwt carcass)",

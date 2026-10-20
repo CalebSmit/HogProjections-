@@ -28,7 +28,7 @@ from hogproj.crush import (
     model_contract_prices,
     placements,
 )
-from hogproj.data import lmr
+from hogproj.data import feed, lmr
 from hogproj.data.ams import Source, load_hg201
 from hogproj.data.feeder import load as feeder_load
 from hogproj.data.nass import load as nass_load
@@ -420,6 +420,43 @@ def iowa_corn() -> tuple[pd.DataFrame, str, str]:
     return _corn(get_settings().offline)
 
 
+@st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA feed prices…")
+def _feed(offline: bool) -> tuple[pd.DataFrame, str, str]:
+    return feed.load(offline)
+
+
+def feed_prices() -> tuple[pd.DataFrame, str, str]:
+    """Iowa cash corn, soybean meal, DDGS and CBOT corn (long format) and where they came from."""
+    return _feed(get_settings().offline)
+
+
+_FEED_FALLBACK = {
+    "corn_cash_iowa": CostInputs().corn_usd_per_bu,
+    "sbm_iowa": CostInputs().sbm_usd_per_ton,
+    "ddgs_iowa": CrushInputs().ddgs_usd_per_ton,
+}
+FEED_LABEL = {
+    "corn_cash_iowa": "Iowa average cash corn (USDA AMS 2850)",
+    "sbm_iowa": "Iowa soybean meal 46.5-48% (USDA AMS 3511)",
+    "ddgs_iowa": "Iowa DDGS (USDA AMS 3511)",
+}
+
+
+def feed_default(item: str) -> float:
+    """Latest USDA price for a feed item, else the model default. Rounded to the input step."""
+    got = feed.latest(feed_prices()[0], item)
+    if got is None:
+        return _FEED_FALLBACK[item]
+    return round(got[0], 2) if item == "corn_cash_iowa" else float(round(got[0]))
+
+
+def feed_help(item: str) -> str:
+    got = feed.latest(feed_prices()[0], item)
+    if got is None:
+        return "No USDA price saved yet; this is the model default."
+    return f"Starts at {FEED_LABEL[item]}, {got[1]:%b %d, %Y}. Use your own bid if you have one."
+
+
 def latest_weaned_pig() -> float:
     pigs, _, _ = weaned_pigs()
     return round(float(pigs["cash_usd_per_head"].iloc[-1]), 2)
@@ -503,7 +540,9 @@ def herd_from_state() -> HerdInputs:
 def cost_from_state(herd: HerdInputs) -> CostInputs:
     """CostInputs from the saved widget values; hog price defaults to the latest index."""
     ss = st.session_state
-    upd: dict[str, float] = {"lean_hog_usd_per_cwt_carcass": latest_hog_index()}
+    upd: dict[str, float] = {"lean_hog_usd_per_cwt_carcass": latest_hog_index(),
+                             "corn_usd_per_bu": feed_default("corn_cash_iowa"),
+                             "sbm_usd_per_ton": feed_default("sbm_iowa")}  # fmt: skip
     upd.update({field: float(ss[key]) for key, field in COST_KEYS.items() if key in ss})
     upd.update(weight_lb_live_market=herd.weight_lb_live_market, carcass_yield=herd.carcass_yield)
     return CostInputs().model_copy(update=upd)
@@ -513,10 +552,10 @@ def crush_from_state() -> CrushInputs:
     """Wean-to-finish inputs from saved widget values; the pig price defaults to USDA's latest
     and corn/SBM to the shared Costs & returns prices."""
     ss = st.session_state
-    d = CostInputs()
     upd: dict[str, float | int] = {"pig_usd_per_head": latest_weaned_pig(),
-                                   "corn_usd_per_bu": d.corn_usd_per_bu,
-                                   "sbm_usd_per_ton": d.sbm_usd_per_ton}  # fmt: skip
+                                   "corn_usd_per_bu": feed_default("corn_cash_iowa"),
+                                   "sbm_usd_per_ton": feed_default("sbm_iowa"),
+                                   "ddgs_usd_per_ton": feed_default("ddgs_iowa")}  # fmt: skip
     for key, (field, scale) in W2F_KEYS.items():
         if key in ss and ss[key] is not None:
             v = ss[key] * scale
@@ -577,6 +616,8 @@ def uses_benchmarks() -> bool:
     p = current_plan()
     default = CostInputs(
         lean_hog_usd_per_cwt_carcass=p.cost.lean_hog_usd_per_cwt_carcass,
+        corn_usd_per_bu=feed_default("corn_cash_iowa"),
+        sbm_usd_per_ton=feed_default("sbm_iowa"),
         weight_lb_live_market=p.herd.weight_lb_live_market,
         carcass_yield=p.herd.carcass_yield,
     )
@@ -846,7 +887,7 @@ def page_footer() -> None:
     left = (f"Prepared by {_safe(who)} · " if who else "Prepared ") + f"{date.today():%B %d, %Y}"
     _html(
         f'<div class="hp-footer"><span>{left}</span>'
-        "<span>Data: USDA AMS LM_HG201 &amp; Feeder Pig Report · USDA NASS · "
+        "<span>Data: USDA AMS (LMR, feeder pig, Iowa grain &amp; feedstuffs) · USDA NASS · "
         "Iowa State University Estimated Livestock Returns · "
         "Projections, not financial advice</span></div>"
     )
