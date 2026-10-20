@@ -7,6 +7,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from hogproj import board as brd
 from hogproj.book import (
     RULE_MODES,
     Hedge,
@@ -39,6 +40,7 @@ from hogproj.ui import (
     hero,
     lh_key,
     live_number,
+    margin_board,
     masthead,
     md,
     quote,
@@ -259,6 +261,61 @@ with hero("hedge"):
     )
 
 st.space("medium")
+
+# --- Forward margin board: pigs not placed yet ---------------------------------------------------
+fb = margin_board()
+if not fb.empty:
+    ranks, margins = brd.trend(date.today(), fb)
+    top = fb.loc[fb["rank"].idxmax()]
+    was = ranks.loc[top["contract"], "2 wk ago"]
+    moved = (f", {'up' if top['rank'] >= was else 'down'} from {ordinal(was)} two weeks ago"
+             if pd.notna(was) else "")  # fmt: skip
+    chart_title(
+        f"Pigs placed {top['placed_from']:%b} {top['placed_from'].day}–{top['placed_to']:%b} "
+        f"{top['placed_to'].day} sell into {top['contract']} for {usd(top['margin_usd'])} a pig, "
+        f"the best ahead ({ordinal(top['rank'])} percentile{moved})",
+        "Pigs not placed yet · margin per pig at today's contract prices, ranked against every "
+        "placement since 2020 · colour: rank (green high, red low)",
+    )
+    cols = [c for c in ranks.columns if ranks[c].notna().any()]
+    z = ranks[cols].to_numpy(dtype=float)
+    txt = [[("" if np.isnan(r) else f"{usd(m)}<br><span style='font-size:10px'>{ordinal(r)}"
+             "</span>") for r, m in zip(rr, mm, strict=True)]
+           for rr, mm in zip(z, margins[cols].to_numpy(dtype=float), strict=True)]  # fmt: skip
+    hm_fig = go.Figure(go.Heatmap(
+        z=z, x=cols, y=list(ranks.index), text=txt, texttemplate="%{text}", zmin=0, zmax=100,
+        colorscale=[[0, "#c8453a"], [0.5, "#ece7dc"], [1, "#178a6a"]], showscale=False,
+        xgap=3, ygap=3, hovertemplate="%{y}, %{x}: %{z:.0f}th percentile<extra></extra>",
+        textfont={"size": 12.5, "color": INK},
+    ))  # fmt: skip
+    hm_fig.update_yaxes(autorange="reversed", showgrid=False, tickfont={"size": 12.5})
+    hm_fig.update_xaxes(side="top", showgrid=False, tickfont={"size": 11.5})
+    hm_fig.update_layout(margin={"l": 4, "r": 4, "t": 28, "b": 4}, hovermode="closest")
+    left, right = st.columns([0.3 * len(cols) + 0.5, 2.1], gap="large")
+    with left:
+        chart(hm_fig, 70 + 46 * len(ranks), on=PAGE)
+        if len(cols) == 1:
+            st.caption("Earlier columns fill in as the app is used: it keeps one board a day.")
+    with right:
+        table(["Contract", "Placed", "Hogs $/cwt", "Margin $/cwt", "Hog:corn", "Rule says"],
+              [[r["contract"],
+                f"{r['placed_from']:%b} {r['placed_from'].day}–{r['placed_to']:%b} "
+                f"{r['placed_to'].day}",
+                usd(r["hog_usd_per_cwt"]), usd(r["margin_usd_per_cwt"]),
+                f"{r['hog_corn_ratio']:.1f}",
+                {"good": "In place", "caution": f"Hedge {hrule.target:.0%}",
+                 "neutral": "Wait" if hrule.mode != "off" else "–"}[str(r["rule_tone"])]]
+               for r in fb.to_dict("records")])  # fmt: skip
+    source_note(
+        "your contract prices, USDA weaned pig seasonality, corn "
+        + ("curve" if book.corn_mode == "Futures curve" else "cash"),
+        f"pig price expected for each placement week; hog:corn = live hog price ÷ corn $/bu; "
+        f"your rule: {hrule.describe()}",
+    )
+    excel_button({"Forward board": fb, "Rank by week": ranks.reset_index(names="contract"),
+                  "Margin by week": margins.reset_index(names="contract")},
+                 "forward_margin_board", "Forward margin board", "model")  # fmt: skip
+    rule()
 
 chart_title(
     "What your rule says, contract by contract",

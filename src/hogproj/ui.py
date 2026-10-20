@@ -1130,6 +1130,24 @@ def crush_book() -> CrushBook:
                      curve=curve, price_source=source)  # fmt: skip
 
 
+def margin_board() -> pd.DataFrame:
+    """The forward margin board at today's contract prices (board.summarize), saved once a day
+    when online so its trend builds up."""
+    from hogproj import board
+    from hogproj.crush import contract_label
+
+    book = crush_book()
+    history = book.rows[book.rows["status"] == "sold"]["margin_usd"].to_numpy(dtype=float)
+    ss = st.session_state
+    hedged = {contract_label(k): float(ss.get(f"w2f_hedge_{k[0]}_{k[1]:02d}_pct") or 0) / 100
+              for k in book.contracts}  # fmt: skip
+    b = board.summarize(book.forward if book.forward is not None else pd.DataFrame(), history,
+                        hedge_rule_from_state(), book.c.carcass_cwt, hedged)  # fmt: skip
+    if not get_settings().offline:
+        board.record(date.today(), b)
+    return b
+
+
 def current_plan() -> Plan:
     """The plan from every input the user has set on any page (defaults where unset)."""
     herd = herd_from_state()
