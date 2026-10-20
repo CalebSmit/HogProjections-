@@ -91,6 +91,8 @@ pio.templates["hogproj"] = go.layout.Template(
         colorway=[ACCENT, *SERIES],
         margin={"l": 4, "r": 8, "t": 8, "b": 4},
         hovermode="x unified",
+        # When an input changes, bars and lines glide to their new values instead of jumping.
+        transition={"duration": 380, "easing": "cubic-in-out"},
         hoverlabel={
             "bgcolor": SURFACE,
             "bordercolor": LINE,
@@ -261,6 +263,57 @@ p, li {{ line-height: 1.55; }}
 .hp-table {{ border: 0 !important; }}
 
 /* Legacy insight card (pages not yet migrated) */
+/* --- Motion: quick, calm, never in the way ------------------------------------------- */
+:root {{ --ease: cubic-bezier(.22, .61, .36, 1); }}
+html {{ scroll-behavior: smooth; }}
+@keyframes hp-rise {{ from {{ opacity: 0; transform: translateY(8px); }}
+                      to {{ opacity: 1; transform: none; }} }}
+@keyframes hp-fade {{ from {{ opacity: 0; }} to {{ opacity: 1; }} }}
+@keyframes hp-pop {{ from {{ opacity: 0; transform: translateY(-4px) scale(.985); }}
+                     to {{ opacity: 1; transform: none; }} }}
+/* A page arrives in two beats: the headline, then its panels and charts. Only while it's
+   arriving (`motion_script` marks the body settled shortly after each page change), so
+   elements Streamlit re-creates when an input changes don't replay their entrance. */
+body:not(.hp-settled) [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"] {{
+         animation: hp-rise .45s var(--ease) both; }}
+body:not(.hp-settled) [data-testid="stMainBlockContainer"] [class*="st-key-hero"],
+body:not(.hp-settled) [data-testid="stMainBlockContainer"] [class*="st-key-card_"] {{
+         animation: hp-rise .55s var(--ease) .06s both; }}
+body:not(.hp-settled) .js-plotly-plot {{ animation: hp-fade .6s var(--ease) .12s both; }}
+/* While the page recalculates, dim softly (after a beat) instead of flashing grey. */
+[data-testid="stElementContainer"] {{ transition: opacity .28s var(--ease); }}
+[data-stale="true"] {{ opacity: .62 !important;
+         transition: opacity .35s var(--ease) .18s !important; }}
+/* Panels and cards answer the pointer. */
+[class*="st-key-hero"], [class*="st-key-card_"] {{
+         transition: box-shadow .3s var(--ease), border-color .3s var(--ease); }}
+[class*="st-key-hero"]:hover, [class*="st-key-card_"]:hover {{ border-color: #dcd5c7;
+         box-shadow: 0 1px 2px rgba(29,37,32,.04), 0 12px 32px -18px rgba(29,37,32,.22); }}
+.hp-insight {{ transition: transform .28s var(--ease), box-shadow .28s var(--ease),
+         border-color .28s var(--ease); }}
+.hp-insight:hover {{ transform: translateY(-2px); border-color: #dcd5c7;
+         box-shadow: 0 14px 30px -18px rgba(29,37,32,.28); }}
+[class*="st-key-assume"] [data-testid="stPopover"] button {{
+         transition: background .2s var(--ease), border-color .2s var(--ease),
+         box-shadow .2s var(--ease); }}
+[class*="st-key-assume"] [data-testid="stPopover"] button:hover {{ background: #fcfbf8;
+         box-shadow: 0 2px 8px -4px rgba(29,37,32,.18); }}
+[data-testid="stPopoverBody"] {{ animation: hp-pop .22s var(--ease) both; border-radius: 10px; }}
+[data-testid="stSidebarNavLink"] {{ transition: background .2s var(--ease); }}
+[data-testid="stSidebarNavLink"]:hover {{ background: rgba(31,92,69,.06); }}
+[data-testid="stSidebarNavLink"] span {{ transition: color .2s var(--ease); }}
+button, [data-testid="stBaseButton-tertiary"] {{ transition: color .2s var(--ease),
+         background .2s var(--ease), border-color .2s var(--ease); }}
+[data-testid="stBaseButton-tertiary"]:hover p {{ color: var(--accent); }}
+.hp-signal, .hp-table tbody tr {{ transition: background .18s var(--ease); }}
+.hp-table tbody tr:hover {{ background: #faf8f3; }}
+[data-testid="stExpander"] details {{ transition: border-color .2s var(--ease); }}
+[data-testid="stExpander"] details:hover {{ border-color: #d9d2c4; }}
+@media (prefers-reduced-motion: reduce) {{
+  *, *::before, *::after {{ animation: none !important; transition: none !important;
+         scroll-behavior: auto !important; }}
+}}
+
 /* Print (or Save as PDF): just the report — no sidebar, toolbar, inputs or buttons. */
 @media print {{
   [data-testid="stSidebar"], [data-testid="stHeader"], [data-testid="stToolbar"],
@@ -287,6 +340,8 @@ p, li {{ line-height: 1.55; }}
 .hp-signal-d {{ font-size: 13.5px; color: var(--ink2); line-height: 1.45; margin-top: 1px; }}
 .hp-insight {{ background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
          padding: 18px 22px; margin: 6px 0 16px; }}
+/* Cards side by side line up: same height in a row of columns (desktop only). */
+@media (min-width: 900px) {{ [data-testid="stColumn"] .hp-insight {{ min-height: 236px; }} }}
 .hp-insight-head {{ font-family: var(--serif); font-size: 21px; font-weight: 600;
          color: var(--ink); margin: 10px 0 4px; line-height: 1.3; }}
 .hp-facts {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
@@ -304,6 +359,34 @@ p, li {{ line-height: 1.55; }}
 .hp-section-sub {{ font-size: 12.5px; color: var(--muted); margin: 3px 0 8px; }}
 </style>
 """
+
+
+_MOTION_JS = """
+<script>
+const d = window.parent.document;
+if (!d.__hpMotion) {
+  d.__hpMotion = true;
+  let path = null;
+  const settle = () => {
+    d.body.classList.remove("hp-settled");
+    clearTimeout(d.__hpTimer);
+    d.__hpTimer = setTimeout(() => d.body.classList.add("hp-settled"), 1600);
+  };
+  setInterval(() => {
+    const p = window.parent.location.pathname;
+    if (p !== path) { path = p; settle(); }
+  }, 120);
+}
+</script>
+"""
+
+
+def motion_script() -> None:
+    """Entrance animations play when a page arrives, not on every rerun (see the CSS)."""
+    import streamlit.components.v1 as components
+
+    with st.sidebar:
+        components.html(_MOTION_JS, height=0)
 
 
 def setup_page() -> None:

@@ -252,7 +252,8 @@ for r in summary.to_dict("records"):
     short = {"good": "In place", "caution": f"Hedge {target:.0%}", "neutral": "Wait"}[tone]
     rows.append([r["label"], f"{r['head']:,.0f}", usd(r["market_usd_per_cwt"]),
                  f"{r['hedged_share']:.0%}", usd(r["margin_usd_per_head"]),
-                 usd_short(r["margin_usd"]), f"{ordinal(r['rank'])}", short])  # fmt: skip
+                 usd_short(r["margin_usd"]),
+                 "lowest" if r["rank"] < 1 else ordinal(r["rank"]), short])  # fmt: skip
 table(["Contract", "Pigs", "Price $/cwt", "Hedged", "Margin/pig", "Total", "Rank", "Rule says"],
       rows,
       emphasis_col=3)  # fmt: skip

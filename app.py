@@ -13,6 +13,7 @@ from hogproj.ui import (
     asset,
     data_status,
     is_live,
+    motion_script,
     page_footer,
     saved_inputs,
     setup_page,
@@ -103,6 +104,7 @@ page = st.navigation(
 warm_data()  # all USDA sources in parallel on the first run
 page.run()
 page_footer()
+motion_script()
 
 with st.sidebar:  # after the page so it sits below the page's own inputs
     st.header("Your setup")

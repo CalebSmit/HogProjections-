@@ -1,6 +1,7 @@
 """Market archive: the weekly record since 2020 — every series in one table, by year."""
 
 import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -138,7 +139,7 @@ with right:
     view = w if year_pick in (None, "All") else w[w["week_ending"].dt.year == int(year_pick)]
     named = view.rename(columns={c: f"{n} ({u})" for c, (n, u) in archive.COLUMNS.items()})
     st.download_button("CSV", named.to_csv(index=False), "hog_market_archive.csv", "text/csv",
-                       icon=":material/download:", width="stretch", on_click="ignore")  # fmt: skip
+                       icon=":material/download:", type="tertiary", on_click="ignore")  # fmt: skip
     excel_button(
         {"Weekly": named,
          "By year": a.rename(columns={c: f"{n} ({u})" for c, (n, u) in archive.COLUMNS.items()})},
@@ -151,18 +152,22 @@ with right:
     )
 
 rule()
-st.dataframe(
-    view.sort_values("week_ending", ascending=False),
-    hide_index=True,
-    column_config={
-        "week_ending": st.column_config.DateColumn("Week ending", format="MMM D, YYYY"),
-        "index": st.column_config.NumberColumn("Lean Hog Index", format="dollar"),
-        "cutout": st.column_config.NumberColumn("Cutout", format="dollar"),
-        "spread_per_head": st.column_config.NumberColumn("Packer spread/hd", format="dollar"),
-        "head": st.column_config.NumberColumn("Slaughter", format="%,.0f"),
-        "weight_lb": st.column_config.NumberColumn("Carcass lb", format="%.1f"),
-        "weaned_pig": st.column_config.NumberColumn("Weaned pig", format="dollar"),
-        "crush_margin": st.column_config.NumberColumn("Crush margin", format="dollar"),
-        "corn": st.column_config.NumberColumn("Iowa corn", format="dollar"),
-    },
+money = "${:,.2f}".format
+shown_cols = {"week_ending": "Week ending", "index": "Lean Hog Index", "cutout": "Cutout",
+              "spread_per_head": "Packer spread/hd", "head": "Slaughter",
+              "weight_lb": "Carcass lb", "weaned_pig": "Weaned pig",
+              "crush_margin": "Crush margin", "corn": "Iowa corn"}  # fmt: skip
+tbl = view.sort_values("week_ending", ascending=False)[list(shown_cols)].rename(columns=shown_cols)
+fmts = {
+    "Week ending": "{:%b %d, %Y}".format,
+    "Slaughter": "{:,.0f}".format,
+    "Carcass lb": "{:.1f}".format,
+}
+for k in ("Lean Hog Index", "Cutout", "Packer spread/hd", "Weaned pig", "Crush margin",
+          "Iowa corn"):  # fmt: skip
+    fmts[k] = money
+# Shown as text so missing weeks read "–" (the grid would print "None").
+shown = pd.DataFrame(
+    {k: [("–" if pd.isna(v) else fmts[k](v)) for v in tbl[k]] for k in tbl.columns}
 )
+st.dataframe(shown, hide_index=True)

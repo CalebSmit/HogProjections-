@@ -370,3 +370,21 @@ Newest at the bottom.
   (`-(feed)+(non-feed)+(debt)`): the cached values were right but Excel would have shown wrong
   margins after any edit. Fixed, and the recalculation is now a test (`formulas` dev dependency);
   verified it fails with the bug put back.
+
+## 2026-10-20 — Section downloads, since last week, motion and polish
+
+- `export.tables_xlsx` + `ui.excel_button`: an Excel link under each section that makes sense
+  (14 pages): readable headers with units, number/date formats, frozen header, filters, an About
+  sheet. Built on click (`data=` callable) and `on_click="ignore"` so nothing reruns; every other
+  download now behaves the same.
+- `snapshots.py`: one snapshot per day of what This week said (only when online, so tests and
+  offline use don't write it). "Since last week" splits the margin change into hog contract,
+  weaned pig, corn and other inputs.
+- Farm outlook report adds Market signals, Wean to finish on feed and Sow farm cost sheets.
+- Motion: pages arrive in two beats (content rises, charts fade); a tiny script marks the page
+  settled 1.6 s after each navigation so elements Streamlit re-creates on an input change don't
+  replay (measured: entrance animations 16 → 0 on rerun, 32 on navigation). Charts glide to new
+  values (Plotly transition). Recalculation dims softly after a beat. Hover states on panels,
+  cards, chips, nav, table rows; popovers ease in; `prefers-reduced-motion` respected.
+- Polish: decision cards line up; "lowest" instead of "0th"; archive table shows "–" for gaps
+  (the grid printed "None"); archive CSV link matches the Excel link.
