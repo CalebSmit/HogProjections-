@@ -28,6 +28,7 @@ from hogproj.ui import (
     assumption_bar,
     chart,
     chart_title,
+    crush_book,
     end_tag,
     excel_button,
     feed_default,
@@ -167,7 +168,7 @@ with bar:
         path_choice = st.segmented_control(
             "Hog price over time",
             ["Seasonal", "Flat"],
-            default="Seasonal",
+            default=None if "cost_price_path" in st.session_state else "Seasonal",
             key="cost_price_path",
             help="Seasonal starts at your hog price and follows the typical monthly pattern in "
             "USDA data. Flat keeps today's price every week.",
@@ -381,6 +382,18 @@ fuel, fuel_src, _ = fuel_prices()
 if not fuel.empty:
     rule()
     left, mid, right = st.columns([1, 0.06, 1])
+    freight = crush_book().c.freight_usd
+    FUEL_SHARE = 0.30  # diesel's share of trucking cost (ATRI operating-cost survey, ~25-35%)
+    PROPANE_GAL = 1.0  # gallons per pig, wean to finish in a Midwest heating season
+
+    def per_pig(name: str, now_: float, yoy_: float, ago_: pd.DataFrame) -> str:
+        if name == "diesel_us":
+            d_ = freight * FUEL_SHARE * yoy_ / (1 + yoy_)
+            return (f"{signed(d_)} a pig vs a year ago on your {usd(freight)} freight "
+                    f"(fuel ≈ {FUEL_SHARE:.0%} of trucking)")  # fmt: skip
+        d_ = PROPANE_GAL * (now_ - float(ago_["usd_per_gal"].iloc[-1]))
+        return f"{signed(d_)} a pig vs a year ago at about {PROPANE_GAL:.0f} gallon a pig"
+
     for col, name, label, why in (
         (left, "diesel_us", "Diesel", "trucking feed, pigs and market hogs"),
         (right, "propane_mn", "Propane (Minnesota)", "heating barns, October to March"),
@@ -406,7 +419,8 @@ if not fuel.empty:
                     if yoy
                     else ""
                 ),  # fmt: skip
-                f"EIA weekly retail price, $/gal · drives {why}",
+                f"EIA weekly retail price, $/gal · drives {why}"
+                + (f" · {per_pig(name, float(last['usd_per_gal']), yoy, ago)}" if yoy else ""),
             )
             recent = x[x["date"] >= last["date"] - pd.DateOffset(years=4)]
             # weekly grid, so the off-season (no survey) shows as a gap, not a straight line

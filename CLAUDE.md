@@ -28,7 +28,7 @@ Larger choices get an ADR in `docs/decisions/`. Use the `sync-docs` skill.
 ```bash
 uv sync                                  # install / update env
 uv run streamlit run app.py              # run app (http://localhost:8501)
-uv run pytest -q                         # tests
+uv run python -m pytest -q               # tests (pytest.exe may be blocked by Windows Application Control)
 uv run ruff check . --fix && uv run ruff format .
 uv run pyright                           # types
 ```

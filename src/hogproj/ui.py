@@ -1058,7 +1058,9 @@ def crush_workbook() -> bytes:
     usda = pigs.rename(columns=names)
     note = (f"Contract prices are the app's {book.price_source.lower()}; enter today's futures."
             if not book.user_set else "Contract prices are the ones you entered.")  # fmt: skip
-    return build_crush_workbook(c, places, contracts, corn_hedge, sold, usda, today, note)
+    return build_crush_workbook(
+        c, places, contracts, corn_hedge, sold, usda, today, note, board=margin_board()
+    )
 
 
 def futures_upload() -> None:

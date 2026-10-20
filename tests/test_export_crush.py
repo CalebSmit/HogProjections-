@@ -133,3 +133,23 @@ def test_formulas_recalculate_to_the_cached_values(tmp_path):
                     )
                     checked += 1
     assert checked > 70
+
+
+def test_forward_board_sheet():
+    hist = pd.DataFrame({"placed": pd.to_datetime(["2025-01-06"]),
+                         "sold": pd.to_datetime(["2025-06-15"]), "pig_usd": [60.0],
+                         "worth_usd": [70.0], "hog_usd_per_cwt": [100.0],
+                         "corn_usd_per_bu": [4.1], "cost_usd": [150.0],
+                         "margin_usd": [10.0]})  # fmt: skip
+    usda = pd.DataFrame({"week_ending": pd.to_datetime(["2026-10-16"]), "weaned_pig": [20.08]})
+    board = pd.DataFrame({
+        "contract": ["Jul 2027"], "placed_from": pd.to_datetime(["2027-01-12"]),
+        "placed_to": pd.to_datetime(["2027-02-02"]), "hog_usd_per_cwt": [80.0],
+        "pig_expected_usd": [24.0], "margin_usd": [1.14], "low_usd": [-25.0],
+        "high_usd": [27.0], "rank": [49.0], "hog_corn_ratio": [13.7],
+        "rule_says": ["At the 49th percentile, below your 75th-percentile trigger: wait."],
+    })  # fmt: skip
+    data = build_crush_workbook(C, P, K, (0.0, 4.0), hist, usda, date(2026, 10, 20), board=board)
+    ws = openpyxl.load_workbook(io.BytesIO(data))["Forward board"]
+    assert ws["A5"].value == "Jul 2027" and ws["F5"].value == pytest.approx(1.14)
+    assert ws["I5"].value == 49
