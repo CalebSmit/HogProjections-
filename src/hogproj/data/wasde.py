@@ -14,6 +14,7 @@ import httpx
 import pandas as pd
 
 from hogproj.config import CACHE_DIR, SAMPLE_DIR
+from hogproj.data.saved import newest
 
 URL = "https://www.usda.gov/oce/commodity/wasde/wasde{mmyy}.txt"
 WASDE_FILE = "wasde_pork.csv"
@@ -87,7 +88,7 @@ def load(offline: bool) -> tuple[pd.DataFrame, Source, str]:
             problem = f"Couldn't reach USDA ({type(e).__name__})."
     else:
         problem = "Offline mode."
-    path = cache if cache.exists() else SAMPLE_DIR / WASDE_FILE
+    path = newest(cache, SAMPLE_DIR / WASDE_FILE)
     df = pd.read_csv(path)
     return df, "cache" if path == cache else "sample", f"{problem} Showing saved WASDE."
 
@@ -118,7 +119,7 @@ def fetch_history(client: httpx.Client | None = None) -> pd.DataFrame:
 def load_history(offline: bool) -> tuple[pd.DataFrame, Source, str]:
     """Saved reports plus any new ones; the history only grows."""
     cache = CACHE_DIR / HISTORY_FILE
-    path = cache if cache.exists() else SAMPLE_DIR / HISTORY_FILE
+    path = newest(cache, SAMPLE_DIR / HISTORY_FILE)
     saved = pd.read_csv(path) if path.exists() else pd.DataFrame(columns=COLUMNS)
     if not offline:
         try:

@@ -58,7 +58,9 @@ if quotes_file is not None and ss.get("_fut_loaded") != quotes_file.file_id:
             touched().add(f"w2f_lh_{y}_{m:02d}")
         ss["w2f_asof"] = as_of or date.today()
         ss["_fut_msg"] = (f"Loaded {len(prices)} contract prices from {quotes_file.name}"
-                          + (f" (as of {as_of:%b %d})." if as_of else "."))  # fmt: skip
+                          + (f" (as of {as_of:%b %d})." if as_of else
+                             ". The file has no date, so today's is used: set the as-of date "
+                             "if these prices are older."))  # fmt: skip
     except (ValueError, KeyError, UnicodeDecodeError) as e:
         ss["_fut_msg"] = f"Couldn't read that file: {e}"
     ss["_fut_loaded"] = quotes_file.file_id

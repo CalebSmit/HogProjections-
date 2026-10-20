@@ -17,6 +17,7 @@ import pandas as pd
 
 from hogproj.config import CACHE_DIR, SAMPLE_DIR
 from hogproj.data.ams import DATAMART_URL, Source, _num
+from hogproj.data.saved import newest
 
 START = date(2020, 12, 7)
 REGIONS = {
@@ -64,7 +65,7 @@ def parse_weights(rows: list[dict]) -> list[dict]:
             lo, hi = _num(r.get(f"diff_{b}_min")), _num(r.get(f"diff_{b}_max"))
             if lo is None or hi is None:
                 continue
-            out.append({"date": _day(r), "band_lb": b, "discount": (lo + hi) / 2,
+            out.append({"date": _day(r), "band_lb": b, "discount": round((lo + hi) / 2, 4),
                         "low": lo, "high": hi})  # fmt: skip
     return out
 
@@ -114,9 +115,9 @@ def load(name: str, offline: bool) -> tuple[pd.DataFrame, Source, str]:
     """Return (data, source, note). Never raises for network problems."""
     _, _, file, keys = DATASETS[name]
     cache = CACHE_DIR / file
-    saved = (pd.read_csv(cache if cache.exists() else SAMPLE_DIR / file, parse_dates=["date"])
-             if (cache.exists() or (SAMPLE_DIR / file).exists()) else pd.DataFrame())  # fmt: skip
-    saved_source: Source = "cache" if cache.exists() else "sample"
+    path = newest(cache, SAMPLE_DIR / file)
+    saved = pd.read_csv(path, parse_dates=["date"]) if path.exists() else pd.DataFrame()
+    saved_source: Source = "cache" if path == cache else "sample"
     if not offline:
         try:
             since = (date.fromisoformat(str(saved["date"].max())[:10]) - timedelta(days=7)

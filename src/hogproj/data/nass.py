@@ -11,6 +11,7 @@ import httpx
 import pandas as pd
 
 from hogproj.config import CACHE_DIR, SAMPLE_DIR
+from hogproj.data.saved import newest
 
 QUICKSTATS_URL = "https://quickstats.nass.usda.gov/api/api_GET/"
 NASS_FILE = "nass_hogs_and_pigs.csv"
@@ -194,6 +195,6 @@ def load_corn(key: str, offline: bool, years: int = 8) -> tuple[pd.DataFrame, So
             return df, "live", "Live from USDA NASS Quick Stats (Iowa corn price received)."
         except (httpx.HTTPError, ValueError) as e:
             problem = f"Couldn't reach USDA NASS ({type(e).__name__})."
-    path = cache if cache.exists() else SAMPLE_DIR / CORN_FILE
+    path = newest(cache, SAMPLE_DIR / CORN_FILE)
     df = pd.read_csv(path, parse_dates=["month"])
     return df, "cache" if path == cache else "sample", f"{problem} Showing saved prices."

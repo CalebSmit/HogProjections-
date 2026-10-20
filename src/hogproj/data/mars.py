@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 
 from hogproj.config import CACHE_DIR, SAMPLE_DIR
+from hogproj.data.saved import newest
 
 BASE = "https://marsapi.ams.usda.gov/services/v1.2/reports"
 START = date(2020, 1, 1)
@@ -227,7 +228,7 @@ def load(name: str, key: str, offline: bool) -> tuple[pd.DataFrame, Source, str]
         slug, section, parser, date_col, file = DATASETS[name]
         keys = [date_col]
     cache = CACHE_DIR / file
-    path = cache if cache.exists() else SAMPLE_DIR / file
+    path = newest(cache, SAMPLE_DIR / file)
     saved = pd.read_csv(path, parse_dates=[date_col]) if path.exists() else None
     if not key:
         problem = "Add USDA_MMN_API_KEY to .env for USDA history."

@@ -10,6 +10,7 @@ import httpx
 import pandas as pd
 
 from hogproj.config import CACHE_DIR, SAMPLE_DIR
+from hogproj.data.saved import newest
 
 BASE = "https://www.eia.gov/dnav/pet/hist_xls"
 SERIES = {  # name -> (file, label)
@@ -55,6 +56,6 @@ def load(offline: bool) -> tuple[pd.DataFrame, Source, str]:
             problem = f"Couldn't reach EIA ({type(e).__name__})."
     else:
         problem = "Offline mode."
-    path = cache if cache.exists() else SAMPLE_DIR / EIA_FILE
+    path = newest(cache, SAMPLE_DIR / EIA_FILE)
     df = pd.read_csv(path, parse_dates=["date"])
     return df, "cache" if path == cache else "sample", f"{problem} Showing saved prices."

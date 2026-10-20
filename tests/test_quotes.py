@@ -55,3 +55,18 @@ def test_excel_quote_board():
 def test_rejects_files_without_hog_contracts():
     with pytest.raises(ValueError):
         parse(b"Symbol,Last\nZCZ26,4.67\n", "corn.csv", TODAY)
+
+
+def test_one_digit_year_picks_the_nearest_year_across_a_decade():
+    from hogproj.data.quotes import _contract
+
+    assert _contract("Z", "9", date(2030, 1, 15)) == (2029, 12)
+    assert _contract("G", "0", date(2029, 12, 1)) == (2030, 2)
+    assert _contract("Z", "6", date(2026, 10, 20)) == (2026, 12)
+    assert _contract("J", "8", date(2026, 10, 20)) == (2028, 4)
+
+
+def test_board_without_footer_uses_its_newest_trade_date():
+    csv = "Symbol,Last,Time\nHEZ26,73.4,10/16/26\nHEG27,76.1,10/15/26\n"
+    _, as_of = parse(csv.encode(), "quotes.csv", TODAY)
+    assert as_of == date(2026, 10, 16)

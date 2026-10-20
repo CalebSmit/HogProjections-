@@ -9,6 +9,7 @@ import streamlit as st
 
 from hogproj import hogmarket as hm
 from hogproj import supply
+from hogproj.freshness import is_current
 from hogproj.markets import seasonal_factors
 from hogproj.ui import (
     ACCENT,
@@ -27,6 +28,7 @@ from hogproj.ui import (
     hog_index,
     hog_market,
     market_signals,
+    mars_data,
     masthead,
     nass_data,
     pork_cutout,
@@ -283,15 +285,54 @@ with mid:
         '<div class="hp-vrule" style="height:380px"></div>',
         unsafe_allow_html=True,
     )
+fi_all = mars_data("fi_slaughter")[0]
+fi_now = hm.fi_vs_year_ago(fi_all)
+if fi_now is not None and not is_current("Inspected slaughter", fi_now["end"]):
+    fi_now = None  # stale here: the producer-sold count below is current
 with right:
-    chart_title(
-        f"Slaughter {abs(sl['pct']):.1%} {'above' if sl['pct'] >= 0 else 'below'} last year",
-        "Producer-sold barrows and gilts per week · head · shaded: range of 2021 to two years ago",
-    )
-    fh = overlay("head", ",.0f")
-    fh.update_yaxes(tickformat="~s")
-    chart(fh, 290, on=PAGE)
-    source_note("USDA AMS LM_HG201", "excludes packer-owned hogs; holiday-short weeks left out")
+    if fi_now is not None:  # all inspected hogs: the same count the Slaughter signal uses
+        fw_ = hm.fi_weekly(fi_all)
+        fw_ = fw_[fw_["week_ending"] <= pd.to_datetime(fi_all["date"]).max()].tail(52)
+        chart_title(
+            f"Slaughter {abs(fi_now['pct']):.1%} {'above' if fi_now['pct'] >= 0 else 'below'} "
+            "last year",
+            "All federally inspected hogs per week · head · last 4 weeks vs the same days a year "
+            "ago",
+        )
+        fh = go.Figure()
+        fh.add_scatter(
+            x=fw_["week_ending"],
+            y=fw_["head_year_ago"],
+            mode="lines",
+            name="A year ago",
+            line={"color": MUTED, "width": 1.5, "dash": "dot"},
+            hovertemplate="A year earlier: %{y:,.0f}<extra></extra>",
+        )
+        fh.add_scatter(
+            x=fw_["week_ending"],
+            y=fw_["head"],
+            mode="lines",
+            name="This year",
+            line={"color": ACCENT, "width": 2.2},
+            hovertemplate="Week ending %{x|%b %d}: %{y:,.0f}<extra></extra>",
+        )
+        fh.update_yaxes(tickformat="~s")
+        fh.update_xaxes(tickformat="%b %Y")
+        fh.update_layout(showlegend=False, margin={"l": 4, "r": 8, "t": 8, "b": 4})
+        chart(fh, 290, on=PAGE)
+        source_note("USDA AMS Daily Livestock Slaughter (AMS_3208), packer-owned included",
+                    f"producer-sold barrows and gilts (LMR): {sl['pct']:+.1%} on the same "
+                    "basis".replace("-", "−"))  # fmt: skip
+    else:
+        chart_title(
+            f"Slaughter {abs(sl['pct']):.1%} {'above' if sl['pct'] >= 0 else 'below'} last year",
+            "Producer-sold barrows and gilts per week · head · shaded: range of 2021 to two "
+            "years ago",
+        )
+        fh = overlay("head", ",.0f")
+        fh.update_yaxes(tickformat="~s")
+        chart(fh, 290, on=PAGE)
+        source_note("USDA AMS LM_HG201", "excludes packer-owned hogs; holiday-short weeks left out")
 
 rule()
 
@@ -366,8 +407,8 @@ if not wd.empty:
         one = acc.set_index("horizon").loc[1] if (acc["horizon"] == 1).any() else acc.iloc[0]
         ahead = "one quarter ahead" if (acc["horizon"] == 1).any() else "for the current quarter"
         st.caption(
-            f"How close USDA has been: across {int(acc['n'].sum())} forecasts from recent "
-            f"reports, the barrow/gilt price {ahead} ran "
+            f"How close USDA has been: in {int(one['n'])} recent forecasts of the barrow/gilt "
+            f"price {ahead}, USDA ran "
             f"{'high' if one['bias'] > 0 else 'low'} by {usd(abs(one['bias']))}/cwt live on "
             f"average (typical miss {usd(one['mae'])}). A small sample that grows each month; "
             "weigh USDA's price outlook with it in mind."

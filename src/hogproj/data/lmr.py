@@ -15,6 +15,7 @@ from pydantic import BaseModel
 
 from hogproj.config import CACHE_DIR, SAMPLE_DIR
 from hogproj.data.ams import DATAMART_URL, Source, _num
+from hogproj.data.saved import newest
 
 HISTORY_START = date(2020, 1, 1)
 
@@ -90,8 +91,9 @@ def load(
 ) -> tuple[pd.DataFrame, Source, str]:
     """Return (data, source, note). Never raises for network problems."""
     cache = CACHE_DIR / spec.file
-    saved = _read(cache) if cache.exists() else _read(SAMPLE_DIR / spec.file)
-    saved_source: Source = "cache" if cache.exists() else "sample"
+    saved_path = newest(cache, SAMPLE_DIR / spec.file)
+    saved = _read(saved_path)
+    saved_source: Source = "cache" if saved_path == cache else "sample"
     if not offline:
         try:
             first = date.fromisoformat(str(saved["date"].min())[:10])

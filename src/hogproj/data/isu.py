@@ -13,6 +13,7 @@ import httpx
 import pandas as pd
 
 from hogproj.config import CACHE_DIR, SAMPLE_DIR
+from hogproj.data.saved import newest
 
 URL = "https://estimatedreturns.econ.iastate.edu/files/inline-files/farrow_to_finish_pdf.pdf"
 ISU_FILE = "isu_farrow_to_finish.csv"
@@ -76,6 +77,6 @@ def load(offline: bool) -> tuple[pd.DataFrame, Source, str]:
             problem = f"Couldn't read Iowa State's report ({type(e).__name__})."
     else:
         problem = "Offline mode."
-    path = cache if cache.exists() else SAMPLE_DIR / ISU_FILE
+    path = newest(cache, SAMPLE_DIR / ISU_FILE)
     df = pd.read_csv(path, parse_dates=["sale_month"])
     return df, "cache" if path == cache else "sample", f"{problem} Showing saved figures."

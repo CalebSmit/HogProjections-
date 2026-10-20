@@ -182,7 +182,7 @@ def retail_vs_year_ago(retail: pd.DataFrame, weeks: int = 4) -> dict | None:
     if nat.empty or nat["activity_index_last_year"].sum() == 0:
         return None
     pct = nat["activity_index"].sum() / nat["activity_index_last_year"].sum() - 1
-    return {"pct": float(pct), "feature_rate": float(nat["feature_rate"].iloc[-1]),
+    return {"pct": float(pct), "feature_rate": float(nat["feature_rate"].mean()),
             "week": _ts(nat["week_ending"].iloc[-1])}  # fmt: skip
 
 
@@ -303,7 +303,8 @@ def signals(d: pd.DataFrame, supply_pct: float | None = None,
             "neutral": "Grocery pork features are close to last year.",
         }[tone]
         out.append(Signal("Retail features", f"{p:+.0%}".replace("-", "−") + " vs last year",
-                          read + f" ({retail['feature_rate']:.0%} of stores, last 4 weeks)",
+                          read + f" ({retail['feature_rate']:.0%} of stores featured pork, "
+                          "4-week average)",
                           tone, "5%+ more feature activity than a year ago = supportive; 5%+ "
                           "less = negative"))  # fmt: skip
 

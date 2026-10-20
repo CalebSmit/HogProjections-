@@ -13,6 +13,7 @@ import httpx
 import pandas as pd
 
 from hogproj.config import CACHE_DIR, SAMPLE_DIR
+from hogproj.data.saved import newest
 
 DATAMART_URL = "https://mpr.datamart.ams.usda.gov/services/v1.1/reports"
 HG201_SLUG = 2511
@@ -96,8 +97,9 @@ def load_hg201(offline: bool, start: date = HISTORY_START) -> tuple[pd.DataFrame
     `start`, then saves the merged history.
     """
     cache = CACHE_DIR / HG201_FILE
-    saved = _read(cache) if cache.exists() else _read(SAMPLE_DIR / HG201_FILE)
-    saved_source: Source = "cache" if cache.exists() else "sample"
+    saved_path = newest(cache, SAMPLE_DIR / HG201_FILE)
+    saved = _read(saved_path)
+    saved_source: Source = "cache" if saved_path == cache else "sample"
     if not offline:
         try:
             first = date.fromisoformat(str(saved["report_date"].min())[:10])
