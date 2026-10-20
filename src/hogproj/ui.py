@@ -37,6 +37,7 @@ from hogproj.finance import CostInputs
 from hogproj.herd import HerdInputs
 from hogproj.markets import lean_hog_index, seasonal_factors
 from hogproj.outlook import Plan
+from hogproj.sowfarm import SowInputs
 
 # --- Tokens ---------------------------------------------------------------------------------
 # IBM Plex Sans for UI and figures + Source Serif 4 for headlines (not the default Inter).
@@ -520,7 +521,7 @@ W2F_KEYS = {
     "w2f_principal": ("principal_usd", 1),
     "w2f_term_int": ("term_interest_usd", 1),
 }
-SAVED_PREFIXES = ("herd_", "cost_", "scn_", "risk_", "mkt_", "w2f_")
+SAVED_PREFIXES = ("herd_", "cost_", "scn_", "risk_", "mkt_", "w2f_", "sow_")
 DERIVED_KEYS = ("herd_inputs", "cost_inputs")
 
 
@@ -561,6 +562,31 @@ def crush_from_state() -> CrushInputs:
             v = ss[key] * scale
             upd[field] = int(v) if field == "days_on_feed" else float(v)
     return CrushInputs().model_copy(update=upd)
+
+
+SOW_KEYS = {
+    "sow_adder": "adder_usd_per_head",
+    "sow_corn_lb": "corn_lb_per_sow_yr",
+    "sow_sbm_lb": "sbm_lb_per_sow_yr",
+    "sow_other": "other_feed_usd_per_sow_yr",
+    "sow_nonfeed": "nonfeed_usd_per_sow_yr",
+    "cost_corn": "corn_usd_per_bu",
+    "cost_sbm": "sbm_usd_per_ton",
+}
+
+
+def sow_from_state() -> SowInputs:
+    """Sow farm inputs: productivity from Herd flow, feed prices shared with every page."""
+    ss = st.session_state
+    h = herd_from_state()
+    upd: dict[str, float] = {
+        "weaned_per_sow_yr": h.litters_per_sow_yr * h.born_alive_per_litter
+        * (1 - h.prewean_mortality),
+        "corn_usd_per_bu": feed_default("corn_cash_iowa"),
+        "sbm_usd_per_ton": feed_default("sbm_iowa"),
+    }  # fmt: skip
+    upd.update({f: float(ss[k]) for k, f in SOW_KEYS.items() if ss.get(k) is not None})
+    return SowInputs().model_copy(update=upd)
 
 
 def lh_key(k: Contract) -> str:

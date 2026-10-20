@@ -52,6 +52,7 @@ page = st.navigation(
         ],
         "Your operation": [
             st.Page("views/1_Herd_flow.py", title="Herd flow", icon=":material/timeline:"),
+            st.Page("views/11_Sow_farm.py", title="Sow farm", icon=":material/egg:"),
             st.Page(
                 "views/2_Costs_and_returns.py",
                 title="Costs & returns",

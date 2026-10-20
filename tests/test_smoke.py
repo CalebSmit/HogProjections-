@@ -103,3 +103,12 @@ def test_hedging_page_follows_hedges():
     pct[-1].set_value(50.0).run()
     assert not at.exception
     assert "locked in" in at.title[0].value
+
+
+def test_sow_farm_follows_herd_productivity():
+    at = app().switch_page("views/11_Sow_farm.py").run()
+    before = at.title[0].value
+    at.session_state["herd_born"] = 16.0  # more pigs per litter -> cheaper weaned pig
+    at.run()
+    assert not at.exception
+    assert at.title[0].value != before

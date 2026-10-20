@@ -228,3 +228,15 @@ Newest at the bottom.
 - Tests: open = unhedged at 0%, locked at 100%, linear between; corn hedge only moves cost;
   totals; what-if swing = head × cwt × move; rule tones; interaction test (hedge → headline).
 - Gate: ruff, pyright 0, 148 tests, screenshots reviewed (desktop + phone).
+
+## 2026-10-20 — Phase 5: sow farm and the integrated system
+
+- `sowfarm.py`: cost per weaned pig = (sow feed + non-feed per sow per year) / weaned per sow;
+  defaults reproduce ISU farrow-to-wean Sep 2026 ($43.91 at ~$4.00 corn, $300 SBM, 28.4 weaned).
+  Weekly sow farm margin since 2020 (Iowa corn by month), integrated = sow + finishing for each
+  placement already sold, by-year summary.
+- New **Sow farm** page: margin per weaned pig and per sow per year, price vs cost since 2023,
+  "selling weaned vs finishing your own" by year (finishing margin = what finishing adds), cost
+  lines, break-even productivity (only stated when realistic).
+- Tests: ISU reproduction, per-sow cost invariance, corn sensitivity, adder, monthly corn,
+  integrated = sum of parts, herd productivity → page headline.

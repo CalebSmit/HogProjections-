@@ -21,6 +21,7 @@ PAGES = {
     "overview": "",
     "guide": "Guide",
     "herd": "Herd_flow",
+    "sow": "Sow_farm",
     "costs": "Costs_and_returns",
     "w2f": "Wean_to_finish",
     "history": "Crush_history",

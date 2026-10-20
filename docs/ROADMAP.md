@@ -177,11 +177,11 @@ fake key and asserts it's scrubbed); fallback when the key is missing or wrong.
 ### Phase 5 — The sow side and the integrated system
 Goal: a weaned pig is a sow farm's revenue. Answers "sell pigs or finish them?"
 
-- [ ] Farrow-to-wean cost per weaned pig (ISU farrow-to-wean line items as defaults)
-- [ ] Sow farm margin = USDA weaned pig price (+ adder) − cost, history since 2020
-- [ ] Integrated margin per pig = sow farm + wean-to-finish, and the comparison
+- [x] Farrow-to-wean cost per weaned pig (ISU farrow-to-wean line items as defaults)
+- [x] Sow farm margin = USDA weaned pig price (+ adder) − cost, history since 2020
+- [x] Integrated margin per pig = sow farm + wean-to-finish, and the comparison
       "selling weaned pigs vs finishing them" by placement week
-- [ ] New page **Sow farm** (Your operation)
+- [x] New page **Sow farm** (Your operation)
 
 **Phase tests:** ISU farrow-to-wean published month reproduces; integrated = sum of parts
 (property); page smoke.
