@@ -8,6 +8,7 @@ import httpx
 import pandas as pd
 
 from hogproj.config import CACHE_DIR, SAMPLE_DIR
+from hogproj.data.saved import newest
 
 URL = "https://fred.stlouisfed.org/graph/fredgraph.csv"
 FRED_FILE = "fred_prime_rate.csv"
@@ -39,6 +40,6 @@ def load(offline: bool) -> tuple[pd.DataFrame, Source, str]:
             problem = f"Couldn't reach FRED ({type(e).__name__})."
     else:
         problem = "Offline mode."
-    path = cache if cache.exists() else SAMPLE_DIR / FRED_FILE
+    path = newest(cache, SAMPLE_DIR / FRED_FILE)
     df = pd.read_csv(path, parse_dates=["date"])
     return df, "cache" if path == cache else "sample", f"{problem} Showing the saved rate."

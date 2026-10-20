@@ -29,9 +29,10 @@ MAX_AGE_DAYS = {
     "Feeder pig flows": 10,
     "Hog by-product value": 10,
     "Retail pork features": 10,
-    "Iowa State costs": 75,
+    "Iowa State costs": 75,  # sale month; published about a month after
     "Diesel": 10,
-    "Inspected slaughter": 5,  # sale month; published about a month after
+    "Inspected slaughter": 5,
+    "Prime rate": 10,
 }
 
 
@@ -52,6 +53,12 @@ def check(name: str, latest: object, today: date, source: str) -> Freshness:
     ts = pd.Timestamp(str(latest))
     age = (pd.Timestamp(today) - ts.normalize()).days
     return Freshness(name, ts, int(age), MAX_AGE_DAYS.get(name), source)
+
+
+def is_current(name: str, latest: object, today: date | None = None) -> bool:
+    """False when a source's newest observation is past its limit (signals then skip it rather
+    than describe old data as recent)."""
+    return not check(name, latest, today or date.today(), "").behind
 
 
 def summary(items: list[Freshness]) -> tuple[bool, str]:

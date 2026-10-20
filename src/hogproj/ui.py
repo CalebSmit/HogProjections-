@@ -509,16 +509,21 @@ def market_signals() -> list:
     """Every hog market signal with every input the app has (one place, so pages agree)."""
     from hogproj import hogmarket as hm
     from hogproj import supply
+    from hogproj.freshness import is_current
 
+    fi = hm.fi_vs_year_ago(mars_data("fi_slaughter")[0])
+    if fi is not None and not is_current("Inspected slaughter", fi["end"]):
+        fi = None  # stale (e.g. no key on this machine): fall back to LMR producer-sold head
     return hm.signals(hog_market(), supply.next_six_months(nass_data()[0])["pct"], wasde_now(),
-                      storage_now(), retail_now(),
-                      hm.fi_vs_year_ago(mars_data("fi_slaughter")[0]))  # fmt: skip
+                      storage_now(), retail_now(), fi)  # fmt: skip
 
 
 def retail_now() -> dict | None:
+    from hogproj.freshness import is_current
     from hogproj.hogmarket import retail_vs_year_ago
 
-    return retail_vs_year_ago(mars_data("retail")[0])
+    got = retail_vs_year_ago(mars_data("retail")[0])
+    return got if got is not None and is_current("Retail pork features", got["week"]) else None
 
 
 @st.cache_data(ttl=24 * 3600, show_spinner=False)
@@ -1417,8 +1422,8 @@ def page_footer() -> None:
     left = (f"Prepared by {_safe(who)} · " if who else "Prepared ") + f"{date.today():%B %d, %Y}"
     _html(
         f'<div class="hp-footer"><span>{left}</span>'
-        "<span>Data: USDA AMS (LMR, feeder pig, Iowa grain &amp; feedstuffs) · USDA NASS · "
-        "Iowa State University Estimated Livestock Returns · "
+        "<span>Data: USDA (AMS, NASS, ERS, WASDE) · Iowa State University · U.S. EIA · "
+        "St. Louis Fed (FRED) · sources under each chart · "
         "Projections, not financial advice</span></div>"
     )
 
@@ -1500,6 +1505,9 @@ def data_status() -> list[Freshness]:
     dz = fp[fp["series"] == "diesel_us"]
     if not dz.empty:
         add("Diesel", dz["date"].max(), sf)
+    fr, sfr, _ = _fred(get_settings().offline)
+    if not fr.empty:
+        add("Prime rate", fr["date"].max(), sfr)
     idf, si, _ = isu_data()
     if not idf.empty:
         add("Iowa State costs", idf["sale_month"].max(), si)

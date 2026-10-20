@@ -231,6 +231,8 @@ if not sows_raw.empty:
     sp = nv.sow_price(sows_raw)
     heavy = sows_raw.dropna(subset=["avg_weight"])
     heavy = heavy[heavy["weight_range"].str.extract(r"(\d+)")[0].astype(float) >= 400]
+    recent_day = pd.to_datetime(heavy["date"])
+    heavy = heavy[recent_day > recent_day.max() - pd.Timedelta(weeks=8)]  # current weights
     wt = float((heavy["avg_weight"] * heavy["head"]).sum() / heavy["head"].sum())
     wk = sp.resample("W-FRI").mean().dropna()
     now_px = float(wk.iloc[-1])

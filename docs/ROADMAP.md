@@ -307,3 +307,85 @@ export sales — needs a free api.data.gov key from the user.
   data (so a fresh download is never old), runs the live parser checks, and fails loudly
   (GitHub emails the owner) if a USDA report changes format. Needs the MMN and NASS keys stored
   as GitHub repository secrets.
+
+## Phase 10 — Make it one clear weekly answer (plan, 2026-10-20)
+
+Inputs: a review of everything shipped in Phase 9 (code review plus a page-by-page read of
+every headline), and research into how CIH Margin Watch, Steiner's Daily Livestock Report,
+Sterling's Pork Profit Tracker, ISU/Ever.Ag, MSHMP/SDRS and EIA present the same kind of data.
+The theme: fewer, sharper answers that agree with each other, every number shown against its
+own history, and a one-page brief clients will actually forward.
+
+Each step ends with its test gate (ruff, pyright, pytest, AppTest on every page with and
+without the My Market News key, and screenshots of the changed pages).
+
+### 10.0 Fix what Phase 9 shipped (first, small)
+| # | Problem | Fix |
+|---|---|---|
+| 1 | Without the MMN key in GitHub, slaughter, drop value and retail samples freeze; the signals keep using them as "last 4 weeks" | Signals ignore a source past its freshness limit (Slaughter falls back to LMR); ask user to add the repo secret |
+| 2 | An old local cache beats a newer committed sample | Load whichever has the later date |
+| 3 | Hog market's slaughter chart (producer-sold, −2.8%) disagrees with its signal (all inspected, −0.1%) | Chart uses all inspected hogs; producer-sold as the thin line |
+| 4 | WASDE caption counts 14 forecasts but quotes a bias based on 4 | Quote the right count |
+| 5 | Retail signal says "last 4 weeks" for a one-week feature rate | Average the 4 weeks |
+| 6 | Propane shows May's price all summer as if current | "Last surveyed May 12" off-season |
+| 7 | Futures "HEZ9" read in Jan 2030 becomes 2039 | Pick the nearest year either way |
+| 8 | Weekly refresh rewrites hundreds of lines of float noise | Round before saving |
+| 9 | Delaware, West Virginia, Maine missing from the origin map; cull sow weight averaged since 2020; page footers list only the original sources | Add states; last 8 weeks; footer lists sources the page uses |
+| 10 | Quote exports with no date are stamped today, hiding stale files | Use the file's own dates, else ask |
+Gate: new tests for each (stale-source fallback, cache vs sample, year rollover).
+
+### 10.1 Every number against its own history (seasonal bands)
+One chart helper used everywhere a weekly series appears: this year (bold), last year (thin),
+and the 5-year min–max band (shaded), with a one-line verdict ("inside the usual range",
+"lowest for October since 2020"). Apply to: Lean Hog Index, cutout, inspected slaughter,
+carcass weights, weaned pig price, cold storage, sow prices, corn basis.
+Gate: helper unit tests (band math, leap years, missing weeks); screenshots.
+
+### 10.2 Forward margin board (the hedging decision)
+CIH-style: margin per pig for each marketing month ahead, colored by its percentile against
+every placement since 2020, with the trend over recent weeks (rows = weeks ago, from saved
+snapshots of each futures upload and of the seasonal estimate). Callout: "Apr 2027 is at the
+62nd percentile, up from 27th two weeks ago; your rule hedges at 75th." Lives on Hedging,
+summarized on This week. Adds hog/corn ratio and margin in $/cwt for analysts.
+Gate: percentile and snapshot tests; Excel sheet with the grid.
+
+### 10.3 This week as a scorecard
+- Three sentences up top that answer: margin now, best month to hedge, what changed.
+- Scorecard table: value, week change, year change, percentile vs 5 years, a status dot with
+  a word (never color alone) for ~10 metrics.
+- "Biggest movers" bars: what moved the margin per pig since last week, sorted.
+- A "watch list" of rule crossings: margin above the hedge trigger, coverage below policy,
+  sow prices or slaughter breaking their 5-year range.
+Gate: AppTest checks the sentences match the numbers on the detail pages.
+
+### 10.4 More of the market (new data, all free)
+| Data | Source / access | Shown as |
+|---|---|---|
+| Sow slaughter vs a year ago, as a herd liquidation signal | AMS_3658 weekly actual FI slaughter (MMN key, ~2 week lag) — check sow class; fallback LM_HG234 head counts | Hog supply + a signal |
+| Pork exports by destination (Mexico, China, Japan, Korea, Canada) | ERS Livestock & Meat Trade (monthly, keyless ZIP); FAS export sales (ESRQS, said to need no login since Mar 2026 — verify) | Small multiples with 5-year band, "top mover" line |
+| Disease pressure (PRRS/PED) | ISU SDRS public dashboard / monthly report; MSHMP charts (no data API) | Link card + a status the user sets; no scraping |
+| Farm-to-retail pork spread | ERS Meat Price Spreads (monthly, keyless) | Hog market demand section |
+| Canadian hogs into the U.S. | AAFC weekly exports to the U.S. (public) | National view, next to feeder pig origins |
+| Outside views | ERS Livestock, Dairy & Poultry Outlook; Rabobank quarterly summary | Quarterly digest row, entered by hand |
+| Benchmark check | Sterling Pork Profit Tracker (weekly, Drovers) | "Your margin vs industry benchmark" line, entered by hand |
+Not planned: packer capacity utilization (no free official series), CME data feeds (licensing).
+Gate: parser tests with fixtures, freshness entries, weekly refresh, Guide rows.
+
+### 10.5 The weekly brief clients forward
+One page PDF/print view: headline, scorecard, margin board, two charts, as-of dates and
+sources, Pipestone-ready. Download button on This week; Excel twin.
+Gate: render test; page fits on one letter page.
+
+### 10.6 Phone layout
+Scorecard-only stacked view under ~700 px; charts collapse to sparklines with the verdict.
+Gate: screenshots at 390 px width.
+
+### Order and size
+10.0 (half a day) → 10.1 (1 day) → 10.3 (1 day) → 10.2 (1–2 days) → 10.5 (1 day) →
+10.4 (2–3 days, source by source) → 10.6 (half a day).
+
+### Needs the user
+- Add `USDA_MMN_API_KEY` (and `NASS_API_KEY`) as GitHub repository secrets so the weekly
+  refresh keeps every source current (10.0 #1).
+- Confirm the hedge policy defaults (trigger percentile, target coverage) Pipestone uses.
+- Optional: whether Pipestone wants its logo/name on the brief (10.5).

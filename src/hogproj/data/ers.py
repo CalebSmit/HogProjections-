@@ -13,6 +13,7 @@ import httpx
 import pandas as pd
 
 from hogproj.config import CACHE_DIR, SAMPLE_DIR
+from hogproj.data.saved import newest
 
 URL = "https://www.ers.usda.gov/media/5539/livestock-domestic-data-machine-readable-files.zip"
 ERS_FILE = "ers_pork_cold_storage.csv"
@@ -56,6 +57,6 @@ def load(offline: bool) -> tuple[pd.DataFrame, Source, str]:
             problem = f"Couldn't reach USDA ERS ({type(e).__name__})."
     else:
         problem = "Offline mode."
-    path = cache if cache.exists() else SAMPLE_DIR / ERS_FILE
+    path = newest(cache, SAMPLE_DIR / ERS_FILE)
     df = pd.read_csv(path, parse_dates=["month"])
     return df, "cache" if path == cache else "sample", f"{problem} Showing saved cold storage."

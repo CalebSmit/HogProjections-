@@ -394,9 +394,16 @@ if not fuel.empty:
             else None
         )
         with col:
+            off = (pd.Timestamp.today() - pd.Timestamp(last["date"])).days > 21  # off-season
             chart_title(
                 f"{label} {usd(float(last['usd_per_gal']))}/gal"
-                + (f", {abs(yoy):.0%} {'above' if yoy > 0 else 'below'} a year ago" if yoy else ""),
+                + (
+                    f", last surveyed {last['date']:%b} {last['date'].day}"
+                    if off
+                    else f", {abs(yoy):.0%} {'above' if yoy > 0 else 'below'} a year ago"
+                    if yoy
+                    else ""
+                ),  # fmt: skip
                 f"EIA weekly retail price, $/gal · drives {why}",
             )
             recent = x[x["date"] >= last["date"] - pd.DateOffset(years=4)]

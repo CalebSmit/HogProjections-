@@ -32,9 +32,10 @@ def _contract(code: str, yy: str, today: date) -> tuple[int, int]:
     month = MONTH_CODES[code.upper()]
     if len(yy) == 2:
         return 2000 + int(yy), month
-    year = today.year - today.year % 10 + int(yy)  # one digit: the nearest decade that fits
-    if year < today.year - 1:
-        year += 10
+    # One digit: the year ending in that digit nearest to today (contracts list ~2 years out, and
+    # a file may be a few months old), so in Jan 2030 "Z9" is Dec 2029, not 2039.
+    base = today.year - today.year % 10 + int(yy)
+    year = min((base - 10, base, base + 10), key=lambda y: abs(y - today.year))
     return year, month
 
 
@@ -73,6 +74,13 @@ def parse(data: bytes, name: str, today: date | None = None
         r"as of (\d{2})-(\d{2})-(\d{4})", data.decode("utf-8", errors="ignore"))  # fmt: skip
     if found:
         as_of = datetime(int(found[3]), int(found[1]), int(found[2])).date()
+    if out and as_of is None:  # no "as of" line: the newest trade date on the board, if any
+        cols = {str(c).strip().lower(): c for c in df.columns}
+        date_col = next((cols[c] for c in DATE_COLUMNS if c in cols), None)
+        if date_col is not None:
+            d = pd.to_datetime(df[date_col], errors="coerce", format="mixed").dropna()
+            d = d[d.dt.date <= today]
+            as_of = pd.Timestamp(str(d.max())).date() if len(d) else None
     if out:
         return out, as_of
     # A single contract's history: symbol in the file name, newest row's price.

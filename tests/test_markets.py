@@ -99,10 +99,19 @@ def test_network_failure_falls_back_to_cache_then_sample(tmp_cache, monkeypatch)
     assert source == "sample"
     assert "Couldn't reach USDA" in note
 
-    ams.parse_hg201(fixture_payload()).to_csv(tmp_cache / ams.HG201_FILE, index=False)
+    old = ams.parse_hg201(fixture_payload())  # Oct 16, 2026: older than the bundled sample
+    old.to_csv(tmp_cache / ams.HG201_FILE, index=False)
+    _, source, _ = ams.load_hg201(offline=False)
+    assert source == "sample"  # a newer sample (from git pull) beats an old cache
+
+    newer = old.assign(
+        report_date=old["report_date"] + pd.DateOffset(years=1),
+        slaughter_date=old["slaughter_date"] + pd.DateOffset(years=1),
+    )
+    newer.to_csv(tmp_cache / ams.HG201_FILE, index=False)
     df, source, note = ams.load_hg201(offline=False)
     assert source == "cache"
-    assert "Oct 16, 2026" in note
+    assert "Oct 16, 2027" in note
     assert df["report_date"].dtype.kind == "M"
 
 
