@@ -384,8 +384,17 @@ Gate: screenshots at 390 px width.
 10.0 (half a day) → 10.1 (1 day) → 10.3 (1 day) → 10.2 (1–2 days) → 10.5 (1 day) →
 10.4 (2–3 days, source by source) → 10.6 (half a day).
 
+### Status (2026-10-20)
+Done: 10.0 fixes (PR #11), 10.1 seasonal ranges (#12), 10.3 scorecard, watch list and a
+selectable hedge rule — rank, margin per pig or none (#13), 10.2 forward margin board (#14),
+10.5 one-page PDF brief, unbranded (#15), 10.4 sow slaughter (AMS_3658), pork exports, live
+hog imports and pork price spreads from ERS, disease links (#16), 10.6 phone scorecard.
+Not done: FAS weekly export sales (ERS monthly covers exports); Canadian AAFC weekly (ERS
+monthly covers imports); outside-view and benchmark rows entered by hand (left out: they go
+stale unless someone keeps them up).
+
 ### Needs the user
 - Add `USDA_MMN_API_KEY` (and `NASS_API_KEY`) as GitHub repository secrets so the weekly
   refresh keeps every source current (10.0 #1).
-- Confirm the hedge policy defaults (trigger percentile, target coverage) Pipestone uses.
-- Optional: whether Pipestone wants its logo/name on the brief (10.5).
+- Hedge rule: decided — users choose the rule type and numbers (no fixed policy).
+- Brief branding: decided — no Pipestone name or logo.

@@ -411,3 +411,17 @@ Newest at the bottom.
 - Freshness guard covers every source; weekly GitHub Action refreshes keyless data (and MMN /
   NASS too once their keys are added as repository secrets).
 - Not done and why: see ROADMAP Phase 9 Status.
+
+## 2026-10-20 — Phase 10: one clear weekly answer
+
+- 10.0: signals skip stale sources; newer of cache and sample wins; slaughter chart and signal
+  agree; wording, futures-year and float-churn fixes.
+- 10.1: `seasonal.py` + `ui.seasonal_chart`: this year, last year, range of the five years
+  before (2020 out), and a verdict, on Hog market, Sow farm and Wean to finish.
+- 10.3: This week leads with the answer; `scorecard.py` (10 measures, sparkline, range, status
+  for a hog producer); watch list of things to act on; `book.HedgeRule` (rank, margin, none).
+- 10.2: `board.py` forward margin board with a daily snapshot and a rank-trend heatmap.
+- 10.5: `brief_pdf.py` one-page PDF (fpdf2), unbranded, always one page.
+- 10.4: AMS_3658 sow slaughter + signal; ERS pork exports, live hog imports, price spreads
+  (keyless); export signal; Demand section; pigs from Canada; disease links.
+- 10.6: scorecard rows become cards under 700 px; every page checked at 390 px.

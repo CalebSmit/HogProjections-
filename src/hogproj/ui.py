@@ -334,6 +334,26 @@ button, [data-testid="stBaseButton-tertiary"] {{ transition: color .2s var(--eas
 /* Vertical dividers between side-by-side columns: columns stack on phones, so hide them. */
 .hp-vrule {{ border-left: 1px solid var(--line); width: 1px; margin: 0 auto; }}
 @media (max-width: 640px) {{ .hp-vrule {{ display: none; }} }}
+/* Phone: each scorecard row becomes a small card (name and value, status and trend, changes,
+   usual range) instead of a table that scrolls sideways. */
+@media (max-width: 700px) {{
+  table.hp-score thead {{ display: none; }}
+  table.hp-score, table.hp-score tbody {{ display: block; width: 100%; }}
+  table.hp-score tr {{ display: grid; grid-template-columns: 1fr auto; column-gap: 12px;
+    row-gap: 3px; padding: 11px 2px; border-bottom: 1px solid var(--line);
+    grid-template-areas: "name latest" "status spark" "chg chg" "past past"; }}
+  table.hp-score td {{ display: block; border: 0 !important; padding: 0 !important;
+    text-align: left !important; }}
+  table.hp-score td.c-name {{ grid-area: name; }}
+  table.hp-score td.c-latest {{ grid-area: latest; text-align: right !important;
+    font-size: 15px; }}
+  table.hp-score td.c-status {{ grid-area: status; font-size: 12.5px; }}
+  table.hp-score td.c-spark {{ grid-area: spark; justify-self: end; }}
+  table.hp-score td.c-chg {{ grid-area: chg; font-size: 12.5px; }}
+  table.hp-score td.c-past {{ grid-area: past; font-size: 12px; }}
+  table.hp-score td.c-week, table.hp-score td.c-year {{ display: none; }}
+}}
+@media (min-width: 701px) {{ table.hp-score td.c-chg {{ display: none; }} }}
 .hp-signals {{ display: flex; flex-direction: column; }}
 .hp-signal {{ display: grid; grid-template-columns: 14px 1fr; gap: 8px; padding: 10px 0;
   border-bottom: 1px solid var(--line); }}
@@ -1517,15 +1537,19 @@ def scorecard_table(rows: list) -> None:
         )
         color = dot[r.tone]
         body.append(
-            f"<tr><td style='{td};text-align:left'><div style='font-weight:600;color:{INK}'>"
+            f"<tr><td class='c-name' style='{td};text-align:left'>"
+            f"<div style='font-weight:600;color:{INK}'>"
             f"{_safe(r.name)}</div><div style='color:{MUTED};font-size:11.5px'>"
             f"{r.as_of:%b} {r.as_of.day}</div></td>"
-            f"<td style='{td};text-align:right;font-weight:600'>{_safe(r.fmt(r.latest))}</td>"
-            f"<td style='{td};text-align:right'>{_safe(wk)}</td>"
-            f"<td style='{td};text-align:right'>{_safe(yr)}</td>"
-            f"<td style='{td}'>{sparkline(r.trend, ACCENT)}</td>"
-            f"<td style='{td};color:{INK_2}'>{past}</td>"
-            f"<td style='{td};white-space:nowrap'><span style='display:inline-block;width:8px;"
+            f"<td class='c-latest' style='{td};text-align:right;font-weight:600'>"
+            f"{_safe(r.fmt(r.latest))}</td>"
+            f"<td class='c-week' style='{td};text-align:right'>{_safe(wk)}</td>"
+            f"<td class='c-year' style='{td};text-align:right'>{_safe(yr)}</td>"
+            f"<td class='c-chg' style='{td}'>Week {_safe(wk)} · Year {_safe(yr)}</td>"
+            f"<td class='c-spark' style='{td}'>{sparkline(r.trend, ACCENT)}</td>"
+            f"<td class='c-past' style='{td};color:{INK_2}'>{past}</td>"
+            f"<td class='c-status' style='{td};white-space:nowrap'>"
+            "<span style='display:inline-block;width:8px;"
             f"height:8px;border-radius:50%;background:{color};margin-right:7px'></span>"
             f"{_safe(r.status)}</td></tr>"
         )
