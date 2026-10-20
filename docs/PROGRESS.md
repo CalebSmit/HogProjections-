@@ -252,3 +252,15 @@ Newest at the bottom.
   their pages; coming-up list. Overview renamed **Farm outlook**.
 - Navigation `expanded=True`: with 14 pages Streamlit had hidden three behind "View 3 more".
 - Gate: ruff, pyright 0, 163 tests, screenshots reviewed.
+
+## 2026-10-20 — Phase 7: market archive
+
+- `archive.py`: one row per week ending Friday since 2020 joining index, cutout, packer spread,
+  producer-sold slaughter, carcass weight, USDA weaned pig, Iowa corn (monthly) and the realized
+  crush margin of pigs placed that week; yearly averages; year-over-year change.
+- New **Market archive** page: this year vs last (margins as $ change — a % change across zero
+  is meaningless), year-by-year table, any series overlaid by week of year, CSV and Excel
+  (weekly + by year) downloads filtered by year, full weekly table.
+- Guide: start-each-week step points to This week; glossary adds cutout, packer spread,
+  percentile, hedged share.
+- Gate: ruff, pyright 0, 166 tests, screenshots reviewed.

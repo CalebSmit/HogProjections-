@@ -191,12 +191,12 @@ Goal: a weaned pig is a sow farm's revenue. Answers "sell pigs or finish them?"
 ### Phase 6 — The weekly brief (new home page)
 Goal: the page people open every Monday. Answers "what changed and what do we do?"
 
-- [ ] "This week" strip: Lean Hog Index, weaned pig, cutout, corn — each with w/w and y/y
-- [ ] Three decisions, each a sentence with the number that drives it:
+- [x] "This week" strip: Lean Hog Index, weaned pig, cutout, corn — each with w/w and y/y
+- [x] Three decisions, each a sentence with the number that drives it:
       placement (margin + rank + most you can pay), hedging (best contract vs history),
       feed (corn vs seasonal norm)
-- [ ] What changed since last week (biggest movers, in words)
-- [ ] Calendar: Hogs & Pigs, WASDE, Cold Storage release dates; contract expiries
+- [x] What changed since last week (biggest movers, in words)
+- [x] Calendar: Hogs & Pigs, WASDE, Cold Storage release dates; contract expiries
 - [ ] WASDE pork production / hog price forecast if a keyless source is verified
 - [ ] One-page export (Excel today; PDF if a dependency-light route exists)
 
@@ -208,7 +208,7 @@ calendar dates correct for 2026–2027; export opens and contains every section.
 ### Phase 7 — Reference and archive
 Goal: the record people cite.
 
-- [ ] Weekly archive table since 2020: index, cutout, weaned pig, corn, realized crush margin,
+- [x] Weekly archive table since 2020: index, cutout, weaned pig, corn, realized crush margin,
       slaughter, weights — filter by year, download CSV/Excel
 - [ ] Annual recap cards (best and worst months, averages, what drove them)
 - [ ] Methods page: every formula in plain language with its source

@@ -65,9 +65,9 @@ with left:
                 "Overview.",
             ),
             (
-                "Read the Overview, then test ideas",
-                "The Overview gives the answer. Scenarios compares what-ifs; Risk shows the odds "
-                "and what a price floor would do.",
+                "Start each week on This week",
+                "It shows what moved and four decisions with links to the detail: placing pigs, "
+                "hedging, the hog market and the sow farm. Farm outlook projects the year.",
             ),
             (
                 "Save your setup",
@@ -115,6 +115,25 @@ with right:
             (
                 "Farrowing intentions",
                 "How many sows producers plan to farrow in coming quarters (USDA survey).",
+            ),
+            (
+                "Pork cutout",
+                "USDA's estimate of the wholesale value of a 100 lb hog carcass, built from the "
+                "prices of its cuts (loin, belly, ham and so on).",
+            ),
+            (
+                "Packer spread",
+                "Cutout minus the Lean Hog Index: what packers sell a carcass for minus what they "
+                "pay for the hog, before plant costs. Wide spreads give packers room to bid more.",
+            ),
+            (
+                "Percentile",
+                "Where a number ranks against history: 80th means better than 80% of past weeks.",
+            ),
+            (
+                "Hedged share",
+                "Part of the pigs on feed already priced (futures, forward contract, LRP floor). "
+                "The rest moves with the market.",
             ),
             (
                 "1 in 10 years",

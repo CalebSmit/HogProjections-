@@ -31,6 +31,7 @@ PAGES = {
     "risk": "Risk",
     "market": "Market_prices",
     "supply": "Hog_supply",
+    "archive": "Archive",
 }
 WIDTHS = {"desktop": (1440, 2800), "phone": (390, 5200)}
 
