@@ -7,7 +7,8 @@ free USDA_MMN_API_KEY (HTTP basic auth: key as user, empty password).
 - AMS_3511 National Grain and Oilseed Processor Feedstuff: Iowa soybean meal and DDGS, weekly,
   Feb 2022 on.
 - MULTI below: state grain bids, feeder pig flows (2810), drop value (2835), retail features
-  (2868) and daily federally inspected slaughter (3208).
+  (2868), daily federally inspected slaughter (3208) and weekly actual slaughter by class,
+  sows included (3658).
 
 The key never reaches logs or the UI: it is scrubbed from any error text.
 """
@@ -175,6 +176,16 @@ def fi_slaughter(rows: list[dict], _: object = None) -> pd.DataFrame:
     return df.drop_duplicates("date", keep="last")[cols].reset_index(drop=True)
 
 
+def fi_weekly(rows: list[dict], _: object = None) -> pd.DataFrame:
+    """Weekly actual federally inspected hog slaughter by class (barrows and gilts, sows,
+    boars), head, week ending Saturday; published about two weeks after the week."""
+    recs = [{"week_ending": pd.to_datetime(r["report_end_date"], format="%m/%d/%Y"),
+             "class": str(r.get("class")), "head": _num(r.get("volume"))}
+            for r in rows
+            if r.get("commodity") == "Slaughter Hogs" and r.get("unit") == "Head"]  # fmt: skip
+    return pd.DataFrame(recs, columns=["week_ending", "class", "head"])
+
+
 # name -> ([(slug, section or None = its detail section, tag)], parser, date column, file, keys)
 MULTI: dict[str, tuple[list[tuple[int, str | None, object]], Any, str, str, list[str]]] = {
     "state_corn": ([(slug, None, st) for st, slug in STATES.items()], state_corn, "date",
@@ -187,6 +198,8 @@ MULTI: dict[str, tuple[list[tuple[int, str | None, object]], Any, str, str, list
                "mars_retail_pork.csv", ["week_ending", "region"]),
     "fi_slaughter": ([(3208, "Report Livestock Commodity", None)], fi_slaughter, "date",
                      "mars_fi_slaughter.csv", ["date"]),
+    "fi_weekly": ([(3658, "Report FIS Head Percent", None)], fi_weekly, "week_ending",
+                  "mars_fi_weekly.csv", ["week_ending", "class"]),
 }  # fmt: skip
 
 

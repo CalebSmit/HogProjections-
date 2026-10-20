@@ -18,7 +18,21 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from hogproj.config import CACHE_DIR, SAMPLE_DIR, get_settings  # noqa: E402
-from hogproj.data import ams, eia, ers, feed, feeder, fred, isu, lmr, mars, nass, regional, wasde  # noqa: E402
+from hogproj.data import (  # noqa: E402
+    ams,
+    eia,
+    ers,
+    ers_trade,
+    feed,
+    feeder,
+    fred,
+    isu,
+    lmr,
+    mars,
+    nass,
+    regional,
+    wasde,
+)
 
 
 def main() -> int:
@@ -35,6 +49,13 @@ def main() -> int:
         "Iowa State returns": (lambda: isu.load(False), isu.ISU_FILE),
         "EIA fuel prices": (lambda: eia.load(False), eia.EIA_FILE),
         "FRED prime rate": (lambda: fred.load(False), fred.FRED_FILE),
+        **{
+            f"ERS {n.replace('_', ' ')}": (
+                lambda n=n: ers_trade.load(n, False),
+                ers_trade.FILES[n][1],
+            )
+            for n in ers_trade.FILES
+        },
     }
     for name, (_, _, file, _) in regional.DATASETS.items():
         checks[f"LMR regional {name}"] = (lambda n=name: regional.load(n, False), file)

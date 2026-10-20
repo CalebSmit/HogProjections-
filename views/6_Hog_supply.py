@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from hogproj import hogmarket as hm
-from hogproj import supply
+from hogproj import seasonal, supply
 from hogproj.ui import (
     ACCENT,
     HISTORY,
@@ -27,6 +27,7 @@ from hogproj.ui import (
     quote,
     ref_line,
     rule,
+    seasonal_chart,
     source_note,
     stat_strip,
 )
@@ -185,6 +186,30 @@ if not fi.empty:
         )
         rule()
 
+# --- Sow slaughter: is the breeding herd being cut? ------------------------------------------
+fw, fw_src, _ = mars_data("fi_weekly")
+sw = hm.sow_slaughter_vs_year_ago(fw)
+if sw is not None:
+    sows_wk = fw[fw["class"] == "Sows"].set_index("week_ending")["head"]
+    season_wk = seasonal.by_week(sows_wk, "sum", "W-SAT")
+    p_ = sw["pct"]
+    verdict_ = ("so the herd is being cut (fewer pigs later)" if p_ >= 0.05
+                else "so producers are keeping sows (more pigs later)" if p_ <= -0.05
+                else "no sign of the herd being cut")  # fmt: skip
+    st.space("small")
+    chart_title(
+        f"Sow slaughter is {abs(p_):.1%} {'above' if p_ >= 0 else 'below'} a year ago, {verdict_}",
+        f"Sows slaughtered per week, federally inspected · last 4 weeks to {sw['end']:%b %d}, "
+        f"{sw['per_week']:,.0f} a week · shaded: range of the years before; dotted: last year",
+    )
+    chart(seasonal_chart(season_wk, ",.0f"), 280, on=PAGE)
+    source_note("USDA AMS weekly Actual Slaughter under Federal Inspection (AMS_3658)"
+                + (" (live)" if fw_src == "live" else " (saved)"),
+                "about two weeks behind; sows are about 2% of hogs slaughtered")  # fmt: skip
+    excel_button({"Weekly by class": fw}, "weekly_slaughter_by_class",
+                 "Weekly hog slaughter by class", "USDA AMS_3658")  # fmt: skip
+    rule()
+
 st.space("medium")
 left, mid, right = st.columns([1.2, 0.06, 1])
 with left:
@@ -260,3 +285,19 @@ with st.expander("Supply outlook table"):
             "pct": st.column_config.NumberColumn("Change", format="percent"),
         },
     )
+
+
+# --- Disease pressure: where to look (no public data feed) -------------------------------------
+rule()
+chart_title("Disease pressure", "PRRS, PED and foreign animal disease: the public trackers, "
+            "checked weekly by most production teams")  # fmt: skip
+st.markdown(
+    "- [Swine Disease Reporting System (Iowa State)](https://fieldepi.org/SDRS): lab "
+    "positivity for PRRSV, PEDV and others by age group and state, monthly.\n"
+    "- [Morrison Swine Health Monitoring Project (Minnesota)](https://mshmp.umn.edu/reports): "
+    "weekly PRRS and PED incidence in breeding herds against its epidemic threshold.\n"
+    "- [Swine Health Information Center](https://www.swinehealth.org): monthly global "
+    "disease monitoring (ASF, FMD, CSF) and domestic swine disease reports."
+)
+st.caption("These publish charts and reports, not a data feed, so the app links to them "
+           "rather than copying their numbers.")  # fmt: skip

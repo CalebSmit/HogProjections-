@@ -14,6 +14,7 @@ from hogproj.markets import seasonal_factors
 from hogproj.ui import (
     ACCENT,
     HISTORY,
+    INK,
     MUTED,
     NEG,
     PAGE,
@@ -23,6 +24,7 @@ from hogproj.ui import (
     chart_title,
     cold_storage,
     end_tag,
+    ers_data,
     excel_button,
     hero,
     hog_index,
@@ -463,6 +465,89 @@ if stor is not None:
         chart_title("How the signals are scored", "Each rule is fixed and written out")
         for x in sigs:
             st.markdown(f"**{x.name}** — {x.rule}.")
+    rule()
+
+# --- Demand: exports and the retail pork dollar -----------------------------------------------
+trade, trade_src, _ = ers_data("pork_trade")
+spreads, spreads_src, _ = ers_data("spreads")
+ex = hm.exports_ytd(trade)
+fs_ = hm.farmer_share(spreads)
+if ex is not None or fs_ is not None:
+    left, mid, right = st.columns([1, 0.06, 1])
+    with left:
+        if ex is not None:
+            by = ex["by_country"]
+            big = by.index[0]
+            chart_title(
+                f"Pork exports are {abs(ex['pct']):.1%} {'above' if ex['pct'] >= 0 else 'below'}"
+                f" last year through {ex['through']:%B}; {big} takes "
+                f"{by.loc[big, 'share']:.0%}",
+                f"{ex['total_mlb']:,.0f}M lb carcass weight so far this year · change vs the "
+                "same months last year, biggest buyers",
+            )
+            names = ["All buyers", *by.index]
+            vals = [ex["pct"] * 100, *(by["pct"] * 100)]
+            fx = go.Figure(go.Bar(
+                y=names[::-1], x=vals[::-1], orientation="h",
+                marker={"color": [POS if v >= 0 else NEG for v in vals[::-1]],
+                        "cornerradius": 3},
+                text=[f"{v:+.0f}%".replace("-", "−") for v in vals[::-1]],
+                textposition="outside", cliponaxis=False,
+                customdata=[ex["total_mlb"], *(by["ytd"] / 1000)][::-1],
+                hovertemplate="%{y}: %{text} · %{customdata:,.0f}M lb<extra></extra>",
+            ))  # fmt: skip
+            lim = max(abs(v) for v in vals) * 1.4 + 1
+            fx.update_xaxes(range=[-lim, lim], ticksuffix="%", zeroline=True,
+                            zerolinecolor="#cfc8b9")  # fmt: skip
+            fx.update_layout(showlegend=False, hovermode="closest", bargap=0.35)
+            chart(fx, 260, on=PAGE)
+            source_note("USDA ERS Livestock and Meat International Trade"
+                        + (" (live)" if trade_src == "live" else " (saved)"),
+                        "monthly, about two months behind; carcass weight")  # fmt: skip
+            excel_button({"Pork trade by country": trade}, "pork_trade", "Pork trade by country",
+                         "USDA ERS")  # fmt: skip
+    with mid:
+        st.markdown('<div class="hp-vrule" style="height:340px"></div>', unsafe_allow_html=True)
+    with right:
+        if fs_ is not None:
+            ya = fs_["year_ago"]
+            chart_title(
+                f"Farmers get {fs_['share']:.0%} of the retail pork dollar"
+                + (
+                    f", {'up' if fs_['share'] >= ya else 'down'} from {ya:.0%} a year ago"
+                    if ya
+                    else ""
+                ),  # fmt: skip
+                f"Cents per lb, retail weight · {fs_['month']:%B %Y}: retail "
+                f"{fs_['retail']:.0f}¢, wholesale {fs_['wholesale']:.0f}¢, "
+                f"farm {fs_['net_farm']:.0f}¢",
+            )
+            w_ = spreads.pivot_table(index="month", columns="item", values="value").sort_index()
+            w_ = w_[w_.index >= w_.index.max() - pd.DateOffset(years=6)]
+            fr = go.Figure()
+            for col, name, color, width in (("retail", "Retail", INK, 2.0),
+                                            ("wholesale", "Wholesale", MUTED, 1.6),
+                                            ("net_farm", "Farm", ACCENT, 2.2)):  # fmt: skip
+                if col in w_:
+                    fr.add_scatter(
+                        x=w_.index,
+                        y=w_[col],
+                        mode="lines",
+                        name=name,
+                        line={"color": color, "width": width},
+                        hovertemplate=f"{name} %{{x|%b %Y}}: %{{y:.0f}}¢<extra></extra>",
+                    )
+                    end_tag(fr, w_.index[-1], float(w_[col].iloc[-1]), name, color)
+            fr.update_yaxes(ticksuffix="¢", rangemode="tozero")
+            fr.update_xaxes(tickformat="%Y")
+            fr.update_layout(showlegend=False, margin={"l": 4, "r": 70, "t": 8, "b": 4})
+            chart(fr, 260, on=PAGE)
+            source_note("USDA ERS Meat Price Spreads"
+                        + (" (live)" if spreads_src == "live" else " (saved)"),
+                        "farm = net farm value (hog value less by-products); share = farm ÷ "
+                        "retail")  # fmt: skip
+            excel_button({"Pork values and spreads": spreads}, "pork_spreads",
+                         "Pork values and spreads", "USDA ERS")  # fmt: skip
     rule()
 
 # --- Seasonality + primals ---------------------------------------------------------------------

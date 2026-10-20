@@ -115,3 +115,37 @@ def sow_price(sows: pd.DataFrame, min_weight: int = 400) -> pd.Series:
     s = s.assign(v=s["price"] * s["head"], date=pd.to_datetime(s["date"]))
     g = s.groupby("date").agg(v=("v", "sum"), head=("head", "sum"))
     return (g["v"] / g["head"]).rename("sow_usd_per_cwt_live")
+
+
+def canada_pigs(hog_trade: pd.DataFrame) -> dict | None:
+    """Live hog imports (almost all from Canada): weaned and feeder pigs (under 23 kg) and
+    slaughter hogs, monthly, with the year to date against the same months last year."""
+    if hog_trade is None or hog_trade.empty:
+        return None
+    x = hog_trade[hog_trade["country"] == "World total"].assign(
+        month=lambda d: pd.to_datetime(d["month"])
+    )
+    young = x[x["commodity"].isin(["Weaned pigs (under 7 kg)", "Feeder pigs (7-23 kg)"])]
+    monthly = pd.DataFrame({
+        "pigs": young.groupby("month")["amount"].sum(),
+        "slaughter": x[x["commodity"] == "Slaughter hogs"].groupby("month")["amount"].sum(),
+    }).sort_index()  # fmt: skip
+    if monthly.empty:
+        return None
+    last = monthly.index.max()
+
+    def ytd(col: str, year: int) -> float:
+        m = monthly[(monthly.index.year == year) & (monthly.index.month <= last.month)]
+        return float(m[col].sum())
+
+    out = {"through": last, "monthly": monthly}
+    for col in ("pigs", "slaughter"):
+        now, before = ytd(col, last.year), ytd(col, last.year - 1)
+        out[col] = now
+        out[f"{col}_pct"] = now / before - 1 if before else np.nan
+    canada = hog_trade[(hog_trade["country"] == "Canada") & (hog_trade["commodity"] == "All hogs")]
+    total = hog_trade[(hog_trade["country"] == "World total")
+                      & (hog_trade["commodity"] == "All hogs")]  # fmt: skip
+    out["canada_share"] = (float(canada["amount"].sum() / total["amount"].sum())
+                           if total["amount"].sum() else np.nan)  # fmt: skip
+    return out
