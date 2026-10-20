@@ -11,6 +11,7 @@ from hogproj.finance import breakeven
 from hogproj.markets import seasonal_factors
 from hogproj.outlook import project, synced
 from hogproj.risk import RiskInputs, distribution_summary, estimate_hog_dynamics, simulate_profit
+from hogproj.text import article
 from hogproj.ui import (
     ACCENT,
     PAGE,
@@ -116,7 +117,7 @@ chance = shown["p_profit"]
 end_prices = out["hog_paths"][:, -1]
 with head.container():
     masthead(
-        f"There's {odds(chance)} chance of a profitable year at today's prices.",
+        f"There's {article(odds(chance))} chance of a profitable year at today's prices.",
         f"Across {risk.n_paths:,} simulated years of hog and corn prices, the middle outcome is "
         f"{usd_short(shown['p50'])}; a bad year (1 in 10) is {usd_short(shown['p10'])}."
         + (

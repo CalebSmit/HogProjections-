@@ -152,9 +152,10 @@ def hedge_rule(rank: float, trigger: float, target: float, current: float,
     else:
         if np.isnan(rank):
             return "neutral", "Not enough history to rank this margin."
-        where = "Ranks at the bottom of history" if rank < 1 else f"Ranks {ordinal(rank)}"
+        where = ("At the bottom of history" if rank < 1
+                 else f"At the {ordinal(rank)} percentile")  # fmt: skip
         met = rank >= rule.trigger
-        trig = f"your {ordinal(rule.trigger)} trigger"
+        trig = f"your {ordinal(rule.trigger)}-percentile trigger"
     if met:
         if current + 1e-9 >= rule.target:
             return "good", f"{where}: your rule's {rule.target:.0%} is in place."

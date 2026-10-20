@@ -47,6 +47,7 @@ from hogproj.herd import HerdInputs
 from hogproj.markets import lean_hog_index, seasonal_factors
 from hogproj.outlook import Plan
 from hogproj.sowfarm import SowInputs
+from hogproj.text import day
 
 # --- Tokens ---------------------------------------------------------------------------------
 # IBM Plex Sans for UI and figures + Source Serif 4 for headlines (not the default Inter).
@@ -738,7 +739,10 @@ def feed_help(item: str) -> str:
     got = feed.latest(feed_prices()[0], item)
     if got is None:
         return "No USDA price saved yet; this is the model default."
-    return f"Starts at {FEED_LABEL[item]}, {got[1]:%b %d, %Y}. Use your own bid if you have one."
+    return (
+        f"Starts at {FEED_LABEL[item]}, {day(got[1], '%b %d, %Y')}. Use your own bid if you "
+        "have one."
+    )
 
 
 def corn_curve() -> tuple[dict[Contract, float], pd.Timestamp | None]:
@@ -1254,8 +1258,8 @@ def data_chip() -> str:
         n = sum(f.behind for f in data_status())
         return chip(f"{n} data source{'s' if n > 1 else ''} out of date", "bad", why)
     if source == "live":
-        return chip(f"Live USDA data · index {last:%b %d}", "good", note)
-    return chip(f"Saved data through {last:%b %d, %Y}", "caution", note)
+        return chip(f"Live USDA data · index {day(last, '%b %d')}", "good", note)
+    return chip(f"Saved data through {day(last, '%b %d, %Y')}", "caution", note)
 
 
 def masthead(
@@ -1593,7 +1597,9 @@ def table(
 def page_footer() -> None:
     """Who prepared it, when, and from what: the credibility line every page ends with."""
     who = get_settings().prepared_by.strip()
-    left = (f"Prepared by {_safe(who)} · " if who else "Prepared ") + f"{date.today():%B %d, %Y}"
+    left = (
+        f"Prepared by {_safe(who)} · " if who else "Prepared "
+    ) + f"{day(date.today(), '%B %d, %Y')}"
     _html(
         f'<div class="hp-footer"><span>{left}</span>'
         "<span>Data: USDA (AMS, NASS, ERS, WASDE) · Iowa State University · U.S. EIA · "
@@ -1724,7 +1730,7 @@ def footer_note(text: str) -> None:
 
 
 def as_of() -> str:
-    return f"{date.today():%b %d, %Y}"
+    return f"{day(date.today(), '%b %d, %Y')}"
 
 
 def asset(name: str) -> Path:

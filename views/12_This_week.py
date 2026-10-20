@@ -20,7 +20,7 @@ from hogproj.data import feed
 from hogproj.export import build_brief
 from hogproj.freshness import is_current
 from hogproj.sowfarm import cost_per_weaned_pig
-from hogproj.text import ordinal
+from hogproj.text import day, ordinal
 from hogproj.ui import (
     CAUTION,
     MUTED,
@@ -137,7 +137,8 @@ if len(by_k):
     hedge_tone, rule_txt = hedge_rule(best_rank, hrule.trigger, hrule.target, share, hrule,
                                       best_margin)  # fmt: skip
     hedge_txt = (
-        f"{best_label} pigs have the best margin on feed: {usd(best_margin)} a pig. " + rule_txt
+        f"Of pigs on feed, {best_label} ones have the best margin: {usd(best_margin)} a pig. "
+        + rule_txt
     )
 else:
     hedge_tone, hedge_txt = "neutral", "No pigs on feed in the data."
@@ -146,7 +147,8 @@ market_txt = {
     "bad": f"The market behind hog prices looks soft: {market_why}.",
     "neutral": "Signals behind hog prices are mixed: "
     f"{sum(x.tone == 'good' for x in sigs)} supportive, "
-    f"{sum(x.tone == 'bad' for x in sigs)} negative.",
+    f"{sum(x.tone == 'bad' for x in sigs)} negative, so no clear push on hog prices either "
+    "way.",
 }[market_tone]
 sow_txt = (
     f"A weaned pig costs {usd(cost_per_weaned_pig(s))} to make and sells for "
@@ -177,7 +179,7 @@ action = masthead(
         if not book.user_set
         else ""
     ),
-    kicker=f"This week · {today:%B %d, %Y}",
+    kicker=f"This week · {day(today, '%B %d, %Y')}",
 )
 with action:
     sold_rows = book.rows[book.rows["status"] == "sold"]
@@ -294,7 +296,7 @@ with action:  # the one-page PDF, now that the scorecard, board and watch list e
         signals=[(x.tone, x.name, x.value, x.read) for x in sigs],
         sources="Data: USDA AMS (LMR, cutout, feeder pigs, Iowa grain and feedstuffs, "
                 "slaughter), USDA NASS, ERS and WASDE, U.S. EIA; Lean Hog Index for "
-                f"{hogs.as_of:%b %d}. Contract prices: "
+                f"{day(hogs.as_of, "%b %d")}. Contract prices: "
                 + ("entered by the user." if book.user_set else f"{book.price_source.lower()}."),
     ))  # fmt: skip
     st.download_button(
@@ -337,9 +339,9 @@ else:
     with left:
         insight(
             tone_of(change),
-            f"vs {then:%b %d}",
+            f"vs {day(then, "%b %d")}",
             f"A pig placed today projects {usd(m_today)}, "
-            f"{'up' if change >= 0 else 'down'} {usd(abs(change))} since {then:%b %d}.",
+            f"{'up' if change >= 0 else 'down'} {usd(abs(change))} since {day(then, "%b %d")}.",
             [
                 ("Most you can pay", f"{usd(most)} ({signed(most - float(before['most_pay']))})"),
                 ("Sow farm margin",
@@ -399,7 +401,7 @@ with b:
             + (
                 [
                     (
-                        "Best not yet placed",
+                        "Best to place now",
                         f"{fb_top['contract']} · {usd(fb_top['margin_usd'])} "
                         f"({ordinal(fb_top['rank'])})",
                     )
@@ -451,9 +453,9 @@ with right:
     latest = feed.latest(feeds, "sbm_iowa")
     st.markdown(
         f"""
-- **Lean Hog Index** rebuilt from USDA LM_HG201, index for {hogs.as_of:%b %d}.
-- **Pork cutout** USDA LM_PK602, {cutout.as_of:%b %d}.
-- **Weaned pigs** USDA National Direct Feeder Pig Report, week ending {weaned.as_of:%b %d}.
-- **Iowa corn** USDA Iowa Daily Cash Grain Bids, {corn.as_of:%b %d}"""
-        + (f"; **soybean meal** USDA AMS 3511, {latest[1]:%b %d}." if latest else ".")
+- **Lean Hog Index** rebuilt from USDA LM_HG201, index for {day(hogs.as_of, "%b %d")}.
+- **Pork cutout** USDA LM_PK602, {day(cutout.as_of, "%b %d")}.
+- **Weaned pigs** USDA National Direct Feeder Pig Report, week ending {day(weaned.as_of, "%b %d")}.
+- **Iowa corn** USDA Iowa Daily Cash Grain Bids, {day(corn.as_of, "%b %d")}"""
+        + (f"; **soybean meal** USDA AMS 3511, {day(latest[1], '%b %d')}." if latest else ".")
     )

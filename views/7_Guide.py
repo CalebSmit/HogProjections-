@@ -7,6 +7,7 @@ import streamlit as st
 
 from hogproj import supply
 from hogproj.config import get_settings
+from hogproj.text import day
 from hogproj.ui import INK, INK_2, LINE, MUTED, chart_title, hog_index, masthead, nass_data, rule
 
 idx, hog_source, _ = hog_index()
@@ -63,7 +64,7 @@ with left:
                 "Enter your prices and costs",
                 "On Costs & returns: your local corn and soybean meal bids, the hog price you "
                 "expect, and your cost per pig. Hog price and corn can also be changed from the "
-                "Overview.",
+                "Farm outlook.",
             ),
             (
                 "Start each week on This week",
@@ -161,7 +162,8 @@ rows = [
         "USDA AMS · LM_HG201",
         "Hog prices and the Lean Hog Index",
         "Every business day",
-        f"Index for {index_date:%b %d, %Y}" + (" (live)" if hog_source == "live" else " (saved)"),
+        f"Index for {day(index_date, '%b %d, %Y')}"
+        + (" (live)" if hog_source == "live" else " (saved)"),
     ),
     (
         "USDA NASS · Hogs and Pigs",

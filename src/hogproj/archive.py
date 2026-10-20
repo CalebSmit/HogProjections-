@@ -47,12 +47,16 @@ def weekly(market_weekly: pd.DataFrame, pigs: pd.DataFrame, corn: pd.DataFrame,
 def annual(w: pd.DataFrame) -> pd.DataFrame:
     """Yearly averages (slaughter: average per full week) with the number of weeks covered."""
     year = w["week_ending"].to_numpy(dtype="datetime64[Y]").astype(int) + 1970
+    # Crush margins belong to the year the pig was placed (4 days before USDA's week ending),
+    # the same grouping as Crush history, so the two pages agree.
+    placed_year = ((w["week_ending"] - pd.Timedelta(days=4)).to_numpy(dtype="datetime64[Y]")
+                   .astype(int) + 1970)  # fmt: skip
     out = []
     for y in sorted(set(year.tolist())):
         g = w[year == y]
         row: dict[str, float | int] = {"year": y, "weeks": len(g)}
         for col in COLUMNS:
-            v = g[col].to_numpy(dtype=float)
+            v = (w[placed_year == y] if col == "crush_margin" else g)[col].to_numpy(dtype=float)
             v = v[~np.isnan(v)]
             row[col] = float(v.mean()) if len(v) else float("nan")
         out.append(row)

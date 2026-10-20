@@ -14,6 +14,7 @@ from hogproj.herd import pigs_sold_per_sow_yr
 from hogproj.markets import seasonal_factors
 from hogproj.outlook import drivers, headline, monthly, project, summary, synced
 from hogproj.risk import RiskInputs, estimate_hog_dynamics, simulate_profit
+from hogproj.text import day
 from hogproj.ui import (
     ACCENT,
     HISTORY,
@@ -115,7 +116,7 @@ inputs_chip = (
 actions = masthead(
     title,
     dek,
-    kicker=f"Farm outlook · {plan.herd.sows_start:,.0f} sows · {today:%B %d, %Y}",
+    kicker=f"Farm outlook · {plan.herd.sows_start:,.0f} sows · {day(today, '%B %d, %Y')}",
     meta=[inputs_chip],
 )
 
@@ -198,7 +199,8 @@ with hero():
         "Breakeven price",
         usd(be),
         "/cwt carcass",
-        f"{signed(hl['gap_cwt_carcass'])} vs {whose} {usd(hog)}",
+        f"{usd(abs(hl['gap_cwt_carcass']))} "
+        f"{'above' if hl['gap_cwt_carcass'] < 0 else 'below'} {whose} {usd(hog)}",
         tone_of(hl["gap_cwt_carcass"]),
         f"{usd(hl['breakeven_cwt_live'])}/cwt live · {usd(hl['cost_usd_per_head'])} cost per pig"
         " · Iowa State Estimated Livestock Returns structure",

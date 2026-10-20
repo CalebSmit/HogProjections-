@@ -11,6 +11,7 @@ from hogproj import hogmarket as hm
 from hogproj import seasonal, supply
 from hogproj.freshness import is_current
 from hogproj.markets import seasonal_factors
+from hogproj.text import day
 from hogproj.ui import (
     ACCENT,
     HISTORY,
@@ -107,7 +108,7 @@ with hero():
             "/cwt carcass",
             f"{signed(move_30)} ({pct:+.1%}) 30 days".replace("-", "−"),
             tone_of(move_30),
-            f"Index for {latest_date:%b %d, %Y} · rebuilt from USDA AMS LM_HG201",
+            f"Index for {day(latest_date, '%b %d, %Y')} · rebuilt from USDA AMS LM_HG201",
         )
         span = st.segmented_control(
             "Range",
@@ -210,7 +211,7 @@ with right:
     wk = wk.dropna(subset=["spread_per_head"])
     now_sp = float(wk["spread_per_head"].iloc[-1])
     chart_title(
-        f"Packers are grossing {usd(now_sp)} a head",
+        f"Packers are grossing {usd(now_sp)} a head on average this week",
         "Weekly packer gross spread per head · cutout + by-products − hogs, before plant costs",
     )
     sf = go.Figure(
@@ -410,7 +411,13 @@ if not wd.empty:
             f"How close USDA has been: in {int(one['n'])} recent forecasts of the barrow/gilt "
             f"price {ahead}, USDA ran "
             f"{'high' if one['bias'] > 0 else 'low'} by {usd(abs(one['bias']))}/cwt live on "
-            f"average (typical miss {usd(one['mae'])}). A small sample that grows each month; "
+            f"average"
+            + (
+                f" (typical miss {usd(one['mae'])})"
+                if abs(one["mae"] - abs(one["bias"])) > 0.1
+                else ""
+            )
+            + ". A small sample that grows each month; "
             "weigh USDA's price outlook with it in mind."
         )
         excel_button({"WASDE pork": wd}, "wasde_pork", "USDA WASDE pork outlook", "USDA WASDE")
