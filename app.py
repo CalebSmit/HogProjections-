@@ -46,6 +46,23 @@ if upload is not None and ss.get("_io_loaded") != upload.file_id:
         ss["_io_message"] = "That file isn't a Hog Projections setup."
     ss["_io_loaded"] = upload.file_id
 
+# Futures from a quote export (Barchart, DTN): fill every lean hog contract price it has.
+quotes_file = ss.get("io_futures")
+if quotes_file is not None and ss.get("_fut_loaded") != quotes_file.file_id:
+    from hogproj.data.quotes import parse as parse_quotes
+
+    try:
+        prices, as_of = parse_quotes(quotes_file.getvalue(), quotes_file.name)
+        for (y, m), px in prices.items():
+            ss[f"w2f_lh_{y}_{m:02d}"] = float(px)
+            touched().add(f"w2f_lh_{y}_{m:02d}")
+        ss["w2f_asof"] = as_of or date.today()
+        ss["_fut_msg"] = (f"Loaded {len(prices)} contract prices from {quotes_file.name}"
+                          + (f" (as of {as_of:%b %d})." if as_of else "."))  # fmt: skip
+    except (ValueError, KeyError, UnicodeDecodeError) as e:
+        ss["_fut_msg"] = f"Couldn't read that file: {e}"
+    ss["_fut_loaded"] = quotes_file.file_id
+
 # Streamlit drops a widget's value when its page isn't shown. Re-assigning the keyed inputs
 # on every run keeps them, so switching pages doesn't reset the user's assumptions.
 for key in [k for k in ss if str(k).startswith(SAVED_PREFIXES)]:

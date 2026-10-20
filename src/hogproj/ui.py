@@ -940,6 +940,19 @@ def crush_workbook() -> bytes:
     return build_crush_workbook(c, places, contracts, corn_hedge, sold, usda, today, note)
 
 
+def futures_upload() -> None:
+    """Upload a Barchart / DTN quote export to fill the contract prices (handled in app.py)."""
+    st.file_uploader(
+        "Import futures from a quote export",
+        type=["csv", "xlsx", "xls"],
+        key="io_futures",
+        help="A Barchart or DTN ProphetX export (quote board or one contract's price history). "
+        "Every lean hog contract it lists fills in, with its date.",
+    )
+    if msg := st.session_state.get("_fut_msg"):
+        st.caption(msg)
+
+
 def lh_key(k: Contract) -> str:
     """Widget key for a lean hog contract price, e.g. w2f_lh_2027_04."""
     return f"w2f_lh_{k[0]}_{k[1]:02d}"
