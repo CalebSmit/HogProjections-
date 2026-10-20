@@ -165,3 +165,12 @@ def test_this_week_explains_change_since_last_snapshot(tmp_path, monkeypatch):
     assert not at.exception
     text = " ".join(m.value for m in at.markdown)
     assert "since" in text and "A pig placed today projects" in text
+
+
+def test_pages_warn_when_a_source_falls_behind(monkeypatch):
+    from hogproj import freshness
+
+    monkeypatch.setitem(freshness.MAX_AGE_DAYS, "Pork cutout", -1)  # pretend it's overdue
+    at = app()
+    assert not at.exception
+    assert "out of date" in " ".join(m.value for m in at.markdown)

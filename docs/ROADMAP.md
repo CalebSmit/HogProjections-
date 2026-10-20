@@ -235,3 +235,66 @@ full methods page.
 ## 6. Original order
 
 0 → 1 → 2 → 3 → 5 → 6 → 7 → 8. Phase 4 waits for the My Market News key.
+
+
+---
+
+## Phase 9 — More of the market (plan, 2026-10-20)
+
+Written from two seats: a producer deciding when to buy pigs, sell hogs and price feed, and a
+Pipestone finance analyst building next year's forecast. Every source below was checked against
+the live My Market News catalog (1,051 reports) or the keyless LMR datamart on Oct 20, 2026.
+
+### A. A national view, not just Iowa
+| # | Data | Source | Key | History | What it answers |
+|---|---|---|---|---|---|
+| 1 | Hog prices by region (Iowa/Minnesota, Western and Eastern Corn Belt, national) by purchase type: negotiated, swine/pork market formula, other purchase arrangements | LMR LM_HG218 (slug 3458) | none | Dec 2020 → | Is my region paid more or less than the index? How far apart are formula and negotiated hogs? |
+| 2 | Hogs slaughtered by state of origin | LM_HG218 "State of Origin" | none | Dec 2020 → | Where the hogs come from, week to week |
+| 3 | Carcass weight differentials and the lean/weight matrix | LM_HG218 | none | Dec 2020 → | What heavy or light hogs cost you: sell now or feed longer? |
+| 4 | Cash corn and basis in 10+ states: Minnesota, South Dakota, Nebraska, Illinois, Indiana, Ohio, Missouri, Kansas, North Carolina, Texas (+ Iowa) | My Market News state grain bids (3049, 3186, 3225, 3192, 3463, 2851, 2932, 2886, 3156, 2711) | MMN | Feb 2020 → | Feed cost by region; where corn is cheap relative to futures |
+| 5 | Feeder pig flows: share of pigs by state of origin and destination | AMS_2810 "Report Volume" | MMN | Oct 2020 → | Where weaned pigs are moving; demand by region |
+| 6 | Feed ingredient prices by state (meal, DDGS, premix inputs) | Production cost reports: Iowa 2863, Illinois 3195, North Carolina 3159, Oklahoma 3621, Inter-Mountain West 3883 | MMN | 2020 → | Ration cost outside Iowa |
+
+### B. Complete the margins
+| 7 | Hog by-product (drop) value, $/cwt | AMS_2835 (NW_LS446) | MMN | Feb 2020 → | Packer margin = cutout + drop − hog cost (today's gauge leaves drop out) |
+| 8 | Sow prices by weight class | LMR LM_HG234 (3452), LM_HG230 before 2021 | none | 2010 → | Cull sow revenue for the sow farm; liquidation signal |
+| 9 | Daily and weekly federally inspected slaughter (all hogs, incl. packer-owned) | AMS_3208, AMS_3658 | MMN | 2020 → | Total supply, not just producer-sold |
+
+### C. Demand
+| 10 | Grocery pork feature activity and retail prices by cut and region | AMS_2868 | MMN | 2006 → | Is retail promoting pork more than last year? |
+| 11 | Live hog trade with Mexico | AMS_3629 | MMN | — | Export pull at the border |
+| 12 | Pork export sales and shipments by country (Mexico, China, Japan, Korea) | USDA FAS Export Sales API | free api.data.gov key | 1990s → | The biggest swing factor for hog prices |
+
+### D. Futures (the one gap)
+No free, licensed source for lean hog futures exists. The workbook shows Pipestone already uses
+DTN and Barchart. Options, best first:
+1. **Import their export**: upload a Barchart or DTN quote export (CSV/Excel) and the app fills
+   every contract price with its as-of date. Small, robust, no new subscription.
+2. Their DTN/Barchart API, if the subscription includes one (needs their credentials).
+3. Today's manual entry with the stale warning (in place).
+CBOT corn and soybean settlements already come free in the Iowa grain report.
+
+### E. Finance inputs for budgets
+| 13 | Prime rate / SOFR | FRED (free key) | Operating interest per pig |
+| 14 | On-highway diesel; propane | EIA (keyless XLS / free key) | Freight and barn heat cost lines |
+| 15 | Iowa State Estimated Livestock Returns, monthly | ISU (public) | Keep cost defaults current automatically |
+| 16 | WASDE history | USDA ESMIS (public) | How accurate USDA's hog price forecasts have been — how much weight to give them |
+
+### Recommended order
+1. National view page (A1–A4): regional hog prices + state corn/basis map.
+2. Drop value and sow prices into the packer margin and sow farm (B7–B8).
+3. Futures import from Barchart/DTN exports (D1).
+4. Exports (C12, needs a free key) and retail features (C10).
+5. Finance inputs (E13–E15).
+
+### Keeping it current
+- **How fresh is it?** Every source reloads when the app opens (and every six hours while
+  open), at USDA's own rhythm: hog prices and cutout each business day, weaned pigs and meal
+  weekly (Fridays), WASDE monthly, Hogs and Pigs quarterly. It isn't tick-by-tick: USDA
+  publishes once a day or week, and lean hog futures still come from the user.
+- **Staleness guard (done Oct 20):** each source has a maximum age; past it, every page header
+  turns red ("N data sources out of date") and Data status names the source.
+- **Proposed (needs approval):** a weekly scheduled GitHub Action that refreshes the bundled
+  data (so a fresh download is never old), runs the live parser checks, and fails loudly
+  (GitHub emails the owner) if a USDA report changes format. Needs the MMN and NASS keys stored
+  as GitHub repository secrets.

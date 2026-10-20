@@ -388,3 +388,11 @@ Newest at the bottom.
   cards, chips, nav, table rows; popovers ease in; `prefers-reduced-motion` respected.
 - Polish: decision cards line up; "lowest" instead of "0th"; archive table shows "–" for gaps
   (the grid printed "None"); archive CSV link matches the Excel link.
+
+## 2026-10-20 — Merged to main; staleness guard; data plan
+
+- PR #2 merged to main at the user's request.
+- `freshness.py`: maximum age per source; the header chip turns red when any is behind and
+  Data status marks it. Tests force a source overdue.
+- Roadmap Phase 9: verified catalog of further My Market News, LMR, FAS, FRED/EIA and ISU data,
+  with a recommended order and a plan for keeping data current.
