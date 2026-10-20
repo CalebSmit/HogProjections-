@@ -129,3 +129,64 @@ def load(key: str, offline: bool, years: int = 16) -> tuple[pd.DataFrame, Source
         df = _read(cache)
         return df, "cache", f"{problem} Showing saved data."
     return _read(SAMPLE_DIR / NASS_FILE), "sample", f"{problem} Showing bundled sample data."
+
+
+# --- Iowa corn price received (monthly) -------------------------------------------------------
+CORN_FILE = "nass_corn_iowa.csv"
+MONTHS = {m: i for i, m in enumerate(
+    ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"], 1
+)}  # fmt: skip
+
+
+def parse_corn(payload: dict[str, Any]) -> pd.DataFrame:
+    """Quick Stats JSON -> month, usd_per_bu (Iowa average price farmers received)."""
+    rows = [
+        {"month": pd.Timestamp(year=int(r["year"]), month=MONTHS[r["reference_period_desc"]],
+                               day=1), "usd_per_bu": v}
+        for r in payload.get("data", [])
+        if r.get("reference_period_desc") in MONTHS and (v := _num(r.get("Value"))) is not None
+    ]  # fmt: skip
+    df = pd.DataFrame(rows, columns=["month", "usd_per_bu"])
+    return df.drop_duplicates("month", keep="last").sort_values("month").reset_index(drop=True)
+
+
+def fetch_corn(key: str, since_year: int, client: httpx.Client | None = None) -> pd.DataFrame:
+    params = {
+        "key": key,
+        "commodity_desc": "CORN",
+        "statisticcat_desc": "PRICE RECEIVED",
+        "state_name": "IOWA",
+        "freq_desc": "MONTHLY",
+        "unit_desc": "$ / BU",
+        "year__GE": str(since_year),
+        "format": "JSON",
+    }
+    with client or httpx.Client(timeout=120, follow_redirects=True) as c:
+        try:
+            resp = c.get(QUICKSTATS_URL, params=params)
+            resp.raise_for_status()
+        except httpx.HTTPError as e:
+            raise httpx.HTTPError(str(e).replace(key, "***")) from None
+        return parse_corn(resp.json())
+
+
+def load_corn(key: str, offline: bool, years: int = 8) -> tuple[pd.DataFrame, Source, str]:
+    """Monthly Iowa corn price (live, cached or sample). Never raises."""
+    cache = CACHE_DIR / CORN_FILE
+    if not key:
+        problem = "Add a free NASS_API_KEY to .env for live Iowa corn prices."
+    elif offline:
+        problem = "Offline mode."
+    else:
+        try:
+            df = fetch_corn(key, date.today().year - years)
+            if df.empty:
+                raise ValueError("USDA returned no rows")
+            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            df.to_csv(cache, index=False)
+            return df, "live", "Live from USDA NASS Quick Stats (Iowa corn price received)."
+        except (httpx.HTTPError, ValueError) as e:
+            problem = f"Couldn't reach USDA NASS ({type(e).__name__})."
+    path = cache if cache.exists() else SAMPLE_DIR / CORN_FILE
+    df = pd.read_csv(path, parse_dates=["month"])
+    return df, "cache" if path == cache else "sample", f"{problem} Showing saved prices."

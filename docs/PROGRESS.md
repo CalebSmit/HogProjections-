@@ -146,3 +146,20 @@ Newest at the bottom.
   on custom prices; smoke test that passed on the stylesheet instead of real content.
 - **Verified:** ruff, pyright, 81 tests (incl. inputs-drive-pages test); interaction test
   (Overview price change → Costs page, no Streamlit warnings); screenshots.
+
+## 2026-10-19 (cont.) — Wean to finish (from Pipestone's wean pig crush workbook)
+
+- The user shared a Pipestone "USDA Wean Pig Crush" workbook showing how staff use this kind of
+  tool. Kept it in `reference/` (git-ignored: the repo is public and it holds internal costs and
+  licensed futures data). Its USDA weaned pig series (public) became `data/sample/`.
+- New `crush.py` reproduces the workbook's margin to the cent (Sep 14 placement: −$12.39 before,
+  −$16.79 after debt payments). Contract mapping uses the 10th-business-day expiry, so a Feb 14
+  sale prices on April (the workbook had typed February by hand).
+- New `data/feeder.py` reads USDA's public feeder pig PDF (no My Market News key needed);
+  `nass.load_corn` adds monthly Iowa corn so realized margins use the corn of their months on feed.
+- New Wean to finish page: margin for a pig placed today, most you can pay for a pig, margin by
+  week placed (3 years realized + pigs on feed), weaned pig history, cost lines, pig × hog grid.
+- Lean hog futures have no free feed: contract prices default to a seasonal estimate from the
+  index (chip says so) and are entered per contract.
+- `pandas-stubs` is not in the lock; pyright on older files reports pandas-typing errors in this
+  environment. New files are pyright-clean. [TODO: pin a stubs version and clean the rest.]

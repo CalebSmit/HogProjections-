@@ -19,8 +19,11 @@ import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 
 from hogproj.config import ROOT, get_settings
+from hogproj.crush import CrushInputs
 from hogproj.data.ams import Source, load_hg201
+from hogproj.data.feeder import load as feeder_load
 from hogproj.data.nass import load as nass_load
+from hogproj.data.nass import load_corn
 from hogproj.finance import CostInputs
 from hogproj.herd import HerdInputs
 from hogproj.markets import lean_hog_index
@@ -346,6 +349,31 @@ def nass_data() -> tuple[pd.DataFrame, str, str]:
     return _nass(get_settings().offline)
 
 
+@st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA weaned pig prices…")
+def _feeder(offline: bool) -> tuple[pd.DataFrame, str, str]:
+    return feeder_load(offline)
+
+
+def weaned_pigs() -> tuple[pd.DataFrame, str, str]:
+    """Weekly USDA early weaned pig prices (live, cached or sample) and where they came from."""
+    return _feeder(get_settings().offline)
+
+
+@st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA corn prices…")
+def _corn(offline: bool) -> tuple[pd.DataFrame, str, str]:
+    return load_corn(get_settings().nass_api_key.strip(), offline)
+
+
+def iowa_corn() -> tuple[pd.DataFrame, str, str]:
+    """Monthly Iowa corn price received (NASS) and where it came from."""
+    return _corn(get_settings().offline)
+
+
+def latest_weaned_pig() -> float:
+    pigs, _, _ = weaned_pigs()
+    return round(float(pigs["cash_usd_per_head"].iloc[-1]), 2)
+
+
 def latest_hog_index() -> float:
     idx, _, _ = hog_index()
     return round(float(idx["lean_hog_index_usd_per_cwt_carcass"].iloc[-1]), 2)
@@ -377,7 +405,34 @@ COST_KEYS = {
     "cost_death": "death_loss_usd_per_head",
     "cost_manure": "manure_credit_usd_per_head",
 }
-SAVED_PREFIXES = ("herd_", "cost_", "scn_", "risk_", "mkt_")
+# Wean-to-finish widget key -> (CrushInputs field, scale). Corn and SBM prices are shared
+# with Costs & returns (cost_corn, cost_sbm) so every page uses the same feed prices.
+W2F_KEYS = {
+    "w2f_pig": ("pig_usd_per_head", 1),
+    "w2f_adder": ("adder_usd_per_head", 1),
+    "w2f_days": ("days_on_feed", 1),
+    "w2f_wt": ("weight_lb_live", 1),
+    "w2f_yield": ("carcass_yield", 0.01),
+    "w2f_basis": ("basis_usd_per_cwt", 1),
+    "cost_corn": ("corn_usd_per_bu", 1),
+    "cost_sbm": ("sbm_usd_per_ton", 1),
+    "w2f_ddgs": ("ddgs_usd_per_ton", 1),
+    "w2f_corn_lb": ("corn_lb", 1),
+    "w2f_sbm_lb": ("sbm_lb", 1),
+    "w2f_ddgs_lb": ("ddgs_lb", 1),
+    "w2f_other_lb": ("other_feed_lb", 1),
+    "w2f_other_price": ("other_feed_usd_per_lb", 1),
+    "w2f_health": ("health_usd", 1),
+    "w2f_barn": ("facilities_labor_usd", 1),
+    "w2f_mort": ("mortality_usd", 1),
+    "w2f_overhead": ("overhead_usd", 1),
+    "w2f_freight": ("freight_usd", 1),
+    "w2f_interest": ("interest_usd", 1),
+    "w2f_other": ("other_usd", 1),
+    "w2f_principal": ("principal_usd", 1),
+    "w2f_term_int": ("term_interest_usd", 1),
+}
+SAVED_PREFIXES = ("herd_", "cost_", "scn_", "risk_", "mkt_", "w2f_")
 DERIVED_KEYS = ("herd_inputs", "cost_inputs")
 
 
@@ -401,6 +456,21 @@ def cost_from_state(herd: HerdInputs) -> CostInputs:
     upd.update({field: float(ss[key]) for key, field in COST_KEYS.items() if key in ss})
     upd.update(weight_lb_live_market=herd.weight_lb_live_market, carcass_yield=herd.carcass_yield)
     return CostInputs().model_copy(update=upd)
+
+
+def crush_from_state() -> CrushInputs:
+    """Wean-to-finish inputs from saved widget values; the pig price defaults to USDA's latest
+    and corn/SBM to the shared Costs & returns prices."""
+    ss = st.session_state
+    d = CostInputs()
+    upd: dict[str, float | int] = {"pig_usd_per_head": latest_weaned_pig(),
+                                   "corn_usd_per_bu": d.corn_usd_per_bu,
+                                   "sbm_usd_per_ton": d.sbm_usd_per_ton}  # fmt: skip
+    for key, (field, scale) in W2F_KEYS.items():
+        if key in ss and ss[key] is not None:
+            v = ss[key] * scale
+            upd[field] = int(v) if field == "days_on_feed" else float(v)
+    return CrushInputs().model_copy(update=upd)
 
 
 def current_plan() -> Plan:
@@ -684,8 +754,8 @@ def page_footer() -> None:
     left = (f"Prepared by {_safe(who)} · " if who else "Prepared ") + f"{date.today():%B %d, %Y}"
     _html(
         f'<div class="hp-footer"><span>{left}</span>'
-        "<span>Data: USDA AMS LM_HG201 · USDA NASS Hogs and Pigs · Iowa State University "
-        "Estimated Livestock Returns · "
+        "<span>Data: USDA AMS LM_HG201 &amp; Feeder Pig Report · USDA NASS · "
+        "Iowa State University Estimated Livestock Returns · "
         "Projections, not financial advice</span></div>"
     )
 

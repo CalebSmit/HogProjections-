@@ -151,6 +151,18 @@ rows = [
         "September 2026 budget (defaults)",
     ),
     (
+        "USDA AMS · Feeder Pig Report",
+        "Weaned pig prices (early weaned 10-12 lb, cash)",
+        "Weekly, Fridays",
+        "Wean to finish page; public report, no key needed",
+    ),
+    (
+        "USDA NASS · Prices Received",
+        "Iowa corn price, monthly",
+        "Monthly",
+        "Realized wean-to-finish margins and the corn price hint",
+    ),
+    (
         "USDA AMS · My Market News",
         "Local corn and soybean meal cash prices",
         "Daily",

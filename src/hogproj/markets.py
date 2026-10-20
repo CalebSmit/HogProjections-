@@ -7,6 +7,7 @@ The index is dated by the first of its two slaughter days. Checked: slaughter da
 2026 give 75.75, CME's published index for Oct 12, 2026.
 """
 
+from collections.abc import Sequence
 from datetime import date, timedelta
 
 import numpy as np
@@ -71,20 +72,27 @@ def seasonal_factors(index: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def seasonal_price_path(
-    start: date, weeks: int, price_now: float, factors: pd.DataFrame
+def seasonal_price_on(
+    days: Sequence[date], start: date, price_now: float, factors: pd.DataFrame
 ) -> np.ndarray:
-    """Weekly hog price that follows the typical seasonal pattern from today's price.
+    """Hog price on each day if it follows the typical seasonal pattern from today's price.
 
-    price(week) = price_now × factor(date) / factor(start). Monthly factors sit at mid-month
-    and are interpolated by day of year (wrapping Dec -> Jan) so the path has no monthly steps.
+    price(day) = price_now × factor(day) / factor(start). Monthly factors sit at mid-month and
+    are interpolated by day of year (wrapping Dec -> Jan) so prices have no monthly steps.
     """
     if factors.empty:
-        return np.full(weeks, price_now)
+        return np.full(len(days), price_now)
     mid_month_day = np.array([date(2001, m, 15).timetuple().tm_yday for m in range(1, 13)])
     f = factors.sort_values("month")["factor"].to_numpy(dtype=float)
     xp = np.concatenate([mid_month_day - 365, mid_month_day, mid_month_day + 365])
     fp = np.tile(f, 3)
-    days = [(start + timedelta(weeks=w)).timetuple().tm_yday for w in range(weeks)]
-    factor = np.interp(np.array(days, dtype=float), xp, fp)
-    return price_now * factor / float(np.interp(start.timetuple().tm_yday, xp, fp))
+    yday = np.array([d.timetuple().tm_yday for d in days], dtype=float)
+    return price_now * np.interp(yday, xp, fp) / float(np.interp(start.timetuple().tm_yday, xp, fp))
+
+
+def seasonal_price_path(
+    start: date, weeks: int, price_now: float, factors: pd.DataFrame
+) -> np.ndarray:
+    """Weekly hog price that follows the typical seasonal pattern from today's price."""
+    days = [start + timedelta(weeks=w) for w in range(weeks)]
+    return seasonal_price_on(days, start, price_now, factors)

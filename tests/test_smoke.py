@@ -75,3 +75,11 @@ def test_saved_inputs_drive_every_page_without_visiting_them():
     kicker = " ".join(md.value for md in at.markdown if "hp-kicker" in md.value)
     assert "2,400 sows" in kicker
     assert at.title[0].value.replace("\\", "").startswith("At $95.00")
+
+
+def test_wean_to_finish_follows_its_inputs():
+    at = app().switch_page("views/8_Wean_to_finish.py").run()
+    before = at.title[0].value
+    at.number_input(key="w2f_adder").set_value(10.0).run()
+    assert not at.exception
+    assert at.title[0].value != before  # $10 more per pig changes the margin in the headline

@@ -13,6 +13,7 @@ in your web browser on your own computer.
 | Overview | Are we making money at today's prices, and what moves it most? One-click Excel report. |
 | Herd flow | How many pigs reach market each week, and when does a herd change show up? |
 | Costs & returns | What's our breakeven and cost per pig (Iowa State ELR format)? |
+| Wean to finish | What does a weaned pig bought at the USDA price make when sold ~160 days later, what's the most we can pay for one, and how are the pigs already on feed doing? |
 | Scenarios | What would expanding, cheaper feed or better productivity do? |
 | Risk | What's the chance of a profit next year, and what would a price floor (LRP) do? |
 | Market prices | Where is the Lean Hog Index, and what's the seasonal pattern? |
@@ -52,7 +53,7 @@ time it runs. Never share the keys or commit `.env`.
 | Key | Unlocks | Where to get it (free) |
 |---|---|---|
 | `USDA_MMN_API_KEY` | Corn and soybean meal prices (USDA My Market News) | <https://mymarketnews.ams.usda.gov/mymarketnews-api> |
-| `NASS_API_KEY` | Hog supply page: quarterly Hogs & Pigs inventory, supply outlook, U.S. pigs-per-litter benchmark (works offline from bundled data without a key) | <https://quickstats.nass.usda.gov/api> |
+| `NASS_API_KEY` | Hog supply page: quarterly Hogs & Pigs inventory, supply outlook, U.S. pigs-per-litter benchmark, Iowa corn prices (works offline from bundled data without a key) | <https://quickstats.nass.usda.gov/api> |
 
 Optional: add `PREPARED_BY=Your Name` to `.env` to sign the page footer and the Excel report.
 
