@@ -223,13 +223,19 @@ chart_title(
 )
 rows = []
 for r in summary.to_dict("records"):
-    tone, sentence = hedge_rule(float(r["rank"]), trigger, target, float(r["hedged_share"]))
+    tone, _ = hedge_rule(float(r["rank"]), trigger, target, float(r["hedged_share"]))
+    short = {"good": "In place", "caution": f"Hedge {target:.0%}", "neutral": "Wait"}[tone]
     rows.append([r["label"], f"{r['head']:,.0f}", usd(r["market_usd_per_cwt"]),
                  f"{r['hedged_share']:.0%}", usd(r["margin_usd_per_head"]),
-                 usd_short(r["margin_usd"]), sentence])  # fmt: skip
-table(["Contract", "Pigs", "Price $/cwt", "Hedged", "Margin/pig", "Total", "Rule"], rows,
+                 usd_short(r["margin_usd"]), f"{r['rank']:.0f}th", short])  # fmt: skip
+table(["Contract", "Pigs", "Price $/cwt", "Hedged", "Margin/pig", "Total", "Rank", "Rule says"],
+      rows,
       emphasis_col=3)  # fmt: skip
-source_note("model", "ranks use the open margin, so they show the market, not your hedges")
+source_note(
+    "model",
+    f"rank: open margin vs every placement since 2020; rule says hedge {target:.0%} at or above "
+    f"the {trigger:.0f}th percentile, otherwise wait",
+)
 
 rule()
 
