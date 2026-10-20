@@ -95,3 +95,5 @@ Longer write-ups go in `docs/PROGRESS.md`.
   in the git-ignored `reference/` folder (incl. a loadable setup JSON).
 - Inputs whose default is live data must use `ui.live_number` and be read with `user_value`;
   a plain keyed `number_input` stores its default and it goes stale after a refresh.
+- Excel formulas written with cached values look right until Excel recalculates. Every exported
+  formula sheet needs the `formulas` recalculation test (tests/test_export_crush.py).

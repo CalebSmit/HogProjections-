@@ -54,7 +54,15 @@ def _book():
 
 def test_sheets_and_named_inputs():
     wb, _ = _book()
-    assert wb.sheetnames == ["Read me", "Inputs", "Contracts", "Crush", "History", "USDA data"]
+    assert wb.sheetnames == [
+        "Read me",
+        "Inputs",
+        "Contracts",
+        "Crush",
+        "What to pay",
+        "History",
+        "USDA data",
+    ]
     names = set(wb.defined_names.keys())
     assert {"Adder", "DaysOnFeed", "Basis", "CornLb", "ContractTable", "CornHedgePct"} <= names
 
@@ -80,3 +88,48 @@ def test_totals_and_corn_hedge():
     assert hedged["after_debt"] - plain["after_debt"] == pytest.approx(
         C.corn_lb * (4.31 - 3.5) / 56
     )
+
+
+def test_what_to_pay_grid_breaks_even_at_most_you_can_pay():
+    wb, vals = _book()
+    ws, cv = wb["What to pay"], vals["What to pay"]
+    assert str(ws["C4"].value).startswith("=(")  # live formula on Inputs
+    # Middle row is today's contract price; "Most you can pay" is where margin crosses zero:
+    most = cv["K5"].value
+    pigs = [cv.cell(2, j).value for j in range(2, 11)]
+    row = [cv.cell(5, j).value for j in range(2, 11)]
+    for p, m in zip(pigs, row, strict=True):
+        assert m == pytest.approx(most - p)  # margin falls $1 for each $1 more paid
+
+
+def test_formulas_recalculate_to_the_cached_values(tmp_path):
+    # An independent Excel engine recalculates every margin cell; a wrong formula (e.g. a sign
+    # outside parentheses) would still show the right cached value until Excel recalculated.
+    formulas = pytest.importorskip("formulas")
+    from openpyxl.utils import get_column_letter
+
+    hist = pd.DataFrame({"placed": pd.to_datetime(["2025-01-06"]),
+                         "sold": pd.to_datetime(["2025-06-15"]), "pig_usd": [60.0],
+                         "worth_usd": [70.0], "hog_usd_per_cwt": [100.0],
+                         "corn_usd_per_bu": [4.1], "cost_usd": [150.0],
+                         "margin_usd": [10.0]})  # fmt: skip
+    usda = pd.DataFrame({"week_ending": pd.to_datetime(["2026-10-16"]), "weaned_pig": [20.08]})
+    path = tmp_path / "crush.xlsx"
+    path.write_bytes(build_crush_workbook(C, P, K, (0.25, 3.9), hist, usda, date(2026, 10, 20)))
+    cached = openpyxl.load_workbook(path, data_only=True)
+    sol = formulas.ExcelModel().loads(str(path)).finish().calculate()
+    checked = 0
+    for sheet, rows, cols in (("Crush", (16, 18, 20), range(2, 5)),
+                              ("What to pay", range(3, 10), range(2, 12))):  # fmt: skip
+        for r in rows:
+            for col in cols:
+                ref = f"{get_column_letter(col)}{r}"
+                key = [k for k in sol if k.upper().endswith(f"{sheet.upper()}'!{ref}")]
+                want = cached[sheet][ref].value
+                if key and want is not None:
+                    assert float(sol[key[0]].value[0][0]) == pytest.approx(float(want)), (
+                        sheet,
+                        ref,
+                    )
+                    checked += 1
+    assert checked > 70

@@ -671,7 +671,7 @@ DERIVED_KEYS = ("herd_inputs", "cost_inputs")
 # one, it follows the latest default; only edited values are remembered, flagged as the user's
 # and saved to setup files. Otherwise a refresh would leave last week's default looking typed.
 LIVE_KEYS = {"cost_hog", "cost_corn", "cost_sbm", "w2f_pig", "w2f_ddgs", "w2f_corn_hedge_px",
-             "w2f_sbm_hedge_px"}  # fmt: skip
+             "w2f_sbm_hedge_px", "w2f_head_week"}  # fmt: skip
 TOUCHED = "_touched"
 
 
@@ -783,6 +783,13 @@ def sow_from_state() -> SowInputs:
     return SowInputs().model_copy(update=upd)
 
 
+def head_per_week() -> float:
+    """Pigs weaned per week from Herd flow (sows × weaned per sow per year ÷ 52), rounded."""
+    h = herd_from_state()
+    weaned = h.sows_start * h.litters_per_sow_yr * h.born_alive_per_litter
+    return float(round(weaned * (1 - h.prewean_mortality) / 52 / 10) * 10)
+
+
 def crush_workbook() -> bytes:
     """The live Excel crush workbook for the current inputs, contract prices and hedges."""
     from hogproj.crush import contract_expiry, contract_label
@@ -792,7 +799,7 @@ def crush_workbook() -> bytes:
     book = crush_book()
     c = book.c
     today = date.today()
-    head = user_value("w2f_head_week", 1000)
+    head = user_value("w2f_head_week", head_per_week())
     contracts = []
     for k in book.contracts:
         pre = f"w2f_hedge_{k[0]}_{k[1]:02d}"

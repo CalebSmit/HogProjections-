@@ -356,3 +356,17 @@ Newest at the bottom.
 - Wean to finish: "Placing ahead" chart and weaned pig seasonality by month. The shared contract
   list now includes the contracts forward placements sell into (priced on Wean to finish);
   Hedging lists only contracts with pigs on feed.
+
+## 2026-10-20 — Contract price source, print layout, What to pay sheet
+
+- Contract prices you haven't entered can come from USDA's WASDE outlook instead of the
+  seasonal estimate: quarterly barrow/gilt price × (index ÷ WASDE over recently reported
+  quarters, ≈1.35). Every "estimate" label names the active source.
+- Print / Save as PDF: sidebar, inputs, buttons and expanders hidden; panels don't split.
+- Ordinals fixed everywhere ("31st", not "31th") via `text.ordinal`.
+- Hedging: pigs placed per week default to Herd flow's weaned pigs per week.
+- Crush workbook: "What to pay" sheet (margin grid by weaned pig × hog price, every cell a
+  formula, plus most-you-can-pay per hog price). An independent recalculation caught a sign bug
+  (`-(feed)+(non-feed)+(debt)`): the cached values were right but Excel would have shown wrong
+  margins after any edit. Fixed, and the recalculation is now a test (`formulas` dev dependency);
+  verified it fails with the bug put back.

@@ -354,6 +354,47 @@ def build_crush_workbook(
     )
     ws.insert_chart(22, 1, chart, {"x_scale": 2.0, "y_scale": 1.2})
 
+    # --- What to pay -----------------------------------------------------------------------
+    # Margin for a pig placed today across weaned pig and hog prices; every cell a formula on
+    # Inputs, using the Today column's corn (Crush!B9).
+    wp = wb.add_worksheet("What to pay")
+    wp.set_column(0, 0, 18)
+    wp.set_column(1, 11, 11)
+    today = placements[0]
+    hog0 = kmap[today.contract].effective
+    hogs = [round((hog0 + d) * 4) / 4 for d in range(-15, 16, 5)]
+    pig_lo = max(0.0, round(today.usda_pig / 5) * 5 - 20)
+    pigs = [pig_lo + 5 * i for i in range(9)]
+    wp.merge_range(0, 0, 0, 10, f"Margin per pig placed today ({today.contract} hogs) — rows: hog "
+                   "price $/cwt, columns: USDA weaned pig $/head. Yellow cells can be changed.",
+                   f["bold"])  # fmt: skip
+    wp.write(1, 0, "Hog / pig price", f["h"])
+    for j, pg in enumerate(pigs, start=1):
+        wp.write(1, j, pg, f["in_usd"])
+    wp.write(1, len(pigs) + 1, "Most you can pay", f["h"])
+    costs = ("(CornLb*Crush!$B$9/56+SbmLb*SbmPrice/2000+DdgsLb*DdgsPrice/2000+OtherLb*OtherPrice)"
+             "+(Health+Barn+Mortality+Overhead+Freight+OpInterest+OtherCost)"
+             "+(Principal+TermInterest)")  # fmt: skip
+    t_m = margins(c, today, kmap, corn_hedge)
+    rest = t_m["feed"] + t_m["nonfeed"] + t_m["debt"]
+    for i, hg in enumerate(hogs, start=2):
+        wp.write(i, 0, hg, f["in_usd"])
+        rev = (hg + c.basis_usd_per_cwt) * c.weight_lb_live * c.carcass_yield / 100
+        for j, pg in enumerate(pigs, start=1):
+            col = xl_rowcol_to_cell(1, j, row_abs=True)
+            row = xl_rowcol_to_cell(i, 0, col_abs=True)
+            wp.write_formula(i, j, f"=({row}+Basis)*WeightLive*Yield/100-({col}+Adder)-({costs})",
+                             f["usd"], rev - pg - c.adder_usd_per_head - rest)  # fmt: skip
+        row = xl_rowcol_to_cell(i, 0, col_abs=True)
+        wp.write_formula(i, len(pigs) + 1, f"=({row}+Basis)*WeightLive*Yield/100-Adder-({costs})",
+                         f["key_usd"], rev - c.adder_usd_per_head - rest)  # fmt: skip
+    wp.conditional_format(2, 1, 1 + len(hogs), len(pigs), {
+        "type": "3_color_scale", "min_color": RED, "mid_type": "num", "mid_value": 0,
+        "mid_color": "#ffffff", "max_color": GREEN})  # fmt: skip
+    wp.write(3 + len(hogs), 0, "Most you can pay = the USDA price at which a pig placed today "
+             "breaks even at that hog price (before your adder).",
+             wb.add_format({"italic": True, "font_color": "#5b6b64"}))  # fmt: skip
+
     # --- History ---------------------------------------------------------------------------
     wh = wb.add_worksheet("History")
     cols = [

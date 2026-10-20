@@ -24,6 +24,7 @@ from hogproj.ui import (
     crush_book,
     crush_workbook,
     end_tag,
+    head_per_week,
     hero,
     lh_key,
     live_number,
@@ -60,6 +61,7 @@ def cur(name: str, default: float) -> float:
 corn_fut0 = round(book.corn_cash - book.corn_basis, 2)  # nearby futures (cash if no curve)
 # Only contracts that pigs on feed sell into; later ones are priced on Wean to finish.
 feed_contracts = [k for k in book.contracts if contract_label(k) in set(on_feed["priced_on"])]
+head0 = head_per_week()  # Herd flow's weaned pigs per week, until you enter your own
 hedged_now = [k for k in feed_contracts if cur(key(k, "pct"), 0) > 0]
 asof = ss.get("w2f_asof")
 stale = asof is not None and business_days_since(asof, today) > 3
@@ -107,9 +109,10 @@ with assumption_bar("hedge"):
         a.number_input("SBM hedged (%)", 0.0, 100.0, 0.0, 5.0, key="w2f_sbm_hedge_pct")
         live_number(b, "SBM price ($/ton)", 0.0, 1000.0, c.sbm_usd_per_ton, 5.0,
                        key="w2f_sbm_hedge_px")  # fmt: skip
-    with st.popover(f"Pigs placed · {cur('w2f_head_week', 1000):,.0f}/week"):
-        st.number_input("Pigs placed per week", 0.0, 1_000_000.0, 1000.0, 100.0,
-                        key="w2f_head_week", help="Used to size the book in dollars.")  # fmt: skip
+    with st.popover(f"Pigs placed · {cur('w2f_head_week', head0):,.0f}/week"):
+        live_number(st, "Pigs placed per week", 0.0, 1_000_000.0, head0, 10.0,
+                    key="w2f_head_week",
+                    help="Starts at Herd flow's weaned pigs per week. Sizes the book.")  # fmt: skip
     with st.popover(
         f"Hedge rule · {ordinal(cur('w2f_rule_trigger', 75))} pct → "
         f"{cur('w2f_rule_target', 50):.0f}%"
@@ -129,7 +132,7 @@ corn_h = Hedge(share=cur("w2f_corn_hedge_pct", 0) / 100,
                price=cur("w2f_corn_hedge_px", corn_fut0) + book.corn_basis)  # fmt: skip
 sbm_h = Hedge(share=cur("w2f_sbm_hedge_pct", 0) / 100,
               price=cur("w2f_sbm_hedge_px", c.sbm_usd_per_ton))  # fmt: skip
-per_week = cur("w2f_head_week", 1000)
+per_week = cur("w2f_head_week", head0)
 pos = positions(on_feed, c, book.futures, hog_hedges, per_week, corn_h, sbm_h)
 summary = by_contract(pos)
 trigger, target = cur("w2f_rule_trigger", 75), cur("w2f_rule_target", 50) / 100
