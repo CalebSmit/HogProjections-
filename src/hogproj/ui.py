@@ -13,6 +13,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any, Literal
 
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
@@ -1335,6 +1336,50 @@ def chart(fig: go.Figure, height: int = 300, on: str = SURFACE) -> None:
 
 
 # --- Chart annotations ----------------------------------------------------------------------
+def seasonal_chart(weeks: pd.DataFrame, fmt: str = ",.2f", prefix: str = "",
+                   suffix: str = "", years: int = 5) -> go.Figure:  # fmt: skip
+    """This year (bold), last year (dotted) and the range of the `years` before (shaded), by
+    time of year. `weeks` comes from seasonal.by_week."""
+    from hogproj import seasonal
+
+    this_year = int(weeks["year"].max())
+    b = seasonal.band(weeks, this_year, years)
+
+    def x(wk: object) -> pd.DatetimeIndex:  # week of year on a common calendar: month ticks
+        return pd.Timestamp("2001-01-05") + pd.to_timedelta((np.asarray(wk) - 1) * 7, unit="D")
+
+    fig = go.Figure()
+    fig.add_scatter(x=x(b.index), y=b["hi"], mode="lines", line={"width": 0}, hoverinfo="skip",
+                    showlegend=False)  # fmt: skip
+    fig.add_scatter(
+        x=x(b.index),
+        y=b["lo"],
+        mode="lines",
+        line={"width": 0},
+        fill="tonexty",
+        fillcolor="rgba(133,127,115,0.16)",
+        showlegend=False,
+        customdata=b["hi"],
+        hovertemplate=f"Range %{{y:{fmt}}}–%{{customdata:{fmt}}}<extra></extra>",
+    )
+    for yr, color, width, dash in ((this_year - 1, MUTED, 1.5, "dot"),
+                                   (this_year, ACCENT, 2.2, None)):  # fmt: skip
+        part = weeks[weeks["year"] == yr]
+        if part.empty:
+            continue
+        fig.add_scatter(x=x(part["wk"]), y=part["value"], mode="lines", name=str(yr),
+                        line={"color": color, "width": width, "dash": dash},
+                        customdata=part["week_ending"],
+                        hovertemplate=f"%{{customdata|%b %d, %Y}}: {prefix}%{{y:{fmt}}}{suffix}"
+                        "<extra></extra>")  # fmt: skip
+        end_tag(fig, x([int(part["wk"].iloc[-1])])[0], float(part["value"].iloc[-1]), str(yr),
+                color)  # fmt: skip
+    fig.update_xaxes(tickformat="%b", dtick="M1", range=[x([1])[0], x([53])[0]])
+    fig.update_yaxes(tickprefix=prefix, ticksuffix=suffix)
+    fig.update_layout(showlegend=False, margin={"l": 4, "r": 56, "t": 8, "b": 4})
+    return fig
+
+
 def end_tag(fig: go.Figure, x: object, y: float, text: str, color: str) -> None:
     """Solid value tag just right of a series' last point (ERS / market-terminal style)."""
     fig.add_annotation(
