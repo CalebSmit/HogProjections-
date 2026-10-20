@@ -520,6 +520,16 @@ def retail_now() -> dict | None:
     return retail_vs_year_ago(mars_data("retail")[0])
 
 
+@st.cache_data(ttl=24 * 3600, show_spinner=False)
+def _wasde_hist(offline: bool) -> tuple[pd.DataFrame, str, str]:
+    return wasde.load_history(offline)
+
+
+def wasde_history() -> tuple[pd.DataFrame, str, str]:
+    """Every WASDE report saved so far (pork production and hog price forecasts)."""
+    return _wasde_hist(get_settings().offline)
+
+
 def wasde_now() -> dict | None:
     """USDA's outlook for the next two quarters (see hogmarket.wasde_outlook)."""
     from hogproj.hogmarket import wasde_outlook
@@ -713,6 +723,46 @@ def corn_curve() -> tuple[dict[Contract, float], pd.Timestamp | None]:
     return curve, day
 
 
+@st.cache_data(ttl=12 * 3600, show_spinner=False)
+def _isu(offline: bool) -> tuple[pd.DataFrame, str, str]:
+    from hogproj.data import isu
+
+    return isu.load(offline)
+
+
+@st.cache_data(ttl=12 * 3600, show_spinner=False)
+def _eia(offline: bool) -> tuple[pd.DataFrame, str, str]:
+    from hogproj.data import eia
+
+    return eia.load(offline)
+
+
+def fuel_prices() -> tuple[pd.DataFrame, str, str]:
+    """Weekly diesel and propane prices (EIA)."""
+    return _eia(get_settings().offline)
+
+
+def isu_data() -> tuple[pd.DataFrame, str, str]:
+    """Iowa State Estimated Livestock Returns, farrow to finish, by sale month."""
+    return _isu(get_settings().offline)
+
+
+def isu_defaults() -> dict:
+    """Per-pig cost defaults from Iowa State's latest published month (the model's structure:
+    other feed = DDGS + complete feeds + processing; non-feed = variable + interest + fixed)."""
+    df = isu_data()[0]
+    d = CostInputs()
+    if df.empty:
+        return {"month": pd.Timestamp("2026-09-01"), "other_feed": d.other_feed_usd_per_head,
+                "nonfeed": d.nonfeed_usd_per_head, "death": d.death_loss_usd_per_head,
+                "manure": d.manure_credit_usd_per_head}  # fmt: skip
+    r = df.sort_values("sale_month").iloc[-1]
+    return {"month": pd.Timestamp(str(r["sale_month"])),
+            "other_feed": round(float(r["ddgs"] + r["complete_other"] + r["processing"]), 2),
+            "nonfeed": round(float(r["variable"] + r["interest"] + r["fixed"]), 2),
+            "death": float(r["death_loss"]), "manure": float(r["manure_credit"])}  # fmt: skip
+
+
 def latest_weaned_pig() -> float:
     pigs, _, _ = weaned_pigs()
     return round(float(pigs["cash_usd_per_head"].iloc[-1]), 2)
@@ -783,7 +833,8 @@ DERIVED_KEYS = ("herd_inputs", "cost_inputs")
 # one, it follows the latest default; only edited values are remembered, flagged as the user's
 # and saved to setup files. Otherwise a refresh would leave last week's default looking typed.
 LIVE_KEYS = {"cost_hog", "cost_corn", "cost_sbm", "w2f_pig", "w2f_ddgs", "w2f_corn_hedge_px",
-             "w2f_sbm_hedge_px", "w2f_head_week"}  # fmt: skip
+             "w2f_sbm_hedge_px", "w2f_head_week", "cost_other_feed", "cost_nonfeed", "cost_death",
+             "cost_manure"}  # fmt: skip
 TOUCHED = "_touched"
 
 
@@ -841,9 +892,14 @@ def herd_from_state() -> HerdInputs:
 def cost_from_state(herd: HerdInputs) -> CostInputs:
     """CostInputs from the saved widget values; hog price defaults to the latest index."""
     ss = st.session_state
+    isu = isu_defaults()
     upd: dict[str, float] = {"lean_hog_usd_per_cwt_carcass": latest_hog_index(),
                              "corn_usd_per_bu": feed_default("corn_cash_iowa"),
-                             "sbm_usd_per_ton": feed_default("sbm_iowa")}  # fmt: skip
+                             "sbm_usd_per_ton": feed_default("sbm_iowa"),
+                             "other_feed_usd_per_head": isu["other_feed"],
+                             "nonfeed_usd_per_head": isu["nonfeed"],
+                             "death_loss_usd_per_head": isu["death"],
+                             "manure_credit_usd_per_head": isu["manure"]}  # fmt: skip
     base = CostInputs()
     upd.update({field: user_value(key, upd[field] if field in upd else getattr(base, field))
                 for key, field in COST_KEYS.items() if key in ss})  # fmt: skip
@@ -1065,6 +1121,10 @@ def uses_benchmarks() -> bool:
         lean_hog_usd_per_cwt_carcass=p.cost.lean_hog_usd_per_cwt_carcass,
         corn_usd_per_bu=feed_default("corn_cash_iowa"),
         sbm_usd_per_ton=feed_default("sbm_iowa"),
+        other_feed_usd_per_head=isu_defaults()["other_feed"],
+        nonfeed_usd_per_head=isu_defaults()["nonfeed"],
+        death_loss_usd_per_head=isu_defaults()["death"],
+        manure_credit_usd_per_head=isu_defaults()["manure"],
         weight_lb_live_market=p.herd.weight_lb_live_market,
         carcass_yield=p.herd.carcass_yield,
     )
@@ -1357,7 +1417,8 @@ def warm_data() -> None:
         return
     offline = get_settings().offline
     ctx = get_script_run_ctx()
-    loaders = [_hg201, _cutout, _feeder, _feed, _nass, _corn, _wasde, _cold,
+    loaders = [_hg201, _cutout, _feeder, _feed, _nass, _corn, _wasde, _cold, _isu, _wasde_hist,
+               _eia,
                *[lambda o, n=n: _mars(n, o) for n in [*mars.DATASETS, *mars.MULTI]],
                *[lambda o, n=n: _regional(n, o) for n in regional.DATASETS]]  # fmt: skip
 
@@ -1415,6 +1476,13 @@ def data_status() -> list[Freshness]:
         md_, sm, _ = mars_data(name)
         if not md_.empty:
             add(label, md_[col].max(), sm)
+    fp, sf, _ = fuel_prices()
+    dz = fp[fp["series"] == "diesel_us"]
+    if not dz.empty:
+        add("Diesel", dz["date"].max(), sf)
+    idf, si, _ = isu_data()
+    if not idf.empty:
+        add("Iowa State costs", idf["sale_month"].max(), si)
     return out
 
 

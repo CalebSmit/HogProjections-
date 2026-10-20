@@ -90,3 +90,46 @@ def load(offline: bool) -> tuple[pd.DataFrame, Source, str]:
     path = cache if cache.exists() else SAMPLE_DIR / WASDE_FILE
     df = pd.read_csv(path)
     return df, "cache" if path == cache else "sample", f"{problem} Showing saved WASDE."
+
+
+# --- History: every past report we can reach, to judge how accurate the forecasts have been --
+ESMIS = "https://esmis.nal.usda.gov/publication/world-agricultural-supply-and-demand-estimates"
+HISTORY_FILE = "wasde_history.csv"
+
+
+def fetch_history(client: httpx.Client | None = None) -> pd.DataFrame:
+    """Every WASDE text file the USDA archive page lists (about the last year), parsed."""
+    with client or httpx.Client(timeout=90, follow_redirects=True) as c:
+        page = c.get(ESMIS).text
+        links = sorted(set(re.findall(r"release-files/\d+/wasde\d{4}\.txt", page)))
+        parts = []
+        for link in links:
+            resp = c.get(f"https://esmis.nal.usda.gov/sites/default/{link}")
+            if resp.status_code == 200:
+                try:
+                    parts.append(parse(resp.text))
+                except ValueError:
+                    continue
+    if not parts:
+        raise ValueError("No WASDE reports found")
+    return pd.concat(parts, ignore_index=True)
+
+
+def load_history(offline: bool) -> tuple[pd.DataFrame, Source, str]:
+    """Saved reports plus any new ones; the history only grows."""
+    cache = CACHE_DIR / HISTORY_FILE
+    path = cache if cache.exists() else SAMPLE_DIR / HISTORY_FILE
+    saved = pd.read_csv(path) if path.exists() else pd.DataFrame(columns=COLUMNS)
+    if not offline:
+        try:
+            new = fetch_history()
+            df = pd.concat([f for f in (saved, new) if not f.empty], ignore_index=True)
+            df = df.drop_duplicates(["report", "year", "quarter", "series"], keep="last")
+            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            df.to_csv(cache, index=False)
+            return df, "live", f"{df['report'].nunique()} WASDE reports."
+        except (httpx.HTTPError, ValueError) as e:
+            problem = f"Couldn't reach USDA ({type(e).__name__})."
+    else:
+        problem = "Offline mode."
+    return saved, "cache" if path == cache else "sample", f"{problem} Showing saved reports."

@@ -31,9 +31,12 @@ from hogproj.ui import (
     excel_button,
     feed_default,
     feed_help,
+    fuel_prices,
     herd_from_state,
     hero,
     hog_index,
+    isu_data,
+    isu_defaults,
     live_number,
     masthead,
     md,
@@ -50,6 +53,7 @@ from hogproj.ui import (
 )
 
 herd_inp: HerdInputs = herd_from_state()
+isu_row = isu_data()[0].sort_values("sale_month").iloc[-1]
 d = CostInputs()
 idx, idx_source, _ = hog_index()
 latest_index = round(float(idx["lean_hog_index_usd_per_cwt_carcass"].iloc[-1]), 2)
@@ -116,35 +120,47 @@ with bar:
         sbm_lb = b.number_input(
             "Soybean meal (lb / pig)", 0.0, 400.0, d.sbm_lb_per_head, 1.0, key="cost_sbm_lb"
         )
-        other_feed = a.number_input(
+        isu = isu_defaults()
+        src = f" Starts at Iowa State's {isu['month']:%B %Y} figure."
+        other_feed = live_number(
+            a,
             "Other feed ($ / pig)",
             0.0,
             200.0,
-            d.other_feed_usd_per_head,
+            isu["other_feed"],
             1.0,
             key="cost_other_feed",
-            help="DDGS, complete feeds, minerals and feed processing.",
+            help="DDGS, complete feeds, minerals and feed processing." + src,
         )
-        nonfeed = b.number_input(
+        nonfeed = live_number(
+            b,
             "Non-feed ($ / pig)",
             0.0,
             300.0,
-            d.nonfeed_usd_per_head,
+            isu["nonfeed"],
             1.0,
             key="cost_nonfeed",
-            help="Labor, vet, utilities, breeding herd, trucking, interest, buildings.",
+            help="Labor, vet, utilities, breeding herd, trucking, interest, buildings." + src,
         )
-        death = a.number_input(
-            "Death loss ($ / pig)", 0.0, 100.0, d.death_loss_usd_per_head, 0.5, key="cost_death"
+        death = live_number(
+            a,
+            "Death loss ($ / pig)",
+            0.0,
+            100.0,
+            isu["death"],
+            0.5,
+            key="cost_death",
+            help="Value of pigs lost." + src,
         )
-        manure = b.number_input(
+        manure = live_number(
+            b,
             "Manure credit ($ / pig)",
             0.0,
             50.0,
-            d.manure_credit_usd_per_head,
+            isu["manure"],
             0.5,
             key="cost_manure",
-            help="Fertilizer value of the manure. Set to 0 if you don't use or sell it.",
+            help="Fertilizer value of the manure. Set to 0 if you don't use or sell it." + src,
         )
     with st.popover(f"Price path · {ss.get('cost_price_path') or 'Seasonal'}"):
         path_choice = st.segmented_control(
@@ -257,7 +273,9 @@ with hero():
         bars.update_layout(hovermode="closest", bargap=0.4, showlegend=False)
         chart(bars, 250)
     source_note(
-        "Iowa State University Estimated Livestock Returns, farrow to finish (September 2026)",
+        f"Iowa State University Estimated Livestock Returns, farrow to finish "
+        f"({isu_row['sale_month']:%B %Y}: cost {usd(isu_row['total_cost'])}, breakeven "
+        f"{usd(isu_row['breakeven_carcass'])}/cwt carcass)",
         "feed bars in green; non-feed covers labor, vet, utilities, breeding herd, trucking, "
         "interest and buildings",
     )
@@ -355,6 +373,59 @@ pf.update_yaxes(tickprefix="$")
 pf.update_xaxes(tickformat="%b %Y")
 pf.update_layout(showlegend=False)
 chart(pf, 240, on=PAGE)
+
+# --- Fuel: trucking and heat ---------------------------------------------------------------
+fuel, fuel_src, _ = fuel_prices()
+if not fuel.empty:
+    rule()
+    left, mid, right = st.columns([1, 0.06, 1])
+    for col, name, label, why in (
+        (left, "diesel_us", "Diesel", "trucking feed, pigs and market hogs"),
+        (right, "propane_mn", "Propane (Minnesota)", "heating barns, October to March"),
+    ):
+        x = fuel[fuel["series"] == name].sort_values("date")
+        if x.empty:
+            continue
+        last = x.iloc[-1]
+        ago = x[x["date"] <= last["date"] - pd.Timedelta(days=364)]
+        yoy = (
+            float(last["usd_per_gal"]) / float(ago["usd_per_gal"].iloc[-1]) - 1
+            if len(ago)
+            else None
+        )
+        with col:
+            chart_title(
+                f"{label} {usd(float(last['usd_per_gal']))}/gal"
+                + (f", {abs(yoy):.0%} {'above' if yoy > 0 else 'below'} a year ago" if yoy else ""),
+                f"EIA weekly retail price, $/gal · drives {why}",
+            )
+            recent = x[x["date"] >= last["date"] - pd.DateOffset(years=4)]
+            # weekly grid, so the off-season (no survey) shows as a gap, not a straight line
+            recent = recent.set_index("date")["usd_per_gal"].resample("W-MON").mean().reset_index()
+            ff = go.Figure(
+                go.Scatter(
+                    x=recent["date"],
+                    y=recent["usd_per_gal"],
+                    mode="lines",
+                    line={"color": ACCENT, "width": 1.8},
+                    connectgaps=False,
+                    hovertemplate="%{x|%b %d, %Y}: $%{y:.3f}<extra></extra>",
+                )
+            )
+            ff.update_yaxes(tickformat="$.2f")
+            ff.update_xaxes(tickformat="%b %Y")
+            ff.update_layout(showlegend=False)
+            chart(ff, 220, on=PAGE)
+            source_note(
+                "U.S. Energy Information Administration"
+                + (" (live)" if fuel_src == "live" else " (saved)"),
+                "propane is surveyed in the heating season only"
+                if "propane" in name
+                else "freight and trucking lines are per pig on Costs and Wean to finish",
+            )
+    with mid:
+        st.markdown('<div class="hp-vrule" style="height:300px"></div>', unsafe_allow_html=True)
+    excel_button({"Fuel prices": fuel}, "fuel_prices", "Diesel and propane prices", "EIA")
 
 with st.expander("Cost table and weekly detail"):
     st.dataframe(

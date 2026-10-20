@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from hogproj.config import CACHE_DIR, SAMPLE_DIR, get_settings  # noqa: E402
-from hogproj.data import ams, ers, feed, feeder, lmr, mars, nass, regional, wasde  # noqa: E402
+from hogproj.data import ams, eia, ers, feed, feeder, isu, lmr, mars, nass, regional, wasde  # noqa: E402
 
 
 def main() -> int:
@@ -30,7 +30,10 @@ def main() -> int:
         "Feeder pig report": (lambda: feeder.load(False), feeder.FEEDER_FILE),
         "Iowa grain + feedstuffs": (lambda: feed.load(False), feed.FEED_FILE),
         "WASDE": (lambda: wasde.load(False), wasde.WASDE_FILE),
+        "WASDE history": (lambda: wasde.load_history(False), wasde.HISTORY_FILE),
         "ERS cold storage": (lambda: ers.load(False), ers.ERS_FILE),
+        "Iowa State returns": (lambda: isu.load(False), isu.ISU_FILE),
+        "EIA fuel prices": (lambda: eia.load(False), eia.EIA_FILE),
     }
     for name, (_, _, file, _) in regional.DATASETS.items():
         checks[f"LMR regional {name}"] = (lambda n=name: regional.load(n, False), file)

@@ -290,3 +290,23 @@ def test_retail_signal(now, tone):
     assert r is not None
     sig = next(s for s in hm.signals(_market(), retail=r) if s.name == "Retail features")
     assert sig.tone == tone
+
+
+def test_wasde_accuracy_by_horizon():
+    s = "barrows_gilts_usd_cwt_live"
+    hist = pd.DataFrame(
+        [
+            # July 2026 report: forecasts Q3 2026 (its own quarter) at 70 and Q4 (1 ahead) at 60
+            {"report": "July 2026", "year": 2026, "quarter": 3, "series": s, "value": 70.0,
+             "projected": True},
+            {"report": "July 2026", "year": 2026, "quarter": 4, "series": s, "value": 60.0,
+             "projected": True},
+            # October 2026 report: Q3 actual 67.86
+            {"report": "October 2026", "year": 2026, "quarter": 3, "series": s, "value": 67.86,
+             "projected": False},
+        ]
+    )  # fmt: skip
+    acc = hm.wasde_accuracy(hist).set_index("horizon")
+    assert list(acc.index) == [0]  # Q4 has no actual yet
+    assert acc.loc[0, "bias"] == pytest.approx(70 - 67.86)
+    assert acc.loc[0, "mae"] == pytest.approx(2.14)

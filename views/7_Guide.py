@@ -174,7 +174,7 @@ rows = [
         "Iowa State University",
         "Estimated Livestock Returns cost structure",
         "Monthly",
-        "September 2026 budget (defaults)",
+        "Latest month's budget sets the cost defaults (Costs & returns)",
     ),
     (
         "USDA AMS · Feeder Pig Report",

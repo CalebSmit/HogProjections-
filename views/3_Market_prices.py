@@ -42,6 +42,7 @@ from hogproj.ui import (
     tone_of,
     usd,
     wasde_data,
+    wasde_history,
     wasde_now,
 )
 
@@ -360,6 +361,17 @@ if not wd.empty:
         fp.update_layout(showlegend=False, bargap=0.35, hovermode="closest")
         chart(fp, 260, on=PAGE)
         source_note("USDA WASDE", "red: more pork than a year earlier (bearish), green: less")
+    acc = hm.wasde_accuracy(wasde_history()[0])
+    if len(acc):
+        one = acc.set_index("horizon").loc[1] if (acc["horizon"] == 1).any() else acc.iloc[0]
+        ahead = "one quarter ahead" if (acc["horizon"] == 1).any() else "for the current quarter"
+        st.caption(
+            f"How close USDA has been: across {int(acc['n'].sum())} forecasts from recent "
+            f"reports, the barrow/gilt price {ahead} ran "
+            f"{'high' if one['bias'] > 0 else 'low'} by {usd(abs(one['bias']))}/cwt live on "
+            f"average (typical miss {usd(one['mae'])}). A small sample that grows each month; "
+            "weigh USDA's price outlook with it in mind."
+        )
         excel_button({"WASDE pork": wd}, "wasde_pork", "USDA WASDE pork outlook", "USDA WASDE")
     rule()
 
