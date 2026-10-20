@@ -264,3 +264,12 @@ Newest at the bottom.
 - Guide: start-each-week step points to This week; glossary adds cutout, packer spread,
   percentile, hedged share.
 - Gate: ruff, pyright 0, 166 tests, screenshots reviewed.
+
+## 2026-10-20 — Corn off the futures curve (from the workbook)
+
+- The workbook prices feed off corn futures (+ carry), not today's cash. Now pigs on feed (and a
+  pig placed today) use the CBOT corn curve from the Iowa grain report for each month on feed
+  plus your basis (your cash corn minus nearby futures). Toggle on Wean to finish → Feed; default
+  "Futures curve" when the curve is available. Hedging positions use each placement's own corn.
+- Tests: contract-for-month mapping, curve averaging + basis, past-the-curve months, on-feed rows
+  use the curve, positions use row corn. 174 tests.

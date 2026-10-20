@@ -171,6 +171,20 @@ with assumption_bar("w2f"):
         )
         b.number_input("Other feed ($/lb)", 0.0, 5.0, d.other_feed_usd_per_lb, 0.01,
                        key="w2f_other_price", help="Premix, vitamins, additives.")  # fmt: skip
+        st.segmented_control(
+            "Corn for pigs on feed",
+            ["Futures curve", "Today's cash"],
+            default="Futures curve",
+            key="w2f_corn_mode",
+            help="Futures curve: CBOT corn for each month on feed plus your basis (your cash "
+            "price minus nearby futures), as the workbook does. Today's cash: one price for "
+            "every month.",
+        )
+        if book0.corn_mode == "Futures curve":
+            st.caption(
+                f"A pig placed today eats corn at {usd(book0.c.corn_usd_per_bu)}/bu on average: "
+                f"CBOT curve over its months on feed {signed(book0.corn_basis)} basis."
+            )
         st.caption("Pounds fed per pig, placement to market")
         a, b = st.columns(2)
         a.number_input("Corn (lb)", 0.0, 1500.0, d.corn_lb, 5.0, key="w2f_corn_lb")

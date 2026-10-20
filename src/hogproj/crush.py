@@ -154,6 +154,34 @@ def breakeven_hog(c: CrushInputs, pig: float | None = None) -> float:
     return cost_usd(c, pig) / c.carcass_cwt - c.basis_usd_per_cwt
 
 
+# CBOT corn contract months. Feed bought in a month is priced off the first contract at or after
+# it, the way the workbook priced corn off futures (plus carry) rather than today's cash.
+CORN_MONTHS = (3, 5, 7, 9, 12)
+
+
+def corn_contract_for(year: int, month: int) -> Contract:
+    for m in CORN_MONTHS:
+        if m >= month:
+            return year, m
+    return year + 1, CORN_MONTHS[0]
+
+
+def forward_corn(placed: pd.Timestamp, sold: pd.Timestamp, curve: Mapping[Contract, float],
+                 basis: float) -> float:  # fmt: skip
+    """Average corn price over the months on feed from the futures curve, plus your basis.
+    Months past the last listed contract use the last one."""
+    if not curve:
+        raise ValueError("empty corn curve")
+    last = max(curve)
+    months = pd.date_range(placed.to_period("M").to_timestamp(), sold, freq="MS")
+    prices = []
+    for mo in months:
+        k = corn_contract_for(mo.year, mo.month)
+        prices.append(curve[k] if k in curve else curve[last] if k > last else
+                      curve[min(c for c in curve if c >= k)])  # fmt: skip
+    return float(np.mean(prices)) + basis
+
+
 def _ts(x: object) -> pd.Timestamp:
     return cast(pd.Timestamp, pd.Timestamp(str(x)))
 
@@ -174,14 +202,17 @@ def placements(
     c: CrushInputs,
     futures: Mapping[Contract, float],
     corn: pd.DataFrame | None = None,
+    corn_curve: Mapping[Contract, float] | None = None,
+    corn_basis: float = 0.0,
 ) -> pd.DataFrame:
     """Margin for each week's placement at that week's USDA weaned pig price.
 
     Pigs are placed the Monday of the report week and sold `days_on_feed` later. Sold already:
     status "sold", priced at the index averaged over the sale week. Still on feed: status
     "on feed", priced at its contract from `futures` (rows with no contract price are dropped).
-    Realized rows use Iowa corn over the months on feed when `corn` is given; soybean meal,
-    DDGS and other costs are today's inputs throughout.
+    Realized rows use Iowa corn over the months on feed when `corn` is given; rows on feed use
+    the CBOT corn curve plus your basis when `corn_curve` is given, else today's corn. Soybean
+    meal, DDGS and other costs are today's inputs throughout.
     """
     days = pd.to_datetime(index["index_date"]).to_numpy(dtype="datetime64[D]")
     prices = index["lean_hog_index_usd_per_cwt_carcass"].to_numpy(dtype=float)
@@ -204,7 +235,11 @@ def placements(
             if k not in futures:
                 continue
             hog, status, label = float(futures[k]), "on feed", contract_label(k)
-            corn_px = c.corn_usd_per_bu
+            corn_px = (
+                forward_corn(_ts(placed), _ts(sold), corn_curve, corn_basis)
+                if corn_curve
+                else c.corn_usd_per_bu
+            )
         pig = float(pig)
         cost = cost_usd(c, pig, corn_px)
         revenue = c.carcass_cwt * (hog + c.basis_usd_per_cwt)

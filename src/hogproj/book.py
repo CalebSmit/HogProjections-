@@ -38,7 +38,6 @@ def positions(
 ) -> pd.DataFrame:
     """One row per placement on feed with its hedged and unhedged margin."""
     corn, sbm = corn or Hedge(), sbm or Hedge()
-    corn_px = corn.share * corn.price + (1 - corn.share) * c.corn_usd_per_bu
     sbm_px = sbm.share * sbm.price + (1 - sbm.share) * c.sbm_usd_per_ton
     c_hedged = c.model_copy(update={"sbm_usd_per_ton": sbm_px})
     rows = []
@@ -50,8 +49,10 @@ def positions(
         mkt = float(futures[k])
         hog = h.share * h.price + (1 - h.share) * mkt
         pig = float(r["pig_usd"]) - c.adder_usd_per_head
+        corn_mkt = float(r.get("corn_usd_per_bu", c.corn_usd_per_bu))  # the row's own corn
+        corn_px = corn.share * corn.price + (1 - corn.share) * corn_mkt
         margin = c.carcass_cwt * (hog + c.basis_usd_per_cwt) - cost_usd(c_hedged, pig, corn_px)
-        open_margin = c.carcass_cwt * (mkt + c.basis_usd_per_cwt) - cost_usd(c, pig)
+        open_margin = c.carcass_cwt * (mkt + c.basis_usd_per_cwt) - cost_usd(c, pig, corn_mkt)
         rows.append(
             {"placed": r["placed"], "sold": r["sold"], "contract": f"{k[0]}-{k[1]:02d}",
              "label": contract_label(k), "head": head_per_week, "market_usd_per_cwt": mkt,

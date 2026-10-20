@@ -25,6 +25,8 @@ from hogproj.crush import (
     CrushInputs,
     contract_for,
     contracts_needed,
+    corn_contract_for,
+    forward_corn,
     model_contract_prices,
     placements,
 )
@@ -458,6 +460,21 @@ def feed_help(item: str) -> str:
     return f"Starts at {FEED_LABEL[item]}, {got[1]:%b %d, %Y}. Use your own bid if you have one."
 
 
+def corn_curve() -> tuple[dict[Contract, float], pd.Timestamp | None]:
+    """CBOT corn settlements by contract from the latest Iowa grain report ($/bu)."""
+    fd = feed_prices()[0]
+    fut = fd[fd["item"].astype(str).str.startswith("corn_futures_")]
+    if fut.empty:
+        return {}, None
+    day = pd.Timestamp(str(fut["date"].max()))
+    latest = fut[pd.to_datetime(fut["date"]) == day]
+    curve = {}
+    for item, v in zip(latest["item"], latest["value"], strict=True):
+        _, _, y, m = str(item).split("_")
+        curve[(int(y), int(m))] = float(v)
+    return curve, day
+
+
 def latest_weaned_pig() -> float:
     pigs, _, _ = weaned_pigs()
     return round(float(pigs["cash_usd_per_head"].iloc[-1]), 2)
@@ -607,6 +624,9 @@ class CrushBook:
     hog: float  # its price
     index_now: float
     rows: pd.DataFrame  # crush.placements for every USDA week
+    corn_mode: str = "Today's cash"  # or "Futures curve"
+    corn_cash: float = 0.0  # the corn input (cash)
+    corn_basis: float = 0.0  # cash − nearby CBOT futures, when the curve is used
 
 
 def crush_book() -> CrushBook:
@@ -625,9 +645,24 @@ def crush_book() -> CrushBook:
     }
     user_set = [k for k in contracts if futures[k] != model[k]]
     this = contract_for(today + timedelta(days=c.days_on_feed))
+    # Corn for pigs on feed: the CBOT curve over their months on feed plus your basis (the
+    # workbook's approach), or today's cash for every month.
+    curve, _ = corn_curve()
+    mode = ss.get("w2f_corn_mode") or "Futures curve"
+    cash, basis = c.corn_usd_per_bu, 0.0
+    if mode == "Futures curve" and curve:
+        nearby = curve[min(k for k in curve if k >= corn_contract_for(today.year, today.month))]
+        basis = cash - nearby
+        start = pd.Timestamp(today)
+        c = c.model_copy(update={"corn_usd_per_bu": forward_corn(
+            start, start + pd.Timedelta(days=c.days_on_feed), curve, basis)})  # fmt: skip
+        rows = placements(pigs, idx, c, futures, corn, corn_curve=curve, corn_basis=basis)
+    else:
+        mode = "Today's cash"
+        rows = placements(pigs, idx, c, futures, corn)
     return CrushBook(c=c, contracts=contracts, model=model, futures=futures, user_set=user_set,
                      this_contract=this, hog=futures.get(this, index_now), index_now=index_now,
-                     rows=placements(pigs, idx, c, futures, corn))  # fmt: skip
+                     rows=rows, corn_mode=mode, corn_cash=cash, corn_basis=basis)  # fmt: skip
 
 
 def current_plan() -> Plan:

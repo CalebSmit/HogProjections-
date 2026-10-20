@@ -93,3 +93,10 @@ def test_hedge_rule(rank, current, tone):
 
 def test_business_days_since():
     assert business_days_since(date(2026, 10, 16), date(2026, 10, 20)) == 2  # Fri -> Tue
+
+
+def test_positions_use_each_rows_own_corn():
+    on = _on_feed().assign(corn_usd_per_bu=[5.25, 4.25])
+    pos = positions(on, C, FUT, {}, 1000)
+    apr = pos[pos["contract"] == "2027-04"].iloc[0]
+    assert apr["margin_usd"] == pytest.approx(margin_usd(C, 80.0, corn=5.25))

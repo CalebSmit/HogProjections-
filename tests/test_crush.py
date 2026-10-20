@@ -202,3 +202,41 @@ def test_annual_summary():
     assert s.loc[2024, "weeks"] == len(sold)
     assert s.loc[2024, "profitable"] == pytest.approx((sold["margin_usd"] > 0).mean())
     assert s.loc[2024, "worst_usd"] == pytest.approx(sold["margin_usd"].min())
+
+
+# --- Corn off the futures curve ---------------------------------------------------------------
+CURVE = {(2026, 12): 4.67, (2027, 3): 4.805, (2027, 5): 4.885, (2027, 7): 4.95}
+
+
+@pytest.mark.parametrize(
+    ("year", "month", "contract"),
+    [(2026, 10, (2026, 12)), (2026, 12, (2026, 12)), (2027, 1, (2027, 3)),
+     (2027, 4, (2027, 5)), (2027, 12, (2027, 12))],
+)  # fmt: skip
+def test_corn_contract_for_month(year, month, contract):
+    from hogproj.crush import corn_contract_for
+
+    assert corn_contract_for(year, month) == contract
+
+
+def test_forward_corn_averages_months_on_feed_plus_basis():
+    from hogproj.crush import forward_corn
+
+    # Oct 2026 -> Mar 2027: Oct, Nov, Dec on Dec; Jan, Feb, Mar on Mar.
+    got = forward_corn(pd.Timestamp("2026-10-19"), pd.Timestamp("2027-03-28"), CURVE, -0.43)
+    assert got == pytest.approx((3 * 4.67 + 3 * 4.805) / 6 - 0.43)
+    # Past the last listed contract: the last one.
+    far = forward_corn(pd.Timestamp("2027-09-01"), pd.Timestamp("2027-10-01"), CURVE, 0.0)
+    assert far == pytest.approx(4.95)
+
+
+def test_on_feed_rows_use_the_curve():
+    pigs = pd.DataFrame(
+        {"week_ending": pd.to_datetime(["2026-09-18"]), "cash_usd_per_head": [30.0]}
+    )
+    idx = _index("2026-01-01", "2026-10-16", 90.0)
+    rows = placements(pigs, idx, WORKBOOK, {(2027, 4): 80.0}, corn_curve=CURVE, corn_basis=-0.4)
+    from hogproj.crush import forward_corn
+
+    expect = forward_corn(rows["placed"].iloc[0], rows["sold"].iloc[0], CURVE, -0.4)
+    assert rows["corn_usd_per_bu"].iloc[0] == pytest.approx(expect)
