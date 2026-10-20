@@ -295,7 +295,7 @@ with left:
     source_note("model projection", "months have 4 or 5 sale weeks, so compare per pig")
 with mid:
     st.markdown(
-        '<div style="border-left:1px solid #e5e0d5;height:420px;margin:0 auto;width:1px"></div>',
+        '<div class="hp-vrule" style="height:420px"></div>',
         unsafe_allow_html=True,
     )
 with right:

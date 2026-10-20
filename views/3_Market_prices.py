@@ -1,66 +1,92 @@
-"""Market prices: the CME Lean Hog Index rebuilt from USDA data, with seasonality."""
+"""Hog market: the Lean Hog Index and what's behind it: cutout, spread, slaughter, weights."""
 
 import calendar
 
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from hogproj import hogmarket as hm
+from hogproj import supply
 from hogproj.markets import seasonal_factors
 from hogproj.ui import (
     ACCENT,
     HISTORY,
+    MUTED,
     NEG,
     PAGE,
     POS,
+    REFERENCE,
     chart,
     chart_title,
     end_tag,
     hero,
     hog_index,
-    kv_table,
+    hog_market,
     masthead,
+    nass_data,
+    pork_cutout,
     quote,
+    ref_line,
     rule,
+    signal_list,
     signed,
     source_note,
+    stat_strip,
+    table,
     tone_of,
     usd,
 )
 
-idx, source, note = hog_index()
+idx, source, _ = hog_index()
+cut_raw, cut_source, _ = pork_cutout()
+d = hog_market()
 dates = pd.to_datetime(idx["index_date"])
 values = idx["lean_hog_index_usd_per_cwt_carcass"].to_numpy(dtype=float)
-weights = idx["avg_weight_lb_carcass"].to_numpy(dtype=float)
-heads = idx["head_count"].to_numpy(dtype=float)
 latest_date, latest = dates.iloc[-1], float(values[-1])
 
 
 def value_days_ago(days: int) -> float | None:
-    """Index on the last trading day at least `days` before the latest one."""
     mask = (dates <= latest_date - pd.Timedelta(days=days)).to_numpy()
     return float(values[mask][-1]) if mask.any() else None
 
 
 week, month, year = value_days_ago(7), value_days_ago(30), value_days_ago(365)
-f = seasonal_factors(idx)
-n_years = int(f["years"].to_numpy().max()) if not f.empty else 0
-peak = int(f.loc[f["factor"].idxmax(), "month"]) if not f.empty else 7
-low = int(f.loc[f["factor"].idxmin(), "month"]) if not f.empty else 1
 move_30 = latest - month if month is not None else 0.0
 last_year = values[(dates >= latest_date - pd.Timedelta(days=365)).to_numpy()]
+supply_pct = supply.next_six_months(nass_data()[0])["pct"]
+sigs = hm.signals(d, supply_pct)
+tone, why = hm.overall(sigs)
+good = [s.name.lower() for s in sigs if s.tone == "good"]
+bad = [s.name.lower() for s in sigs if s.tone == "bad"]
+
+
+def joined(items: list[str]) -> str:
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
+lead = {
+    "good": "The market behind hog prices looks supportive.",
+    "bad": "The market behind hog prices looks soft.",
+    "neutral": "Signals behind hog prices are mixed.",
+}[tone]
+detail = []
+if bad:
+    detail.append(f"Working against hogs: {joined(bad)}.")
+if good:
+    detail.append(f"Working for them: {joined(good)}.")
 
 masthead(
+    lead,
     f"Lean hogs at {usd(latest)}, {'up' if move_30 >= 0 else 'down'} {usd(abs(move_30))} in a "
-    "month.",
-    f"The index usually peaks in {calendar.month_name[peak]} and bottoms in "
-    f"{calendar.month_name[low]}. A year ago it was {usd(year) if year else '—'}.",
-    kicker="Market prices · CME Lean Hog Index",
+    f"month. " + " ".join(detail),
+    kicker="Hog market",
 )
 
 st.space("small")
 with hero():
-    left, right = st.columns([1.9, 1], gap="large")
+    left, right = st.columns([1.75, 1], gap="large")
     with left:
         pct = move_30 / month if month else 0.0
         quote(
@@ -69,22 +95,20 @@ with hero():
             "/cwt carcass",
             f"{signed(move_30)} ({pct:+.1%}) 30 days".replace("-", "−"),
             tone_of(move_30),
-            f"Index for {latest_date:%b %d, %Y} · rebuilt from USDA AMS LM_HG201 · two-day "
-            "weighted average",
+            f"Index for {latest_date:%b %d, %Y} · rebuilt from USDA AMS LM_HG201",
         )
-        st.space("small")
         span = st.segmented_control(
             "Range",
-            ["3M", "6M", "1Y", "All"],
+            ["3M", "6M", "1Y", "3Y", "All"],
             default="1Y",
             key="mkt_span",
             label_visibility="collapsed",
         )
-        days = {"3M": 91, "6M": 182, "1Y": 365}.get(span or "1Y")
+        days = {"3M": 91, "6M": 182, "1Y": 365, "3Y": 1096}.get(span or "1Y")
         sel = (
             (dates >= latest_date - pd.Timedelta(days=days)).to_numpy()
             if days
-            else (dates == dates).to_numpy()
+            else np.ones(len(dates), dtype=bool)
         )
         vx, vy = dates[sel], values[sel]
         fig = go.Figure(
@@ -93,103 +117,216 @@ with hero():
                 y=vy,
                 mode="lines",
                 line={"color": HISTORY, "width": 2},
-                fill="tozeroy",
-                fillcolor="rgba(31,92,69,0.05)",
                 hovertemplate="%{x|%b %d, %Y}: $%{y:.2f}<extra></extra>",
             )
         )
-        if month is not None and days and days <= 365:
-            fig.add_hline(y=month, line={"color": "#b9b2a3", "width": 1, "dash": "dot"})
-            fig.add_annotation(
-                x=0.5, xref="paper", y=month, text=f"30 days ago {usd(month)}",
-                showarrow=False, xanchor="center", yanchor="bottom", bgcolor="white",
-                font={"size": 10.5, "color": "#8f897c"},
-            )  # fmt: skip
         end_tag(fig, vx.iloc[-1], latest, usd(latest), NEG if move_30 < 0 else POS)
         lo, hi = float(vy.min()), float(vy.max())
         fig.update_yaxes(range=[lo - (hi - lo) * 0.12, hi + (hi - lo) * 0.12], tickprefix="$")
         fig.update_xaxes(tickformat="%b %Y")
         fig.update_layout(showlegend=False, margin={"l": 4, "r": 64, "t": 8, "b": 4})
-        chart(fig, 330)
+        chart(fig, 280)
+        stat_strip(
+            [
+                ("Week ago", "—" if week is None else usd(week), "", "neutral"),
+                ("1 year ago", "—" if year is None else usd(year),
+                 "" if year is None else signed(latest - year) + " since", "neutral"),
+                ("52-week range",
+                 f"{usd(float(last_year.min()), 0)}–{usd(float(last_year.max()), 0)}",
+                 "", "neutral"),
+            ]
+        )  # fmt: skip
     with right:
         st.markdown(
-            '<div class="hp-quote-label" style="margin-bottom:6px">Key figures</div>',
+            '<div class="hp-quote-label" style="margin-bottom:2px">What the market is saying</div>',
             unsafe_allow_html=True,
         )
-        kv_table(
-            [
-                ("Week ago", "—" if week is None else usd(week)),
-                ("30 days ago", "—" if month is None else usd(month)),
-                ("1 year ago", "—" if year is None else usd(year)),
-                ("52-wk range", f"{usd(float(last_year.min()))} – {usd(float(last_year.max()))}"),
-                ("Live equivalent", usd(latest * 0.75)),
-                ("Carcass weight", f"{weights[-1]:.1f} lb"),
-                ("Hogs in index", f"{heads[-1]:,.0f}"),
-                (
-                    "Seasonal high / low",
-                    f"{calendar.month_abbr[peak]} / {calendar.month_abbr[low]}",
-                ),
-            ]
-        )
+        signal_list([(s.name, s.value, s.read, s.tone, s.rule) for s in sigs])
+        st.caption(f"Overall: {why}. Hover a signal for its rule.")
     source_note(
-        "USDA AMS Livestock Mandatory Reporting, LM_HG201 (producer-sold negotiated, negotiated "
-        "formula and swine/pork market formula barrows and gilts)",
-        "matched CME's published index to the cent on Oct 12, 2026",
+        "USDA AMS LM_HG201 (index, slaughter, weights), LM_PK602 (cutout); USDA NASS Hogs and "
+        "Pigs (supply)",
+        "index matched CME's published value to the cent on Oct 12, 2026",
     )
 
 st.space("medium")
-left, mid, right = st.columns([1.4, 0.06, 1])
+
+# --- Cutout and packer spread ---------------------------------------------------------------
+win = d[d["date"] >= d["date"].max() - pd.Timedelta(days=days or 4000)]
+w = hm.weekly(d)
+sp_hist = w["spread_per_head"].to_numpy(dtype=float)
+p25, p75 = (float(np.nanpercentile(sp_hist, q)) for q in (25, 75))
+left, mid, right = st.columns([1.2, 0.06, 1])
 with left:
+    cut_now = float(pd.Series(cut_raw["carcass"]).iloc[-1])
     chart_title(
-        f"Hogs usually peak in {calendar.month_name[peak]} and bottom in "
-        f"{calendar.month_name[low]}",
-        f"Typical month vs. its year's average · {n_years} full years of data",
+        f"Pork cutout {usd(cut_now)}, {usd(cut_now - latest)} over the index",
+        "Wholesale value of a carcass vs what packers pay for hogs · $/cwt carcass",
     )
-    if f.empty:
-        st.info("Needs at least one full calendar year of data.")
-    else:
-        bar = go.Figure(
-            go.Bar(
-                x=[calendar.month_abbr[m] for m in f["month"]],
-                y=(f["factor"] - 1) * 100,
-                marker={"color": [POS if v >= 1 else NEG for v in f["factor"]], "cornerradius": 3},
-                hovertemplate="%{x}: %{y:+.1f}%<extra></extra>",
-            )
-        )
-        bar.update_yaxes(ticksuffix="%", zeroline=True, zerolinecolor="#cfc8b9")
-        bar.update_layout(hovermode="closest", bargap=0.38, showlegend=False)
-        chart(bar, 270, on=PAGE)
-        source_note("USDA AMS LM_HG201", "monthly average index ÷ that year's average")
+    cf = go.Figure()
+    cf.add_scatter(x=win["date"], y=win["cutout"], mode="lines", name="Cutout",
+                   line={"color": ACCENT, "width": 2}, connectgaps=True,
+                   hovertemplate="%{x|%b %d, %Y}<br>Cutout $%{y:.2f}<extra></extra>")  # fmt: skip
+    cf.add_scatter(x=win["date"], y=win["index"], mode="lines", name="Lean Hog Index",
+                   line={"color": HISTORY, "width": 1.5}, connectgaps=True,
+                   hovertemplate="%{x|%b %d, %Y}<br>Index $%{y:.2f}<extra></extra>")  # fmt: skip
+    last_cut = win.dropna(subset=["cutout"]).iloc[-1]
+    last_idx = win.dropna(subset=["index"]).iloc[-1]
+    end_tag(cf, last_cut["date"], float(last_cut["cutout"]), "Cutout", ACCENT)
+    end_tag(cf, last_idx["date"], float(last_idx["index"]), "Index", HISTORY)
+    cf.update_yaxes(tickprefix="$")
+    cf.update_xaxes(tickformat="%b %Y")
+    cf.update_layout(showlegend=False, margin={"l": 4, "r": 64, "t": 8, "b": 4})
+    chart(cf, 290, on=PAGE)
+    source_note("USDA AMS LM_PK602 (afternoon cutout) and LM_HG201", "gap = packer gross spread")
 with mid:
     st.markdown(
-        '<div style="border-left:1px solid #e5e0d5;height:360px;margin:0 auto;width:1px"></div>',
+        '<div class="hp-vrule" style="height:380px"></div>',
+        unsafe_allow_html=True,
+    )
+with right:
+    wk = w[w["week_ending"] >= w["week_ending"].max() - pd.Timedelta(days=days or 4000)]
+    wk = wk.dropna(subset=["spread_per_head"])
+    now_sp = float(wk["spread_per_head"].iloc[-1])
+    chart_title(
+        f"Packers are grossing {usd(now_sp)} a head",
+        "Weekly packer gross spread per head · before plant costs and by-product credit",
+    )
+    sf = go.Figure(
+        go.Bar(
+            x=wk["week_ending"],
+            y=wk["spread_per_head"],
+            marker={"color": [POS if v >= p75 else NEG if v <= p25 else "#9aa79f"
+                              for v in wk["spread_per_head"]], "cornerradius": 2},
+            hovertemplate="Week ending %{x|%b %d, %Y}: $%{y:.2f}/head<extra></extra>",
+        )
+    )  # fmt: skip
+    ref_line(sf, p75, f"Top 25% {usd(p75, 0)}", REFERENCE)
+    ref_line(sf, p25, f"Bottom 25% {usd(p25, 0)}", REFERENCE)
+    sf.update_yaxes(tickprefix="$")
+    sf.update_xaxes(tickformat="%b %Y")
+    sf.update_layout(showlegend=False, bargap=0.15, hovermode="closest")
+    chart(sf, 290, on=PAGE)
+    source_note("model on USDA LMR", "green: top 25% since 2020, red: bottom 25%")
+
+rule()
+
+
+# --- This year vs last year: weights and slaughter --------------------------------------------
+def overlay(col: str, fmt: str, suffix: str = "") -> go.Figure:
+    """This year, last year and the average of earlier years by week of the year."""
+    x = w.dropna(subset=[col]).copy()
+    if col == "head":  # holiday-short weeks would look like supply drops
+        x = x[x["days"] >= 5]
+    iso = x["week_ending"].dt.isocalendar()
+    x["year"], x["wk"] = iso["year"].to_numpy(), iso["week"].to_numpy()
+    this_year = int(x["year"].max())
+    fig = go.Figure()
+    # 2020 is left out of the range: COVID plant closures distort it.
+    earlier = x[(x["year"] < this_year - 1) & (x["year"] >= 2021)].groupby("wk")[col]
+    band_lo, band_hi = earlier.min(), earlier.max()
+    fig.add_scatter(x=band_hi.index, y=band_hi.to_numpy(), mode="lines", line={"width": 0},
+                    hoverinfo="skip", showlegend=False)  # fmt: skip
+    fig.add_scatter(x=band_lo.index, y=band_lo.to_numpy(), mode="lines", line={"width": 0},
+                    fill="tonexty", fillcolor="rgba(133,127,115,0.14)", hoverinfo="skip",
+                    showlegend=False)  # fmt: skip
+    for yr, color, width, dash in (
+        (this_year - 1, MUTED, 1.5, "dot"),
+        (this_year, ACCENT, 2.2, None),
+    ):
+        part = x[x["year"] == yr]
+        fig.add_scatter(x=part["wk"], y=part[col], mode="lines", name=str(yr),
+                        line={"color": color, "width": width, "dash": dash},
+                        hovertemplate=f"{yr} week %{{x}}: %{{y:{fmt}}}{suffix}"
+                        "<extra></extra>")  # fmt: skip
+        if len(part):
+            end_tag(fig, int(part["wk"].iloc[-1]), float(part[col].iloc[-1]), str(yr), color)
+    fig.update_xaxes(title="week of year", range=[1, 53])
+    fig.update_layout(showlegend=False, margin={"l": 4, "r": 56, "t": 8, "b": 4})
+    return fig
+
+
+wt = hm.vs_year_ago(d, "weight_lb")
+sl = hm.vs_year_ago(d, "head", how="sum")
+left, mid, right = st.columns([1, 0.06, 1])
+with left:
+    chart_title(
+        f"Carcasses {abs(wt['change']):.1f} lb {'heavier' if wt['change'] >= 0 else 'lighter'} "
+        "than a year ago",
+        "Average carcass weight, producer-sold barrows and gilts · lb · shaded: range of 2021 to "
+        "two years ago",
+    )
+    fw = overlay("weight_lb", ".1f", " lb")
+    fw.update_yaxes(ticksuffix=" lb")
+    chart(fw, 290, on=PAGE)
+    source_note("USDA AMS LM_HG201", "last 4 weeks vs the same weeks a year ago")
+with mid:
+    st.markdown(
+        '<div class="hp-vrule" style="height:380px"></div>',
         unsafe_allow_html=True,
     )
 with right:
     chart_title(
-        "Carcasses are heaviest in winter",
-        "Average carcass weight, lb per head, barrows and gilts",
+        f"Slaughter {abs(sl['pct']):.1%} {'above' if sl['pct'] >= 0 else 'below'} last year",
+        "Producer-sold barrows and gilts per week · head · shaded: range of 2021 to two years ago",
     )
-    w = go.Figure(
-        go.Scatter(
-            x=vx,
-            y=weights[sel],
-            mode="lines",
-            line={"color": ACCENT, "width": 1.6},
-            hovertemplate="%{x|%b %d, %Y}: %{y:.1f} lb<extra></extra>",
-        )
-    )
-    w.update_yaxes(ticksuffix=" lb")
-    w.update_xaxes(tickformat="%b %Y")
-    w.update_layout(showlegend=False)
-    chart(w, 270, on=PAGE)
-    source_note("USDA AMS LM_HG201", "heavier hogs mean more pork per head")
+    fh = overlay("head", ",.0f")
+    fh.update_yaxes(tickformat="~s")
+    chart(fh, 290, on=PAGE)
+    source_note("USDA AMS LM_HG201", "excludes packer-owned hogs; holiday-short weeks left out")
 
 rule()
-st.download_button(
-    "Download index history",
-    idx.to_csv(index=False),
-    "lean_hog_index.csv",
-    "text/csv",
-    icon=":material/download:",
-)
+
+# --- Seasonality + primals ---------------------------------------------------------------------
+f = seasonal_factors(idx)
+n_years = int(f["years"].to_numpy().max()) if not f.empty else 0
+peak = int(f.loc[f["factor"].idxmax(), "month"]) if not f.empty else 7
+low = int(f.loc[f["factor"].idxmin(), "month"]) if not f.empty else 1
+left, mid, right = st.columns([1.2, 0.06, 1])
+with left:
+    chart_title(
+        f"Hogs usually peak in {calendar.month_name[peak]} and bottom in "
+        f"{calendar.month_name[low]}",
+        f"Typical month vs its year's average · {n_years} full years",
+    )
+    bar = go.Figure(
+        go.Bar(
+            x=[calendar.month_abbr[m] for m in f["month"]],
+            y=(f["factor"] - 1) * 100,
+            marker={"color": [POS if v >= 1 else NEG for v in f["factor"]], "cornerradius": 3},
+            hovertemplate="%{x}: %{y:+.1f}%<extra></extra>",
+        )
+    )
+    bar.update_yaxes(ticksuffix="%", zeroline=True, zerolinecolor="#cfc8b9")
+    bar.update_layout(hovermode="closest", bargap=0.38, showlegend=False)
+    chart(bar, 260, on=PAGE)
+    source_note("USDA AMS LM_HG201", "monthly average index ÷ that year's average")
+with mid:
+    st.markdown(
+        '<div class="hp-vrule" style="height:340px"></div>',
+        unsafe_allow_html=True,
+    )
+with right:
+    c = cut_raw.sort_values("date")
+    last = c.iloc[-1]
+    wk_ago = c[c["date"] <= last["date"] - pd.Timedelta(days=7)].iloc[-1]
+    yr_ago = c[c["date"] <= last["date"] - pd.Timedelta(days=364)].iloc[-1]
+    chart_title("Primal values", f"$/cwt, afternoon report {pd.Timestamp(last['date']):%b %d, %Y}")
+    names = [("carcass", "Carcass cutout"), ("belly", "Belly"), ("loin", "Loin"), ("ham", "Ham"),
+             ("butt", "Butt"), ("picnic", "Picnic"), ("rib", "Rib")]  # fmt: skip
+    table(
+        ["Cut", "Value", "Week", "Year"],
+        [
+            [label, usd(float(last[k])), signed(float(last[k] - wk_ago[k])),
+             signed(float(last[k] - yr_ago[k]))]
+            for k, label in names
+        ],
+        emphasis_col=0,
+    )  # fmt: skip
+    source_note("USDA AMS LM_PK602", "change vs a week and a year earlier")
+
+with st.expander("Download the data"):
+    st.download_button("Daily market table (CSV)", d.to_csv(index=False), "hog_market_daily.csv",
+                       "text/csv", icon=":material/download:")  # fmt: skip
+    st.download_button("Weekly market table (CSV)", w.to_csv(index=False), "hog_market_weekly.csv",
+                       "text/csv", icon=":material/download:")  # fmt: skip

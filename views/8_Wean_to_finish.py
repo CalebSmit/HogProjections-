@@ -24,7 +24,6 @@ from hogproj.ui import (
     HISTORY,
     INK,
     INK_2,
-    LINE,
     NEG,
     PAGE,
     POS,
@@ -336,7 +335,7 @@ with left:
     )
 with mid:
     st.markdown(
-        f'<div style="border-left:1px solid {LINE};height:400px;margin:0 auto;width:1px"></div>',
+        '<div class="hp-vrule" style="height:400px"></div>',
         unsafe_allow_html=True,
     )
 with right:
@@ -400,7 +399,7 @@ with left:
         chart_title("No pigs on feed in the data", "USDA weaned pig prices are missing")
 with mid:
     st.markdown(
-        f'<div style="border-left:1px solid {LINE};height:440px;margin:0 auto;width:1px"></div>',
+        '<div class="hp-vrule" style="height:440px"></div>',
         unsafe_allow_html=True,
     )
 with right:

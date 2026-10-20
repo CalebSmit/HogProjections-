@@ -151,7 +151,7 @@ with left:
     source_note("model on USDA prices", "months with no sold placements are blank")
 with mid:
     st.markdown(
-        f'<div style="border-left:1px solid {LINE};height:420px;margin:0 auto;width:1px"></div>',
+        '<div class="hp-vrule" style="height:420px"></div>',
         unsafe_allow_html=True,
     )
 with right:
@@ -211,7 +211,7 @@ with left:
     source_note("model on USDA prices", "* partial year: only the weeks placed and sold so far")
 with mid:
     st.markdown(
-        f'<div style="border-left:1px solid {LINE};height:330px;margin:0 auto;width:1px"></div>',
+        '<div class="hp-vrule" style="height:330px"></div>',
         unsafe_allow_html=True,
     )
 with right:

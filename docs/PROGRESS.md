@@ -185,3 +185,20 @@ Newest at the bottom.
   corn (2850), soybean meal (3511) and DDGS (3618) — feed prices no longer wait on the MMN key.
   Yahoo futures rejected on terms of use.
 - Gate: ruff, pyright 0, 106 tests, desktop + phone screenshots reviewed.
+
+## 2026-10-20 — Phase 2: hog market
+
+- `data/lmr.py`: generic incremental LMR loader; LM_PK602 cutout + primals since 2020 (sample).
+- `hogmarket.py`: daily table (index, cutout, packer gross spread, producer-sold head, weights),
+  weekly roll-up, year-ago comparisons that line up weekdays (364 days), five rule-based signals
+  (packer spread percentile, cutout 4-week trend, weights and slaughter vs last year, NASS supply)
+  and an overall read. Every rule is shown on hover.
+- Market prices page rebuilt as **Hog market**: headline states the read; signals panel; cutout
+  vs index; weekly packer spread with top/bottom quartiles; this year vs last year overlays for
+  weights and slaughter (2020 left out of the range: COVID plant closures); primal table.
+- Pyright: `useLibraryCodeForTypes = false`. Inferring pandas types from source was
+  order-dependent — adding an unrelated module flipped 24 errors on and off in old files.
+- Phone: column dividers became 400 px empty gaps once columns stacked; now a `.hp-vrule`
+  class hidden under 640 px (an attribute selector on the inline style didn't match).
+- Gate: ruff, pyright 0, 124 tests, all 10 pages × 2 widths screenshotted without exceptions.
+- Deferred: sow prices (HG234 is split by weight class; weak signal), NASS cold storage.

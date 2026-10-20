@@ -44,3 +44,6 @@ testpaths = ["tests"]
 [tool.pyright]
 include = ["src", "tests", "app.py", "views"]
 typeCheckingMode = "standard"
+# pandas ships no type hints; inferring them from its source is order-dependent and flips
+# results when unrelated files change. Treat untyped libraries as Any instead.
+useLibraryCodeForTypes = false

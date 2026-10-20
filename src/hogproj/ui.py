@@ -28,6 +28,7 @@ from hogproj.crush import (
     model_contract_prices,
     placements,
 )
+from hogproj.data import lmr
 from hogproj.data.ams import Source, load_hg201
 from hogproj.data.feeder import load as feeder_load
 from hogproj.data.nass import load as nass_load
@@ -254,6 +255,17 @@ p, li {{ line-height: 1.55; }}
 .hp-table {{ border: 0 !important; }}
 
 /* Legacy insight card (pages not yet migrated) */
+/* Vertical dividers between side-by-side columns: columns stack on phones, so hide them. */
+.hp-vrule {{ border-left: 1px solid var(--line); width: 1px; margin: 0 auto; }}
+@media (max-width: 640px) {{ .hp-vrule {{ display: none; }} }}
+.hp-signals {{ display: flex; flex-direction: column; }}
+.hp-signal {{ display: grid; grid-template-columns: 14px 1fr; gap: 8px; padding: 10px 0;
+  border-bottom: 1px solid var(--line); }}
+.hp-signal:last-child {{ border-bottom: none; }}
+.hp-signal-k {{ font-weight: 600; font-size: 14px; color: var(--ink); }}
+.hp-signal-v {{ font-weight: 500; color: var(--ink2); font-variant-numeric: tabular-nums;
+  margin-left: 4px; white-space: nowrap; }}
+.hp-signal-d {{ font-size: 13.5px; color: var(--ink2); line-height: 1.45; margin-top: 1px; }}
 .hp-insight {{ background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
          padding: 18px 22px; margin: 6px 0 16px; }}
 .hp-insight-head {{ font-family: var(--serif); font-size: 21px; font-weight: 600;
@@ -355,6 +367,37 @@ def _nass(offline: bool) -> tuple[pd.DataFrame, str, str]:
 def nass_data() -> tuple[pd.DataFrame, str, str]:
     """Quarterly Hogs and Pigs data (live, cached or sample) and a note on where it came from."""
     return _nass(get_settings().offline)
+
+
+@st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA pork cutout…")
+def _cutout(offline: bool) -> tuple[pd.DataFrame, str, str]:
+    return lmr.load(lmr.CUTOUT, offline)
+
+
+def pork_cutout() -> tuple[pd.DataFrame, str, str]:
+    """Daily pork cutout and primal values (LM_PK602) and where they came from."""
+    return _cutout(get_settings().offline)
+
+
+def hog_market() -> pd.DataFrame:
+    """Daily index, cutout, packer spread, producer-sold head and carcass weight."""
+    from hogproj.hogmarket import daily
+
+    raw, _, _ = _hg201(get_settings().offline)
+    cut, _, _ = pork_cutout()
+    return daily(raw, lean_hog_index(raw), cut)
+
+
+def signal_list(items: Sequence[tuple[str, str, str, Tone, str]]) -> None:
+    """Market signals: (name, value, one-sentence read, tone, rule shown on hover)."""
+    rows = "".join(
+        f'<div class="hp-signal" title="Rule: {_safe(rule)}">'
+        f'<span class="hp-dot" style="background:{_TONE[t][0]};margin-top:7px"></span>'
+        f'<div><div class="hp-signal-k">{_safe(k)} <span class="hp-signal-v">{_safe(v)}</span>'
+        f'</div><div class="hp-signal-d">{_safe(d)}</div></div></div>'
+        for k, v, d, t, rule in items
+    )
+    _html(f'<div class="hp-signals">{rows}</div>')
 
 
 @st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA weaned pig prices…")

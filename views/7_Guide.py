@@ -78,7 +78,7 @@ with left:
     )
 with mid:
     st.markdown(
-        f'<div style="border-left:1px solid {LINE};height:520px;margin:0 auto;width:1px"></div>',
+        '<div class="hp-vrule" style="height:520px"></div>',
         unsafe_allow_html=True,
     )
 with right:
