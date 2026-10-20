@@ -216,3 +216,15 @@ Newest at the bottom.
   Dec 1, 2024 inventory at the cut-off; regression test added.
 - Screenshot script now waits for Streamlit's running indicator to clear.
 - Gate: ruff, pyright 0, 134 tests, screenshots reviewed.
+
+## 2026-10-20 — Phase 3: hedging book
+
+- `book.py`: positions for every placement on feed with hog hedges per contract (share + price),
+  corn and SBM hedges, locked vs open margin, $ exposure per $1/cwt, by-contract summary, what-if
+  (book with/without hedges across ±$15), and a user-set hedge rule (trigger percentile → target
+  share) that reports what the rule says — never advice.
+- New **Hedging** page (Decisions): headline states the book and how much is locked; contract
+  prices carry an "as of" date and are flagged after three business days; rule table; what-if.
+- Tests: open = unhedged at 0%, locked at 100%, linear between; corn hedge only moves cost;
+  totals; what-if swing = head × cwt × move; rule tones; interaction test (hedge → headline).
+- Gate: ruff, pyright 0, 148 tests, screenshots reviewed (desktop + phone).

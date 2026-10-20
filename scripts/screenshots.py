@@ -24,6 +24,7 @@ PAGES = {
     "costs": "Costs_and_returns",
     "w2f": "Wean_to_finish",
     "history": "Crush_history",
+    "hedging": "Hedging",
     "scenarios": "Scenarios",
     "risk": "Risk",
     "market": "Market_prices",

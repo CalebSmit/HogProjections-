@@ -118,16 +118,16 @@ Goal: the reference view of the past. Answers "was that a good price for the pig
 ### Phase 2 — The hog market behind the price
 Goal: explain *why* hog prices are where they are. Answers "what's the market telling us?"
 
-- [ ] LMR pork cutout client (carcass + primals) with sample + cache
-- [ ] Packer margin proxy: cutout value per head − hog cost per head; spread history
-- [ ] Daily/weekly slaughter and average carcass weight vs last year (heavy weights = hogs
+- [x] LMR pork cutout client (carcass + primals) with sample + cache
+- [x] Packer margin proxy: cutout value per head − hog cost per head; spread history
+- [x] Daily/weekly slaughter and average carcass weight vs last year (heavy weights = hogs
       backing up = bearish)
 - [ ] Sow slaughter / sow prices (herd liquidation signal) if available keyless
 - [ ] NASS monthly slaughter and cold storage (pork, bellies) vs 5-year average
-- [ ] **Market prices** page becomes **Hog market**: index + cutout + spread; weights;
+- [x] **Market prices** page becomes **Hog market**: index + cutout + spread; weights;
       slaughter; storage — each with a one-line read ("Packers are making $X a head, the most
       since …; that usually supports cash hogs")
-- [ ] Signal summary strip: each indicator scored bullish / neutral / bearish with the rule
+- [x] Signal summary strip: each indicator scored bullish / neutral / bearish with the rule
       written out (no black boxes)
 
 **Phase tests:**
@@ -141,14 +141,14 @@ Goal: explain *why* hog prices are where they are. Answers "what's the market te
 ### Phase 3 — The book: positions, hedges and margin locks
 Goal: the workbook's % hedged rows done properly. Answers "should we lock it in?"
 
-- [ ] Contract price table with an **"as of"** date and a stale warning after 3 days
-- [ ] Head placed per week (default: your herd flow or a flat number)
-- [ ] Hedges per lean hog contract (head or %, price), corn and SBM % hedged + price
-- [ ] Margin split: locked vs open, per contract and total book ($ and per pig)
-- [ ] Rank each contract's margin against history (Phase 1) and show a rule-based hedge
+- [x] Contract price table with an **"as of"** date and a stale warning after 3 days
+- [x] Head placed per week (default: your herd flow or a flat number)
+- [x] Hedges per lean hog contract (head or %, price), corn and SBM % hedged + price
+- [x] Margin split: locked vs open, per contract and total book ($ and per pig)
+- [x] Rank each contract's margin against history (Phase 1) and show a rule-based hedge
       suggestion the user configures, e.g. "hedge 50% when margin is in the top 25%";
       always shows the rule, never advice
-- [ ] What-if: hog price ±$10 shows the book's change with and without hedges
+- [x] What-if: hog price ±$10 shows the book's change with and without hedges
 
 **Phase tests:**
 - Hedged margin = open margin at 0%; = locked margin at 100%; linear in between (property)

@@ -92,3 +92,14 @@ def test_crush_history_follows_wean_to_finish_inputs():
     at.run()
     assert not at.exception
     assert at.title[0].value != before  # a $10 adder lowers every past margin
+
+
+def test_hedging_page_follows_hedges():
+    at = app().switch_page("views/10_Hedging.py").run()
+    assert "none of it hedged" in at.title[0].value
+    pct = [w for w in at.number_input if str(w.key).startswith("w2f_hedge_") and
+           str(w.key).endswith("_pct")]  # fmt: skip
+    assert pct  # one per contract that prices pigs on feed
+    pct[-1].set_value(50.0).run()
+    assert not at.exception
+    assert "locked in" in at.title[0].value

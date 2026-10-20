@@ -70,6 +70,7 @@ page = st.navigation(
         ],
         "Decisions": [
             st.Page("views/4_Scenarios.py", title="Scenarios", icon=":material/compare_arrows:"),
+            st.Page("views/10_Hedging.py", title="Hedging", icon=":material/lock:"),
             st.Page("views/5_Risk.py", title="Risk", icon=":material/shield:"),
         ],
         "Markets": [
