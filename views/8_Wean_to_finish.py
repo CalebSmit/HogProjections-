@@ -7,6 +7,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from hogproj import seasonal
 from hogproj.crush import (
     MONTHS,
     CrushInputs,
@@ -368,9 +369,11 @@ with left:
     chg = (
         f", {abs(pig_yoy):.0%} {'below' if pig_yoy < 0 else 'above'} a year ago" if pig_yoy else ""
     )
+    pv = seasonal.verdict(seasonal.by_week(pigs.set_index("week_ending")["cash_usd_per_head"]))
     chart_title(
         f"Weaned pigs are {usd(usda_pig)} a head{chg}",
-        "USDA early weaned pigs, 10-12 lb, cash composite, $/head delivered · weekly",
+        "USDA early weaned pigs, 10-12 lb, cash composite, $/head delivered · weekly"
+        + (f" · {pv.sentence()}" if pv else ""),
     )
     pf = go.Figure()
     band = only(hist, hist["low_usd_per_head"].notna() & hist["high_usd_per_head"].notna())

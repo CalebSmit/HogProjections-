@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from hogproj import hogmarket as hm
-from hogproj import supply
+from hogproj import seasonal, supply
 from hogproj.freshness import is_current
 from hogproj.markets import seasonal_factors
 from hogproj.ui import (
@@ -35,6 +35,7 @@ from hogproj.ui import (
     quote,
     ref_line,
     rule,
+    seasonal_chart,
     signal_list,
     signed,
     source_note,
@@ -232,38 +233,37 @@ with right:
 rule()
 
 
-# --- This year vs last year: weights and slaughter --------------------------------------------
-def overlay(col: str, fmt: str, suffix: str = "") -> go.Figure:
-    """This year, last year and the average of earlier years by week of the year."""
-    x = w.dropna(subset=[col]).copy()
-    if col == "head":  # holiday-short weeks would look like supply drops
-        x = x[x["days"] >= 5]
-    iso = x["week_ending"].dt.isocalendar()
-    x["year"], x["wk"] = iso["year"].to_numpy(), iso["week"].to_numpy()
-    this_year = int(x["year"].max())
-    fig = go.Figure()
-    # 2020 is left out of the range: COVID plant closures distort it.
-    earlier = x[(x["year"] < this_year - 1) & (x["year"] >= 2021)].groupby("wk")[col]
-    band_lo, band_hi = earlier.min(), earlier.max()
-    fig.add_scatter(x=band_hi.index, y=band_hi.to_numpy(), mode="lines", line={"width": 0},
-                    hoverinfo="skip", showlegend=False)  # fmt: skip
-    fig.add_scatter(x=band_lo.index, y=band_lo.to_numpy(), mode="lines", line={"width": 0},
-                    fill="tonexty", fillcolor="rgba(133,127,115,0.14)", hoverinfo="skip",
-                    showlegend=False)  # fmt: skip
-    for yr, color, width, dash in (
-        (this_year - 1, MUTED, 1.5, "dot"),
-        (this_year, ACCENT, 2.2, None),
-    ):
-        part = x[x["year"] == yr]
-        fig.add_scatter(x=part["wk"], y=part[col], mode="lines", name=str(yr),
-                        line={"color": color, "width": width, "dash": dash},
-                        hovertemplate=f"{yr} week %{{x}}: %{{y:{fmt}}}{suffix}"
-                        "<extra></extra>")  # fmt: skip
-        if len(part):
-            end_tag(fig, int(part["wk"].iloc[-1]), float(part[col].iloc[-1]), str(yr), color)
-    fig.update_xaxes(title="week of year", range=[1, 53])
-    fig.update_layout(showlegend=False, margin={"l": 4, "r": 56, "t": 8, "b": 4})
-    return fig
+# --- Against the usual season: index, cutout, weights, slaughter --------------------------------
+def season(col: str, frame: pd.DataFrame, date_col: str = "date", how: str = "mean"
+           ) -> tuple[pd.DataFrame, seasonal.Verdict | None]:  # fmt: skip
+    wk = seasonal.by_week(frame.set_index(date_col)[col], how)
+    return wk, seasonal.verdict(wk)
+
+
+idx_wk, idx_v = season("index", d)
+cut_wk, cut_v = season("cutout", d)
+if idx_v is not None and cut_v is not None:
+    left, mid, right = st.columns([1, 0.06, 1])
+    for col, name, wk, v in ((left, "Lean hogs", idx_wk, idx_v),
+                             (right, "The cutout", cut_wk, cut_v)):  # fmt: skip
+        with col:
+            verb, its = ("are", "their") if name == "Lean hogs" else ("is", "its")
+            chart_title(f"{name} {verb} {v.sentence(its)}",
+                        f"$/cwt carcass, weekly average · shaded: {v.span} range · dotted: last "
+                        "year")  # fmt: skip
+            chart(seasonal_chart(wk, ",.2f", "$"), 290, on=PAGE)
+            source_note(
+                "USDA AMS LM_HG201" if name == "Lean hogs" else "USDA AMS LM_PK602",
+                f"this week {usd(v.value)} vs a {v.span} average of {usd(v.avg)}",
+            )
+    with mid:
+        st.markdown('<div class="hp-vrule" style="height:380px"></div>', unsafe_allow_html=True)
+    rule()
+
+wkly = w.dropna(subset=["weight_lb"]).set_index("week_ending")
+wt_wk = seasonal.by_week(wkly["weight_lb"])
+full = w[w["days"] >= 5].set_index("week_ending")  # holiday-short weeks look like supply drops
+head_wk = seasonal.by_week(full["head"], "sum")
 
 
 wt = hm.vs_year_ago(d, "weight_lb")
@@ -273,11 +273,10 @@ with left:
     chart_title(
         f"Carcasses {abs(wt['change']):.1f} lb {'heavier' if wt['change'] >= 0 else 'lighter'} "
         "than a year ago",
-        "Average carcass weight, producer-sold barrows and gilts · lb · shaded: range of 2021 to "
-        "two years ago",
+        "Average carcass weight, producer-sold barrows and gilts · lb · shaded: range of the 5 "
+        "years before (2020 left out)",
     )
-    fw = overlay("weight_lb", ".1f", " lb")
-    fw.update_yaxes(ticksuffix=" lb")
+    fw = seasonal_chart(wt_wk, ".1f", suffix=" lb")
     chart(fw, 290, on=PAGE)
     source_note("USDA AMS LM_HG201", "last 4 weeks vs the same weeks a year ago")
 with mid:
@@ -321,15 +320,14 @@ with right:
         fh.update_layout(showlegend=False, margin={"l": 4, "r": 8, "t": 8, "b": 4})
         chart(fh, 290, on=PAGE)
         source_note("USDA AMS Daily Livestock Slaughter (AMS_3208), packer-owned included",
-                    f"producer-sold barrows and gilts (LMR): {sl['pct']:+.1%} on the same "
-                    "basis".replace("-", "−"))  # fmt: skip
+                    "producer-sold barrows and gilts (LMR): "
+                    + f"{sl['pct']:+.1%}".replace("-", "−") + " on the same basis")  # fmt: skip
     else:
         chart_title(
             f"Slaughter {abs(sl['pct']):.1%} {'above' if sl['pct'] >= 0 else 'below'} last year",
-            "Producer-sold barrows and gilts per week · head · shaded: range of 2021 to two "
-            "years ago",
+            "Producer-sold barrows and gilts per week · head · shaded: range of the 5 years before",
         )
-        fh = overlay("head", ",.0f")
+        fh = seasonal_chart(head_wk, ",.0f")
         fh.update_yaxes(tickformat="~s")
         chart(fh, 290, on=PAGE)
         source_note("USDA AMS LM_HG201", "excludes packer-owned hogs; holiday-short weeks left out")

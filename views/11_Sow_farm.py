@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from hogproj import national as nv
+from hogproj import seasonal
 from hogproj.sowfarm import SowInputs, by_year, cost_lines, cost_per_weaned_pig, history, integrated
 from hogproj.ui import (
     ACCENT,
@@ -26,6 +27,7 @@ from hogproj.ui import (
     quote,
     regional_data,
     rule,
+    seasonal_chart,
     source_note,
     sow_from_state,
     stat_strip,
@@ -239,28 +241,20 @@ if not sows_raw.empty:
     yr = wk[wk.index <= wk.index[-1] - pd.Timedelta(days=364)]
     left, right = st.columns([1.4, 1], gap="large")
     with left:
+        sow_wk = seasonal.by_week(sp)
+        sv = seasonal.verdict(sow_wk)
         chart_title(
             f"A {wt:.0f} lb cull sow brings about {usd(now_px * wt / 100, 0)}",
-            "Negotiated sows 400 lb and up, $/cwt live, weekly · USDA LM_HG234",
+            "Negotiated sows 400 lb and up, $/cwt live, weekly"
+            + (f" · price {sv.sentence()}" if sv else ""),
         )
-        fc = go.Figure(
-            go.Scatter(
-                x=wk.index,
-                y=wk.to_numpy(),
-                mode="lines",
-                line={"color": ACCENT, "width": 2},
-                hovertemplate="%{x|%b %d, %Y}: $%{y:.2f}/cwt<extra></extra>",
-            )
-        )
-        end_tag(fc, wk.index[-1], now_px, usd(now_px), ACCENT)
-        fc.update_yaxes(tickprefix="$")
-        fc.update_xaxes(tickformat="%b %Y")
-        fc.update_layout(showlegend=False, margin={"l": 4, "r": 64, "t": 8, "b": 4})
-        chart(fc, 260, on=PAGE)
+        fc = seasonal_chart(sow_wk, ".2f", "$")
+        chart(fc, 270, on=PAGE)
         source_note(
             "USDA AMS LM_HG234 (daily sows and boars)"
             + (" (live)" if sows_src == "live" else " (saved)"),
-            "head-weighted across 400 lb+ weight classes",
+            "head-weighted across 400 lb+ weight classes · shaded: range of the years before; "
+            "dotted: last year",
         )
         excel_button(
             {"Sow price by day": sp.reset_index(), "By weight class": sows_raw},
