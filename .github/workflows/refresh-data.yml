@@ -25,6 +25,7 @@ jobs:
           # Optional: add these as repository secrets to refresh keyed sources too.
           USDA_MMN_API_KEY: ${{ secrets.USDA_MMN_API_KEY }}
           NASS_API_KEY: ${{ secrets.NASS_API_KEY }}
+          FAS_API_KEY: ${{ secrets.FAS_API_KEY }}
         run: uv run python scripts/refresh_data.py
         continue-on-error: true
       - name: Tests still pass on the new data
