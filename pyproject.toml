@@ -13,6 +13,7 @@ dependencies = [
     "pydantic-settings>=2.6",
     "httpx>=0.28",
     "xlsxwriter>=3.2",
+    "pypdf>=6.21.1",
 ]
 
 [dependency-groups]
@@ -20,6 +21,8 @@ dev = [
     "pytest>=8.3",
     "ruff>=0.8",
     "pyright>=1.1.390",
+    "openpyxl>=3.1.5",
+    "formulas>=1.3.4",
 ]
 
 [build-system]
@@ -40,5 +43,8 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 testpaths = ["tests"]
 
 [tool.pyright]
-include = ["src", "tests", "app.py"]
+include = ["src", "tests", "app.py", "views"]
 typeCheckingMode = "standard"
+# pandas ships no type hints; inferring them from its source is order-dependent and flips
+# results when unrelated files change. Treat untyped libraries as Any instead.
+useLibraryCodeForTypes = false

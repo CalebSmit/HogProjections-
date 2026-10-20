@@ -39,6 +39,15 @@ build against it.*
   - Jan–Jul average $19.36/head.
   - Feed cost in July: $87.99/head.
 
+**ISU ELR line items (farrow to finish, Sep 2026 sale, $/head, 270 lb pig)** — verified from
+the published PDF 2026-10-19; the app's defaults:
+- Feed 90.58 = corn 40.78 + SBM 15.54 + DDGS 10.25 + complete feeds/other 18.10 + processing 5.92.
+- Nonfeed 76.76 = variable 48.99 + operating interest 4.47 + fixed 23.30. Death loss 8.36.
+- Total cost 175.70 → breakeven 65.07 live / 86.77 carcass. Manure credit 5.59 is added to
+  profit but left out of breakeven.
+- Monthly history 2001–2026 is in `farrow_to_finish_excel.xlsx` on the same site ($/head only;
+  no input prices or quantities).
+
 **Budgets:**
 - ISU FM1815 / B1-21 (2024): breakeven ~$55.35/cwt at $4.50 corn and $0.15/lb SBM. Decision tools: <https://go.iastate.edu/AGDMB221>
 - Missouri G688 (2026), the most current: 24.2 pigs weaned per sow per year, 280 lb market hogs. <https://extension.missouri.edu/g688>
@@ -143,8 +152,8 @@ Adjust for survival (95–97%), Canadian feeder imports (~6–7M/yr [VERIFY]) an
 | Source | Endpoint | Key | Notes |
 |---|---|---|---|
 | AMS MyMarketNews (MARS) | `https://marsapi.ams.usda.gov/services/v1.2/reports/{slug}?q=report_begin_date=MM/DD/YYYY:MM/DD/YYYY&allSections=true` | Free key, sent as HTTP Basic `auth=(KEY, "")` | JSON. 100k rows registered vs 5k unregistered. API version [VERIFY] |
-| AMS LMR Datamart | `https://mpr.datamart.ams.usda.gov/services/v1.1/reports` | none? [VERIFY] | Possible keyless fallback |
-| NASS Quick Stats | `https://quickstats.nass.usda.gov/api/api_GET/?key=KEY&commodity_desc=HOGS&...&format=JSON` | Free | 50k-record cap; call `get_counts` first |
+| AMS LMR Datamart | `https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2511/Barrows/Gilts?q=report_date=MM/DD/YYYY:MM/DD/YYYY` | **none** (verified 2026-10-19) | LMR reports only (no grain). 3 years of HG201 ≈ 6k rows in ~8 s. Rebuilt index matches CME to the cent (75.75, Oct 12 2026) when dated by the first of its two slaughter days |
+| NASS Quick Stats | `https://quickstats.nass.usda.gov/api/api_GET/?key=KEY&commodity_desc=HOGS&agg_level_desc=NATIONAL&source_desc=SURVEY&year__GE=YYYY&format=JSON` | Free (verified 2026-10-19) | ~720 rows since 2010 for the series we use. Inventories use "FIRST OF MAR/JUN/SEP/DEC"; production uses "DEC THRU FEB" etc.; farrowing intentions are "SEP THRU NOV - SEP FORECAST". Sep 1, 2026 all hogs 74,301,700 matches the report |
 | NASS ESMIS files | `https://esmis.nal.usda.gov` (hgpg*.txt) | none | Faster than Quick Stats for weight classes |
 | ERS | XLSX/CSV downloads | none | No REST API |
 | FRED | `api.stlouisfed.org/fred/series/observations` | Free | Monthly only (WPS0132 etc. [VERIFY]) |

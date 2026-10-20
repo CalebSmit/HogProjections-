@@ -1,0 +1,17 @@
+year,quarter,series,value,projected,report
+2025,4,pork_production_mlb,7301.0,False,October 2026
+2026,1,pork_production_mlb,7050.0,False,October 2026
+2026,2,pork_production_mlb,6755.0,False,October 2026
+2026,3,pork_production_mlb,6570.0,False,October 2026
+2026,4,pork_production_mlb,7245.0,True,October 2026
+2027,1,pork_production_mlb,6950.0,True,October 2026
+2027,2,pork_production_mlb,6720.0,True,October 2026
+2027,3,pork_production_mlb,6790.0,True,October 2026
+2025,4,barrows_gilts_usd_cwt_live,64.87,False,October 2026
+2026,1,barrows_gilts_usd_cwt_live,64.5,False,October 2026
+2026,2,barrows_gilts_usd_cwt_live,67.79,False,October 2026
+2026,3,barrows_gilts_usd_cwt_live,67.86,False,October 2026
+2026,4,barrows_gilts_usd_cwt_live,55.0,True,October 2026
+2027,1,barrows_gilts_usd_cwt_live,60.0,True,October 2026
+2027,2,barrows_gilts_usd_cwt_live,65.0,True,October 2026
+2027,3,barrows_gilts_usd_cwt_live,68.0,True,October 2026

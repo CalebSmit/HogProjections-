@@ -1,0 +1,378 @@
+"""Excel report builder. Pure: takes results, returns the workbook as bytes (no disk I/O)."""
+
+import io
+from datetime import date, datetime
+
+import numpy as np
+import pandas as pd
+import xlsxwriter
+
+from hogproj.config import get_settings
+from hogproj.finance import cost_table
+from hogproj.herd import pigs_sold_per_sow_yr
+from hogproj.outlook import Plan, headline, monthly, summary, synced
+
+# Brand colours, matching src/hogproj/ui.py tokens.
+NAVY, GREEN, RED, INK, GRID = "#1f4e8c", "#178a6a", "#c8453a", "#16181d", "#e3e3de"
+
+
+def _dt(v: object) -> datetime:
+    """Timestamp-like -> naive datetime for xlsxwriter."""
+    return datetime.fromisoformat(str(v)[:10])
+
+
+def build_report(
+    plan: Plan,
+    weekly: pd.DataFrame,
+    as_of: date,
+    hog_index_note: str,
+    verdict: str,
+    extra: dict[str, pd.DataFrame] | None = None,
+) -> bytes:
+    """Workbook with Summary, Monthly, Costs and Weekly sheets for `plan`'s projection."""
+    plan = synced(plan)
+    hl = headline(plan)
+    year = summary(weekly)
+    months = monthly(weekly, months=24)
+    costs = cost_table(plan.cost).reset_index()
+    h, c = plan.herd, plan.cost
+
+    buf = io.BytesIO()
+    wb = xlsxwriter.Workbook(buf, {"in_memory": True})
+    f = {
+        "title": wb.add_format({"bold": True, "font_size": 18, "font_color": INK}),
+        "sub": wb.add_format({"italic": True, "font_color": "#5b6b64"}),
+        "h": wb.add_format(
+            {"bold": True, "bg_color": NAVY, "font_color": "white", "border": 1,
+             "border_color": GRID}
+        ),
+        "label": wb.add_format({"font_color": INK, "border": 1, "border_color": GRID}),
+        "usd": wb.add_format({"num_format": "$#,##0.00;[Red]-$#,##0.00", "border": 1,
+                              "border_color": GRID}),
+        "usd0": wb.add_format({"num_format": "$#,##0;[Red]-$#,##0", "border": 1,
+                               "border_color": GRID}),
+        "num": wb.add_format({"num_format": "#,##0", "border": 1, "border_color": GRID}),
+        "num1": wb.add_format({"num_format": "#,##0.0", "border": 1, "border_color": GRID}),
+        "pct": wb.add_format({"num_format": "0%", "border": 1, "border_color": GRID}),
+        "date": wb.add_format({"num_format": "mmm yyyy", "border": 1, "border_color": GRID}),
+        "day": wb.add_format({"num_format": "yyyy-mm-dd", "border": 1, "border_color": GRID}),
+        "text": wb.add_format({"border": 1, "border_color": GRID}),
+        "verdict": wb.add_format(
+            {"bold": True, "font_size": 12, "font_color": GREEN if hl["profit_usd_per_head"] >= 0
+             else RED, "text_wrap": True}
+        ),
+    }  # fmt: skip
+
+    # --- Summary --------------------------------------------------------------------------
+    ws = wb.add_worksheet("Summary")
+    ws.hide_gridlines(2)
+    ws.set_column(0, 0, 38)
+    ws.set_column(1, 1, 18)
+    ws.write(0, 0, "Hog Projections — farm outlook", f["title"])
+    who = get_settings().prepared_by.strip()
+    by = f" by {who}" if who else ""
+    ws.write(1, 0, f"Prepared{by} {as_of:%B %d, %Y}. {hog_index_note}", f["sub"])
+    ws.merge_range(3, 0, 4, 5, verdict, f["verdict"])
+    rows = [
+        ("Hog price used ($/cwt carcass)", c.lean_hog_usd_per_cwt_carcass, "usd"),
+        ("Breakeven ($/cwt carcass)", hl["breakeven_cwt_carcass"], "usd"),
+        ("Breakeven ($/cwt live)", hl["breakeven_cwt_live"], "usd"),
+        ("Cost per pig (before manure credit)", hl["cost_usd_per_head"], "usd"),
+        ("Profit per pig at today's price", hl["profit_usd_per_head"], "usd"),
+        ("Pigs sold, next 12 months", year["pigs_sold"], "num"),
+        ("Revenue, next 12 months", year["revenue_usd"], "usd0"),
+        ("Costs, next 12 months", year["cost_usd"], "usd0"),
+        ("Profit, next 12 months", year["profit_usd"], "usd0"),
+    ]
+    ws.write_row(6, 0, ["Headline", "Value"], f["h"])
+    for i, (label, value, fmt) in enumerate(rows, start=7):
+        ws.write(i, 0, label, f["label"])
+        ws.write(i, 1, value, f[fmt])
+
+    assumptions = [
+        ("Sows today", h.sows_start, "num"),
+        ("Sows after change", h.sows_target, "num"),
+        ("Change starts at week", h.change_week, "num"),
+        ("Litters / sow / year", h.litters_per_sow_yr, "num1"),
+        ("Born alive / litter", h.born_alive_per_litter, "num1"),
+        ("Pre-wean mortality", h.prewean_mortality, "pct"),
+        ("Wean-to-market mortality", h.wean_to_market_mortality, "pct"),
+        ("Pigs sold / sow / year", pigs_sold_per_sow_yr(h), "num1"),
+        ("Market weight (lb live)", h.weight_lb_live_market, "num"),
+        ("Carcass yield", h.carcass_yield, "pct"),
+        ("Corn ($/bu)", c.corn_usd_per_bu, "usd"),
+        ("Soybean meal ($/ton)", c.sbm_usd_per_ton, "usd"),
+        ("Price path", "Seasonal" if plan.seasonal else "Flat", "text"),
+    ]
+    start = 7 + len(rows) + 2
+    ws.write_row(start, 0, ["Assumption", "Value"], f["h"])
+    for i, (label, value, fmt) in enumerate(assumptions, start=start + 1):
+        ws.write(i, 0, label, f["label"])
+        ws.write(i, 1, value, f[fmt])
+
+    # --- Monthly --------------------------------------------------------------------------
+    wm = wb.add_worksheet("Monthly")
+    heads = ["Month", "Pigs sold", "Hog price ($/cwt carcass)", "Revenue", "Costs", "Profit",
+             "Profit per pig", "Note"]  # fmt: skip
+    wm.write_row(0, 0, heads, f["h"])
+    wm.set_column(0, 0, 12)
+    wm.set_column(1, 7, 18)
+    for i, m in enumerate(months.to_dict("records"), start=1):
+        wm.write_datetime(i, 0, _dt(m["month"]), f["date"])
+        wm.write(i, 1, m["pigs_sold"], f["num"])
+        wm.write(i, 2, m["hog_usd_per_cwt_carcass"], f["usd"])
+        wm.write(i, 3, m["revenue_usd"], f["usd0"])
+        wm.write(i, 4, m["cost_usd"], f["usd0"])
+        wm.write(i, 5, m["profit_usd"], f["usd0"])
+        wm.write(i, 6, m["profit_usd_per_head"], f["usd"])
+        wm.write(i, 7, "partial month" if m["partial"] else "", f["text"])
+    n = len(months)
+    chart = wb.add_chart({"type": "column"})
+    assert chart is not None
+    chart.add_series(
+        {
+            "name": "Profit",
+            "categories": ["Monthly", 1, 0, n, 0],
+            "values": ["Monthly", 1, 5, n, 5],
+            "fill": {"color": GREEN},
+            "invert_if_negative": True,
+            "invert_if_negative_color": RED,
+        }
+    )
+    chart.set_title({"name": "Profit by month"})
+    chart.set_legend({"none": True})
+    chart.set_x_axis({"num_format": "mmm yy"})
+    chart.set_y_axis({"num_format": "$#,##0", "major_gridlines": {"visible": True,
+                      "line": {"color": GRID}}})  # fmt: skip
+    ws.insert_chart(6, 3, chart, {"x_scale": 1.4, "y_scale": 1.3})
+
+    # --- Costs ----------------------------------------------------------------------------
+    wc = wb.add_worksheet("Costs")
+    wc.write_row(0, 0, ["Cost line", "$ / pig", "$ / cwt carcass", "Share of cost"], f["h"])
+    wc.set_column(0, 0, 30)
+    wc.set_column(1, 3, 16)
+    for i, row in enumerate(costs.to_dict("records"), start=1):
+        wc.write(i, 0, row["cost line"], f["label"])
+        wc.write(i, 1, row["usd_per_head"], f["usd"])
+        wc.write(i, 2, row["usd_per_cwt_carcass"], f["usd"])
+        wc.write(i, 3, row["share"], f["pct"])
+    wc.write(
+        len(costs) + 2,
+        0,
+        "Structure follows Iowa State University Estimated Livestock Returns (farrow to finish).",
+        f["sub"],
+    )
+
+    # --- Weekly ---------------------------------------------------------------------------
+    ww = wb.add_worksheet("Weekly")
+    cols = [
+        ("Week", "week", "num"),
+        ("Date", "date", "day"),
+        ("Pigs sold", "marketed_head", "num"),
+        ("Carcass lb sold", "sold_lb_carcass", "num"),
+        ("Hog price ($/cwt carcass)", "hog_usd_per_cwt_carcass", "usd"),
+        ("Revenue", "revenue_usd", "usd0"),
+        ("Costs", "cost_usd", "usd0"),
+        ("Profit", "margin_usd", "usd0"),
+        ("Running total", "cumulative_margin_usd", "usd0"),
+    ]
+    ww.write_row(0, 0, [c_[0] for c_ in cols], f["h"])
+    ww.set_column(0, len(cols) - 1, 16)
+    ww.freeze_panes(1, 0)
+    for i, rec in enumerate(weekly.to_dict("records"), start=1):
+        for j, (_, key, fmt) in enumerate(cols):
+            v = rec[key]
+            if key == "date":
+                ww.write_datetime(i, j, _dt(v), f[fmt])
+            else:
+                ww.write(i, j, float(v), f[fmt])
+
+    if extra:
+        _write_frames(wb, extra)
+    wb.close()
+    return buf.getvalue()
+
+
+def build_brief(
+    as_of: date,
+    headline_text: str,
+    numbers: list[tuple[str, float, float | None, float | None, str]],
+    decisions: list[tuple[str, str]],
+    tables: dict[str, pd.DataFrame],
+    charts: dict[str, pd.DataFrame] | None = None,
+) -> bytes:
+    """The weekly brief as a workbook: a "Brief" sheet (headline, numbers with week and year
+    change, decisions in words) and one sheet per table. Built for emailing or printing.
+
+    `numbers`: (name, value, week change, year change as a fraction, unit).
+    `charts`: title -> frame of (date, value); each becomes a line chart on the Brief sheet,
+    its data on a "Chart data" sheet.
+    """
+    buf = io.BytesIO()
+    wb = xlsxwriter.Workbook(buf, {"in_memory": True})
+    title = wb.add_format({"bold": True, "font_size": 18, "font_color": INK})
+    sub = wb.add_format({"italic": True, "font_color": "#5b6b64"})
+    head = wb.add_format({"bold": True, "bg_color": GREEN, "font_color": "white", "border": 1,
+                          "border_color": GRID})  # fmt: skip
+    cell = wb.add_format({"border": 1, "border_color": GRID, "text_wrap": True, "valign": "top"})
+    bold = wb.add_format({"bold": True, "border": 1, "border_color": GRID, "valign": "top"})
+    usd = wb.add_format({"num_format": "$#,##0.00;[Red]-$#,##0.00", "border": 1,
+                         "border_color": GRID})  # fmt: skip
+    pct = wb.add_format({"num_format": "+0%;[Red]-0%", "border": 1, "border_color": GRID})
+    big = wb.add_format({"bold": True, "font_size": 13, "text_wrap": True})
+
+    ws = wb.add_worksheet("Brief")
+    ws.hide_gridlines(2)
+    ws.set_column(0, 0, 26)
+    ws.set_column(1, 3, 14)
+    ws.set_column(4, 4, 70)
+    ws.write(0, 0, "Hog Projections — weekly brief", title)
+    who = get_settings().prepared_by.strip()
+    ws.write(1, 0, f"Prepared{' by ' + who if who else ''} {as_of:%B %d, %Y}. Public USDA data; "
+             "projections, not financial advice.", sub)  # fmt: skip
+    ws.merge_range(3, 0, 4, 4, headline_text, big)
+    r = 6
+    for col, h in enumerate(["This week", "Latest", "Week change", "Year change", "Unit"]):
+        ws.write(r, col, h, head)
+    for name, value, wk, yr, unit in numbers:
+        r += 1
+        ws.write(r, 0, name, bold)
+        ws.write_number(r, 1, value, usd)
+        ws.write(r, 2, "" if wk is None else wk, usd if wk is not None else cell)
+        ws.write(r, 3, "" if yr is None else yr, pct if yr is not None else cell)
+        ws.write(r, 4, unit, cell)
+    r += 2
+    ws.write(r, 0, "Decision", head)
+    ws.merge_range(r, 1, r, 4, "What the numbers say", head)
+    for name, sentence in decisions:
+        r += 1
+        ws.set_row(r, 32)
+        ws.write(r, 0, name, bold)
+        ws.merge_range(r, 1, r, 4, sentence, cell)
+
+    if charts:
+        cd = wb.add_worksheet("Chart data")
+        day = wb.add_format({"num_format": "mmm d, yyyy"})
+        col, slot = 0, 0
+        for name, frame in charts.items():
+            frame = frame.dropna()
+            if frame.empty:
+                continue
+            cd.write(0, col, "Date", head)
+            cd.write(0, col + 1, name, head)
+            for i, (d0, v) in enumerate(zip(frame.iloc[:, 0], frame.iloc[:, 1], strict=True), 1):
+                cd.write_datetime(i, col, _dt(d0), day)
+                cd.write_number(i, col + 1, float(v))
+            ch = wb.add_chart({"type": "line"})
+            assert ch is not None
+            ch.add_series({"name": name, "categories": ["Chart data", 1, col, len(frame), col],
+                           "values": ["Chart data", 1, col + 1, len(frame), col + 1],
+                           "line": {"color": GREEN, "width": 2}})  # fmt: skip
+            ch.set_title({"name": name, "name_font": {"size": 11}})
+            ch.set_legend({"none": True})
+            ch.set_x_axis({"num_format": "mmm yy", "date_axis": True})
+            ch.set_y_axis({"num_format": "$#,##0", "major_gridlines": {"visible": True,
+                           "line": {"color": GRID}}})  # fmt: skip
+            ch.set_size({"width": 470, "height": 250})
+            ws.insert_chart(r + 2 + (slot // 2) * 13, (slot % 2) * 3, ch)
+            col, slot = col + 3, slot + 1
+
+    for sheet, df in tables.items():
+        t = wb.add_worksheet(sheet[:31])
+        t.freeze_panes(1, 0)
+        for j, colname in enumerate(df.columns):
+            t.write(0, j, str(colname), head)
+            width = max(len(str(colname)), 10)
+            t.set_column(j, j, min(width + 2, 28))
+        for i, row in enumerate(df.itertuples(index=False), start=1):
+            for j, v in enumerate(row):
+                if isinstance(v, pd.Timestamp | datetime | date):
+                    t.write_datetime(i, j, _dt(v), wb.add_format({"num_format": "yyyy-mm-dd"}))
+                elif isinstance(v, float) and pd.isna(v):
+                    t.write_blank(i, j, None)
+                else:
+                    t.write(i, j, v)
+    wb.close()
+    return buf.getvalue()
+
+
+# --- Any section of the dashboard as a tidy workbook -----------------------------------------
+_UNITS = (("_usd_per_cwt_carcass", " ($/cwt carcass)"), ("_usd_per_cwt_live", " ($/cwt live)"),
+          ("_usd_per_cwt", " ($/cwt)"), ("_usd_per_head", " ($/head)"),
+          ("_usd_per_bu", " ($/bu)"), ("_usd_per_ton", " ($/ton)"),
+          ("_usd_per_sow_yr", " ($/sow/yr)"),
+          ("_usd_per_weaned_pig", " ($/weaned pig)"), ("_usd", " ($)"), ("_lb", " (lb)"),
+          ("_mlb", " (million lb)"), ("_pct", " (%)"))  # fmt: skip
+
+
+def nice_header(col: object) -> str:
+    """snake_case column -> 'Sentence case (unit)'. Already-readable names pass through."""
+    s = str(col)
+    if " " in s or s[:1].isupper():
+        return s
+    unit = ""
+    for suffix, u in _UNITS:
+        if s.endswith(suffix):
+            s, unit = s[: -len(suffix)], u
+            break
+    words = s.replace("_", " ").strip()
+    return (words[:1].upper() + words[1:] if words else s) + unit
+
+
+def _write_frames(wb: xlsxwriter.Workbook, frames: dict[str, pd.DataFrame]) -> None:
+    """One sheet per table: readable headers, number formats, frozen header, filter, widths."""
+    head = wb.add_format({"bold": True, "bg_color": GREEN, "font_color": "white", "border": 1,
+                          "border_color": GRID, "text_wrap": True, "valign": "top"})  # fmt: skip
+    fmt = {
+        "usd": wb.add_format({"num_format": "$#,##0.00;[Red]-$#,##0.00"}),
+        "pct": wb.add_format({"num_format": "0.0%"}),
+        "num": wb.add_format({"num_format": "#,##0.##"}),
+        "date": wb.add_format({"num_format": "mmm d, yyyy"}),
+    }
+    for name, df in frames.items():
+        ws = wb.add_worksheet(name[:31])
+        df = df.reset_index(drop=True)
+        for j, col in enumerate(df.columns):
+            label = nice_header(col)
+            ws.write(0, j, label, head)
+            s = df[col]
+            kind = ("date" if pd.api.types.is_datetime64_any_dtype(s) else
+                    "pct" if any(k in str(col) for k in ("share", "profitable", "_pct", "yoy")) else
+                    "usd" if ("usd" in str(col) or "$" in label) else
+                    "num" if pd.api.types.is_numeric_dtype(s) else None)  # fmt: skip
+            ws.set_column(j, j, min(max(len(label), 11) + 2, 30), fmt.get(kind or ""))
+            for i, v in enumerate(s.tolist(), start=1):
+                if v is None or (isinstance(v, float) and np.isnan(v)):
+                    continue
+                if kind == "date":
+                    ws.write_datetime(i, j, _dt(v), fmt["date"])
+                elif isinstance(v, (int, float, np.integer, np.floating)) and not isinstance(
+                    v, bool
+                ):
+                    ws.write_number(i, j, float(v))
+                else:
+                    ws.write(i, j, str(v))
+        ws.freeze_panes(1, 0)
+        if len(df.columns):
+            ws.autofilter(0, 0, max(len(df), 1), len(df.columns) - 1)
+
+
+def tables_xlsx(frames: dict[str, pd.DataFrame], title: str, as_of: date,
+                source: str = "") -> bytes:  # fmt: skip
+    """One sheet per table with readable headers, number formats, frozen header row, filters
+    and widths; a small About sheet says what it is and where it came from."""
+    buf = io.BytesIO()
+    wb = xlsxwriter.Workbook(buf, {"in_memory": True, "nan_inf_to_errors": True})
+    about = wb.add_worksheet("About")
+    about.set_column(0, 0, 100)
+    about.write(0, 0, title, wb.add_format({"bold": True, "font_size": 14}))
+    who = get_settings().prepared_by.strip()
+    about.write(1, 0, f"Hog Projections · {as_of:%B %d, %Y}{' · ' + who if who else ''}")
+    if source:
+        about.write(2, 0, f"Source: {source}")
+    about.write(3, 0, "Projections are planning estimates, not financial advice.")
+    for i, name in enumerate(frames, start=5):
+        about.write(i, 0, f"• {name}")
+    _write_frames(wb, frames)
+    wb.close()
+    return buf.getvalue()

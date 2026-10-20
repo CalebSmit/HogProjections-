@@ -1,0 +1,228 @@
+"""Whole-farm projection: herd flow + costs + hog price path, and what moves the result.
+
+Pure model code that ties `herd`, `finance` and `markets` together for the Overview,
+Scenarios and Risk pages.
+"""
+
+from datetime import date
+
+import pandas as pd
+from pydantic import BaseModel
+
+from hogproj.finance import CostInputs, breakeven, margin_usd_per_head, weekly_returns
+from hogproj.herd import HerdInputs, pigs_sold_per_sow_yr, simulate
+from hogproj.markets import seasonal_price_path
+
+
+class Plan(BaseModel):
+    """Everything one projection needs. `factors` empty or `seasonal=False` -> flat price."""
+
+    herd: HerdInputs = HerdInputs()
+    cost: CostInputs = CostInputs()
+    seasonal: bool = True
+
+
+def synced(plan: Plan) -> Plan:
+    """Copy herd facts the cost model needs (weight, yield, productivity) into `cost`."""
+    h = plan.herd
+    cost = plan.cost.model_copy(
+        update={
+            "weight_lb_live_market": h.weight_lb_live_market,
+            "carcass_yield": h.carcass_yield,
+            "pigs_sold_per_sow_yr": pigs_sold_per_sow_yr(h),
+        }
+    )
+    return plan.model_copy(update={"cost": cost})
+
+
+def project(plan: Plan, factors: pd.DataFrame, start: date) -> pd.DataFrame:
+    """Weekly marketings, hog price, revenue, cost and margin from `start`."""
+    plan = synced(plan)
+    herd = simulate(plan.herd)
+    path = (
+        seasonal_price_path(start, len(herd), plan.cost.lean_hog_usd_per_cwt_carcass, factors)
+        if plan.seasonal
+        else None
+    )
+    r = weekly_returns(herd, plan.cost, path)
+    r["date"] = pd.to_datetime(start) + pd.to_timedelta(r["week"] * 7, unit="D")
+    return r
+
+
+def summary(r: pd.DataFrame, weeks: int = 52) -> dict[str, float]:
+    """Totals for the first `weeks` of a projection."""
+    head = r.iloc[:weeks]
+    pigs = float(head["marketed_head"].sum())
+    profit = float(head["margin_usd"].sum())
+    cwt = float(head["sold_lb_carcass"].sum()) / 100
+    revenue = float(head["revenue_usd"].sum())
+    return {
+        "pigs_sold": pigs,
+        "revenue_usd": revenue,
+        "cost_usd": float(head["cost_usd"].sum()),
+        "profit_usd": profit,
+        "profit_usd_per_head": profit / pigs if pigs else 0.0,
+        "avg_price_cwt_carcass": revenue / cwt if cwt else 0.0,
+    }
+
+
+def monthly(r: pd.DataFrame, months: int = 12) -> pd.DataFrame:
+    """Projection rolled up by calendar month (first `months` months).
+
+    Months hold 4 or 5 sale weeks and the first one is usually partial, so compare months by
+    `profit_usd_per_head`, not by total profit. `partial` flags a month cut short by `r`.
+    """
+    m = (
+        r.assign(month=r["date"].dt.to_period("M").dt.to_timestamp())
+        .groupby("month", as_index=False)
+        .agg(
+            pigs_sold=("marketed_head", "sum"),
+            revenue_usd=("revenue_usd", "sum"),
+            cost_usd=("cost_usd", "sum"),
+            profit_usd=("margin_usd", "sum"),
+            hog_usd_per_cwt_carcass=("hog_usd_per_cwt_carcass", "mean"),
+            first_day=("date", "min"),
+        )
+    )
+    out = pd.DataFrame(m)
+    out["profit_usd_per_head"] = out["profit_usd"] / out["pigs_sold"].where(out["pigs_sold"] > 0)
+    out["partial"] = out["first_day"].dt.day > 7  # first sale week starts after the 7th
+    return pd.DataFrame(out.drop(columns="first_day").head(months))
+
+
+def _with_weaned_change(h: HerdInputs, pigs_per_sow_yr: float) -> HerdInputs:
+    """Shift pigs weaned per sow per year by changing born alive per litter."""
+    per_litter = pigs_per_sow_yr / (h.litters_per_sow_yr * (1 - h.prewean_mortality))
+    return h.model_copy(update={"born_alive_per_litter": h.born_alive_per_litter + per_litter})
+
+
+def drivers(plan: Plan, factors: pd.DataFrame, start: date) -> pd.DataFrame:
+    """Next-52-week profit when each input moves down/up by a typical amount, one at a time.
+
+    Sorted biggest swing first, for a tornado chart.
+    """
+    base = summary(project(plan, factors, start))["profit_usd"]
+    c, h = plan.cost, plan.herd
+
+    def cost(**kw: float) -> Plan:
+        return plan.model_copy(update={"cost": c.model_copy(update=kw)})
+
+    def herd(new: HerdInputs) -> Plan:
+        return plan.model_copy(update={"herd": new, "cost": c})
+
+    hog = c.lean_hog_usd_per_cwt_carcass
+    weight = h.weight_lb_live_market
+
+    def weight_plan(w: float) -> Plan:
+        return herd(h.model_copy(update={"weight_lb_live_market": w}))
+
+    # (driver, label when lower, label when higher, plan lower, plan higher)
+    cases = [
+        ("Hog price", "-$5/cwt", "+$5/cwt",
+         cost(lean_hog_usd_per_cwt_carcass=hog - 5), cost(lean_hog_usd_per_cwt_carcass=hog + 5)),
+        ("Corn", "-50¢/bu", "+50¢/bu",
+         cost(corn_usd_per_bu=max(0.0, c.corn_usd_per_bu - 0.5)),
+         cost(corn_usd_per_bu=c.corn_usd_per_bu + 0.5)),
+        ("Soybean meal", "-$50/ton", "+$50/ton",
+         cost(sbm_usd_per_ton=max(0.0, c.sbm_usd_per_ton - 50)),
+         cost(sbm_usd_per_ton=c.sbm_usd_per_ton + 50)),
+        ("Pigs weaned / sow / yr", "-1", "+1",
+         herd(_with_weaned_change(h, -1)), herd(_with_weaned_change(h, 1))),
+        ("Non-feed cost", "-$10/pig", "+$10/pig",
+         cost(nonfeed_usd_per_head=max(0.0, c.nonfeed_usd_per_head - 10)),
+         cost(nonfeed_usd_per_head=c.nonfeed_usd_per_head + 10)),
+        ("Market weight", "-10 lb", "+10 lb", weight_plan(weight - 10), weight_plan(weight + 10)),
+    ]  # fmt: skip
+
+    def delta(p: Plan) -> float:
+        return summary(project(p, factors, start))["profit_usd"] - base
+
+    out = pd.DataFrame(
+        [
+            {
+                "driver": name,
+                "low_label": low_label,
+                "high_label": high_label,
+                "low_usd": delta(lo),
+                "high_usd": delta(hi),
+            }
+            for name, low_label, high_label, lo, hi in cases
+        ]
+    )
+    out["swing_usd"] = (out["high_usd"] - out["low_usd"]).abs()
+    return out.sort_values("swing_usd", ascending=False).reset_index(drop=True)
+
+
+def headline(plan: Plan) -> dict[str, float]:
+    """Per-pig numbers at today's price (no seasonality)."""
+    plan = synced(plan)
+    be = breakeven(plan.cost)
+    return {
+        "breakeven_cwt_carcass": be["price_cwt_carcass"],
+        "breakeven_cwt_live": be["price_cwt_live"],
+        "cost_usd_per_head": be["cost_usd_per_head"],
+        "profit_usd_per_head": margin_usd_per_head(plan.cost),
+        "gap_cwt_carcass": plan.cost.lean_hog_usd_per_cwt_carcass - be["price_cwt_carcass"],
+    }
+
+
+class Adjustments(BaseModel):
+    """A what-if expressed as changes from the current plan (all zero = no change)."""
+
+    name: str = "Scenario"
+    hog_usd_per_cwt: float = 0.0
+    corn_usd_per_bu: float = 0.0
+    sbm_usd_per_ton: float = 0.0
+    sows_pct: float = 0.0  # herd size change starting this week (shows up after the lags)
+    pigs_weaned_per_sow: float = 0.0
+    nonfeed_usd_per_head: float = 0.0
+    weight_lb: float = 0.0
+
+
+def apply(plan: Plan, adj: Adjustments) -> Plan:
+    h, c = plan.herd, plan.cost
+    herd = h.model_copy(
+        update={
+            "sows_target": max(0.0, h.sows_target * (1 + adj.sows_pct / 100)),
+            "weight_lb_live_market": max(1.0, h.weight_lb_live_market + adj.weight_lb),
+        }
+    )
+    if adj.pigs_weaned_per_sow:
+        herd = _with_weaned_change(herd, adj.pigs_weaned_per_sow)
+    cost = c.model_copy(
+        update={
+            "lean_hog_usd_per_cwt_carcass": max(0.0, c.lean_hog_usd_per_cwt_carcass
+                                                + adj.hog_usd_per_cwt),
+            "corn_usd_per_bu": max(0.0, c.corn_usd_per_bu + adj.corn_usd_per_bu),
+            "sbm_usd_per_ton": max(0.0, c.sbm_usd_per_ton + adj.sbm_usd_per_ton),
+            "nonfeed_usd_per_head": max(0.0, c.nonfeed_usd_per_head + adj.nonfeed_usd_per_head),
+        }
+    )  # fmt: skip
+    return plan.model_copy(update={"herd": herd, "cost": cost})
+
+
+def compare(
+    plan: Plan, scenarios: list[Adjustments], factors: pd.DataFrame, start: date, weeks: int
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """(one row per scenario with totals, weekly cumulative profit per scenario).
+
+    The first row is always the current plan, named "Current plan".
+    """
+    rows, paths = [], {}
+    for adj in [Adjustments(name="Current plan"), *scenarios]:
+        p = synced(apply(plan, adj))
+        r = project(p, factors, start)
+        s = summary(r, weeks)
+        rows.append(
+            {
+                "scenario": adj.name,
+                **s,
+                "breakeven_cwt_carcass": breakeven(p.cost)["price_cwt_carcass"],
+            }
+        )
+        paths[adj.name] = r["margin_usd"].iloc[:weeks].cumsum().to_numpy()
+    table = pd.DataFrame(rows)
+    table["profit_vs_current_usd"] = table["profit_usd"] - table["profit_usd"].iloc[0]
+    cum = pd.DataFrame(paths)
+    cum.insert(0, "date", pd.to_datetime(start) + pd.to_timedelta(cum.index * 7, unit="D"))
+    return table, cum
