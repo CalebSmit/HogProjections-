@@ -198,7 +198,7 @@ Goal: the page people open every Monday. Answers "what changed and what do we do
 - [x] What changed since last week (biggest movers, in words)
 - [x] Calendar: Hogs & Pigs, WASDE, Cold Storage release dates; contract expiries
 - [ ] WASDE pork production / hog price forecast if a keyless source is verified
-- [ ] One-page export (Excel today; PDF if a dependency-light route exists)
+- [x] One-page export (Excel today; PDF if a dependency-light route exists)
 
 **Phase tests:** brief is deterministic for fixed data (snapshot of the generated sentences);
 calendar dates correct for 2026–2027; export opens and contains every section.
@@ -218,11 +218,11 @@ Goal: the record people cite.
 ---
 
 ### Phase 8 — Polish and trust
-- [ ] Freshness chip per source in the footer; error states for every loader
+- [x] Freshness chip per source in the footer; error states for every loader
 - [ ] Load-time budget: first paint < 3 s from cache; profile and cache the heavy computations
-- [ ] Phone layout pass on every page
+- [x] Phone layout pass on every page
 - [ ] Final full-app screenshot review and a written review against the principles above
-- [ ] README, Guide, ARCHITECTURE refreshed
+- [x] README, Guide, ARCHITECTURE refreshed
 
 **Phase tests:** standard gate on every page; timing check script.
 

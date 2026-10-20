@@ -9,8 +9,9 @@ from hogproj import hogmarket as hm
 from hogproj import supply
 from hogproj.book import hedge_rule
 from hogproj.brief import QUARTERLY_REPORTS, Move, calendar, move, movers
-from hogproj.crush import breakeven_pig, contract_label, margin_rank, margin_usd
+from hogproj.crush import annual_summary, breakeven_pig, contract_label, margin_rank, margin_usd
 from hogproj.data import feed
+from hogproj.export import build_brief
 from hogproj.sowfarm import cost_per_weaned_pig
 from hogproj.ui import (
     Tone,
@@ -80,10 +81,38 @@ market_tone, market_why = hm.overall(sigs)
 s = sow_from_state()
 sow_m = weaned.now + s.adder_usd_per_head - cost_per_weaned_pig(s)
 
+place_txt = (
+    f"A pig placed today projects {usd(m_today)}; one is worth up to {usd(most)} at "
+    f"{contract_label(book.this_contract)} hogs."
+)
+if len(by_k):
+    best_label, best_margin = str(by_k.index[0]), float(by_k.iloc[0])
+    best_rank = margin_rank(best_margin, history)
+    hedge_tone, rule_txt = hedge_rule(best_rank, trigger, target, 0.0)
+    hedge_txt = (
+        f"{best_label} pigs have the best margin on feed: {usd(best_margin)} a pig. " + rule_txt
+    )
+else:
+    hedge_tone, hedge_txt = "neutral", "No pigs on feed in the data."
+market_txt = {
+    "good": f"The market behind hog prices looks supportive: {market_why}.",
+    "bad": f"The market behind hog prices looks soft: {market_why}.",
+    "neutral": "Signals behind hog prices are mixed: "
+    f"{sum(x.tone == 'good' for x in sigs)} supportive, "
+    f"{sum(x.tone == 'bad' for x in sigs)} negative.",
+}[market_tone]
+sow_txt = (
+    f"A weaned pig costs {usd(cost_per_weaned_pig(s))} to make and sells for "
+    f"{usd(weaned.now + s.adder_usd_per_head)}: {usd(sow_m)} a pig."
+)
+
 week_word = "up" if (hogs.week_change or 0) >= 0 else "down"
-masthead(
+headline_txt = (
     f"Hogs {week_word} {usd(abs(hogs.week_change or 0))} on the week; a pig placed today "
-    f"projects {usd(m_today)}.",
+    f"projects {usd(m_today)}."
+)
+action = masthead(
+    headline_txt,
     f"Lean Hog Index {usd(hogs.now)}, weaned pigs {usd(weaned.now)}, Iowa corn "
     f"{usd(corn.now)}. "
     + (
@@ -93,6 +122,31 @@ masthead(
     ),
     kicker=f"This week · {today:%B %d, %Y}",
 )
+with action:
+    sold_rows = book.rows[book.rows["status"] == "sold"]
+    brief = build_brief(
+        today,
+        headline_txt,
+        [(mv.name.replace("The ", ""), mv.now, mv.week_change, mv.year_pct, "$" + mv.unit)
+         for mv in moves],
+        [("Placing pigs", place_txt), ("Hedging", hedge_txt), ("Hog market", market_txt),
+         ("Sow farm", sow_txt)],
+        {
+            "Pigs on feed": on_feed[["placed", "sold", "priced_on", "pig_usd", "hog_usd_per_cwt",
+                                     "corn_usd_per_bu", "cost_usd", "margin_usd"]],
+            "Market signals": pd.DataFrame([{"signal": x.name, "value": x.value, "read": x.read,
+                                             "rule": x.rule} for x in sigs]),
+            "Crush history by year": annual_summary(book.rows),
+        },
+    )  # fmt: skip
+    st.download_button(
+        "Download weekly brief",
+        brief,
+        f"weekly_brief_{today:%Y-%m-%d}.xlsx",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        icon=":material/download:",
+        width="stretch",
+    )
 
 st.space("small")
 with hero("week"):
@@ -123,8 +177,7 @@ with a:
     insight(
         tone_of(m_today) if m_today >= 0 else "bad",
         "Placing pigs",
-        f"A pig placed today projects {usd(m_today)}; one is worth up to {usd(most)} at "
-        f"{contract_label(book.this_contract)} hogs.",
+        place_txt,
         [
             ("USDA weaned pig", usd(weaned.now)),
             ("Most you can pay", usd(most)),
@@ -137,16 +190,11 @@ with a:
     )
 with b:
     if len(by_k):
-        best_label = str(by_k.index[0])
-        best_margin = float(by_k.iloc[0])
-        best_rank = margin_rank(best_margin, history)
-        tone, sentence = hedge_rule(best_rank, trigger, target, 0.0)
-        card_tone: Tone = "caution" if tone == "caution" else "neutral"
+        card_tone: Tone = "caution" if hedge_tone == "caution" else "neutral"
         insight(
             card_tone,
             "Hedging",
-            f"{best_label} pigs have the best margin on feed: {usd(best_margin)} a pig. "
-            + sentence,
+            hedge_txt,
             [(str(k), usd(float(v))) for k, v in by_k.items()][:3],
             "Ranks against every placement since 2020; enter hedges on the Hedging page.",
         )
@@ -159,11 +207,7 @@ with a:
     insight(
         market_tone,
         "Hog market",
-        {"good": f"The market behind hog prices looks supportive: {market_why}.",
-         "bad": f"The market behind hog prices looks soft: {market_why}.",
-         "neutral": "Signals behind hog prices are mixed: "
-         f"{sum(x.tone == 'good' for x in sigs)} supportive, "
-         f"{sum(x.tone == 'bad' for x in sigs)} negative."}[market_tone],
+        market_txt,
         [(x.name, x.value) for x in strongest],
     )  # fmt: skip
     st.page_link("views/3_Market_prices.py", label="Hog market", icon=":material/arrow_forward:")
@@ -171,8 +215,7 @@ with b:
     insight(
         tone_of(sow_m),
         "Sow farm",
-        f"A weaned pig costs {usd(cost_per_weaned_pig(s))} to make and sells for "
-        f"{usd(weaned.now + s.adder_usd_per_head)}: {usd(sow_m)} a pig.",
+        sow_txt,
         [
             ("Per sow per year", usd(sow_m * s.weaned_per_sow_yr, 0)),
             ("Weaned per sow", f"{s.weaned_per_sow_yr:.1f}"),

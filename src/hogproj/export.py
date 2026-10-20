@@ -183,3 +183,76 @@ def build_report(
 
     wb.close()
     return buf.getvalue()
+
+
+def build_brief(
+    as_of: date,
+    headline_text: str,
+    numbers: list[tuple[str, float, float | None, float | None, str]],
+    decisions: list[tuple[str, str]],
+    tables: dict[str, pd.DataFrame],
+) -> bytes:
+    """The weekly brief as a workbook: a "Brief" sheet (headline, numbers with week and year
+    change, decisions in words) and one sheet per table. Built for emailing or printing.
+
+    `numbers`: (name, value, week change, year change as a fraction, unit).
+    """
+    buf = io.BytesIO()
+    wb = xlsxwriter.Workbook(buf, {"in_memory": True})
+    title = wb.add_format({"bold": True, "font_size": 18, "font_color": INK})
+    sub = wb.add_format({"italic": True, "font_color": "#5b6b64"})
+    head = wb.add_format({"bold": True, "bg_color": GREEN, "font_color": "white", "border": 1,
+                          "border_color": GRID})  # fmt: skip
+    cell = wb.add_format({"border": 1, "border_color": GRID, "text_wrap": True, "valign": "top"})
+    bold = wb.add_format({"bold": True, "border": 1, "border_color": GRID, "valign": "top"})
+    usd = wb.add_format({"num_format": "$#,##0.00;[Red]-$#,##0.00", "border": 1,
+                         "border_color": GRID})  # fmt: skip
+    pct = wb.add_format({"num_format": "+0%;[Red]-0%", "border": 1, "border_color": GRID})
+    big = wb.add_format({"bold": True, "font_size": 13, "text_wrap": True})
+
+    ws = wb.add_worksheet("Brief")
+    ws.hide_gridlines(2)
+    ws.set_column(0, 0, 26)
+    ws.set_column(1, 3, 14)
+    ws.set_column(4, 4, 70)
+    ws.write(0, 0, "Hog Projections — weekly brief", title)
+    who = get_settings().prepared_by.strip()
+    ws.write(1, 0, f"Prepared{' by ' + who if who else ''} {as_of:%B %d, %Y}. Public USDA data; "
+             "projections, not financial advice.", sub)  # fmt: skip
+    ws.merge_range(3, 0, 4, 4, headline_text, big)
+    r = 6
+    for col, h in enumerate(["This week", "Latest", "Week change", "Year change", "Unit"]):
+        ws.write(r, col, h, head)
+    for name, value, wk, yr, unit in numbers:
+        r += 1
+        ws.write(r, 0, name, bold)
+        ws.write_number(r, 1, value, usd)
+        ws.write(r, 2, "" if wk is None else wk, usd if wk is not None else cell)
+        ws.write(r, 3, "" if yr is None else yr, pct if yr is not None else cell)
+        ws.write(r, 4, unit, cell)
+    r += 2
+    ws.write(r, 0, "Decision", head)
+    ws.merge_range(r, 1, r, 4, "What the numbers say", head)
+    for name, sentence in decisions:
+        r += 1
+        ws.set_row(r, 32)
+        ws.write(r, 0, name, bold)
+        ws.merge_range(r, 1, r, 4, sentence, cell)
+
+    for sheet, df in tables.items():
+        t = wb.add_worksheet(sheet[:31])
+        t.freeze_panes(1, 0)
+        for j, colname in enumerate(df.columns):
+            t.write(0, j, str(colname), head)
+            width = max(len(str(colname)), 10)
+            t.set_column(j, j, min(width + 2, 28))
+        for i, row in enumerate(df.itertuples(index=False), start=1):
+            for j, v in enumerate(row):
+                if isinstance(v, pd.Timestamp | datetime | date):
+                    t.write_datetime(i, j, _dt(v), wb.add_format({"num_format": "yyyy-mm-dd"}))
+                elif isinstance(v, float) and pd.isna(v):
+                    t.write_blank(i, j, None)
+                else:
+                    t.write(i, j, v)
+    wb.close()
+    return buf.getvalue()

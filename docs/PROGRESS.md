@@ -273,3 +273,12 @@ Newest at the bottom.
   "Futures curve" when the curve is available. Hedging positions use each placement's own corn.
 - Tests: contract-for-month mapping, curve averaging + basis, past-the-curve months, on-feed rows
   use the curve, positions use row corn. 174 tests.
+
+## 2026-10-20 — Weekly brief download; data status
+
+- `export.build_brief`: Excel with a Brief sheet (headline, the week's numbers with week and year
+  change, the four decisions in words) plus Pigs on feed, Market signals and Crush history by year.
+  The decision sentences are built once and shared by the cards and the workbook, so they agree.
+  Download button on This week.
+- Sidebar "Data status": latest date and live/saved for every source.
+- Timing: cold start (every USDA source) 7.4 s; each later page 0.3–0.7 s.

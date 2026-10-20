@@ -25,6 +25,7 @@ def test_app_renders():
     at = AppTest.from_file(str(ROOT / "app.py")).run(timeout=60)
     assert not at.exception
     assert at.title[0].value.startswith("Hogs ")  # This week leads with the week's move
+    assert any("weekly brief" in str(b.proto.label) for b in at.get("download_button"))
     at.switch_page("views/0_Overview.py").run()
     assert not at.exception
     assert (
