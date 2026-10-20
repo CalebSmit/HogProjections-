@@ -23,6 +23,8 @@ def weekly(market_weekly: pd.DataFrame, pigs: pd.DataFrame, corn: pd.DataFrame,
     realized crush margin of pigs placed that week. Weeks with no data at all are dropped."""
     w = market_weekly[["week_ending", "index", "cutout", "spread_per_head", "head", "weight_lb"]]
     w = w.copy()
+    if "days" in market_weekly:  # holiday and part weeks would look like a slaughter drop
+        w.loc[market_weekly["days"].to_numpy() < 5, "head"] = np.nan
     w["week_ending"] = pd.to_datetime(w["week_ending"])
     p = pd.DataFrame({"week_ending": pd.to_datetime(pigs["week_ending"]).to_numpy(),
                       "weaned_pig": pigs["cash_usd_per_head"].to_numpy(dtype=float)})  # fmt: skip

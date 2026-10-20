@@ -180,6 +180,8 @@ def signals(d: pd.DataFrame, supply_pct: float | None = None,
         now = window(d, "cutout", end, 7)
         before = window(d, "cutout", _ts(end - pd.Timedelta(days=28)), 7)
         pct = now / before - 1
+        if np.isnan(pct):
+            pct = 0.0  # no comparison window: treat as steady rather than print "nan%"
         tone = "good" if pct >= 0.03 else "bad" if pct <= -0.03 else "neutral"
         read = {"good": "Pork demand is pulling the cutout higher.",
                 "bad": "The cutout is sliding; packers will push hog bids lower.",

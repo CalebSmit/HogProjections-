@@ -29,6 +29,7 @@ from hogproj.ui import (
     md,
     quote,
     rule,
+    signed,
     source_note,
     stat_strip,
     table,
@@ -54,6 +55,7 @@ def cur(name: str, default: float) -> float:
     return user_value(name, default)
 
 
+corn_fut0 = round(book.corn_cash - book.corn_basis, 2)  # nearby futures (cash if no curve)
 hedged_now = [k for k in book.contracts if cur(key(k, "pct"), 0) > 0]
 asof = ss.get("w2f_asof")
 stale = asof is not None and business_days_since(asof, today) > 3
@@ -94,8 +96,10 @@ with assumption_bar("hedge"):
     ):
         a, b = st.columns(2)
         a.number_input("Corn hedged (%)", 0.0, 100.0, 0.0, 5.0, key="w2f_corn_hedge_pct")
-        live_number(b, "Corn price ($/bu)", 0.0, 20.0, c.corn_usd_per_bu, 0.05,
-                       key="w2f_corn_hedge_px")  # fmt: skip
+        live_number(b, "Corn hedge price (CBOT, $/bu)", 0.0, 20.0, corn_fut0, 0.05,
+                    key="w2f_corn_hedge_px",
+                    help=f"Futures price locked. Your Iowa basis ({signed(book.corn_basis)}) is "
+                    "added to get the delivered cost.")  # fmt: skip
         a.number_input("SBM hedged (%)", 0.0, 100.0, 0.0, 5.0, key="w2f_sbm_hedge_pct")
         live_number(b, "SBM price ($/ton)", 0.0, 1000.0, c.sbm_usd_per_ton, 5.0,
                        key="w2f_sbm_hedge_px")  # fmt: skip
@@ -117,7 +121,7 @@ hog_hedges = {
     for k in book.contracts
 }
 corn_h = Hedge(share=cur("w2f_corn_hedge_pct", 0) / 100,
-               price=cur("w2f_corn_hedge_px", c.corn_usd_per_bu))  # fmt: skip
+               price=cur("w2f_corn_hedge_px", corn_fut0) + book.corn_basis)  # fmt: skip
 sbm_h = Hedge(share=cur("w2f_sbm_hedge_pct", 0) / 100,
               price=cur("w2f_sbm_hedge_px", c.sbm_usd_per_ton))  # fmt: skip
 per_week = cur("w2f_head_week", 1000)

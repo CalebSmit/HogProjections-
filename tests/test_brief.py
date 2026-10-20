@@ -51,3 +51,8 @@ def test_calendar_has_exact_expiries_in_order():
     assert (date(2027, 2, 12), "Feb 2027 lean hogs expire") in ev
     assert ev == sorted(ev)
     assert any("feeder pig" in e for _, e in ev)
+
+
+def test_move_without_data_raises():
+    with pytest.raises(ValueError):
+        move("x", "", pd.Series([], dtype="datetime64[ns]"), np.array([], dtype=float))

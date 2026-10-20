@@ -50,7 +50,12 @@ hogs = move("Lean hogs", "/cwt", idx["index_date"], idx["lean_hog_index_usd_per_
 cutout = move("The pork cutout", "/cwt", cut["date"], cut["carcass"])
 weaned = move("Weaned pigs", "/head", pigs["week_ending"], pigs["cash_usd_per_head"])
 cc = feeds[feeds["item"] == "corn_cash_iowa"]
-corn = move("Iowa cash corn", "/bu", cc["date"], cc["value"])
+corn = (
+    move("Iowa cash corn", "/bu", cc["date"], cc["value"])
+    if len(cc)
+    else Move("Iowa cash corn", "/bu", crush_book().c.corn_usd_per_bu, None, None,
+              pd.Timestamp(today))  # no USDA bid saved yet: the corn input
+)  # fmt: skip
 if corn.year_ago is None and not corn_m.empty:  # a year of daily bids builds up in the cache
     same = corn_m[pd.to_datetime(corn_m["month"]).dt.month == corn.as_of.month]
     same = same[pd.to_datetime(same["month"]).dt.year == corn.as_of.year - 1]
@@ -90,7 +95,11 @@ place_txt = (
 if len(by_k):
     best_label, best_margin = str(by_k.index[0]), float(by_k.iloc[0])
     best_rank = margin_rank(best_margin, history)
-    hedge_tone, rule_txt = hedge_rule(best_rank, trigger, target, 0.0)
+    best_k = {contract_label(k): k for k in book.contracts}.get(best_label)
+    share = (
+        float(ss.get(f"w2f_hedge_{best_k[0]}_{best_k[1]:02d}_pct") or 0) / 100 if best_k else 0.0
+    )
+    hedge_tone, rule_txt = hedge_rule(best_rank, trigger, target, share)
     hedge_txt = (
         f"{best_label} pigs have the best margin on feed: {usd(best_margin)} a pig. " + rule_txt
     )

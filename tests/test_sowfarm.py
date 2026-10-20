@@ -74,3 +74,14 @@ def test_integrated_is_sum_of_parts_and_joins_on_placement_week():
     assert row["integrated_usd"] == pytest.approx(row["margin_usd"] + 12.0)
     y = by_year(df).iloc[0]
     assert y["integrated_usd"] == pytest.approx(y["sow_usd"] + y["finish_usd"])
+
+
+def test_integrated_adders_cancel_for_your_own_pigs():
+    h = history(_pigs(), SowInputs(adder_usd_per_head=5.0))
+    crush = pd.DataFrame({"placed": pd.to_datetime(["2026-01-05"]), "status": ["sold"],
+                          "margin_usd": [12.0]})  # fmt: skip  # bought at USDA + $3
+    df = integrated(h, crush, sow_adder=5.0, w2f_adder=3.0)
+    row = df.iloc[0]
+    assert row["finish_margin_usd"] == pytest.approx(10.0)  # pig moves at USDA + $5, not + $3
+    no_adders = integrated(history(_pigs(), SowInputs()), crush.assign(margin_usd=15.0))
+    assert row["integrated_usd"] == pytest.approx(no_adders.iloc[0]["integrated_usd"])

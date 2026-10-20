@@ -239,13 +239,11 @@ sold = only(rows, rows["status"] == "sold")
 on_feed = only(rows, rows["status"] == "on feed")
 year_ago = only(pigs, pigs["week_ending"] <= usda_week - pd.Timedelta(days=358))
 pig_yoy = (
-    c.pig_usd_per_head / float(year_ago["cash_usd_per_head"].to_numpy()[-1]) - 1
-    if len(year_ago)
-    else None
+    usda_pig / float(year_ago["cash_usd_per_head"].to_numpy()[-1]) - 1 if len(year_ago) else None
 )
 uses_model = len(book.user_set) == 0
 rank = margin_rank(m, sold["margin_usd"].to_numpy(dtype=float))
-first_sold = pd.Timestamp(str(sold["placed"].min()))
+first_sold = pd.Timestamp(str(sold["placed"].min())) if len(sold) else pd.Timestamp(today)
 
 with head.container():
     verb = "make" if m >= 0 else "lose"

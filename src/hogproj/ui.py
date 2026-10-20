@@ -732,8 +732,9 @@ def crush_book() -> CrushBook:
     curve, _ = corn_curve()
     mode = ss.get("w2f_corn_mode") or "Futures curve"
     cash, basis = c.corn_usd_per_bu, 0.0
-    if mode == "Futures curve" and curve:
-        nearby = curve[min(k for k in curve if k >= corn_contract_for(today.year, today.month))]
+    current = [k for k in curve if k >= corn_contract_for(today.year, today.month)]
+    if mode == "Futures curve" and current:  # an old saved curve has only expired contracts
+        nearby = curve[min(current)]
         basis = cash - nearby
         start = pd.Timestamp(today)
         c = c.model_copy(update={"corn_usd_per_bu": forward_corn(

@@ -302,3 +302,20 @@ Newest at the bottom.
   runs every cached loader side by side on the first run (script context attached to each
   thread): 5.1 s.
 - 183 tests; screenshots reviewed.
+
+## 2026-10-20 — Fixes from an independent code review of the overnight work
+
+1. Live-default inputs (contract prices, USDA weaned pig, corn, SBM, hog price) were stored on
+   first render, kept across pages and saved, so after a data refresh last week's default stuck
+   and was flagged as typed. Now `live_number` + `user_value`: defaults follow live data until
+   edited (on_change marks the key); only edited or loaded values are kept, flagged and saved.
+2. This week's hedging card passed 0% hedged to the rule; it now uses your entered share.
+3. Corn hedges are entered as CBOT futures and get your Iowa basis, like hog hedges get basis.
+4. Archive slaughter blanks holiday/part weeks (as the Hog market overlay already did).
+5. Contract expiry skips CME holidays (July contracts expire the 15th in 2026 and 2027).
+6. Wean to finish compared your typed pig price with USDA a year ago; now USDA vs USDA.
+7. Sow farm "finishing vs selling": your own pigs move at the sow farm's price, so adders cancel.
+8. Guards: an expired saved corn curve falls back to cash; empty series no longer crash pages.
+9. Pigs-on-feed window sized from days on feed (was a fixed 40 weeks).
+10. Text: crush heatmap uses your days on feed; cutout signal never shows "nan%".
+- Regression tests for each; 193 tests. All pages × 2 widths screenshotted.

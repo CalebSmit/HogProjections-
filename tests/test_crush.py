@@ -240,3 +240,24 @@ def test_on_feed_rows_use_the_curve():
 
     expect = forward_corn(rows["placed"].iloc[0], rows["sold"].iloc[0], CURVE, -0.4)
     assert rows["corn_usd_per_bu"].iloc[0] == pytest.approx(expect)
+
+
+# --- Review fixes -----------------------------------------------------------------------------
+@pytest.mark.parametrize(
+    ("year", "month", "expiry"),
+    [(2026, 7, date(2026, 7, 15)),  # Jul 3 observed Independence Day
+     (2027, 7, date(2027, 7, 15)),  # Jul 5 observed
+     (2027, 2, date(2027, 2, 12)),  # Presidents Day (Feb 15) falls after the 10th business day
+     (2026, 4, date(2026, 4, 15))],  # Good Friday Apr 3, 2026
+)  # fmt: skip
+def test_contract_expiry_skips_exchange_holidays(year, month, expiry):
+    assert contract_expiry(year, month) == expiry
+
+
+def test_exchange_holidays_observed_rules():
+    from hogproj.crush import exchange_holidays
+
+    h = exchange_holidays(2027)
+    assert date(2027, 12, 24) in h  # Christmas on Saturday -> Friday
+    assert date(2027, 3, 26) in h  # Good Friday
+    assert date(2027, 10, 11) not in h  # Columbus Day: markets open

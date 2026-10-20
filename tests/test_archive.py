@@ -39,3 +39,10 @@ def test_annual_means_and_year_change():
     assert a.loc[2025, "weeks"] == 2
     assert year_change(a.reset_index(), "index") == pytest.approx(90 / 81 - 1)
     assert year_change(a.reset_index().iloc[:1], "index") is None
+
+
+def test_short_weeks_drop_slaughter_totals():
+    mk, pigs, corn, crush = _inputs()
+    mk = mk.assign(days=[5, 4, 5])  # the second week had a holiday
+    w = weekly(mk, pigs, corn, crush)
+    assert np.isnan(w.iloc[1]["head"]) and w.iloc[0]["head"] == 1.2e6

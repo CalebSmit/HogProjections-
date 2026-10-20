@@ -40,6 +40,8 @@ def move(name: str, unit: str, dates: pd.Series | np.ndarray, values: pd.Series 
     v = np.asarray(values, dtype=float)
     ok = ~np.isnan(v)
     d, v = d[ok], v[ok]
+    if len(v) == 0:
+        raise ValueError(f"no data for {name}")
     order = np.argsort(d)
     d, v = d[order], v[order]
     end = d[-1]

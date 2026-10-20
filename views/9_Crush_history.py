@@ -124,7 +124,7 @@ with left:
     lim = float(np.nanmax(np.abs(z_all))) or 1.0
     chart_title(
         f"{best_month} placements made the most; {worst_month} the least",
-        "Average margin per pig by month placed · sold about 160 days later",
+        f"Average margin per pig by month placed · sold about {c.days_on_feed} days later",
     )
     heat = go.Figure(
         go.Heatmap(

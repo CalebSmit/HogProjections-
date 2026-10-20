@@ -76,7 +76,7 @@ per_sow = m * s.weaned_per_sow_yr
 be_weaned = s.weaned_per_sow_yr * cost / max(usda + s.adder_usd_per_head, 0.01)
 hist = history(pigs, s, corn_hist)
 book = crush_book()
-joint = integrated(hist, book.rows)
+joint = integrated(hist, book.rows, s.adder_usd_per_head, book.c.adder_usd_per_head)
 years = by_year(joint)
 last52 = hist[hist["week_ending"] >= hist["week_ending"].max() - pd.Timedelta(weeks=52)]
 finish_avg = float(joint["finish_margin_usd"].mean()) if len(joint) else float("nan")
@@ -87,9 +87,14 @@ with head.container():
     masthead(
         f"A weaned pig costs {usd(cost)} to make and sells for {usd(usda + s.adder_usd_per_head)}.",
         f"At today's USDA price the sow farm {verb} {usd(abs(m))} a pig, "
-        f"{usd_short(abs(per_sow))} per sow a year. Since {joint['week_ending'].min():%Y}, "
-        f"finishing your own pigs instead of selling them "
-        f"{'added' if finish_avg >= 0 else 'cost'} {usd(abs(finish_avg))} a pig on average.",
+        f"{usd_short(abs(per_sow))} per sow a year."
+        + (
+            f" Since {joint['week_ending'].min():%Y}, finishing your own pigs instead of selling "
+            f"them {'added' if finish_avg >= 0 else 'cost'} {usd(abs(finish_avg))} a pig on "
+            "average."
+            if len(joint)
+            else ""
+        ),
         kicker="Sow farm · farrow to wean",
     )
 

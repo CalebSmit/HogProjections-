@@ -26,11 +26,58 @@ LH_MONTHS = {2: "Feb", 4: "Apr", 5: "May", 6: "Jun", 7: "Jul", 8: "Aug", 10: "Oc
 Contract = tuple[int, int]  # (year, month)
 
 
+def _easter(y: int) -> date:
+    """Gregorian Easter Sunday (anonymous algorithm)."""
+    a, b, c = y % 19, y // 100, y % 100
+    d, e = b // 4, b % 4
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i, k = c // 4, c % 4
+    m = (32 + 2 * e + 2 * i - h - k) % 7
+    n = (a + 11 * h + 22 * m) // 451
+    month = (h + m - 7 * n + 114) // 31
+    return date(y, month, (h + m - 7 * n + 114) % 31 + 1)
+
+
+def _nth_weekday(y: int, month: int, weekday: int, n: int) -> date:
+    d = date(y, month, 1)
+    d += timedelta(days=(weekday - d.weekday()) % 7)
+    return d + timedelta(weeks=n - 1)
+
+
+def _last_weekday(y: int, month: int, weekday: int) -> date:
+    d = date(y, month + 1, 1) - timedelta(days=1) if month < 12 else date(y, 12, 31)
+    return d - timedelta(days=(d.weekday() - weekday) % 7)
+
+
+def _observed(d: date) -> date:
+    return (
+        d - timedelta(days=1)
+        if d.weekday() == 5
+        else d + timedelta(days=1)
+        if d.weekday() == 6
+        else d
+    )
+
+
+def exchange_holidays(y: int) -> set[date]:
+    """CME livestock trading holidays: the US federal set plus Good Friday, minus Columbus and
+    Veterans Day (markets open)."""
+    return {
+        _observed(date(y, 1, 1)), _nth_weekday(y, 1, 0, 3), _nth_weekday(y, 2, 0, 3),
+        _easter(y) - timedelta(days=2), _last_weekday(y, 5, 0), _observed(date(y, 6, 19)),
+        _observed(date(y, 7, 4)), _nth_weekday(y, 9, 0, 1), _nth_weekday(y, 11, 3, 4),
+        _observed(date(y, 12, 25)),
+    }  # fmt: skip
+
+
 def contract_expiry(year: int, month: int) -> date:
-    """10th business day of the month (weekends skipped; exchange holidays ignored)."""
+    """10th business day of the month (weekends and exchange holidays skipped)."""
+    holidays = exchange_holidays(year)
     d, n = date(year, month, 1), 0
     while True:
-        if d.weekday() < 5:
+        if d.weekday() < 5 and d not in holidays:
             n += 1
             if n == 10:
                 return d

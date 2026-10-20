@@ -85,16 +85,19 @@ def history(pigs: pd.DataFrame, s: SowInputs, corn: pd.DataFrame | None = None) 
     )  # fmt: skip
 
 
-def integrated(sow: pd.DataFrame, crush_rows: pd.DataFrame) -> pd.DataFrame:
+def integrated(sow: pd.DataFrame, crush_rows: pd.DataFrame, sow_adder: float = 0.0,
+               w2f_adder: float = 0.0) -> pd.DataFrame:  # fmt: skip
     """Join each USDA week's sow farm margin with the crush margin of a pig placed that week.
 
     Placements happen the Monday of the report week (week ending − 4 days), as in `crush`.
-    Only placements already sold are joined, so both halves are realized.
+    Only placements already sold are joined, so both halves are realized. Your own pigs move at
+    the sow farm's price (USDA + `sow_adder`), so the finishing margin is restated from the
+    crush rows' purchase price (USDA + `w2f_adder`); the adders then cancel in the total.
     """
     sold = crush_rows[crush_rows["status"] == "sold"]
     w2f = pd.DataFrame(
         {"week_ending": pd.to_datetime(sold["placed"]).to_numpy() + np.timedelta64(4, "D"),
-         "finish_margin_usd": sold["margin_usd"].to_numpy(dtype=float)}
+         "finish_margin_usd": sold["margin_usd"].to_numpy(dtype=float) + w2f_adder - sow_adder}
     )  # fmt: skip
     df = sow.merge(w2f, on="week_ending", how="inner")
     df["integrated_usd"] = df["margin_usd"] + df["finish_margin_usd"]
