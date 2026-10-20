@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from hogproj import hogmarket as hm
-from hogproj import snapshots, supply
+from hogproj import snapshots
 from hogproj.book import hedge_rule
 from hogproj.brief import QUARTERLY_REPORTS, Move, calendar, move, movers
 from hogproj.config import get_settings
@@ -31,18 +31,16 @@ from hogproj.ui import (
     hog_market,
     insight,
     iowa_corn,
+    market_signals,
     masthead,
-    nass_data,
     pork_cutout,
     rule,
     signed,
     source_note,
     sow_from_state,
     stat_strip,
-    storage_now,
     tone_of,
     usd,
-    wasde_now,
     weaned_pigs,
 )
 
@@ -98,7 +96,7 @@ trigger = float(ss.get("w2f_rule_trigger") or 75)
 target = float(ss.get("w2f_rule_target") or 50) / 100
 
 d = hog_market()
-sigs = hm.signals(d, supply.next_six_months(nass_data()[0])["pct"], wasde_now(), storage_now())
+sigs = market_signals()
 market_tone, market_why = hm.overall(sigs)
 
 s = sow_from_state()

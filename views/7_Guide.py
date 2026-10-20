@@ -124,8 +124,9 @@ with right:
             ),
             (
                 "Packer spread",
-                "Cutout minus the Lean Hog Index: what packers sell a carcass for minus what they "
-                "pay for the hog, before plant costs. Wide spreads give packers room to bid more.",
+                "Cutout plus by-product value minus the Lean Hog Index: what packers get for the "
+                "whole hog minus what they pay for it, before plant costs. Wide spreads give "
+                "packers room to bid more.",
             ),
             (
                 "Percentile",

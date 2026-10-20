@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from hogproj import national as nv
 from hogproj.sowfarm import SowInputs, by_year, cost_lines, cost_per_weaned_pig, history, integrated
 from hogproj.ui import (
     ACCENT,
@@ -23,6 +24,7 @@ from hogproj.ui import (
     masthead,
     md,
     quote,
+    regional_data,
     rule,
     source_note,
     sow_from_state,
@@ -222,6 +224,64 @@ with right:
     )
 
 rule()
+
+# --- Cull sows -----------------------------------------------------------------------------
+sows_raw, sows_src, _ = regional_data("sows")
+if not sows_raw.empty:
+    sp = nv.sow_price(sows_raw)
+    heavy = sows_raw.dropna(subset=["avg_weight"])
+    heavy = heavy[heavy["weight_range"].str.extract(r"(\d+)")[0].astype(float) >= 400]
+    wt = float((heavy["avg_weight"] * heavy["head"]).sum() / heavy["head"].sum())
+    wk = sp.resample("W-FRI").mean().dropna()
+    now_px = float(wk.iloc[-1])
+    yr = wk[wk.index <= wk.index[-1] - pd.Timedelta(days=364)]
+    left, right = st.columns([1.4, 1], gap="large")
+    with left:
+        chart_title(
+            f"A {wt:.0f} lb cull sow brings about {usd(now_px * wt / 100, 0)}",
+            "Negotiated sows 400 lb and up, $/cwt live, weekly · USDA LM_HG234",
+        )
+        fc = go.Figure(
+            go.Scatter(
+                x=wk.index,
+                y=wk.to_numpy(),
+                mode="lines",
+                line={"color": ACCENT, "width": 2},
+                hovertemplate="%{x|%b %d, %Y}: $%{y:.2f}/cwt<extra></extra>",
+            )
+        )
+        end_tag(fc, wk.index[-1], now_px, usd(now_px), ACCENT)
+        fc.update_yaxes(tickprefix="$")
+        fc.update_xaxes(tickformat="%b %Y")
+        fc.update_layout(showlegend=False, margin={"l": 4, "r": 64, "t": 8, "b": 4})
+        chart(fc, 260, on=PAGE)
+        source_note(
+            "USDA AMS LM_HG234 (daily sows and boars)"
+            + (" (live)" if sows_src == "live" else " (saved)"),
+            "head-weighted across 400 lb+ weight classes",
+        )
+        excel_button(
+            {"Sow price by day": sp.reset_index(), "By weight class": sows_raw},
+            "sow_prices",
+            "Cull sow prices",
+            "USDA AMS LM_HG234",
+        )
+    with right:
+        chart_title("What culls are worth", "At today's price, per sow sold")
+        rows = [
+            ["Price", f"{usd(now_px)}/cwt live"],
+            ["Average weight", f"{wt:.0f} lb"],
+            ["Value per sow", usd(now_px * wt / 100, 0)],
+        ]
+        if len(yr):
+            rows.append(["A year ago", f"{usd(float(yr.iloc[-1]))}/cwt"])
+        table(["", "Value"], rows, emphasis_col=0)
+        st.caption(
+            "Cull sow revenue offsets replacement gilt cost; it isn't in the Iowa State "
+            "farrow-to-wean cost above."
+        )
+    rule()
+
 with st.expander("Weekly history"):
     st.dataframe(
         hist.sort_values("week_ending", ascending=False),
