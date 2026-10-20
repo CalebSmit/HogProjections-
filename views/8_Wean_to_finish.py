@@ -32,6 +32,7 @@ from hogproj.ui import (
     chart_title,
     chip,
     crush_book,
+    crush_workbook,
     end_tag,
     feed_default,
     feed_help,
@@ -249,7 +250,7 @@ first_sold = pd.Timestamp(str(sold["placed"].min())) if len(sold) else pd.Timest
 
 with head.container():
     verb = "make" if m >= 0 else "lose"
-    masthead(
+    action = masthead(
         f"A pig placed today would {verb} {usd(abs(m))}.",
         f"Bought at {usd(c.pig_usd_per_head + c.adder_usd_per_head)} and sold around "
         f"{sold_date:%b %d} into {contract_label(this_contract)} hogs at {usd(hog)}/cwt. "
@@ -263,6 +264,17 @@ with head.container():
         ],
     )  # fmt: skip
 
+    with action:
+        st.download_button(
+            "Crush workbook (Excel)",
+            crush_workbook(),
+            f"wean_pig_crush_{today:%Y-%m-%d}.xlsx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            icon=":material/download:",
+            width="stretch",
+            help="Your inputs, contract prices and hedges in a live Excel workbook: one column "
+            "per placement on feed, every margin a formula.",
+        )
 st.space("small")
 
 # --- Hero ---------------------------------------------------------------------------------

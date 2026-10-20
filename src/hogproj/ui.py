@@ -768,6 +768,44 @@ def sow_from_state() -> SowInputs:
     return SowInputs().model_copy(update=upd)
 
 
+def crush_workbook() -> bytes:
+    """The live Excel crush workbook for the current inputs, contract prices and hedges."""
+    from hogproj.crush import contract_expiry, contract_label
+    from hogproj.export_crush import ContractRow, Placement, build_crush_workbook
+
+    ss = st.session_state
+    book = crush_book()
+    c = book.c
+    today = date.today()
+    head = user_value("w2f_head_week", 1000)
+    contracts = []
+    for k in book.contracts:
+        pre = f"w2f_hedge_{k[0]}_{k[1]:02d}"
+        contracts.append(ContractRow(contract_label(k), contract_expiry(*k), book.futures[k],
+                                     float(ss.get(f"{pre}_pct") or 0) / 100,
+                                     user_value(f"{pre}_px", book.futures[k])))  # fmt: skip
+    on_feed = book.rows[book.rows["status"] == "on feed"].sort_values("placed", ascending=False)
+    places = [Placement(today, today, today + timedelta(days=c.days_on_feed),
+                        contract_label(book.this_contract), c.pig_usd_per_head,
+                        c.corn_usd_per_bu, head)]  # fmt: skip
+    for r in on_feed.to_dict("records"):
+        placed = pd.Timestamp(r["placed"]).date()
+        places.append(Placement(placed + timedelta(days=4), placed, pd.Timestamp(r["sold"]).date(),
+                                str(r["priced_on"]), float(r["pig_usd"]) - c.adder_usd_per_head,
+                                float(r["corn_usd_per_bu"]), head))  # fmt: skip
+    corn_fut = book.corn_cash - book.corn_basis
+    corn_hedge = (float(ss.get("w2f_corn_hedge_pct") or 0) / 100,
+                  user_value("w2f_corn_hedge_px", corn_fut) + book.corn_basis)  # fmt: skip
+    sold = book.rows[book.rows["status"] == "sold"]
+    pigs, _, _ = weaned_pigs()
+    names = {"week_ending": "Week ending", "cash_usd_per_head": "Weaned pig, cash ($/head)",
+             "low_usd_per_head": "Low", "high_usd_per_head": "High"}  # fmt: skip
+    usda = pigs.rename(columns=names)
+    note = ("Contract prices are the app's seasonal estimates; enter today's futures."
+            if not book.user_set else "Contract prices are the ones you entered.")  # fmt: skip
+    return build_crush_workbook(c, places, contracts, corn_hedge, sold, usda, today, note)
+
+
 def lh_key(k: Contract) -> str:
     """Widget key for a lean hog contract price, e.g. w2f_lh_2027_04."""
     return f"w2f_lh_{k[0]}_{k[1]:02d}"

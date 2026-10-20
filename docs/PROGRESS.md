@@ -336,3 +336,14 @@ Newest at the bottom.
   feed cost per pig by month at your ration.
 - Perf: monthly lookups built once per call (placements 0.58 s → 0.05 s); merged history cached.
 - 199 tests (MARS parsers against fixtures, key scrubbing, no-key fallback).
+
+## 2026-10-20 — Live Excel crush workbook
+
+- `export_crush.build_crush_workbook`: the wean pig crush as Pipestone's workbook does it, but
+  live — Inputs (named cells), Contracts (futures, hedged share, hedge price → effective), Crush
+  (one column per placement on feed + a pig placed today; pig cost, delivered corn after hedge,
+  feed, revenue at contract + basis, non-feed, margin, debt, head, totals, chart), History (sold
+  placements, paid vs worth chart), USDA data. Formulas carry the app's values as cached results.
+- Download on Wean to finish and Hedging, pre-filled with the current inputs, prices and hedges.
+- Verified: tests check sheets, names, formulas and cached values; an independent formula engine
+  (`formulas`, dev check only) recalculated all 74 margin cells of a real export: 0 mismatches.

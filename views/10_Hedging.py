@@ -21,6 +21,7 @@ from hogproj.ui import (
     chart_title,
     chip,
     crush_book,
+    crush_workbook,
     end_tag,
     hero,
     lh_key,
@@ -151,7 +152,7 @@ with head.container():
                  "locked in.")  # fmt: skip
     else:
         title = f"{pigs:,.0f} pigs on feed project {usd_short(total)}, none of it hedged."
-    masthead(
+    action = masthead(
         title,
         f"Each $1/cwt move in lean hogs changes the book by {usd_short(exposure)}. "
         f"{best['label']} pigs have the best margin versus history ({best['rank']:.0f}th "
@@ -168,6 +169,16 @@ with head.container():
         ],
     )  # fmt: skip
 
+    with action:
+        st.download_button(
+            "Crush workbook (Excel)",
+            crush_workbook(),
+            f"wean_pig_crush_{today:%Y-%m-%d}.xlsx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            icon=":material/download:",
+            width="stretch",
+            help="Pigs on feed, contract prices and your hedges as a live Excel workbook.",
+        )
 st.space("small")
 
 with hero("hedge"):
