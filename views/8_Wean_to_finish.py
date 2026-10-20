@@ -58,7 +58,6 @@ from hogproj.ui import (
     tone_of,
     usd,
     user_value,
-    wasde_now,
     weaned_pigs,
 )
 
@@ -121,18 +120,19 @@ with assumption_bar("w2f"):
         )
     hog_label = usd(cur(lh_key(this_contract), model.get(this_contract, index_now)))
     with st.popover(md(f"Hog prices · {contract_label(this_contract)} {hog_label}")):
-        st.caption(
-            "Lean hog futures by contract, $/cwt carcass. Defaults are a seasonal estimate "
-            "from today's index; enter today's CME settlements for a market-based answer."
+        st.segmented_control(
+            "Prices you haven't entered come from",
+            ["Seasonal estimate", "USDA outlook"],
+            default="Seasonal estimate",
+            key="w2f_lh_source",
+            help="Seasonal estimate: today's Lean Hog Index carried along its usual seasonal "
+            "pattern. USDA outlook: WASDE's quarterly barrow and gilt forecast, converted to an "
+            "index price with the ratio between the two in recent quarters.",
         )
-        outlook = wasde_now()
-        if outlook and outlook["price_next_q"]:
-            (y_, q_) = outlook["quarters"][0]
-            st.caption(
-                f"For reference, USDA's {outlook['report']} WASDE projects barrows and gilts at "
-                f"{usd(outlook['price_next_q'])}/cwt live in Q{q_} {y_}, about "
-                f"{usd(outlook['price_next_q'] / 0.75)} carcass."
-            )
+        st.caption(
+            "Lean hog futures by contract, $/cwt carcass. Enter today's CME settlements for a "
+            "market-based answer; entered prices are kept until you change them."
+        )
         cols = st.columns(2)
         for i, k in enumerate(contracts):
             live_number(cols[i % 2], contract_label(k), 0.0, 250.0, model[k], 0.25, key=lh_key(k))
@@ -259,7 +259,7 @@ with head.container():
         f"You could pay up to {usd(be_pig)} for the pig and still break even.",
         kicker=f"Wean to finish · {today:%B %d, %Y}",
         meta=[
-            chip("Hog prices: seasonal estimate", "caution",
+            chip(f"Hog prices: {book.price_source.lower()}", "caution",
                  "Enter today's lean hog futures under Hog prices.")
             if uses_model
             else chip("Hog prices: your futures", "good", "Using the contract prices you entered.")
@@ -479,7 +479,7 @@ if fwd is not None and len(fwd):
         chart(fp, 300, on=PAGE)
         source_note(
             "model: today's contract prices"
-            + (" (seasonal estimates)" if not book.user_set else "")
+            + (f" ({book.price_source.lower()})" if not book.user_set else "")
             + " and corn curve; usual price = today's USDA price moved by the seasonal pattern",
             "green: worth more than pigs usually cost that week",
         )

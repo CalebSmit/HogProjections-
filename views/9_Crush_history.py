@@ -184,7 +184,7 @@ with right:
     source_note(
         "model",
         f"today prices the pig at {usd(book.hog)}/cwt, the "
-        + ("seasonal estimate" if not book.user_set else "price you entered")
+        + (book.price_source.lower() if not book.user_set else "price you entered")
         + " for the contract it sells into",
     )
 

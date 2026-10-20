@@ -138,3 +138,13 @@ def test_edited_live_input_counts_as_the_users():
     w.set_value(99.0).run()
     assert not at.exception
     assert "Hog prices: your futures" in " ".join(m.value for m in at.markdown)
+
+
+def test_usda_outlook_price_source_changes_the_answer():
+    at = app().switch_page("views/8_Wean_to_finish.py").run()
+    before = at.title[0].value
+    at.session_state["w2f_lh_source"] = "USDA outlook"
+    at.run()
+    assert not at.exception
+    assert at.title[0].value != before
+    assert "usda outlook" in " ".join(m.value for m in at.markdown).lower()

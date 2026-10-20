@@ -67,7 +67,7 @@ stale = asof is not None and business_days_since(asof, today) > 3
 head = st.empty()
 with assumption_bar("hedge"):
     with st.popover(
-        "Contract prices · " + (f"as of {asof:%b %d}" if asof else "seasonal estimate")
+        "Contract prices · " + (f"as of {asof:%b %d}" if asof else book.price_source.lower())
     ):
         st.caption(
             "Lean hog futures, $/cwt. Shared with Wean to finish. Enter the latest settlements "
@@ -163,7 +163,7 @@ with head.container():
         meta=[
             chip("Contract prices stale", "bad", "Prices are more than three business days old.")
             if stale
-            else chip("Contract prices: seasonal estimate", "caution",
+            else chip(f"Contract prices: {book.price_source.lower()}", "caution",
                       "Enter today's futures under Contract prices.")
             if not book.user_set
             else chip(f"Contract prices as of {asof:%b %d}" if asof else "Your contract prices",

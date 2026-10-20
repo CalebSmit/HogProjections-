@@ -803,7 +803,7 @@ def crush_workbook() -> bytes:
     names = {"week_ending": "Week ending", "cash_usd_per_head": "Weaned pig, cash ($/head)",
              "low_usd_per_head": "Low", "high_usd_per_head": "High"}  # fmt: skip
     usda = pigs.rename(columns=names)
-    note = ("Contract prices are the app's seasonal estimates; enter today's futures."
+    note = (f"Contract prices are the app's {book.price_source.lower()}; enter today's futures."
             if not book.user_set else "Contract prices are the ones you entered.")  # fmt: skip
     return build_crush_workbook(c, places, contracts, corn_hedge, sold, usda, today, note)
 
@@ -830,6 +830,7 @@ class CrushBook:
     corn_cash: float = 0.0  # the corn input (cash)
     corn_basis: float = 0.0  # cash − nearby CBOT futures, when the curve is used
     forward: pd.DataFrame | None = None  # crush.forward_placements for the next 26 weeks
+    price_source: str = "Seasonal estimate"  # what un-entered contract prices come from
     curve: dict | None = None
 
 
@@ -848,6 +849,18 @@ def crush_book() -> CrushBook:
         contract_for(today + timedelta(weeks=w, days=c.days_on_feed)) for w in range(26)
     })  # fmt: skip
     model = model_contract_prices(contracts, today, index_now, seasonal_factors(idx))
+    source = ss.get("w2f_lh_source") or "Seasonal estimate"
+    if source == "USDA outlook":  # WASDE's quarterly forecast, read as an index price
+        from hogproj.crush import contract_expiry
+        from hogproj.hogmarket import wasde_contract_prices, wasde_to_index_ratio
+
+        wd = wasde_data()[0]
+        ratio = wasde_to_index_ratio(wd, idx)
+        if ratio:
+            model.update(wasde_contract_prices(contracts, [contract_expiry(*k) for k in contracts],
+                                               wd, ratio))  # fmt: skip
+        else:
+            source = "Seasonal estimate"
     futures = {k: user_value(lh_key(k), model[k]) for k in contracts}
     user_set = [k for k in contracts if lh_key(k) in touched()]
     this = contract_for(today + timedelta(days=c.days_on_feed))
@@ -890,7 +903,7 @@ def crush_book() -> CrushBook:
     return CrushBook(c=c, contracts=contracts, model=model, futures=futures, user_set=user_set,
                      this_contract=this, hog=futures.get(this, index_now), index_now=index_now,
                      rows=rows, corn_mode=mode, corn_cash=cash, corn_basis=basis, forward=fwd,
-                     curve=curve)  # fmt: skip
+                     curve=curve, price_source=source)  # fmt: skip
 
 
 def current_plan() -> Plan:

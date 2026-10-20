@@ -260,3 +260,32 @@ def overall(sigs: list[Signal]) -> tuple[Tone, str]:
     if score <= -2:
         return "bad", f"{-score} more negative than supportive signals"
     return "neutral", "signals are mixed"
+
+
+def wasde_to_index_ratio(w: pd.DataFrame, index: pd.DataFrame) -> float | None:
+    """Lean Hog Index (carcass, net) ÷ WASDE barrow/gilt price (live, base), averaged over the
+    quarters WASDE reports as actual — so USDA's live forecast can be read as an index price."""
+    if w is None or w.empty:
+        return None
+    pr = w[(w["series"] == "barrows_gilts_usd_cwt_live") & (~w["projected"].astype(bool))]
+    d = pd.to_datetime(index["index_date"])
+    v = index["lean_hog_index_usd_per_cwt_carcass"].to_numpy(dtype=float)
+    ratios = []
+    for r in pr.to_dict("records"):
+        q = (d.dt.year == int(r["year"])) & ((d.dt.month - 1) // 3 + 1 == int(r["quarter"]))
+        if q.sum() > 30:
+            ratios.append(float(v[q.to_numpy()].mean()) / float(r["value"]))
+    return float(np.mean(ratios)) if ratios else None
+
+
+def wasde_contract_prices(contracts: list, expiries: list, w: pd.DataFrame,
+                          ratio: float) -> dict:  # fmt: skip
+    """Index-equivalent price for each contract from USDA's forecast for its expiry quarter.
+    Contracts past WASDE's horizon are left out (the caller keeps its own estimate)."""
+    pr = w[w["series"] == "barrows_gilts_usd_cwt_live"].set_index(["year", "quarter"])["value"]
+    out = {}
+    for k, exp in zip(contracts, expiries, strict=True):
+        q = (exp.year, (exp.month - 1) // 3 + 1)
+        if q in pr.index:
+            out[k] = round(float(pr.loc[q]) * ratio * 4) / 4
+    return out

@@ -135,7 +135,9 @@ action = masthead(
     f"Lean Hog Index {usd(hogs.now)}, weaned pigs {usd(weaned.now)}, Iowa corn "
     f"{usd(corn.now)}. "
     + (
-        "Contract prices are seasonal estimates until entered on Wean to finish."
+        "Contract prices are "
+        + {"USDA outlook": "USDA's outlook"}.get(book.price_source, "seasonal estimates")
+        + " until entered on Wean to finish."
         if not book.user_set
         else "Using the contract prices you entered."
     ),
@@ -209,7 +211,7 @@ with a:
             ("Most you can pay", usd(most)),
             ("Vs history", f"{rank_today:.0f}th pct"),
         ],  # fmt: skip
-        "Contract prices are seasonal estimates." if not book.user_set else "",
+        f"Contract prices: {book.price_source.lower()}." if not book.user_set else "",
     )
     st.page_link(
         "views/8_Wean_to_finish.py", label="Wean to finish", icon=":material/arrow_forward:"

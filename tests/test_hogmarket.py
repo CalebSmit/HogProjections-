@@ -176,3 +176,20 @@ def test_storage_signal(last, tone):
     assert st is not None and st["years"] == 5 and st["avg"] == pytest.approx(500)
     sig = next(s for s in hm.signals(_market(), storage=st) if s.name == "Cold storage")
     assert sig.tone == tone
+
+
+def test_wasde_ratio_and_contract_prices():
+    from datetime import date
+
+    w = pd.DataFrame({"year": [2026, 2026, 2027], "quarter": [2, 3, 1],
+                      "series": ["barrows_gilts_usd_cwt_live"] * 3, "value": [60.0, 64.0, 66.0],
+                      "projected": [False, False, True], "report": ["x"] * 3})  # fmt: skip
+    days = pd.bdate_range("2026-04-01", "2026-09-30")
+    price = np.where(np.array([d.month for d in days]) <= 6, 81.0, 86.4)
+    idx = pd.DataFrame({"index_date": days, "lean_hog_index_usd_per_cwt_carcass": price})
+    r = hm.wasde_to_index_ratio(w, idx)
+    assert r is not None
+    assert r == pytest.approx((81 / 60 + 86.4 / 64) / 2)  # 1.35
+    got = hm.wasde_contract_prices([(2027, 2), (2027, 12)], [date(2027, 2, 12), date(2027, 12, 14)],
+                                   w, r)  # fmt: skip
+    assert got == {(2027, 2): round(66 * r * 4) / 4}  # Dec 2027 past the horizon: left out
