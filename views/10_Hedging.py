@@ -277,7 +277,12 @@ if not fb.empty:
         f"{top['placed_to'].day} sell into {top['contract']} for {usd(top['margin_usd'])} a pig, "
         f"the best to place now ({ordinal(top['rank'])} percentile{moved})",
         "Pigs not placed yet · margin per pig at today's contract prices, ranked against every "
-        "placement since 2020 · colour: rank (green high, red low)",
+        "placement since 2020 · colour: rank (green high, red low)"
+        + (
+            f" · likely {usd(top['low_usd'])} to {usd(top['high_usd'])} a pig unhedged"
+            if pd.notna(top.get("low_usd"))
+            else ""
+        ),  # fmt: skip
     )
     cols = [c for c in ranks.columns if ranks[c].notna().any()]
     z = ranks[cols].to_numpy(dtype=float)
@@ -299,11 +304,14 @@ if not fb.empty:
         if len(cols) == 1:
             st.caption("Earlier columns fill in as the app is used: it keeps one board a day.")
     with right:
-        table(["Contract", "Placed", "Hogs $/cwt", "Margin/pig", "Hog:corn", "Rule says"],
+        table(["Contract", "Placed", "Hogs $/cwt", "Margin/pig", "Likely range", "Hog:corn",
+               "Rule says"],
               [[r["contract"],
                 f"{r['placed_from']:%b} {r['placed_from'].day}–{r['placed_to']:%b} "
                 f"{r['placed_to'].day}",
                 usd(r["hog_usd_per_cwt"]), usd(r["margin_usd"]),
+                (f"{usd(r['low_usd'], 0)} to {usd(r['high_usd'], 0)}"
+                 if pd.notna(r["low_usd"]) else "–"),
                 f"{r['hog_corn_ratio']:.1f}",
                 {"good": "In place", "caution": f"Hedge {hrule.target:.0%}",
                  "neutral": "Wait" if hrule.mode != "off" else "–"}[str(r["rule_tone"])]]
@@ -311,7 +319,9 @@ if not fb.empty:
     source_note(
         "your contract prices, USDA weaned pig seasonality, corn "
         + ("curve" if book.corn_mode == "Futures curve" else "cash"),
-        f"pig price expected for each placement week; hog:corn = live hog price ÷ corn $/bu; "
+        "pig price expected for each placement week; likely range: where the margin lands if "
+        "hogs miss today's price by as much as the seasonal estimate has 8 times in 10 at that "
+        "distance (Hog market); hog:corn = live hog price ÷ corn $/bu; "
         f"your rule: {hrule.describe()}",
     )
     excel_button({"Forward board": fb, "Rank by week": ranks.reset_index(names="contract"),

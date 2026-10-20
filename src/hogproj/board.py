@@ -4,6 +4,7 @@ since 2020, what the user's hedge rule says, and how that rank has moved over re
 (from a daily snapshot kept in the local cache). Pure apart from the snapshot file.
 """
 
+from collections.abc import Callable
 from datetime import date
 from pathlib import Path
 
@@ -19,12 +20,14 @@ LAGS = {"Today": 0, "1 wk ago": 7, "2 wk ago": 14, "4 wk ago": 28, "8 wk ago": 5
 
 
 def summarize(forward: pd.DataFrame, history: np.ndarray, rule: HedgeRule, cwt: float,
-              hedged: dict[str, float] | None = None) -> pd.DataFrame:  # fmt: skip
+              hedged: dict[str, float] | None = None, today: date | None = None,
+              band: Callable[[float], float | None] | None = None) -> pd.DataFrame:  # fmt: skip
     """One row per contract: placement window, hog price, average margin ($/pig and $/cwt
     carcass), rank vs history, hog:corn ratio and the rule's verdict."""
     if forward is None or forward.empty:
         return pd.DataFrame()
     hedged = hedged or {}
+    today = today or date.today()
     rows = []
     for k, g in forward.groupby("contract", sort=False):
         m = float(g["margin_usd"].mean())
@@ -40,8 +43,22 @@ def summarize(forward: pd.DataFrame, history: np.ndarray, rule: HedgeRule, cwt: 
             "pig_expected_usd": float(g["pig_expected_usd"].mean()),
             "hog_corn_ratio": hog * 0.75 / corn if corn else np.nan,  # live price ÷ corn $/bu
             "rule_tone": tone, "rule_says": why,
+            **_range(m, cwt, g, today, band),
         })  # fmt: skip
     return pd.DataFrame(rows)
+
+
+def _range(m: float, cwt: float, g: pd.DataFrame, today: date,
+           band: Callable[[float], float | None] | None) -> dict[str, float]:  # fmt: skip
+    """Likely margin range: the hog price could land as far from today's contract price as the
+    seasonal estimate missed 8 times in 10 at that distance (×carcass cwt)."""
+    if band is None or "sold" not in g:
+        return {"months_ahead": np.nan, "low_usd": np.nan, "high_usd": np.nan}
+    months = (pd.to_datetime(g["sold"]).mean() - pd.Timestamp(today)).days / 30.4
+    b = band(months)
+    if b is None:
+        return {"months_ahead": months, "low_usd": np.nan, "high_usd": np.nan}
+    return {"months_ahead": months, "low_usd": m - b * cwt, "high_usd": m + b * cwt}
 
 
 def _path(folder: Path | None) -> Path:

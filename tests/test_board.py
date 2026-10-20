@@ -50,3 +50,11 @@ def test_snapshots_build_the_trend(tmp_path):
 
 def test_empty_forward():
     assert board.summarize(pd.DataFrame(), HISTORY, HedgeRule(), 2.15).empty
+
+
+def test_likely_range_uses_months_to_sale():
+    b = board.summarize(_forward(), HISTORY, HedgeRule(), cwt=2.0, today=date(2026, 10, 20),
+                        band=lambda months: 10.0 if months > 4 else 5.0)  # fmt: skip
+    jun = b.iloc[1]
+    assert jun["months_ahead"] > 4
+    assert jun["low_usd"] == 20 - 20 and jun["high_usd"] == 20 + 20

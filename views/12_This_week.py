@@ -46,6 +46,7 @@ from hogproj.ui import (
     mars_data,
     masthead,
     pork_cutout,
+    price_band,
     regional_data,
     rule,
     scorecard_table,
@@ -123,10 +124,13 @@ market_tone, market_why = hm.overall(sigs)
 s = sow_from_state()
 sow_m = weaned.now + s.adder_usd_per_head - cost_per_weaned_pig(s)
 
+band_today = price_band(c.days_on_feed / 30.4)
 place_txt = (
-    f"A pig placed today projects {usd(m_today)}; one is worth up to {usd(most)} at "
-    f"{contract_label(book.this_contract)} hogs."
-)
+    f"A pig placed today projects {usd(m_today)}"
+    + (f" (likely {usd(m_today - band_today * c.carcass_cwt)} to "
+       f"{usd(m_today + band_today * c.carcass_cwt)})" if band_today else "")
+    + f"; one is worth up to {usd(most)} at {contract_label(book.this_contract)} hogs."
+)  # fmt: skip
 if len(by_k):
     best_label, best_margin = str(by_k.index[0]), float(by_k.iloc[0])
     best_rank = margin_rank(best_margin, history)

@@ -52,6 +52,7 @@ from hogproj.ui import (
     mars_data,
     masthead,
     md,
+    price_band,
     prime_rate,
     projection_band,
     quote,
@@ -297,6 +298,7 @@ st.space("small")
 # --- Hero ---------------------------------------------------------------------------------
 with hero("w2f"):
     left, right = st.columns([1, 1.35], gap="large")
+    band_ = price_band(c.days_on_feed / 30.4)  # how far hogs have missed the estimate, 8 in 10
     with left:
         quote(
             "Pig placed today",
@@ -305,7 +307,12 @@ with hero("w2f"):
             f"{signed(hog - be_hog)}/cwt vs breakeven",
             tone_of(m),
             f"Better than {rank:.0f}% of placements since {first_sold:%Y} · wean-to-finish "
-            f"breakeven {usd(be_hog)}/cwt index",
+            f"breakeven {usd(be_hog)}/cwt index"
+            + (
+                f" · likely {usd(m - band_ * c.carcass_cwt)} to {usd(m + band_ * c.carcass_cwt)}"
+                if band_
+                else ""
+            ),
         )
         on_feed_avg = avg(on_feed, "margin_usd")
         stat_strip(

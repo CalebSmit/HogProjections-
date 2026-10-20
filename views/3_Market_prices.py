@@ -24,9 +24,11 @@ from hogproj.ui import (
     chart,
     chart_title,
     cold_storage,
+    crush_book,
     end_tag,
     ers_data,
     excel_button,
+    forecast_accuracy,
     hero,
     hog_index,
     hog_market,
@@ -421,6 +423,64 @@ if not wd.empty:
             "weigh USDA's price outlook with it in mind."
         )
         excel_button({"WASDE pork": wd}, "wasde_pork", "USDA WASDE pork outlook", "USDA WASDE")
+    rule()
+
+# --- How good is the app's own estimate? -------------------------------------------------------
+acc_ = forecast_accuracy()
+if len(acc_):
+    mid_ = acc_[acc_["months_ahead"].between(3, 6)]
+    miss_, better_ = float(mid_["miss"].mean()), float(mid_["better_than_no_change"].mean())
+    band_ = float(mid_["within_8_in_10"].mean())
+    chart_title(
+        f"The seasonal estimate has missed by {usd(miss_)}/cwt on average 3–6 months out, "
+        f"{better_:.0%} less than assuming prices stay put",
+        f"Lean Hog Index, $/cwt carcass · {int(acc_['n'].max())} estimates replayed from the start "
+        f"of each month since 2022 with only the data known then · 8 in 10 landed within "
+        f"{usd(band_)}",
+    )
+    left, mid, right = st.columns([1.3, 0.06, 1])
+    with left:
+        fa = go.Figure()
+        fa.add_bar(
+            x=acc_["months_ahead"],
+            y=acc_["miss_no_change"],
+            name="Assume no change",
+            marker={"color": "#cfc8b9", "cornerradius": 3},
+            hovertemplate="%{x} months ahead, no change: off by $%{y:.2f}<extra></extra>",
+        )
+        fa.add_bar(
+            x=acc_["months_ahead"],
+            y=acc_["miss"],
+            name="Seasonal estimate",
+            marker={"color": ACCENT, "cornerradius": 3},
+            hovertemplate="%{x} months ahead, seasonal: off by $%{y:.2f}<extra></extra>",
+        )
+        fa.update_xaxes(title="months ahead", dtick=1)
+        fa.update_yaxes(tickprefix="$", title="average miss")
+        fa.update_layout(barmode="group", bargap=0.3, hovermode="closest",
+                         legend={"orientation": "h", "y": 1.1, "x": 0})  # fmt: skip
+        chart(fa, 260, on=PAGE)
+    with mid:
+        st.markdown('<div class="hp-vrule" style="height:300px"></div>', unsafe_allow_html=True)
+    with right:
+        st.markdown(
+            "**What this means.** Contract prices you haven't entered come from this estimate, "
+            "and every margin is only as good as the hog price under it. A miss of "
+            f"{usd(band_)}/cwt is about {usd(band_ * crush_book().c.carcass_cwt, 0)} a pig, "
+            "so a projected margin closer to zero than that could go either way: the "
+            "**likely range** on Hedging shows it for each contract.".replace("$", r"\$")
+        )
+        st.caption(f"On average the estimate ran {usd(abs(float(mid_['bias'].mean())))}/cwt "
+                   f"{'high' if float(mid_['bias'].mean()) > 0 else 'low'} at 3–6 months, "
+                   + ("close to unbiased." if abs(float(mid_["bias"].mean())) < 2
+                      else "allow for that lean."))  # fmt: skip
+    source_note(
+        "model on USDA AMS LM_HG201",
+        "no change = the last week's index carried "
+        "forward; seasonal = the same moved by the typical month-to-month pattern",
+    )
+    excel_button({"Accuracy by months ahead": acc_}, "estimate_accuracy",
+                 "How far the seasonal hog price estimate has missed", "model")  # fmt: skip
     rule()
 
 # --- Cold storage -------------------------------------------------------------------------------
