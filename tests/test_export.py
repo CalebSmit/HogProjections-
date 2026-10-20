@@ -65,3 +65,28 @@ def test_brief_charts_write_their_data():
     assert cd["B1"].value == "Lean Hog Index, $/cwt" and cd["B6"].value == 78.0
     charts = [n for n in zipfile.ZipFile(io.BytesIO(data)).namelist() if "charts/chart" in n]
     assert len(charts) == 1
+
+
+def test_nice_header():
+    from hogproj.export import nice_header
+
+    assert nice_header("hog_usd_per_cwt") == "Hog ($/cwt)"
+    assert nice_header("margin_usd") == "Margin ($)"
+    assert nice_header("weight_lb") == "Weight (lb)"
+    assert nice_header("Already readable") == "Already readable"
+
+
+def test_section_workbook():
+    from hogproj.export import tables_xlsx
+
+    df = pd.DataFrame({"week_ending": pd.to_datetime(["2026-10-09", "2026-10-16"]),
+                       "margin_usd": [-7.5, float("nan")], "profitable": [0.4, 0.5],
+                       "label": ["Apr 2027", "Feb 2027"]})  # fmt: skip
+    data = tables_xlsx({"Placements": df}, "Crush history", START, "USDA")
+    wb = openpyxl.load_workbook(io.BytesIO(data))
+    assert wb.sheetnames == ["About", "Placements"]
+    ws = wb["Placements"]
+    assert [c.value for c in ws[1]] == ["Week ending", "Margin ($)", "Profitable", "Label"]
+    assert ws["B2"].value == -7.5 and ws["B3"].value is None  # NaN left blank
+    assert ws.freeze_panes == "A2" and ws.auto_filter.ref
+    assert ws["A2"].is_date

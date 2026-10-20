@@ -15,6 +15,7 @@ from hogproj.ui import (
     chart_title,
     crush_book,
     end_tag,
+    excel_button,
     feed_monthly,
     hero,
     iowa_corn,
@@ -145,6 +146,12 @@ with hero("sow"):
         "(USDA NASS) by month",
         "feed at Iowa prices of the time (soybean meal from 2022); non-feed at today's inputs",
     )
+    excel_button(
+        {"Weekly sow farm margin": hist},
+        "sow_farm_history",
+        "Sow farm margin by week",
+        "USDA AMS Feeder Pig Report; Iowa State structure",
+    )
 
 st.space("medium")
 
@@ -175,6 +182,12 @@ with left:
         "model on USDA prices",
         "only placements already sold; diamonds = sow farm + finishing (farrow to finish)",
     )
+    excel_button(
+        {"By year": years, "Sow farm + finishing by week": joint},
+        "finish_or_sell",
+        "Selling weaned vs finishing",
+        "model on USDA prices",
+    )
 with right:
     chart_title("Cost of a weaned pig", f"Per pig at {s.weaned_per_sow_yr:.1f} weaned/sow/year")
     t = cost_lines(s)
@@ -201,6 +214,12 @@ with right:
         f"{usd(cost - cost * s.weaned_per_sow_yr / (s.weaned_per_sow_yr + 1))} a pig."
     )
     source_note("Iowa State farrow-to-wean, Sep 2026 structure", "your inputs")
+    excel_button(
+        {"Cost of a weaned pig": t.reset_index(names="line")},
+        "sow_cost",
+        "Cost of a weaned pig",
+        "Iowa State farrow-to-wean structure",
+    )
 
 rule()
 with st.expander("Weekly history"):

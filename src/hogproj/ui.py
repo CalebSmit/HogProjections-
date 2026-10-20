@@ -1271,6 +1271,28 @@ def data_status() -> list[tuple[str, str, str]]:
     return out
 
 
+XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+
+def excel_button(frames: dict[str, pd.DataFrame], file_stem: str, title: str, source: str = "",
+                 label: str = "Excel", key: str | None = None) -> None:  # fmt: skip
+    """Small download link for one section's data as a tidy workbook. The file is built only
+    when clicked, and clicking doesn't rerun the page."""
+    from hogproj.export import tables_xlsx
+
+    st.download_button(
+        label,
+        data=lambda: tables_xlsx(frames, title, date.today(), source),
+        file_name=f"{file_stem}_{date.today():%Y-%m-%d}.xlsx",
+        mime=XLSX,
+        type="tertiary",
+        icon=":material/table_view:",
+        on_click="ignore",
+        key=key or f"xl_{file_stem}",
+        help=f"Download {title.lower()} as an Excel workbook",
+    )
+
+
 def footer_note(text: str) -> None:
     _html(f'<div class="hp-foot">{_safe(text)}</div>')
 

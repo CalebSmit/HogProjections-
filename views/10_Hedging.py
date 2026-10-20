@@ -24,6 +24,7 @@ from hogproj.ui import (
     crush_book,
     crush_workbook,
     end_tag,
+    excel_button,
     head_per_week,
     hero,
     lh_key,
@@ -179,12 +180,13 @@ with head.container():
     with action:
         st.download_button(
             "Crush workbook (Excel)",
-            crush_workbook(),
+            crush_workbook,  # built on click
             f"wean_pig_crush_{today:%Y-%m-%d}.xlsx",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             icon=":material/download:",
             width="stretch",
             help="Pigs on feed, contract prices and your hedges as a live Excel workbook.",
+            on_click="ignore",
         )
 st.space("small")
 
@@ -259,6 +261,9 @@ source_note(
     f"rank: open margin vs every placement since 2020; rule says hedge {target:.0%} at or above "
     f"the {ordinal(trigger)} percentile, otherwise wait",
 )
+excel_button({"By contract": summary, "By placement week": pos,
+              "What if hogs move": what_if(pos, [float(x) for x in range(-15, 16)])},
+             "hedging_book", "Pigs on feed, hedges and what-ifs", "model")  # fmt: skip
 
 rule()
 

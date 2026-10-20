@@ -36,6 +36,7 @@ from hogproj.ui import (
     crush_book,
     crush_workbook,
     end_tag,
+    excel_button,
     feed_default,
     feed_help,
     hero,
@@ -269,13 +270,14 @@ with head.container():
     with action:
         st.download_button(
             "Crush workbook (Excel)",
-            crush_workbook(),
+            crush_workbook,  # built on click
             f"wean_pig_crush_{today:%Y-%m-%d}.xlsx",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             icon=":material/download:",
             width="stretch",
             help="Your inputs, contract prices and hedges in a live Excel workbook: one column "
             "per placement on feed, every margin a formula.",
+            on_click="ignore",
         )
 st.space("small")
 
@@ -591,10 +593,12 @@ with st.expander("Every placement week"):
             "margin_usd": st.column_config.NumberColumn("Margin", format="dollar"),
         },
     )
-    st.download_button(
-        "Download CSV",
-        rows.to_csv(index=False),
-        "wean_to_finish_placements.csv",
-        "text/csv",
-        icon=":material/download:",
-    )
+    excel_button(
+        {"Every placement week": rows, **({"Placing ahead": book.forward}
+         if book.forward is not None else {}),
+         "Pig seasonality": pig_seasonality(pigs).rename("vs year average").rename_axis(
+             "ISO week").reset_index(),
+         "Cost per pig": cost_table(c).reset_index(names="line")},
+        "wean_to_finish", "Wean to finish placements", "USDA AMS Feeder Pig Report, LM_HG201",
+        label="Download all of it (Excel)",
+    )  # fmt: skip

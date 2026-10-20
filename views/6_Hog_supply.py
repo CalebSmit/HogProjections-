@@ -17,6 +17,7 @@ from hogproj.ui import (
     chip,
     current_plan,
     end_tag,
+    excel_button,
     hero,
     masthead,
     nass_data,
@@ -185,6 +186,8 @@ with right:
     source_note("USDA NASS; your born alive × (1 − pre-wean mortality)")
 
 rule()
+excel_button({"Supply outlook": out, "Hogs and Pigs history": df}, "hog_supply",
+             "USDA Hogs and Pigs supply outlook", "USDA NASS Quick Stats")  # fmt: skip
 with st.expander("Supply outlook table"):
     table = out.assign(
         window=[f"{r['start']:%b %d, %Y} – {r['end']:%b %d, %Y}" for _, r in out.iterrows()]

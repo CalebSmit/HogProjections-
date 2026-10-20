@@ -3,6 +3,7 @@
 from datetime import date
 
 import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -19,6 +20,7 @@ from hogproj.ui import (
     chart_title,
     current_plan,
     end_tag,
+    excel_button,
     hero,
     hog_index,
     masthead,
@@ -242,4 +244,18 @@ source_note(
     f"{risk.n_paths:,} simulated years, fixed seed so results don't change between visits",
     "the floor pays (floor − price) on every cwt sold in a week below it; real LRP pays on an "
     "ending value, so use your actual quote for the premium",
+)
+sims = {"profit": out["profit"]}
+if "profit_with_floor" in out:
+    sims["profit_with_floor"] = out["profit_with_floor"]
+excel_button(
+    {
+        "Outcome summary": pd.DataFrame(
+            [{"case": "without floor", **plain}, {"case": "with floor", **shown}]
+        ),
+        "Simulated years": pd.DataFrame(sims),
+    },
+    "risk",
+    "Simulated profit range",
+    "model (fitted to USDA LM_HG201)",
 )

@@ -29,6 +29,7 @@ from hogproj.ui import (
     chip,
     current_plan,
     end_tag,
+    excel_button,
     feed_default,
     feed_help,
     hero,
@@ -160,6 +161,7 @@ actions.download_button(
     icon=":material/download:",
     help="Excel workbook: summary, assumptions, 24-month outlook with chart, costs, weekly detail.",
     width="stretch",
+    on_click="ignore",
 )
 
 # --- Hero: quote, stat strip, signature chart -------------------------------------------
@@ -342,6 +344,8 @@ with right:
     tor.update_layout(barmode="overlay", hovermode="closest", bargap=0.42)
     chart(tor, 290, on=PAGE)
     source_note("model projection", "each bar is one input moved by a typical amount")
+    excel_button({"Monthly profit": months, "What moves it most": d, "Weekly projection": r},
+                 "farm_outlook", "Farm outlook projection", "model")  # fmt: skip
 
 rule()
 

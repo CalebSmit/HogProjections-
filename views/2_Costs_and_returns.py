@@ -28,6 +28,7 @@ from hogproj.ui import (
     chart,
     chart_title,
     end_tag,
+    excel_button,
     feed_default,
     feed_help,
     herd_from_state,
@@ -386,10 +387,7 @@ with st.expander("Cost table and weekly detail"):
             "margin_usd": st.column_config.NumberColumn("Profit", format="dollar"),
         },
     )
-    st.download_button(
-        "Download weekly CSV",
-        r.to_csv(index=False),
-        "returns.csv",
-        "text/csv",
-        icon=":material/download:",
-    )
+    excel_button({"Cost per pig": t.reset_index(names="line"), "Weekly returns": r},
+                 "costs_and_returns", "Cost per pig and weekly returns",
+                 "Iowa State Estimated Livestock Returns structure; model",
+                 label="Download costs and weekly returns (Excel)")  # fmt: skip

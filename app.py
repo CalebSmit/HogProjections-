@@ -117,7 +117,7 @@ with st.sidebar:  # after the page so it sits below the page's own inputs
         "application/json",
         help="Download every number you've entered, to reload later or send to someone.",
         width="stretch",
-    )  # fmt: skip
+    on_click="ignore")  # fmt: skip
     st.file_uploader(
         "Load inputs",
         type=["json"],

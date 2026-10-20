@@ -19,6 +19,7 @@ from hogproj.ui import (
     chart,
     chart_title,
     current_plan,
+    excel_button,
     hero,
     hog_index,
     masthead,
@@ -251,3 +252,5 @@ source_note(
     "weeks; productivity and price changes apply immediately; feed scales with market weight; "
     "sow costs per pig fall as sows wean more pigs",
 )
+excel_button({"Scenario totals": table_df, "Running total by week": cum}, "scenarios",
+             "Scenario comparison", "model")  # fmt: skip

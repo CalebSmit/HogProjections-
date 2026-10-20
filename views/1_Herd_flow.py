@@ -17,6 +17,7 @@ from hogproj.ui import (
     chart,
     chart_title,
     end_tag,
+    excel_button,
     hero,
     masthead,
     nass_data,
@@ -251,10 +252,5 @@ with st.expander("Weekly detail"):
             "growing_inventory_head": st.column_config.NumberColumn("On feed", format="%,.0f"),
         },
     )
-    st.download_button(
-        "Download CSV",
-        df.to_csv(index=False),
-        "herd_flow.csv",
-        "text/csv",
-        icon=":material/download:",
-    )
+    excel_button({"Weekly herd flow": df}, "herd_flow", "Herd flow by week", "model",
+                 label="Download weekly herd flow (Excel)")  # fmt: skip

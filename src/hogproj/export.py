@@ -3,6 +3,7 @@
 import io
 from datetime import date, datetime
 
+import numpy as np
 import pandas as pd
 import xlsxwriter
 
@@ -284,5 +285,82 @@ def build_brief(
                     t.write_blank(i, j, None)
                 else:
                     t.write(i, j, v)
+    wb.close()
+    return buf.getvalue()
+
+
+# --- Any section of the dashboard as a tidy workbook -----------------------------------------
+_UNITS = (("_usd_per_cwt_carcass", " ($/cwt carcass)"), ("_usd_per_cwt_live", " ($/cwt live)"),
+          ("_usd_per_cwt", " ($/cwt)"), ("_usd_per_head", " ($/head)"),
+          ("_usd_per_bu", " ($/bu)"), ("_usd_per_ton", " ($/ton)"),
+          ("_usd_per_sow_yr", " ($/sow/yr)"),
+          ("_usd_per_weaned_pig", " ($/weaned pig)"), ("_usd", " ($)"), ("_lb", " (lb)"),
+          ("_mlb", " (million lb)"), ("_pct", " (%)"))  # fmt: skip
+
+
+def nice_header(col: object) -> str:
+    """snake_case column -> 'Sentence case (unit)'. Already-readable names pass through."""
+    s = str(col)
+    if " " in s or s[:1].isupper():
+        return s
+    unit = ""
+    for suffix, u in _UNITS:
+        if s.endswith(suffix):
+            s, unit = s[: -len(suffix)], u
+            break
+    words = s.replace("_", " ").strip()
+    return (words[:1].upper() + words[1:] if words else s) + unit
+
+
+def tables_xlsx(frames: dict[str, pd.DataFrame], title: str, as_of: date,
+                source: str = "") -> bytes:  # fmt: skip
+    """One sheet per table with readable headers, number formats, frozen header row, filters
+    and widths; a small About sheet says what it is and where it came from."""
+    buf = io.BytesIO()
+    wb = xlsxwriter.Workbook(buf, {"in_memory": True, "nan_inf_to_errors": True})
+    head = wb.add_format({"bold": True, "bg_color": GREEN, "font_color": "white", "border": 1,
+                          "border_color": GRID, "text_wrap": True, "valign": "top"})  # fmt: skip
+    fmt = {
+        "usd": wb.add_format({"num_format": "$#,##0.00;[Red]-$#,##0.00"}),
+        "pct": wb.add_format({"num_format": "0.0%"}),
+        "num": wb.add_format({"num_format": "#,##0.##"}),
+        "date": wb.add_format({"num_format": "mmm d, yyyy"}),
+    }
+    about = wb.add_worksheet("About")
+    about.set_column(0, 0, 100)
+    about.write(0, 0, title, wb.add_format({"bold": True, "font_size": 14}))
+    who = get_settings().prepared_by.strip()
+    about.write(1, 0, f"Hog Projections · {as_of:%B %d, %Y}{' · ' + who if who else ''}")
+    if source:
+        about.write(2, 0, f"Source: {source}")
+    about.write(3, 0, "Projections are planning estimates, not financial advice.")
+    for i, name in enumerate(frames, start=5):
+        about.write(i, 0, f"• {name}")
+    for name, df in frames.items():
+        ws = wb.add_worksheet(name[:31])
+        df = df.reset_index(drop=True)
+        for j, col in enumerate(df.columns):
+            label = nice_header(col)
+            ws.write(0, j, label, head)
+            s = df[col]
+            kind = ("date" if pd.api.types.is_datetime64_any_dtype(s) else
+                    "pct" if any(k in str(col) for k in ("share", "profitable", "_pct", "yoy")) else
+                    "usd" if ("usd" in str(col) or "$" in label) else
+                    "num" if pd.api.types.is_numeric_dtype(s) else None)  # fmt: skip
+            ws.set_column(j, j, min(max(len(label), 11) + 2, 30), fmt.get(kind or ""))
+            for i, v in enumerate(s.tolist(), start=1):
+                if v is None or (isinstance(v, float) and np.isnan(v)):
+                    continue
+                if kind == "date":
+                    ws.write_datetime(i, j, _dt(v), fmt["date"])
+                elif isinstance(v, (int, float, np.integer, np.floating)) and not isinstance(
+                    v, bool
+                ):
+                    ws.write_number(i, j, float(v))
+                else:
+                    ws.write(i, j, str(v))
+        ws.freeze_panes(1, 0)
+        if len(df.columns):
+            ws.autofilter(0, 0, max(len(df), 1), len(df.columns) - 1)
     wb.close()
     return buf.getvalue()

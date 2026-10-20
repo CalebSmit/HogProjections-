@@ -22,6 +22,7 @@ from hogproj.ui import (
     chart_title,
     cold_storage,
     end_tag,
+    excel_button,
     hero,
     hog_index,
     hog_market,
@@ -152,6 +153,12 @@ with hero():
         "Pigs (supply)",
         "index matched CME's published value to the cent on Oct 12, 2026",
     )
+    excel_button(
+        {"Lean Hog Index": idx, "Signals": pd.DataFrame([vars(x) for x in sigs])},
+        "lean_hog_index",
+        "Lean Hog Index and market signals",
+        "USDA AMS LM_HG201",
+    )
 
 st.space("medium")
 
@@ -212,6 +219,8 @@ with right:
     sf.update_layout(showlegend=False, bargap=0.15, hovermode="closest")
     chart(sf, 290, on=PAGE)
     source_note("model on USDA LMR", "green: top 25% since 2020, red: bottom 25%")
+    excel_button({"Daily": d, "Weekly": w}, "hog_market", "Cutout, packer spread, slaughter and "
+                 "weights", "USDA AMS LM_HG201, LM_PK602")  # fmt: skip
 
 rule()
 
@@ -347,6 +356,7 @@ if not wd.empty:
         fp.update_layout(showlegend=False, bargap=0.35, hovermode="closest")
         chart(fp, 260, on=PAGE)
         source_note("USDA WASDE", "red: more pork than a year earlier (bearish), green: less")
+        excel_button({"WASDE pork": wd}, "wasde_pork", "USDA WASDE pork outlook", "USDA WASDE")
     rule()
 
 # --- Cold storage -------------------------------------------------------------------------------
@@ -390,6 +400,8 @@ if stor is not None:
         chart(fs, 260, on=PAGE)
         source_note("USDA ERS (NASS Cold Storage)" + (" (live)" if cs_source == "live" else
                     " (saved)"), "dotted: 5-year average")  # fmt: skip
+        excel_button({"Pork in cold storage": cs}, "cold_storage", "Pork in cold storage",
+                     "USDA ERS")  # fmt: skip
     with mid:
         st.markdown('<div class="hp-vrule" style="height:340px"></div>', unsafe_allow_html=True)
     with right:
@@ -445,9 +457,5 @@ with right:
         emphasis_col=0,
     )  # fmt: skip
     source_note("USDA AMS LM_PK602", "change vs a week and a year earlier")
-
-with st.expander("Download the data"):
-    st.download_button("Daily market table (CSV)", d.to_csv(index=False), "hog_market_daily.csv",
-                       "text/csv", icon=":material/download:")  # fmt: skip
-    st.download_button("Weekly market table (CSV)", w.to_csv(index=False), "hog_market_weekly.csv",
-                       "text/csv", icon=":material/download:")  # fmt: skip
+    excel_button({"Cutout and primals": cut_raw}, "pork_cutout", "Pork cutout and primal values",
+                 "USDA AMS LM_PK602")  # fmt: skip

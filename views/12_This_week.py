@@ -18,6 +18,7 @@ from hogproj.ui import (
     Tone,
     chart_title,
     crush_book,
+    excel_button,
     feed_prices,
     hero,
     hog_index,
@@ -146,7 +147,7 @@ action = masthead(
 )
 with action:
     sold_rows = book.rows[book.rows["status"] == "sold"]
-    brief = build_brief(
+    brief = lambda: build_brief(  # noqa: E731 - built on click
         today,
         headline_txt,
         [(mv.name.replace("The ", ""), mv.now, mv.week_change, mv.year_pct, "$" + mv.unit)
@@ -175,6 +176,7 @@ with action:
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         icon=":material/download:",
         width="stretch",
+        on_click="ignore",
     )
 
 st.space("small")
@@ -198,6 +200,14 @@ with hero("week"):
         "USDA AMS LM_HG201, LM_PK602, Feeder Pig Report, Iowa Daily Cash Grain Bids",
         "week = latest vs a week earlier; year = vs the same time last year",
     )
+    excel_button(
+        {"This week": pd.DataFrame([{"measure": mv.name.replace("The ", ""), "latest": mv.now,
+                                     "as_of": mv.as_of, "week_change": mv.week_change,
+                                     "year_change_pct": mv.year_pct, "unit": "$" + mv.unit}
+                                    for mv in moves]),
+         "Market signals": pd.DataFrame([vars(x) for x in sigs])},
+        "this_week", "This week's numbers and signals", "USDA AMS",
+    )  # fmt: skip
 
 st.space("medium")
 chart_title("Decisions this week", "Each card links to the page with the detail")

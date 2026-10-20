@@ -1,9 +1,6 @@
 """Market archive: the weekly record since 2020 — every series in one table, by year."""
 
-import io
-
 import numpy as np
-import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -19,6 +16,7 @@ from hogproj.ui import (
     chart_title,
     crush_book,
     end_tag,
+    excel_button,
     hero,
     hog_market,
     iowa_corn,
@@ -140,16 +138,13 @@ with right:
     view = w if year_pick in (None, "All") else w[w["week_ending"].dt.year == int(year_pick)]
     named = view.rename(columns={c: f"{n} ({u})" for c, (n, u) in archive.COLUMNS.items()})
     st.download_button("CSV", named.to_csv(index=False), "hog_market_archive.csv", "text/csv",
-                       icon=":material/download:", width="stretch")  # fmt: skip
-    buf = io.BytesIO()
-    with pd.ExcelWriter(buf, engine="xlsxwriter") as xl:
-        named.to_excel(xl, sheet_name="Weekly", index=False)
-        a.rename(columns={c: f"{n} ({u})" for c, (n, u) in archive.COLUMNS.items()}).to_excel(
-            xl, sheet_name="By year", index=False
-        )
-    st.download_button("Excel (weekly + by year)", buf.getvalue(), "hog_market_archive.xlsx",
-                       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                       icon=":material/download:", width="stretch")  # fmt: skip
+                       icon=":material/download:", width="stretch", on_click="ignore")  # fmt: skip
+    excel_button(
+        {"Weekly": named,
+         "By year": a.rename(columns={c: f"{n} ({u})" for c, (n, u) in archive.COLUMNS.items()})},
+        "hog_market_archive", "Market archive, weekly and by year",
+        "USDA AMS, NASS, ERS", label="Excel (weekly + by year)",
+    )  # fmt: skip
     st.caption(
         "Crush margin is the realized margin of pigs placed that week at your Wean to finish "
         "inputs; corn is the monthly Iowa price, repeated for each week of the month."

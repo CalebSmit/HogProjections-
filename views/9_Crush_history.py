@@ -20,6 +20,7 @@ from hogproj.ui import (
     chip,
     crush_book,
     end_tag,
+    excel_button,
     hero,
     masthead,
     quote,
@@ -243,10 +244,9 @@ page. **Worth** is the pig price at which that placement would have broken even:
 margin. Change any input on Wean to finish and this history updates.
 """
     )
-    st.download_button(
-        "Download every placement (CSV)",
-        sold.to_csv(index=False),
-        "crush_history.csv",
-        "text/csv",
-        icon=":material/download:",
-    )
+    excel_button(
+        {"Every placement": sold, "By year": annual_summary(rows),
+         "By month placed": by_month(rows).reset_index()},
+        "crush_history", "Crush history", "USDA AMS Feeder Pig Report, LM_HG201, Iowa feed prices",
+        label="Download every placement (Excel)",
+    )  # fmt: skip

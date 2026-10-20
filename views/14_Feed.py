@@ -16,6 +16,7 @@ from hogproj.ui import (
     corn_curve,
     crush_book,
     end_tag,
+    excel_button,
     feed_monthly,
     feed_prices,
     hero,
@@ -162,6 +163,22 @@ with hero("feed"):
         "same report)" + ("" if fd_source == "live" else " · saved"),
         "the curve is what the futures market prices corn at, delivered to you at today's basis",
     )
+    excel_button(
+        {
+            "Iowa corn daily": fd[fd["item"].isin(["corn_cash_iowa", "corn_basis_iowa"])]
+            .pivot_table(index="date", columns="item", values="value")
+            .reset_index(),
+            "CBOT corn curve": pd.DataFrame(
+                [
+                    {"contract": f"{m:02d}/{y}", "usd_per_bu": v}
+                    for (y, m), v in sorted(curve.items())
+                ]
+            ),
+        },
+        "iowa_corn",
+        "Iowa cash corn, basis and the CBOT curve",
+        "USDA AMS Iowa Daily Cash Grain Bids",
+    )
 
 st.space("medium")
 
@@ -247,6 +264,15 @@ with right:
         fs.update_layout(showlegend=False, margin={"l": 4, "r": 60, "t": 8, "b": 4})
         chart(fs, 280, on=PAGE)
         source_note("USDA AMS National Grain and Oilseed Processor Feedstuff Report (Iowa)")
+        excel_button(
+            {
+                "Soybean meal": sbm.rename(columns={"v": "usd_per_ton"}),
+                "DDGS": ddgs.rename(columns={"v": "usd_per_ton"}),
+            },
+            "iowa_feedstuffs",
+            "Iowa soybean meal and DDGS",
+            "USDA AMS 3511",
+        )
 
 rule()
 # What feed has cost per pig: your ration at each month's Iowa prices.
@@ -286,4 +312,10 @@ if len(cm):
         "model on USDA Iowa prices",
         "soybean meal and DDGS before Feb 2022 at today's "
         "inputs; change the ration on Wean to finish",
+    )
+    excel_button(
+        {"Feed cost per pig by month": m},
+        "feed_cost_per_pig",
+        "Feed cost per pig",
+        "model on USDA Iowa prices",
     )
