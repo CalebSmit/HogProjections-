@@ -25,6 +25,7 @@ from hogproj.ui import (
     crush_workbook,
     end_tag,
     excel_button,
+    futures_upload,
     head_per_week,
     hero,
     lh_key,
@@ -77,6 +78,7 @@ with assumption_bar("hedge"):
             "Lean hog futures, $/cwt. Shared with Wean to finish. Enter the latest settlements "
             "and their date; prices older than three business days are flagged."
         )
+        futures_upload()
         st.date_input("Prices as of", value=None, key="w2f_asof", format="MM/DD/YYYY")
         cols = st.columns(2)
         for i, k in enumerate(feed_contracts):

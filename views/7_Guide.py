@@ -51,7 +51,7 @@ def glossary(items: list[tuple[str, str]]) -> None:
 
 left, mid, right = st.columns([1, 0.06, 1.15])
 with left:
-    chart_title("Set it up in three steps", "About five minutes")
+    chart_title("Set it up", "About five minutes")
     steps(
         [
             (
@@ -69,6 +69,11 @@ with left:
                 "Start each week on This week",
                 "It shows what moved and four decisions with links to the detail: placing pigs, "
                 "hedging, the hog market and the sow farm. Farm outlook projects the year.",
+            ),
+            (
+                "Bring in futures",
+                "Export a quote board from Barchart or DTN and drop it into Hog prices on Wean "
+                "to finish (or Contract prices on Hedging). Every lean hog contract fills in.",
             ),
             (
                 "Save your setup",

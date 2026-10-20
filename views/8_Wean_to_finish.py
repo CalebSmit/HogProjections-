@@ -39,6 +39,7 @@ from hogproj.ui import (
     excel_button,
     feed_default,
     feed_help,
+    futures_upload,
     hero,
     hog_index,
     iowa_corn,
@@ -121,6 +122,7 @@ with assumption_bar("w2f"):
         )
     hog_label = usd(cur(lh_key(this_contract), model.get(this_contract, index_now)))
     with st.popover(md(f"Hog prices · {contract_label(this_contract)} {hog_label}")):
+        futures_upload()
         st.segmented_control(
             "Prices you haven't entered come from",
             ["Seasonal estimate", "USDA outlook"],
