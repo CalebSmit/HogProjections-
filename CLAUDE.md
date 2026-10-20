@@ -79,3 +79,17 @@ Longer write-ups go in `docs/PROGRESS.md`.
   like "IBM Plex Sans". Screenshot audits need a tall viewport (Streamlit scrolls internally).
 - usda.gov, iastate.edu and cmegroup.com may be blocked from cloud sandboxes. Build API clients
   against recorded fixtures in `tests/fixtures/` and verify live calls on a real machine.
+- Pyright must not infer pandas types from its source (`useLibraryCodeForTypes = false`): the
+  inference was order-dependent, so adding an unrelated module flipped errors in old files.
+- With 14+ pages `st.navigation` hides some behind "View N more"; keep `expanded=True`.
+- Column dividers must be the `.hp-vrule` class (hidden under 640 px). Inline-style dividers
+  became 400 px empty gaps on phones, and attribute selectors don't match Streamlit's markup.
+- USDA PDFs (feeder pigs, Iowa grain, feedstuffs) only hold the latest issue; parse by token
+  type, not column position, and let the cache build history. Save the extracted text as a
+  fixture whenever a parser changes.
+- Weekly series line up on week ending Friday; placements are the Monday before (−4 days).
+  Year-ago comparisons use 364 days so weekdays match.
+- A % change across zero (margins) is meaningless: show the $ change instead.
+- Run `scripts/screenshots.py` (all pages × 1440/390 px) before every commit that touches views.
+- Never put Pipestone's internal numbers or licensed futures data in the public repo; they live
+  in the git-ignored `reference/` folder (incl. a loadable setup JSON).
