@@ -47,7 +47,8 @@ last52 = m[placed.to_numpy() >= np.datetime64(last - pd.DateOffset(weeks=52))]
 gap = float(worth.mean() - paid.mean())
 
 masthead(
-    f"Since {first:%Y}, a wean-to-finish pig has made {usd(float(m.mean()))} on average.",
+    f"Since {first:%Y}, a wean-to-finish pig has {'made' if m.mean() >= 0 else 'lost'} "
+    f"{usd(abs(float(m.mean())))} on average.",
     f"Across {len(sold)} weeks of USDA weaned pigs placed {first:%b %Y} to {last:%b %Y}, "
     f"{(m > 0).mean():.0%} made money. Pigs placed in {best_month} did best "
     f"({usd(float(months[best_month]))} a head); {worst_month} placements did worst "

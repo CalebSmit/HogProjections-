@@ -919,6 +919,32 @@ def page_footer() -> None:
     )
 
 
+def data_status() -> list[tuple[str, str, str]]:
+    """(source, latest date, live/saved) for every dataset the app reads."""
+    out: list[tuple[str, str, str]] = []
+
+    def add(name: str, when: object, source: str) -> None:
+        ts = pd.Timestamp(str(when))
+        out.append((name, f"{ts:%b %d, %Y}", "live" if source == "live" else "saved"))
+
+    idx, s1, _ = hog_index()
+    add("Lean Hog Index", idx["index_date"].max(), s1)
+    cut, s2, _ = pork_cutout()
+    add("Pork cutout", cut["date"].max(), s2)
+    pigs, s3, _ = weaned_pigs()
+    add("Weaned pigs", pigs["week_ending"].max(), s3)
+    fd, s4, _ = feed_prices()
+    for item, label in (("corn_cash_iowa", "Iowa cash corn"), ("sbm_iowa", "Soybean meal")):
+        got = feed.latest(fd, item)
+        if got:
+            add(label, got[1], s4)
+    nd, s5, _ = nass_data()
+    if not nd.empty:
+        inv = nd[(nd["series"] == "all_hogs") & (nd["kind"] == "actual")]
+        add("Hogs and Pigs", inv["period_start"].max(), s5)
+    return out
+
+
 def footer_note(text: str) -> None:
     _html(f'<div class="hp-foot">{_safe(text)}</div>')
 

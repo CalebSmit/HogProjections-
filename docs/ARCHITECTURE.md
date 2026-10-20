@@ -52,6 +52,14 @@ flowchart LR
 | `src/hogproj/data/nass.py` | NASS Quick Stats client (Hogs and Pigs + Iowa corn price received); key never logged; live → cache → sample | done |
 | `src/hogproj/data/feeder.py` | USDA National Direct Feeder Pig Report (AMS_2810) public PDF parser; weekly early weaned cash composite; sample (Oct 2020 on) + cache keep history | done |
 | `src/hogproj/crush.py` | Wean-to-finish margin: CME contract mapping (10th business day expiry), breakevens, margin by placement week (sold at index / on feed at futures) | done |
+| `src/hogproj/data/lmr.py` | Generic incremental LMR loader (spec: slug, section, fields); pork cutout LM_PK602 since 2020 | done |
+| `src/hogproj/data/feed.py` | Public AMS PDFs: Iowa cash corn + CBOT corn (2850), Iowa SBM and DDGS (3511); history accumulates in cache | done |
+| `src/hogproj/hogmarket.py` | Daily/weekly market table (index, cutout, packer spread, slaughter, weights), year-ago comparisons, rule-based signals | done |
+| `src/hogproj/book.py` | Hedging book: positions on feed, hog/corn/SBM hedges, locked vs open, exposure, what-if, user hedge rule | done |
+| `src/hogproj/sowfarm.py` | Farrow-to-wean cost per weaned pig (ISU Sep 2026 calibration), sow margin history, integrated sow + finishing | done |
+| `src/hogproj/brief.py` | Weekly moves, movers in words, calendar of contract expiries and report days | done |
+| `src/hogproj/archive.py` | Weekly record since 2020 joining every series; yearly averages | done |
+| `scripts/screenshots.py` | Every page at 1440 and 390 px via Playwright (installed Edge/Chrome) for phase reviews | done |
 | `src/hogproj/supply.py` | Forward supply outlook from weight classes, pig crop and farrowing intentions | done |
 | `src/hogproj/markets.py` | Lean Hog Index from HG201, monthly seasonal factors | done |
 | `src/hogproj/outlook.py` | Whole-farm `Plan` (herd + cost + price path): projection, 12-month summary, monthly rollup, profit drivers | done |
