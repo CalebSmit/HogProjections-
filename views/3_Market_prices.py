@@ -74,8 +74,14 @@ last_year = values[(dates >= latest_date - pd.Timedelta(days=365)).to_numpy()]
 supply_pct = supply.next_six_months(nass_data()[0])["pct"]
 sigs = market_signals()
 tone, why = hm.overall(sigs)
-good = [s.name.lower() for s in sigs if s.tone == "good"]
-bad = [s.name.lower() for s in sigs if s.tone == "bad"]
+
+
+def _mid(name: str) -> str:  # signal name mid-sentence; acronyms keep their capitals
+    return name[0].lower() + name[1:] if not name.startswith("USDA") else name
+
+
+good = [_mid(s.name) for s in sigs if s.tone == "good"]
+bad = [_mid(s.name) for s in sigs if s.tone == "bad"]
 
 
 def joined(items: list[str]) -> str:
@@ -85,7 +91,10 @@ def joined(items: list[str]) -> str:
 lead = {
     "good": "The market behind hog prices looks supportive.",
     "bad": "The market behind hog prices looks soft.",
-    "neutral": "Signals behind hog prices are mixed.",
+    "neutral": (
+        f"Signals behind hog prices are mixed: {len(good)} for, {len(bad)} against, "
+        "no clear push either way."
+    ),
 }[tone]
 detail = []
 if bad:
