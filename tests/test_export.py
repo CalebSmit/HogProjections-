@@ -50,3 +50,18 @@ def test_brief_workbook_has_every_section():
     assert "Lean Hog Index" in cells and 73.40 in cells
     assert "A pig placed today projects -$7.38." in cells
     assert wb["By year"]["B3"].value is None  # NaN written blank
+
+
+def test_brief_charts_write_their_data():
+    import zipfile
+
+    from hogproj.export import build_brief
+
+    series = pd.DataFrame({"date": pd.date_range("2026-01-02", periods=5, freq="W-FRI"),
+                           "value": [80.0, 81.0, 82.5, 79.0, 78.0]})  # fmt: skip
+    data = build_brief(START, "x", [], [], {}, charts={"Lean Hog Index, $/cwt": series})
+    wb = openpyxl.load_workbook(io.BytesIO(data))
+    cd = wb["Chart data"]
+    assert cd["B1"].value == "Lean Hog Index, $/cwt" and cd["B6"].value == 78.0
+    charts = [n for n in zipfile.ZipFile(io.BytesIO(data)).namelist() if "charts/chart" in n]
+    assert len(charts) == 1

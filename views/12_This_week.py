@@ -64,6 +64,14 @@ if corn.year_ago is None and not corn_m.empty:  # a year of daily bids builds up
                     float(same["usd_per_bu"].iloc[0]), corn.as_of)  # fmt: skip
 moves = [hogs, cutout, weaned, corn]
 
+
+def weekly_series(dates: pd.Series, values: pd.Series, weeks: int = 52) -> pd.DataFrame:
+    """Last `weeks` weeks of a series as weekly (Friday) averages, for the brief's charts."""
+    x = pd.Series(values.to_numpy(dtype=float), index=pd.to_datetime(dates)).sort_index()
+    w = x.resample("W-FRI").mean().dropna().tail(weeks)
+    return pd.DataFrame({"date": w.index, "value": w.to_numpy()})
+
+
 # --- Decisions --------------------------------------------------------------------------------
 book = crush_book()
 c = book.c
@@ -148,6 +156,13 @@ with action:
             "Market signals": pd.DataFrame([{"signal": x.name, "value": x.value, "read": x.read,
                                              "rule": x.rule} for x in sigs]),
             "Crush history by year": annual_summary(book.rows),
+        },
+        charts={
+            "Lean Hog Index, $/cwt": weekly_series(idx["index_date"],
+                                                    idx["lean_hog_index_usd_per_cwt_carcass"]),
+            "Pork cutout, $/cwt": weekly_series(cut["date"], cut["carcass"]),
+            "Weaned pigs, $/head": weekly_series(pigs["week_ending"], pigs["cash_usd_per_head"]),
+            "Iowa cash corn, $/bu": weekly_series(cc["date"], cc["value"]),
         },
     )  # fmt: skip
     st.download_button(

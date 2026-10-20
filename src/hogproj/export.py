@@ -191,11 +191,14 @@ def build_brief(
     numbers: list[tuple[str, float, float | None, float | None, str]],
     decisions: list[tuple[str, str]],
     tables: dict[str, pd.DataFrame],
+    charts: dict[str, pd.DataFrame] | None = None,
 ) -> bytes:
     """The weekly brief as a workbook: a "Brief" sheet (headline, numbers with week and year
     change, decisions in words) and one sheet per table. Built for emailing or printing.
 
     `numbers`: (name, value, week change, year change as a fraction, unit).
+    `charts`: title -> frame of (date, value); each becomes a line chart on the Brief sheet,
+    its data on a "Chart data" sheet.
     """
     buf = io.BytesIO()
     wb = xlsxwriter.Workbook(buf, {"in_memory": True})
@@ -238,6 +241,33 @@ def build_brief(
         ws.set_row(r, 32)
         ws.write(r, 0, name, bold)
         ws.merge_range(r, 1, r, 4, sentence, cell)
+
+    if charts:
+        cd = wb.add_worksheet("Chart data")
+        day = wb.add_format({"num_format": "mmm d, yyyy"})
+        col, slot = 0, 0
+        for name, frame in charts.items():
+            frame = frame.dropna()
+            if frame.empty:
+                continue
+            cd.write(0, col, "Date", head)
+            cd.write(0, col + 1, name, head)
+            for i, (d0, v) in enumerate(zip(frame.iloc[:, 0], frame.iloc[:, 1], strict=True), 1):
+                cd.write_datetime(i, col, _dt(d0), day)
+                cd.write_number(i, col + 1, float(v))
+            ch = wb.add_chart({"type": "line"})
+            assert ch is not None
+            ch.add_series({"name": name, "categories": ["Chart data", 1, col, len(frame), col],
+                           "values": ["Chart data", 1, col + 1, len(frame), col + 1],
+                           "line": {"color": GREEN, "width": 2}})  # fmt: skip
+            ch.set_title({"name": name, "name_font": {"size": 11}})
+            ch.set_legend({"none": True})
+            ch.set_x_axis({"num_format": "mmm yy", "date_axis": True})
+            ch.set_y_axis({"num_format": "$#,##0", "major_gridlines": {"visible": True,
+                           "line": {"color": GRID}}})  # fmt: skip
+            ch.set_size({"width": 470, "height": 250})
+            ws.insert_chart(r + 2 + (slot // 2) * 13, (slot % 2) * 3, ch)
+            col, slot = col + 3, slot + 1
 
     for sheet, df in tables.items():
         t = wb.add_worksheet(sheet[:31])
