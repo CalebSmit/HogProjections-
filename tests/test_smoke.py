@@ -148,3 +148,20 @@ def test_usda_outlook_price_source_changes_the_answer():
     assert not at.exception
     assert at.title[0].value != before
     assert "usda outlook" in " ".join(m.value for m in at.markdown).lower()
+
+
+def test_this_week_explains_change_since_last_snapshot(tmp_path, monkeypatch):
+    from datetime import date, timedelta
+
+    from hogproj import snapshots
+
+    monkeypatch.setattr(snapshots, "CACHE_DIR", tmp_path)
+    snapshots.record(date.today() - timedelta(days=7),
+                     {"index": 80.0, "cutout": 85.0, "weaned_pig": 25.0, "corn": 4.5,
+                      "hog_contract": 75.0, "margin_today": 1.0, "most_pay": 26.0,
+                      "sow_margin": -20.0, "on_feed_margin": -30.0, "market_score": 1,
+                      "cwt": 2.175, "corn_lb": 500.0}, tmp_path)  # fmt: skip
+    at = app()
+    assert not at.exception
+    text = " ".join(m.value for m in at.markdown)
+    assert "since" in text and "A pig placed today projects" in text

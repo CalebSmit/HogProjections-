@@ -3,19 +3,25 @@
 from datetime import date
 
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
 from hogproj import hogmarket as hm
-from hogproj import supply
+from hogproj import snapshots, supply
 from hogproj.book import hedge_rule
 from hogproj.brief import QUARTERLY_REPORTS, Move, calendar, move, movers
+from hogproj.config import get_settings
 from hogproj.crush import annual_summary, breakeven_pig, contract_label, margin_rank, margin_usd
 from hogproj.data import feed
 from hogproj.export import build_brief
 from hogproj.sowfarm import cost_per_weaned_pig
 from hogproj.text import ordinal
 from hogproj.ui import (
+    NEG,
+    PAGE,
+    POS,
     Tone,
+    chart,
     chart_title,
     crush_book,
     excel_button,
@@ -210,6 +216,66 @@ with hero("week"):
     )  # fmt: skip
 
 st.space("medium")
+
+# --- Since last week --------------------------------------------------------------------------
+snap_now = {
+    "index": hogs.now, "cutout": cutout.now, "weaned_pig": c.pig_usd_per_head,
+    "corn": c.corn_usd_per_bu, "hog_contract": book.hog, "margin_today": m_today,
+    "most_pay": most, "sow_margin": sow_m,
+    "on_feed_margin": float(on_feed["margin_usd"].mean()) if len(on_feed) else float("nan"),
+    "market_score": sum(1 if x.tone == "good" else -1 if x.tone == "bad" else 0 for x in sigs),
+    "cwt": c.carcass_cwt, "corn_lb": c.corn_lb,
+}  # fmt: skip
+before = snapshots.previous(today)
+if not get_settings().offline:  # tests and offline use don't write the record
+    snapshots.record(today, snap_now)
+chart_title("Since last week", "What this page said a week ago, and why it moved")
+if before is None:
+    st.caption(
+        "The app keeps a snapshot of these numbers each day this page is opened. From next week, "
+        "this section shows what changed and why."
+    )
+else:
+    then = pd.Timestamp(before["date"])
+    change = m_today - float(before["margin_today"])
+    left, right = st.columns([1, 1.2], gap="large")
+    with left:
+        insight(
+            tone_of(change),
+            f"vs {then:%b %d}",
+            f"A pig placed today projects {usd(m_today)}, "
+            f"{'up' if change >= 0 else 'down'} {usd(abs(change))} since {then:%b %d}.",
+            [
+                ("Most you can pay", f"{usd(most)} ({signed(most - float(before['most_pay']))})"),
+                ("Sow farm margin",
+                 f"{usd(sow_m)} ({signed(sow_m - float(before['sow_margin']))})"),
+                ("Market signals", f"{snap_now['market_score']:+d} (was "
+                 f"{int(before['market_score']):+d})".replace("-", "−")),
+            ],
+        )  # fmt: skip
+    with right:
+        parts = snapshots.explain(snap_now, before)
+        if parts:
+            fx = go.Figure(
+                go.Bar(
+                    y=[k for k, _ in parts][::-1],
+                    x=[v for _, v in parts][::-1],
+                    orientation="h",
+                    marker={"color": [POS if v >= 0 else NEG for _, v in parts][::-1],
+                            "cornerradius": 3},
+                    text=[signed(v) for _, v in parts][::-1],
+                    textposition="outside",
+                    cliponaxis=False,
+                    hovertemplate="%{y}: %{text} a pig<extra></extra>",
+                )
+            )  # fmt: skip
+            lim = max(abs(v) for _, v in parts) * 1.5
+            fx.update_xaxes(range=[-lim, lim], tickprefix="$", zeroline=True)
+            fx.update_layout(showlegend=False, hovermode="closest", bargap=0.45)
+            chart(fx, 200, on=PAGE)
+            source_note("the app's own snapshot", "how much each input moved the margin per pig")
+rule()
+
 chart_title("Decisions this week", "Each card links to the page with the detail")
 a, b = st.columns(2, gap="large")
 with a:
