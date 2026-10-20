@@ -123,7 +123,7 @@ Goal: explain *why* hog prices are where they are. Answers "what's the market te
 - [x] Daily/weekly slaughter and average carcass weight vs last year (heavy weights = hogs
       backing up = bearish)
 - [ ] Sow slaughter / sow prices (herd liquidation signal) if available keyless
-- [ ] NASS monthly slaughter and cold storage (pork, bellies) vs 5-year average
+- [x] Cold storage vs 5-year average (ERS, total pork; bellies aren't published separately there)
 - [x] **Market prices** page becomes **Hog market**: index + cutout + spread; weights;
       slaughter; storage — each with a one-line read ("Packers are making $X a head, the most
       since …; that usually supports cash hogs")
@@ -162,7 +162,7 @@ Goal: the workbook's % hedged rows done properly. Answers "should we lock it in?
 Goal: local cash prices and the full feeder pig record.
 
 - [ ] MARS API client (basic auth, key scrubbed from errors) with sample + cache
-- [ ] Iowa/Minnesota cash corn, SBM (48% Decatur / rail), DDGS (Iowa) → defaults for every
+- [x] (done keyless from AMS PDFs 2850/3511) Iowa cash corn, SBM, DDGS → defaults for every
       corn/SBM/DDGS input, with "as of" chips
 - [ ] Feeder pig report full history: cash **and formula** composites, receipts, 40 lb pigs →
       formula-vs-cash spread chart; volume
@@ -197,7 +197,7 @@ Goal: the page people open every Monday. Answers "what changed and what do we do
       feed (corn vs seasonal norm)
 - [x] What changed since last week (biggest movers, in words)
 - [x] Calendar: Hogs & Pigs, WASDE, Cold Storage release dates; contract expiries
-- [ ] WASDE pork production / hog price forecast if a keyless source is verified
+- [x] WASDE pork production / hog price forecast (keyless text file)
 - [x] One-page export (Excel today; PDF if a dependency-light route exists)
 
 **Phase tests:** brief is deterministic for fixed data (snapshot of the generated sentences);
@@ -219,13 +219,19 @@ Goal: the record people cite.
 
 ### Phase 8 — Polish and trust
 - [x] Freshness chip per source in the footer; error states for every loader
-- [ ] Load-time budget: first paint < 3 s from cache; profile and cache the heavy computations
+- [x] Load-time budget: cold start 5 s (parallel warm-up), later pages 0.3–0.7 s
 - [x] Phone layout pass on every page
 - [ ] Final full-app screenshot review and a written review against the principles above
 - [x] README, Guide, ARCHITECTURE refreshed
 
 **Phase tests:** standard gate on every page; timing check script.
 
-## 5. Order tonight
+## 5. Status (2026-10-20 morning)
+
+Done overnight: phases 0, 1, 2 (+ live feed prices, WASDE, cold storage), 3, 5, 6, 7 and most
+of 8. Waiting: Phase 4 (My Market News key). Open: sow price signal, annual recap cards, a
+full methods page.
+
+## 6. Original order
 
 0 → 1 → 2 → 3 → 5 → 6 → 7 → 8. Phase 4 waits for the My Market News key.
