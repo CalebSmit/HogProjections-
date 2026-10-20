@@ -1,5 +1,6 @@
 """This week: what moved, the decisions it points to, and what's coming up."""
 
+import html
 from datetime import date
 
 import pandas as pd
@@ -7,16 +8,21 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from hogproj import hogmarket as hm
+from hogproj import national as nv
+from hogproj import scorecard as sc
 from hogproj import snapshots
 from hogproj.book import hedge_rule
-from hogproj.brief import QUARTERLY_REPORTS, Move, calendar, move, movers
+from hogproj.brief import QUARTERLY_REPORTS, Move, calendar, move
 from hogproj.config import get_settings
 from hogproj.crush import annual_summary, breakeven_pig, contract_label, margin_rank, margin_usd
 from hogproj.data import feed
 from hogproj.export import build_brief
+from hogproj.freshness import is_current
 from hogproj.sowfarm import cost_per_weaned_pig
 from hogproj.text import ordinal
 from hogproj.ui import (
+    CAUTION,
+    MUTED,
     NEG,
     PAGE,
     POS,
@@ -24,21 +30,26 @@ from hogproj.ui import (
     chart,
     chart_title,
     crush_book,
+    data_status,
     excel_button,
     feed_prices,
+    fuel_prices,
+    hedge_rule_from_state,
     hero,
     hog_index,
     hog_market,
     insight,
     iowa_corn,
     market_signals,
+    mars_data,
     masthead,
     pork_cutout,
+    regional_data,
     rule,
+    scorecard_table,
     signed,
     source_note,
     sow_from_state,
-    stat_strip,
     tone_of,
     usd,
     weaned_pigs,
@@ -69,6 +80,13 @@ if corn.year_ago is None and not corn_m.empty:  # a year of daily bids builds up
         corn = Move(corn.name, corn.unit, corn.now, corn.week_ago,
                     float(same["usd_per_bu"].iloc[0]), corn.as_of)  # fmt: skip
 moves = [hogs, cutout, weaned, corn]
+sbm = feeds[feeds["item"] == "sbm_iowa"]
+fi_raw, _, _ = mars_data("fi_slaughter")
+fi_used = not fi_raw.empty and is_current("Inspected slaughter", fi_raw["date"].max())
+sows_raw, _, _ = regional_data("sows")
+sow_px = nv.sow_price(sows_raw) if not sows_raw.empty else pd.Series(dtype=float)
+fuel, _, _ = fuel_prices()
+diesel = fuel[fuel["series"] == "diesel_us"].set_index("date")["usd_per_gal"]
 
 
 def weekly_series(dates: pd.Series, values: pd.Series, weeks: int = 52) -> pd.DataFrame:
@@ -92,10 +110,11 @@ by_k = (
     if len(on_feed)
     else pd.Series(dtype=float)
 )
-trigger = float(ss.get("w2f_rule_trigger") or 75)
-target = float(ss.get("w2f_rule_target") or 50) / 100
+hrule = hedge_rule_from_state()
 
 d = hog_market()
+fi_series = (fi_raw.set_index("date")["head"] if fi_used
+             else d.set_index("date")["head"])  # fmt: skip
 sigs = market_signals()
 market_tone, market_why = hm.overall(sigs)
 
@@ -113,7 +132,8 @@ if len(by_k):
     share = (
         float(ss.get(f"w2f_hedge_{best_k[0]}_{best_k[1]:02d}_pct") or 0) / 100 if best_k else 0.0
     )
-    hedge_tone, rule_txt = hedge_rule(best_rank, trigger, target, share)
+    hedge_tone, rule_txt = hedge_rule(best_rank, hrule.trigger, hrule.target, share, hrule,
+                                      best_margin)  # fmt: skip
     hedge_txt = (
         f"{best_label} pigs have the best margin on feed: {usd(best_margin)} a pig. " + rule_txt
     )
@@ -131,21 +151,29 @@ sow_txt = (
     f"{usd(weaned.now + s.adder_usd_per_head)}: {usd(sow_m)} a pig."
 )
 
+# --- The answer, in three sentences ------------------------------------------------------------
+before = snapshots.previous(today)
+since = ""
+if before is not None:
+    moved = m_today - float(before["margin_today"])
+    since = (f", {'up' if moved >= 0 else 'down'} {usd(abs(moved))} since "
+             f"{pd.Timestamp(before['date']):%b} {pd.Timestamp(before['date']).day}")  # fmt: skip
 week_word = "up" if (hogs.week_change or 0) >= 0 else "down"
-headline_txt = (
-    f"Hogs {week_word} {usd(abs(hogs.week_change or 0))} on the week; a pig placed today "
-    f"projects {usd(m_today)}."
-)
+headline_txt = f"A pig placed today projects {usd(m_today)} a head{since}."
+dek_txt = " ".join([
+    f"Hogs are {week_word} {usd(abs(hogs.week_change or 0))} on the week at {usd(hogs.now)}.",
+    hedge_txt if len(by_k) else "",
+    market_txt,
+])  # fmt: skip
 action = masthead(
     headline_txt,
-    f"Lean Hog Index {usd(hogs.now)}, weaned pigs {usd(weaned.now)}, Iowa corn "
-    f"{usd(corn.now)}. "
+    dek_txt
     + (
-        "Contract prices are "
+        " Contract prices are "
         + {"USDA outlook": "USDA's outlook"}.get(book.price_source, "seasonal estimates")
         + " until entered on Wean to finish."
         if not book.user_set
-        else "Using the contract prices you entered."
+        else ""
     ),
     kicker=f"This week · {today:%B %d, %Y}",
 )
@@ -185,33 +213,66 @@ with action:
 
 st.space("small")
 with hero("week"):
-    chart_title("This week in numbers", "Latest USDA figure, change on the week and on the year")
-
-    def cell(mv: Move, decimals: int = 2) -> tuple[str, str, str, Tone]:
-        wk = "" if mv.week_change is None else f"{signed(mv.week_change)} wk"
-        yr = "" if mv.year_pct is None else f"{mv.year_pct:+.0%} yr".replace("-", "−")
-        note = " · ".join(x for x in (wk, yr) if x)
-        return (f"{mv.name.replace('The ', '')} · {mv.as_of:%b %d}", usd(mv.now, decimals),
-                note, tone_of(mv.week_change or 0))  # fmt: skip
-
-    stat_strip([cell(hogs), cell(cutout), cell(weaned), cell(corn)])
-    st.markdown(
-        "<div style='margin-top:14px'></div>"
-        + "".join(f"<div class='hp-dek' style='margin:2px 0'>• {x}</div>" for x in movers(moves)),
-        unsafe_allow_html=True,
-    )
+    chart_title("Scorecard", "Each number against the same week in the five years before "
+                "(2020 left out) · status for a hog producer: green helps, red hurts")  # fmt: skip
+    metrics = [
+        sc.Metric("Lean hogs", idx.set_index("index_date")["lean_hog_index_usd_per_cwt_carcass"],
+                  suffix="/cwt", good=1),
+        sc.Metric("Pork cutout", cut.set_index("date")["carcass"], suffix="/cwt", good=1),
+        sc.Metric("Packer spread", d.set_index("date")["spread_per_head"], suffix="/head", good=1),
+        sc.Metric("Weaned pigs", pigs.set_index("week_ending")["cash_usd_per_head"],
+                  suffix="/head"),
+        sc.Metric("Iowa cash corn", cc.set_index("date")["value"], suffix="/bu", good=-1),
+        sc.Metric("Soybean meal", sbm.set_index("date")["value"], suffix="/ton", decimals=0,
+                  good=-1),
+        sc.Metric("Hogs slaughtered", fi_series, prefix="", decimals=0, good=-1, how="sum",
+                  week="W-SAT", year_ago=fi_raw.set_index("date")["head_year_ago"]
+                  if fi_used else None),
+        sc.Metric("Carcass weight", d.set_index("date")["weight_lb"], prefix="", suffix=" lb",
+                  decimals=1, good=-1),
+        sc.Metric("Cull sows", sow_px, suffix="/cwt"),
+        sc.Metric("Diesel", diesel, suffix="/gal", good=-1),
+    ]  # fmt: skip
+    card = sc.build(metrics)
+    scorecard_table(card)
     source_note(
-        "USDA AMS LM_HG201, LM_PK602, Feeder Pig Report, Iowa Daily Cash Grain Bids",
-        "week = latest vs a week earlier; year = vs the same time last year",
+        "USDA AMS (LMR, cutout, feeder pigs, Iowa grain and feedstuffs, slaughter), U.S. EIA",
+        "week and year: latest vs a week and a year earlier; slaughter is the last full week, "
+        + ("all federally inspected hogs" if fi_used else "producer-sold barrows and gilts"),
     )
-    excel_button(
-        {"This week": pd.DataFrame([{"measure": mv.name.replace("The ", ""), "latest": mv.now,
-                                     "as_of": mv.as_of, "week_change": mv.week_change,
-                                     "year_change_pct": mv.year_pct, "unit": "$" + mv.unit}
-                                    for mv in moves]),
-         "Market signals": pd.DataFrame([vars(x) for x in sigs])},
-        "this_week", "This week's numbers and signals", "USDA AMS",
-    )  # fmt: skip
+    excel_button({"Scorecard": sc.table(card),
+                  "Market signals": pd.DataFrame([vars(x) for x in sigs])},
+                 "scorecard", "This week's scorecard and market signals",
+                 "USDA AMS, EIA")  # fmt: skip
+
+# --- Watch list: things to act on ------------------------------
+watch: list[tuple[Tone, str]] = []
+if len(on_feed):
+    for k_label, k_margin in by_k.items():
+        k = {contract_label(x): x for x in book.contracts}.get(str(k_label))
+        held = float(ss.get(f"w2f_hedge_{k[0]}_{k[1]:02d}_pct") or 0) / 100 if k else 0.0
+        t, why = hedge_rule(margin_rank(float(k_margin), history), hrule.trigger, hrule.target,
+                            held, hrule, float(k_margin))  # fmt: skip
+        if t == "caution":
+            watch.append(("caution", f"{k_label}: {why}"))
+if most > weaned.now:
+    watch.append(("good", f"Weaned pigs at {usd(weaned.now)} are below the {usd(most)} one is "
+                          "worth at today's contract prices."))  # fmt: skip
+late = [f for f in data_status() if f.behind]
+if late:
+    watch.append(("bad", "Out of date: " + ", ".join(f.name for f in late) + "."))
+st.space("small")
+if not watch:
+    watch.append(("neutral", f"Nothing crosses your rule this week ({hrule.describe()})."))
+chart_title("Watch list", "What crosses your hedge rule, pigs priced below what they're "
+            "worth, and data that's out of date")  # fmt: skip
+dots = {"good": POS, "bad": NEG, "caution": CAUTION, "neutral": MUTED}
+st.markdown("".join(
+    f"<div style='display:flex;gap:10px;align-items:baseline;padding:7px 0;"
+    f"border-bottom:1px solid var(--line);font-size:14px'><span style='flex:none;"
+    f"width:8px;height:8px;border-radius:50%;background:{dots[t]};transform:translateY(-1px)'>"
+    f"</span><span>{html.escape(text)}</span></div>" for t, text in watch),
+    unsafe_allow_html=True)  # fmt: skip
 
 st.space("medium")
 
@@ -224,7 +285,6 @@ snap_now = {
     "market_score": sum(1 if x.tone == "good" else -1 if x.tone == "bad" else 0 for x in sigs),
     "cwt": c.carcass_cwt, "corn_lb": c.corn_lb,
 }  # fmt: skip
-before = snapshots.previous(today)
 if not get_settings().offline:  # tests and offline use don't write the record
     snapshots.record(today, snap_now)
 chart_title("Since last week", "What this page said a week ago, and why it moved")
@@ -339,7 +399,7 @@ with left:
     st.markdown(rows, unsafe_allow_html=True)
     st.caption(QUARTERLY_REPORTS)
 with right:
-    chart_title("Where the numbers come from", "All public USDA data")
+    chart_title("Where the numbers come from", "Public USDA and U.S. EIA data")
     latest = feed.latest(feeds, "sbm_iowa")
     st.markdown(
         f"""

@@ -12,6 +12,7 @@ once each for corn and soybean meal. Pure: no Streamlit.
 """
 
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from datetime import date
 from typing import Annotated
 
@@ -103,20 +104,63 @@ def what_if(pos: pd.DataFrame, shifts: Sequence[float]) -> pd.DataFrame:
     )  # fmt: skip
 
 
-def hedge_rule(rank: float, trigger: float, target: float, current: float) -> tuple[str, str]:
-    """A user-set rule, never advice: 'when the margin ranks at or above `trigger` percentile,
-    hedge `target` share'. Returns (tone, sentence)."""
-    if np.isnan(rank):
-        return "neutral", "Not enough history to rank this margin."
-    where = "at the bottom of history" if rank < 1 else f"{ordinal(rank)}"
-    if rank >= trigger:
-        if current + 1e-9 >= target:
-            return "good", f"Ranks {where}: your rule's {target:.0%} is in place."
-        return "caution", (
-            f"Ranks {where}, above your {ordinal(trigger)} trigger: rule says hedge "
-            f"{target:.0%} (now {current:.0%})."
-        )
-    return "neutral", f"Ranks {where}, below your {ordinal(trigger)} trigger: rule says wait."
+RULE_MODES = {"rank": "Rank vs history", "margin": "Margin per pig", "off": "No rule"}
+
+
+@dataclass
+class HedgeRule:
+    """The user's own hedge rule (never advice). `mode` "rank": hedge `target` once a margin
+    ranks at or above the `trigger` percentile of placements since 2020; "margin": once it is at
+    least `min_margin` $/pig; "off": no rule."""
+
+    mode: str = "rank"
+    trigger: float = 75.0
+    target: float = 0.5
+    min_margin: float = 10.0
+
+    def label(self) -> str:
+        if self.mode == "off":
+            return "No hedge rule"
+        when = (f"{ordinal(self.trigger)} pct" if self.mode == "rank"
+                else f"${self.min_margin:,.0f}/pig")  # fmt: skip
+        return f"Hedge rule · {when} → {self.target:.0%}"
+
+    def describe(self) -> str:
+        if self.mode == "off":
+            return "no hedge rule set"
+        if self.mode == "margin":
+            return (
+                f"hedge {self.target:.0%} once the margin is at least ${self.min_margin:,.2f} a pig"
+            )
+        return f"hedge {self.target:.0%} at or above the {ordinal(self.trigger)} percentile"
+
+
+def hedge_rule(rank: float, trigger: float, target: float, current: float,
+               rule: HedgeRule | None = None, margin: float = float("nan")
+               ) -> tuple[str, str]:  # fmt: skip
+    """Apply the rule to one contract. Returns (tone, sentence): "caution" = rule says hedge,
+    "good" = rule met, "neutral" = wait (or no rule)."""
+    rule = rule or HedgeRule("rank", trigger, target)
+    if rule.mode == "off":
+        return "neutral", "No hedge rule set (choose one on Hedging)."
+    if rule.mode == "margin":
+        if np.isnan(margin):
+            return "neutral", "No margin to test."
+        where = f"Margin ${margin:,.2f} a pig"
+        met = margin >= rule.min_margin
+        trig = f"your ${rule.min_margin:,.2f} trigger"
+    else:
+        if np.isnan(rank):
+            return "neutral", "Not enough history to rank this margin."
+        where = "Ranks at the bottom of history" if rank < 1 else f"Ranks {ordinal(rank)}"
+        met = rank >= rule.trigger
+        trig = f"your {ordinal(rule.trigger)} trigger"
+    if met:
+        if current + 1e-9 >= rule.target:
+            return "good", f"{where}: your rule's {rule.target:.0%} is in place."
+        return "caution", (f"{where}, above {trig}: rule says hedge {rule.target:.0%} "
+                           f"(now {current:.0%}).")  # fmt: skip
+    return "neutral", f"{where}, below {trig}: rule says wait."
 
 
 def business_days_since(day: date, today: date) -> int:

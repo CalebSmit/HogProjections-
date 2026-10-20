@@ -100,3 +100,17 @@ def test_positions_use_each_rows_own_corn():
     pos = positions(on, C, FUT, {}, 1000)
     apr = pos[pos["contract"] == "2027-04"].iloc[0]
     assert apr["margin_usd"] == pytest.approx(margin_usd(C, 80.0, corn=5.25))
+
+
+def test_hedge_rule_modes():
+    from hogproj.book import HedgeRule
+
+    by_margin = HedgeRule(mode="margin", target=0.5, min_margin=10)
+    tone, text = hedge_rule(20, 75, 0.5, 0.0, by_margin, margin=12.0)
+    assert tone == "caution" and "$10.00 trigger" in text
+    assert hedge_rule(99, 75, 0.5, 0.0, by_margin, margin=8.0)[0] == "neutral"  # rank ignored
+    assert hedge_rule(20, 75, 0.5, 0.6, by_margin, margin=12.0)[0] == "good"
+    off = HedgeRule(mode="off")
+    assert hedge_rule(99, 75, 0.5, 0.0, off, margin=50.0)[0] == "neutral"
+    assert off.label() == "No hedge rule"
+    assert HedgeRule().label() == "Hedge rule · 75th pct → 50%"

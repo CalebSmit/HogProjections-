@@ -11,13 +11,13 @@ import pandas as pd
 SKIP_YEARS = (2020,)  # COVID plant closures distort hog prices, slaughter and weights
 
 
-def by_week(s: pd.Series, how: str = "mean") -> pd.DataFrame:
+def by_week(s: pd.Series, how: str = "mean", freq: str = "W-FRI") -> pd.DataFrame:
     """Dated values -> one row per week (ending Friday): week_ending, year, wk (ISO week), value.
     Week 53 folds into 52 so every year lines up."""
     s = pd.Series(s.to_numpy(dtype=float), index=pd.to_datetime(s.index)).dropna().sort_index()
-    r = s.resample("W-FRI")
+    r = s.resample(freq)
     w = (r.sum(min_count=1) if how == "sum" else r.mean()).dropna()
-    through = pd.Series(s.index, index=s.index).resample("W-FRI").max().reindex(w.index)
+    through = pd.Series(s.index, index=s.index).resample(freq).max().reindex(w.index)
     iso = w.index.isocalendar()
     return pd.DataFrame({"week_ending": w.index, "through": through.to_numpy(),
                          "year": iso["year"].to_numpy(),
@@ -83,5 +83,8 @@ def verdict(weeks: pd.DataFrame, years: int = 5) -> Verdict | None:
     pct = float((others < v).mean() * 100) if len(others) else 50.0
     extreme = ("highest" if len(others) and v > others.max()
                else "lowest" if len(others) and v < others.min() else "")  # fmt: skip
-    return Verdict(v, pd.Timestamp(last["through"]), where, lo, hi, avg, b.attrs["years"],
+    prior = weeks[(weeks["wk"] == wk) & weeks["year"].isin(range(this_year - years, this_year))
+                  & ~weeks["year"].isin(SKIP_YEARS)]  # fmt: skip
+    covered = sorted(int(y) for y in prior["year"].unique())  # years that have this week
+    return Verdict(v, pd.Timestamp(last["through"]), where, lo, hi, avg, covered,
                    pct, extreme, int(same["year"].nunique()))  # fmt: skip
