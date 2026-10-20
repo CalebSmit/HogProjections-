@@ -30,7 +30,7 @@ from hogproj.crush import (
     model_contract_prices,
     placements,
 )
-from hogproj.data import feed, lmr
+from hogproj.data import feed, lmr, wasde
 from hogproj.data.ams import Source, load_hg201
 from hogproj.data.feeder import load as feeder_load
 from hogproj.data.nass import load as nass_load
@@ -375,6 +375,23 @@ def nass_data() -> tuple[pd.DataFrame, str, str]:
 @st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA pork cutout…")
 def _cutout(offline: bool) -> tuple[pd.DataFrame, str, str]:
     return lmr.load(lmr.CUTOUT, offline)
+
+
+@st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA WASDE…")
+def _wasde(offline: bool) -> tuple[pd.DataFrame, str, str]:
+    return wasde.load(offline)
+
+
+def wasde_data() -> tuple[pd.DataFrame, str, str]:
+    """USDA WASDE quarterly pork production and barrow/gilt price forecasts."""
+    return _wasde(get_settings().offline)
+
+
+def wasde_now() -> dict | None:
+    """USDA's outlook for the next two quarters (see hogmarket.wasde_outlook)."""
+    from hogproj.hogmarket import wasde_outlook
+
+    return wasde_outlook(wasde_data()[0], pd.Timestamp(date.today()))
 
 
 def pork_cutout() -> tuple[pd.DataFrame, str, str]:

@@ -107,3 +107,43 @@ def test_vs_year_ago_lines_up_weekdays():
     d = _market(head_shift=0.10)
     y = hm.vs_year_ago(d, "head", how="sum")
     assert y["pct"] == pytest.approx(0.10, abs=1e-9)
+
+
+# --- WASDE ----------------------------------------------------------------------------------
+def test_parse_wasde_october_2026():
+    from hogproj.data.wasde import parse
+
+    df = parse((FIXTURES / "wasde1026.txt").read_text(encoding="utf-8", errors="replace"))
+    v = df.set_index(["series", "year", "quarter"])["value"]
+    assert v[("pork_production_mlb", 2027, 1)] == 6950  # Oct 2026 WASDE, Q1 2027 projection
+    assert v[("barrows_gilts_usd_cwt_live", 2026, 4)] == 55.00
+    assert v[("barrows_gilts_usd_cwt_live", 2026, 3)] == 67.86
+    proj = df.set_index(["series", "year", "quarter"])["projected"]
+    assert proj[("pork_production_mlb", 2026, 4)] and not proj[("pork_production_mlb", 2026, 3)]
+    assert (df["report"] == "October 2026").all()
+
+
+def test_wasde_outlook_and_signal():
+    from hogproj.data.wasde import parse
+
+    df = parse((FIXTURES / "wasde1026.txt").read_text(encoding="utf-8", errors="replace"))
+    o = hm.wasde_outlook(df, pd.Timestamp("2026-10-20"))
+    assert o is not None
+    assert o["quarters"] == [(2027, 1), (2027, 2)]
+    assert o["pct"] == pytest.approx((6950 + 6720) / (7050 + 6755) - 1)  # -1.0%
+    assert o["price_next_q"] == 60.0
+    sig = next(s for s in hm.signals(_market(), wasde=o) if s.name == "USDA pork outlook")
+    assert sig.tone == "neutral"  # -0.98% is inside the ±1% band
+
+
+def test_wasde_outlook_missing_quarters():
+    df = pd.DataFrame({"year": [2026], "quarter": [1], "series": ["pork_production_mlb"],
+                       "value": [7000.0], "projected": [False], "report": ["x"]})  # fmt: skip
+    assert hm.wasde_outlook(df, pd.Timestamp("2026-10-20")) is None
+
+
+def test_parse_wasde_rejects_other_text():
+    from hogproj.data.wasde import parse
+
+    with pytest.raises(ValueError):
+        parse("National Daily Hog Report")

@@ -33,6 +33,7 @@ from hogproj.ui import (
     stat_strip,
     tone_of,
     usd,
+    wasde_now,
     weaned_pigs,
 )
 
@@ -75,7 +76,7 @@ trigger = float(ss.get("w2f_rule_trigger") or 75)
 target = float(ss.get("w2f_rule_target") or 50) / 100
 
 d = hog_market()
-sigs = hm.signals(d, supply.next_six_months(nass_data()[0])["pct"])
+sigs = hm.signals(d, supply.next_six_months(nass_data()[0])["pct"], wasde_now())
 market_tone, market_why = hm.overall(sigs)
 
 s = sow_from_state()

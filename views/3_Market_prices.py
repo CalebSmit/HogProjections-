@@ -37,6 +37,8 @@ from hogproj.ui import (
     table,
     tone_of,
     usd,
+    wasde_data,
+    wasde_now,
 )
 
 idx, source, _ = hog_index()
@@ -56,7 +58,7 @@ week, month, year = value_days_ago(7), value_days_ago(30), value_days_ago(365)
 move_30 = latest - month if month is not None else 0.0
 last_year = values[(dates >= latest_date - pd.Timedelta(days=365)).to_numpy()]
 supply_pct = supply.next_six_months(nass_data()[0])["pct"]
-sigs = hm.signals(d, supply_pct)
+sigs = hm.signals(d, supply_pct, wasde_now())
 tone, why = hm.overall(sigs)
 good = [s.name.lower() for s in sigs if s.tone == "good"]
 bad = [s.name.lower() for s in sigs if s.tone == "bad"]
@@ -276,6 +278,74 @@ with right:
     source_note("USDA AMS LM_HG201", "excludes packer-owned hogs; holiday-short weeks left out")
 
 rule()
+
+# --- USDA's outlook (WASDE) --------------------------------------------------------------------
+wd, wd_source, _ = wasde_data()
+if not wd.empty:
+    report = str(wd["report"].iloc[0])
+    pr = wd[wd["series"] == "barrows_gilts_usd_cwt_live"].copy()
+    po = wd[wd["series"] == "pork_production_mlb"].copy()
+    for df_ in (pr, po):
+        df_["label"] = "Q" + df_["quarter"].astype(str) + " " + df_["year"].astype(str)
+    prod = po.set_index(["year", "quarter"])["value"]
+    po["yoy"] = [
+        prod.get((y - 1, q), np.nan) for y, q in zip(po["year"], po["quarter"], strict=True)
+    ]
+    po["yoy"] = po["value"] / po["yoy"] - 1
+    nxt = wasde_now()
+    left, mid, right = st.columns([1, 0.06, 1])
+    with left:
+        lead_q = pr[pr["projected"]].iloc[0] if pr["projected"].any() else pr.iloc[-1]
+        chart_title(
+            f"USDA sees hogs at {usd(float(lead_q['value']))} live in {lead_q['label']}",
+            f"Barrows and gilts, national base 51-52% lean, $/cwt live · {report} WASDE",
+        )
+        fb = go.Figure(
+            go.Bar(
+                x=pr["label"],
+                y=pr["value"],
+                marker={"color": [ACCENT if p else HISTORY for p in pr["projected"]],
+                        "opacity": [0.55 if p else 1 for p in pr["projected"]],
+                        "cornerradius": 3},
+                text=[usd(v, 0) for v in pr["value"]], textposition="outside",
+                textfont={"size": 11, "color": MUTED}, cliponaxis=False,
+                hovertemplate="%{x}: $%{y:.2f}/cwt live<extra></extra>",
+            )
+        )  # fmt: skip
+        fb.update_yaxes(tickprefix="$", range=[0, float(pr["value"].max()) * 1.2])
+        fb.update_layout(showlegend=False, bargap=0.35, hovermode="closest")
+        chart(fb, 260, on=PAGE)
+        source_note(
+            "USDA WASDE" + (" (live)" if wd_source == "live" else " (saved)"),
+            "dark: reported · light: USDA projection · live price; the index is carcass "
+            "(≈ live ÷ 0.75)",
+        )
+    with mid:
+        st.markdown('<div class="hp-vrule" style="height:340px"></div>', unsafe_allow_html=True)
+    with right:
+        shown = po.dropna(subset=["yoy"])
+        chart_title(
+            f"USDA expects {abs(nxt['pct']):.1%} {'more' if nxt['pct'] > 0 else 'less'} pork "
+            "in the next two quarters"
+            if nxt
+            else "Pork production vs a year earlier",
+            f"Commercial pork production, change vs the same quarter a year earlier · {report}",
+        )
+        fp = go.Figure(
+            go.Bar(
+                x=shown["label"],
+                y=shown["yoy"] * 100,
+                marker={"color": [NEG if v > 0 else POS for v in shown["yoy"]],
+                        "opacity": [0.55 if p else 1 for p in shown["projected"]],
+                        "cornerradius": 3},
+                hovertemplate="%{x}: %{y:+.1f}%<extra></extra>",
+            )
+        )  # fmt: skip
+        fp.update_yaxes(ticksuffix="%", zeroline=True, zerolinecolor="#cfc8b9")
+        fp.update_layout(showlegend=False, bargap=0.35, hovermode="closest")
+        chart(fp, 260, on=PAGE)
+        source_note("USDA WASDE", "red: more pork than a year earlier (bearish), green: less")
+    rule()
 
 # --- Seasonality + primals ---------------------------------------------------------------------
 f = seasonal_factors(idx)

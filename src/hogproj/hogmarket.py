@@ -113,7 +113,32 @@ def _fmt_usd(x: float) -> str:
     return ("−" if x < 0 else "") + f"${abs(x):,.2f}"
 
 
-def signals(d: pd.DataFrame, supply_pct: float | None = None) -> list[Signal]:
+def wasde_outlook(w: pd.DataFrame, today: pd.Timestamp) -> dict | None:
+    """USDA's pork production for the next two quarters vs the same quarters a year earlier,
+    and its barrow/gilt price forecast for the next quarter ($/cwt live)."""
+    if w is None or w.empty:
+        return None
+    q_now = (today.year, (today.month - 1) // 3 + 1)
+
+    def nxt(y: int, q: int) -> tuple[int, int]:
+        return (y + 1, 1) if q == 4 else (y, q + 1)
+
+    ahead = [nxt(*q_now), nxt(*nxt(*q_now))]
+    prod = w[w["series"] == "pork_production_mlb"].set_index(["year", "quarter"])["value"]
+    price = w[w["series"] == "barrows_gilts_usd_cwt_live"].set_index(["year", "quarter"])["value"]
+    try:
+        now = sum(float(prod.loc[q]) for q in ahead)
+        before = sum(float(prod.loc[(y - 1, q)]) for y, q in ahead)
+    except KeyError:
+        return None
+    first = ahead[0]
+    return {"pct": now / before - 1, "quarters": ahead,
+            "price_next_q": float(price.loc[first]) if first in price.index else None,
+            "report": str(w["report"].iloc[0])}  # fmt: skip
+
+
+def signals(d: pd.DataFrame, supply_pct: float | None = None,
+            wasde: dict | None = None) -> list[Signal]:  # fmt: skip
     out: list[Signal] = []
 
     # 1. Packer spread per head vs its own history.
@@ -178,6 +203,20 @@ def signals(d: pd.DataFrame, supply_pct: float | None = None) -> list[Signal]:
                 "neutral": "USDA's count of hogs coming is close to last year."}[tone]  # fmt: skip
         out.append(Signal("Supply ahead", f"{supply_pct:+.1%}".replace("-", "−") + " vs last year",
                           read, tone, "1%+ more hogs than a year ago = negative; 1%+ fewer = "
+                          "supportive"))  # fmt: skip
+    # 6. USDA's own pork production forecast (WASDE), next two quarters.
+    if wasde is not None:
+        p = wasde["pct"]
+        tone = "bad" if p >= 0.01 else "good" if p <= -0.01 else "neutral"
+        q = " and ".join(f"Q{qq} {yy}" for yy, qq in wasde["quarters"])
+        read = {
+            "bad": f"USDA forecasts more pork than a year earlier in {q}.",
+            "good": f"USDA forecasts less pork than a year earlier in {q}.",
+            "neutral": f"USDA forecasts about the same pork as a year earlier in {q}.",
+        }[tone]
+        out.append(Signal("USDA pork outlook", f"{p:+.1%}".replace("-", "−") + " production",
+                          read + f" ({wasde['report']} WASDE)", tone,
+                          "1%+ more pork than a year ago = negative; 1%+ less = "
                           "supportive"))  # fmt: skip
     return out
 

@@ -51,6 +51,7 @@ from hogproj.ui import (
     table,
     tone_of,
     usd,
+    wasde_now,
     weaned_pigs,
 )
 
@@ -117,6 +118,14 @@ with assumption_bar("w2f"):
             "Lean hog futures by contract, $/cwt carcass. Defaults are a seasonal estimate "
             "from today's index; enter today's CME settlements for a market-based answer."
         )
+        outlook = wasde_now()
+        if outlook and outlook["price_next_q"]:
+            (y_, q_) = outlook["quarters"][0]
+            st.caption(
+                f"For reference, USDA's {outlook['report']} WASDE projects barrows and gilts at "
+                f"{usd(outlook['price_next_q'])}/cwt live in Q{q_} {y_}, about "
+                f"{usd(outlook['price_next_q'] / 0.75)} carcass."
+            )
         cols = st.columns(2)
         for i, k in enumerate(contracts):
             cols[i % 2].number_input(contract_label(k), 0.0, 250.0, model[k], 0.25, key=lh_key(k))

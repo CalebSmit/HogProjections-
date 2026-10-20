@@ -282,3 +282,13 @@ Newest at the bottom.
   Download button on This week.
 - Sidebar "Data status": latest date and live/saved for every source.
 - Timing: cold start (every USDA source) 7.4 s; each later page 0.3–0.7 s.
+
+## 2026-10-20 — USDA WASDE outlook
+
+- `data/wasde.py` reads the public WASDE text (this month's issue, else last month's): quarterly
+  pork production and barrow/gilt price (national base, $/cwt live). `hogmarket.wasde_outlook`
+  compares the next two quarters' production with a year earlier; sixth market signal.
+- Hog market page: "USDA sees hogs at $X live in Qn" (reported vs projected) and production vs a
+  year earlier by quarter. Wean to finish → Hog prices shows USDA's next-quarter price (live and
+  ≈ carcass) beside the seasonal estimate. Guide source table updated.
+- Tests: parser (Oct 2026 fixture values), outlook math, signal band, missing quarters. 179 tests.

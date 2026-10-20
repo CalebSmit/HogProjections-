@@ -194,6 +194,12 @@ rows = [
         "Hog market page",
     ),
     (
+        "USDA WASDE",
+        "Quarterly pork production and hog price forecasts",
+        "Monthly, around the 10th-12th",
+        "Hog market outlook and signal; reference price on Wean to finish",
+    ),
+    (
         "USDA AMS · My Market News",
         "History for the reports above",
         "Daily",
