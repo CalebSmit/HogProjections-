@@ -161,5 +161,11 @@ Newest at the bottom.
   week placed (3 years realized + pigs on feed), weaned pig history, cost lines, pig × hog grid.
 - Lean hog futures have no free feed: contract prices default to a seasonal estimate from the
   index (chip says so) and are entered per contract.
-- `pandas-stubs` is not in the lock; pyright on older files reports pandas-typing errors in this
-  environment. New files are pyright-clean. [TODO: pin a stubs version and clean the rest.]
+- Pyright errors seen mid-session came from a half-installed pandas-stubs; removed, back to 0.
+
+## 2026-10-19 (night) — Roadmap v2, Phase 0
+
+- `docs/ROADMAP.md`: phased plan (crush history, hog market, hedging book, MMN, sow side,
+  weekly brief, archive, polish) with a standard gate plus per-phase tests.
+- `scripts/screenshots.py`: every page at 1440 and 390 px into `outputs/shots/`.
+- Phone review found the sidebar covering the page (forced "expanded"); now "auto".

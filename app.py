@@ -13,7 +13,7 @@ st.set_page_config(
     page_title="Hog Projections",
     page_icon=str(asset("mark.svg")),
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="auto",
 )
 setup_page()
 ss = st.session_state
