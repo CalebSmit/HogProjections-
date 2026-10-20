@@ -65,9 +65,11 @@ def margin(s: SowInputs, usda_price: float, corn: float | None = None) -> float:
     return usda_price + s.adder_usd_per_head - cost_per_weaned_pig(s, corn)
 
 
-def history(pigs: pd.DataFrame, s: SowInputs, corn: pd.DataFrame | None = None) -> pd.DataFrame:
-    """Weekly sow farm margin since the USDA series starts. Corn is the Iowa monthly price when
-    given (else today's input); everything else is today's inputs."""
+def history(pigs: pd.DataFrame, s: SowInputs, corn: pd.DataFrame | None = None,
+            sbm: pd.DataFrame | None = None) -> pd.DataFrame:  # fmt: skip
+    """Weekly sow farm margin since the USDA series starts. Corn (and soybean meal, `sbm` with
+    month/usd) are the Iowa monthly prices where given, else today's inputs; non-feed is
+    today's input."""
     by_month = (
         dict(zip(pd.to_datetime(corn["month"]), corn["usd_per_bu"], strict=True))
         if corn is not None and not corn.empty
@@ -77,7 +79,13 @@ def history(pigs: pd.DataFrame, s: SowInputs, corn: pd.DataFrame | None = None) 
     price = pigs["cash_usd_per_head"].to_numpy(dtype=float)
     month = weeks.to_numpy(dtype="datetime64[M]")
     corn_px = np.array([by_month.get(pd.Timestamp(m), s.corn_usd_per_bu) for m in month])
-    cost = np.array([cost_per_weaned_pig(s, float(c)) for c in corn_px])
+    sbm_by = (dict(zip(pd.to_datetime(sbm["month"]), sbm["usd"], strict=True))
+              if sbm is not None and not sbm.empty else {})  # fmt: skip
+    sbm_px = np.array([sbm_by.get(pd.Timestamp(m), s.sbm_usd_per_ton) for m in month])
+    cost = np.array([
+        cost_per_weaned_pig(s.model_copy(update={"sbm_usd_per_ton": float(b)}), float(c))
+        for c, b in zip(corn_px, sbm_px, strict=True)
+    ])  # fmt: skip
     return pd.DataFrame(
         {"week_ending": weeks.to_numpy(), "price_usd": price + s.adder_usd_per_head,
          "cost_usd": cost, "margin_usd": price + s.adder_usd_per_head - cost,

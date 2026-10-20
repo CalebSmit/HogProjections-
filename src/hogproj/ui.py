@@ -30,9 +30,10 @@ from hogproj.crush import (
     model_contract_prices,
     placements,
 )
-from hogproj.data import ers, feed, lmr, wasde
+from hogproj.data import ers, feed, lmr, mars, wasde
 from hogproj.data.ams import Source, load_hg201
 from hogproj.data.feeder import load as feeder_load
+from hogproj.data.feeder import merge as feeder_merge
 from hogproj.data.nass import load as nass_load
 from hogproj.data.nass import load_corn
 from hogproj.finance import CostInputs
@@ -441,9 +442,38 @@ def _feeder(offline: bool) -> tuple[pd.DataFrame, str, str]:
     return feeder_load(offline)
 
 
+@st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA My Market News…")
+def _mars(name: str, offline: bool) -> tuple[pd.DataFrame, str, str]:
+    # The key is read here rather than passed in, so it never becomes part of a cache key.
+    return mars.load(name, get_settings().usda_mmn_api_key.strip(), offline)
+
+
+def mars_data(name: str) -> tuple[pd.DataFrame, str, str]:
+    """My Market News history ("feeder", "corn", "feedstuffs"); empty without a key."""
+    return _mars(name, get_settings().offline)
+
+
 def weaned_pigs() -> tuple[pd.DataFrame, str, str]:
-    """Weekly USDA early weaned pig prices (live, cached or sample) and where they came from."""
-    return _feeder(get_settings().offline)
+    """Weekly USDA early weaned pig prices and where they came from. My Market News history
+    (complete since Oct 2020) wins over the public PDF + sample where both have a week."""
+    return _weaned(get_settings().offline)
+
+
+@st.cache_data(ttl=6 * 3600, show_spinner=False)
+def _weaned(offline: bool) -> tuple[pd.DataFrame, str, str]:
+    pdf, source, note = _feeder(offline)
+    mm, msource, _ = _mars("feeder", offline)
+    if mm.empty:
+        return pdf, source, note
+    weeks = pd.DataFrame({
+        "week_ending": pd.to_datetime(mm["week_ending"]),
+        "cash_usd_per_head": mm["ew_cash_usd"].to_numpy(dtype=float),
+        "low_usd_per_head": mm["low_usd"].to_numpy(dtype=float),
+        "high_usd_per_head": mm["high_usd"].to_numpy(dtype=float),
+    }).dropna(subset=["cash_usd_per_head"])  # fmt: skip
+    merged = feeder_merge(pdf, weeks)
+    live = "live" if "live" in (source, msource) else source
+    return merged, live, "USDA Feeder Pig Report (My Market News history + latest PDF)."
 
 
 @st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA corn prices…")
@@ -452,8 +482,16 @@ def _corn(offline: bool) -> tuple[pd.DataFrame, str, str]:
 
 
 def iowa_corn() -> tuple[pd.DataFrame, str, str]:
-    """Monthly Iowa corn price received (NASS) and where it came from."""
-    return _corn(get_settings().offline)
+    """Monthly Iowa corn ($/bu): the average of USDA's daily Iowa cash bids where My Market News
+    history exists, NASS price received for earlier months."""
+    nass, source, note = _corn(get_settings().offline)
+    cash = feed_monthly("corn_cash_iowa")
+    if len(cash) < 12:  # only the last few PDF days: NASS is the better monthly record
+        return nass, source, note
+    cash = cash.rename(columns={"usd": "usd_per_bu"})
+    older = nass[pd.to_datetime(nass["month"]) < cash["month"].min()]
+    out = pd.concat([older, cash], ignore_index=True).sort_values("month").reset_index(drop=True)
+    return out, source, "Iowa cash corn (USDA AMS daily bids) by month; NASS before Aug 2020."
 
 
 @st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA feed prices…")
@@ -462,8 +500,48 @@ def _feed(offline: bool) -> tuple[pd.DataFrame, str, str]:
 
 
 def feed_prices() -> tuple[pd.DataFrame, str, str]:
-    """Iowa cash corn, soybean meal, DDGS and CBOT corn (long format) and where they came from."""
-    return _feed(get_settings().offline)
+    """Iowa cash corn, soybean meal, DDGS and CBOT corn (long format) and where they came from.
+    My Market News adds daily corn (and Iowa basis) since 2020 and weekly meal and DDGS since
+    2022; the PDF's official state average wins on days both have."""
+    return _feed_all(get_settings().offline)
+
+
+@st.cache_data(ttl=6 * 3600, show_spinner=False)
+def _feed_all(offline: bool) -> tuple[pd.DataFrame, str, str]:
+    pdf, source, note = _feed(offline)
+    parts = []
+    corn, _, _ = _mars("corn", offline)
+    if not corn.empty:
+        for col in ("corn_cash_iowa", "corn_basis_iowa"):
+            parts.append(pd.DataFrame({"date": pd.to_datetime(corn["date"]), "item": col,
+                                       "value": corn[col].to_numpy(dtype=float),
+                                       "unit": "$/bu", "report": "AMS_2850"}))  # fmt: skip
+    fs, _, _ = _mars("feedstuffs", offline)
+    if not fs.empty:
+        for col in ("sbm_iowa", "ddgs_iowa"):
+            parts.append(pd.DataFrame({"date": pd.to_datetime(fs["date"]), "item": col,
+                                       "value": fs[col].to_numpy(dtype=float),
+                                       "unit": "$/ton", "report": "AMS_3511"}))  # fmt: skip
+    if not parts:
+        return pdf, source, note
+    hist = pd.concat(parts, ignore_index=True).dropna(subset=["value"])
+    return feed.merge(hist, pdf), source, note
+
+
+def feed_monthly(item: str) -> pd.DataFrame:
+    """Monthly average of one feed item (month, usd), from the daily/weekly USDA history."""
+    return _feed_month(item, get_settings().offline)
+
+
+@st.cache_data(ttl=6 * 3600, show_spinner=False)
+def _feed_month(item: str, offline: bool) -> pd.DataFrame:
+    fd = _feed_all(offline)[0]
+    x = fd[fd["item"] == item]
+    if x.empty:
+        return pd.DataFrame(columns=["month", "usd"])
+    m = pd.to_datetime(x["date"]).dt.to_period("M").dt.to_timestamp()
+    out = x.assign(month=m).groupby("month")["value"].mean().reset_index()
+    return out.rename(columns={"value": "usd"})
 
 
 _FEED_FALLBACK = {
@@ -739,10 +817,28 @@ def crush_book() -> CrushBook:
         start = pd.Timestamp(today)
         c = c.model_copy(update={"corn_usd_per_bu": forward_corn(
             start, start + pd.Timedelta(days=c.days_on_feed), curve, basis)})  # fmt: skip
-        rows = placements(pigs, idx, c, futures, corn, corn_curve=curve, corn_basis=basis)
+        rows = placements(
+            pigs,
+            idx,
+            c,
+            futures,
+            corn,
+            corn_curve=curve,
+            corn_basis=basis,
+            sbm=feed_monthly("sbm_iowa"),
+            ddgs=feed_monthly("ddgs_iowa"),
+        )
     else:
         mode = "Today's cash"
-        rows = placements(pigs, idx, c, futures, corn)
+        rows = placements(
+            pigs,
+            idx,
+            c,
+            futures,
+            corn,
+            sbm=feed_monthly("sbm_iowa"),
+            ddgs=feed_monthly("ddgs_iowa"),
+        )
     return CrushBook(c=c, contracts=contracts, model=model, futures=futures, user_set=user_set,
                      this_contract=this, hog=futures.get(this, index_now), index_now=index_now,
                      rows=rows, corn_mode=mode, corn_cash=cash, corn_basis=basis)  # fmt: skip
@@ -1049,7 +1145,8 @@ def warm_data() -> None:
         return
     offline = get_settings().offline
     ctx = get_script_run_ctx()
-    loaders = [_hg201, _cutout, _feeder, _feed, _nass, _corn, _wasde, _cold]
+    loaders = [_hg201, _cutout, _feeder, _feed, _nass, _corn, _wasde, _cold,
+               *[lambda o, n=n: _mars(n, o) for n in mars.DATASETS]]  # fmt: skip
 
     def run(f):  # noqa: ANN001, ANN202 - cached loader
         add_script_run_ctx(ctx=ctx)  # so the cache and spinners know which session this is
@@ -1079,6 +1176,12 @@ def data_status() -> list[tuple[str, str, str]]:
         got = feed.latest(fd, item)
         if got:
             add(label, got[1], s4)
+    for name, label, col in (("feeder", "My Market News: weaned pigs", "week_ending"),
+                             ("corn", "My Market News: Iowa corn", "date"),
+                             ("feedstuffs", "My Market News: meal, DDGS", "date")):  # fmt: skip
+        md_, sm, _ = mars_data(name)
+        if not md_.empty:
+            add(label, md_[col].max(), sm)
     nd, s5, _ = nass_data()
     if not nd.empty:
         inv = nd[(nd["series"] == "all_hogs") & (nd["kind"] == "actual")]

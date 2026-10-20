@@ -319,3 +319,20 @@ Newest at the bottom.
 9. Pigs-on-feed window sized from days on feed (was a fixed 40 weeks).
 10. Text: crush heatmap uses your days on feed; cutout signal never shows "nan%".
 - Regression tests for each; 193 tests. All pages × 2 widths screenshotted.
+
+## 2026-10-20 — My Market News connected (Phase 4)
+
+- Key saved to the local, git-ignored `.env` (never printed; tracked files scanned for it).
+- `data/mars.py` (MARS API v1.2, basic auth, key scrubbed from errors; incremental cache):
+  feeder pigs since Oct 2020 (early weaned cash + formula composites, head, range, 40 lb pigs),
+  Iowa cash corn by region and basis daily since Aug 2020, Iowa soybean meal and DDGS weekly
+  since Feb 2022. Values match the public PDFs (20.08 / 36.94, 383.37 / 190.50).
+- Merged into the existing loaders, so every page upgrades without change: weaned pig history
+  has no gaps; Iowa corn by month comes from daily bids (NASS before Aug 2020); realized crush
+  and sow farm margins use the soybean meal and DDGS of their months (Crush history now
+  −$0.64/pig since 2020 vs −$2.01 with today's feed held constant).
+- Wean to finish: formula price line and formula-over-cash premium. New **Feed prices** page:
+  corn history + futures curve delivered at today's basis, basis vs earlier years, meal and DDGS,
+  feed cost per pig by month at your ration.
+- Perf: monthly lookups built once per call (placements 0.58 s → 0.05 s); merged history cached.
+- 199 tests (MARS parsers against fixtures, key scrubbing, no-key fallback).

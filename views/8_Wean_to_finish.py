@@ -32,6 +32,7 @@ from hogproj.ui import (
     chart_title,
     chip,
     crush_book,
+    end_tag,
     feed_default,
     feed_help,
     hero,
@@ -40,6 +41,7 @@ from hogproj.ui import (
     latest_weaned_pig,
     lh_key,
     live_number,
+    mars_data,
     masthead,
     md,
     projection_band,
@@ -328,7 +330,7 @@ with hero("w2f"):
         "USDA AMS National Direct Feeder Pig Report (early weaned 10-12 lb, cash); "
         "USDA AMS LM_HG201 (Lean Hog Index); USDA NASS (Iowa corn)",
         "sold pigs use the index in their sale week and Iowa corn over their months on feed; "
-        "soybean meal, DDGS and other costs are today's inputs",
+        "soybean meal and DDGS from 2022 too; non-feed costs are today's inputs",
     )
 
 st.space("medium")
@@ -359,6 +361,23 @@ with left:
         hovertemplate="Week ending %{x|%b %d, %Y}: $%{y:.2f}<extra></extra>",
         showlegend=False,
     )
+    mm, _, _ = mars_data("feeder")
+    formula_note = ""
+    if not mm.empty:  # My Market News: formula (contract) pigs alongside cash
+        fm = mm[pd.to_datetime(mm["week_ending"]) >= hist["week_ending"].min()]
+        fm = fm.dropna(subset=["ew_formula_usd"])
+        pf.add_scatter(x=pd.to_datetime(fm["week_ending"]), y=fm["ew_formula_usd"], mode="lines",
+                       line={"color": ACCENT, "width": 1.4, "dash": "dot"},
+                       hovertemplate="Formula, week ending %{x|%b %d, %Y}: $%{y:.2f}"
+                       "<extra></extra>", showlegend=False)  # fmt: skip
+        last52 = fm[pd.to_datetime(fm["week_ending"]) >= fm["week_ending"].max()
+                    - pd.Timedelta(weeks=52)]  # fmt: skip
+        both = mm.dropna(subset=["ew_formula_usd", "ew_cash_usd"]).tail(52)
+        prem = float((both["ew_formula_usd"] - both["ew_cash_usd"]).mean()) if len(both) else 0.0
+        if len(last52):
+            end_tag(pf, pd.Timestamp(str(fm["week_ending"].iloc[-1])),
+                    float(fm["ew_formula_usd"].iloc[-1]), "Formula", ACCENT)  # fmt: skip
+            formula_note = f"; dotted: formula pigs, {usd(prem)} over cash on average this year"
     ref_line(pf, be_pig, f"Most you can pay today {usd(be_pig)}", ACCENT, side="left")
     pf.update_yaxes(tickprefix="$", rangemode="tozero")
     pf.update_xaxes(tickformat="%b %Y")
@@ -366,8 +385,8 @@ with left:
     source_note(
         "USDA AMS National Direct Feeder Pig Report"
         + (" (live)" if pig_source == "live" else " (saved)"),
-        "shaded: weekly low–high range; breakeven uses today's inputs and the "
-        f"{contract_label(this_contract)} price",
+        "shaded: cash low–high range" + formula_note + "; breakeven uses today's inputs and "
+        f"the {contract_label(this_contract)} price",
     )
 with mid:
     st.markdown(

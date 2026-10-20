@@ -54,9 +54,9 @@ masthead(
     f"({usd(float(months[best_month]))} a head); {worst_month} placements did worst "
     f"({usd(float(months[worst_month]))}).",
     kicker="Crush history · wean to finish",
-    meta=[chip("Costs held at today's inputs", "caution",
-               "Hog prices and Iowa corn are historical; other costs are today's inputs, so the "
-               "history shows how markets moved margins.")],
+    meta=[chip("Feed at the prices of the time", "good",
+               "Hog prices, Iowa corn (since 2020), soybean meal and DDGS (since Feb 2022) are "
+               "historical USDA prices; non-feed costs are today's inputs.")],
 )  # fmt: skip
 
 st.space("small")
@@ -235,8 +235,9 @@ with st.expander("How this is calculated"):
 Each USDA weekly early weaned pig price (cash composite, plus your adder) is a placement on the
 Monday of that week. The pig is sold {c.days_on_feed} days later at the **Lean Hog Index**
 averaged over its sale week, plus your basis, at {c.weight_lb_live:.0f} lb live and
-{c.carcass_yield:.0%} yield. Corn is the **Iowa price received** averaged over its months on feed
-(USDA NASS); soybean meal, DDGS and every other cost are today's inputs on the Wean to finish
+{c.carcass_yield:.0%} yield. Corn is the **Iowa cash price** averaged over its months on feed
+(USDA daily bids; NASS before Aug 2020), and soybean meal and DDGS are Iowa prices of the time
+from Feb 2022 (today's inputs before that); non-feed costs are today's inputs on the Wean to finish
 page. **Worth** is the pig price at which that placement would have broken even: worth − paid =
 margin. Change any input on Wean to finish and this history updates.
 """

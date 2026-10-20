@@ -161,13 +161,13 @@ Goal: the workbook's % hedged rows done properly. Answers "should we lock it in?
 ### Phase 4 — My Market News (when the key works)
 Goal: local cash prices and the full feeder pig record.
 
-- [ ] MARS API client (basic auth, key scrubbed from errors) with sample + cache
+- [x] MARS API client (basic auth, key scrubbed from errors) with sample + cache
 - [x] (done keyless from AMS PDFs 2850/3511) Iowa cash corn, SBM, DDGS → defaults for every
       corn/SBM/DDGS input, with "as of" chips
-- [ ] Feeder pig report full history: cash **and formula** composites, receipts, 40 lb pigs →
+- [x] Feeder pig report full history: cash **and formula** composites, receipts, 40 lb pigs →
       formula-vs-cash spread chart; volume
-- [ ] Corn basis vs Iowa price received history
-- [ ] Guide data-source table and README updated
+- [x] Corn basis vs Iowa price received history
+- [x] Guide data-source table and README updated
 
 **Phase tests:** parsers against fixtures; key never appears in logs/errors (test injects a
 fake key and asserts it's scrubbed); fallback when the key is missing or wrong.
@@ -229,7 +229,7 @@ Goal: the record people cite.
 ## 5. Status (2026-10-20 morning)
 
 Done overnight: phases 0, 1, 2 (+ live feed prices, WASDE, cold storage), 3, 5, 6, 7 and most
-of 8. Waiting: Phase 4 (My Market News key). Open: sow price signal, annual recap cards, a
+of 8. Phase 4 done Oct 20 (My Market News connected). Open: sow price signal, annual recap cards, a
 full methods page.
 
 ## 6. Original order

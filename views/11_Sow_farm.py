@@ -15,6 +15,7 @@ from hogproj.ui import (
     chart_title,
     crush_book,
     end_tag,
+    feed_monthly,
     hero,
     iowa_corn,
     latest_weaned_pig,
@@ -74,7 +75,7 @@ cost = cost_per_weaned_pig(s)
 m = usda + s.adder_usd_per_head - cost
 per_sow = m * s.weaned_per_sow_yr
 be_weaned = s.weaned_per_sow_yr * cost / max(usda + s.adder_usd_per_head, 0.01)
-hist = history(pigs, s, corn_hist)
+hist = history(pigs, s, corn_hist, feed_monthly("sbm_iowa"))
 book = crush_book()
 joint = integrated(hist, book.rows, s.adder_usd_per_head, book.c.adder_usd_per_head)
 years = by_year(joint)
@@ -142,7 +143,7 @@ with hero("sow"):
     source_note(
         "USDA AMS Feeder Pig Report; cost: Iowa State farrow-to-wean structure with Iowa corn "
         "(USDA NASS) by month",
-        "soybean meal and non-feed held at today's inputs",
+        "feed at Iowa prices of the time (soybean meal from 2022); non-feed at today's inputs",
     )
 
 st.space("medium")

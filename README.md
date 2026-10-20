@@ -61,7 +61,7 @@ time it runs. Never share the keys or commit `.env`.
 
 | Key | Unlocks | Where to get it (free) |
 |---|---|---|
-| `USDA_MMN_API_KEY` | Optional: history for the USDA reports the app reads (My Market News) | <https://mymarketnews.ams.usda.gov/mymarketnews-api> |
+| `USDA_MMN_API_KEY` | History for the USDA reports: weaned pigs (cash and formula) and Iowa corn and basis since 2020, soybean meal and DDGS since 2022. Past crush margins then use the feed prices of the time. Feed prices page. | <https://mymarketnews.ams.usda.gov/mymarketnews-api> |
 | `NASS_API_KEY` | Hog supply page: quarterly Hogs & Pigs inventory, supply outlook, U.S. pigs-per-litter benchmark, Iowa corn prices (works offline from bundled data without a key) | <https://quickstats.nass.usda.gov/api> |
 
 Optional: add `PREPARED_BY=Your Name` to `.env` to sign the page footer and the Excel report.

@@ -233,14 +233,30 @@ def _ts(x: object) -> pd.Timestamp:
     return cast(pd.Timestamp, pd.Timestamp(str(x)))
 
 
+def _monthly(frame: pd.DataFrame | None) -> dict[np.datetime64, float]:
+    """Month -> price from a (month, usd_per_bu | usd) frame."""
+    if frame is None or frame.empty:
+        return {}
+    col = "usd_per_bu" if "usd_per_bu" in frame else "usd"
+    months = pd.to_datetime(frame["month"]).to_numpy(dtype="datetime64[M]")
+    return dict(zip(months, frame[col].to_numpy(dtype=float), strict=True))
+
+
+def _on_feed_avg(by_month: dict[np.datetime64, float], placed: np.datetime64,
+                 sold: np.datetime64, fallback: float) -> float:  # fmt: skip
+    """Average monthly price over the months on feed; months not reported use `fallback`."""
+    if not by_month:
+        return fallback
+    start, end = placed.astype("datetime64[M]"), sold.astype("datetime64[M]")
+    months = np.arange(start, end + np.timedelta64(1, "M"))
+    return float(np.mean([by_month.get(m, fallback) for m in months]))
+
+
 def _corn_on_feed(corn: pd.DataFrame | None, placed: pd.Timestamp, sold: pd.Timestamp,
                   fallback: float) -> float:  # fmt: skip
     """Average monthly corn price over the months on feed; months not reported use `fallback`."""
-    months = pd.date_range(placed.to_period("M").to_timestamp(), sold, freq="MS")
-    if corn is None or corn.empty or len(months) == 0:
-        return fallback
-    by_month = dict(zip(pd.to_datetime(corn["month"]), corn["usd_per_bu"], strict=True))
-    return float(np.mean([by_month.get(m, fallback) for m in months]))
+    return _on_feed_avg(_monthly(corn), np.datetime64(placed.date()), np.datetime64(sold.date()),
+                        fallback)  # fmt: skip
 
 
 def placements(
@@ -251,13 +267,16 @@ def placements(
     corn: pd.DataFrame | None = None,
     corn_curve: Mapping[Contract, float] | None = None,
     corn_basis: float = 0.0,
+    sbm: pd.DataFrame | None = None,
+    ddgs: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """Margin for each week's placement at that week's USDA weaned pig price.
 
     Pigs are placed the Monday of the report week and sold `days_on_feed` later. Sold already:
     status "sold", priced at the index averaged over the sale week. Still on feed: status
     "on feed", priced at its contract from `futures` (rows with no contract price are dropped).
-    Realized rows use Iowa corn over the months on feed when `corn` is given; rows on feed use
+    Realized rows use Iowa corn (and soybean meal and DDGS when `sbm`/`ddgs` monthly frames are
+    given) averaged over the months on feed; rows on feed use
     the CBOT corn curve plus your basis when `corn_curve` is given, else today's corn. Soybean
     meal, DDGS and other costs are today's inputs throughout.
     """
@@ -266,6 +285,7 @@ def placements(
     weeks = pd.to_datetime(pigs["week_ending"]).to_numpy(dtype="datetime64[D]")
     cash = pigs["cash_usd_per_head"].to_numpy(dtype=float)
     rows = []
+    corn_m, sbm_m, ddgs_m = _monthly(corn), _monthly(sbm), _monthly(ddgs)
     for week, pig in zip(weeks, cash, strict=True):
         placed = week - np.timedelta64(4, "D")
         sold = placed + np.timedelta64(c.days_on_feed, "D")
@@ -276,8 +296,12 @@ def placements(
             if len(near) == 0 or sold < days.min():
                 continue
             hog, status, label = float(near.mean()), "sold", "Index"
-            corn_px = _corn_on_feed(corn, _ts(placed), _ts(sold), c.corn_usd_per_bu)
+            corn_px = _on_feed_avg(corn_m, placed, sold, c.corn_usd_per_bu)
+            # Soybean meal and DDGS at the Iowa prices of the time where USDA history exists.
+            sbm_px = _on_feed_avg(sbm_m, placed, sold, c.sbm_usd_per_ton)
+            ddgs_px = _on_feed_avg(ddgs_m, placed, sold, c.ddgs_usd_per_ton)
         else:
+            sbm_px, ddgs_px = c.sbm_usd_per_ton, c.ddgs_usd_per_ton
             k = contract_for(_ts(sold).date())
             if k not in futures:
                 continue
@@ -288,12 +312,16 @@ def placements(
                 else c.corn_usd_per_bu
             )
         pig = float(pig)
-        cost = cost_usd(c, pig, corn_px)
+        same = (sbm_px, ddgs_px) == (c.sbm_usd_per_ton, c.ddgs_usd_per_ton)
+        upd = {"sbm_usd_per_ton": sbm_px, "ddgs_usd_per_ton": ddgs_px}
+        c_row = c if same else c.model_copy(update=upd)
+        cost = cost_usd(c_row, pig, corn_px)
         revenue = c.carcass_cwt * (hog + c.basis_usd_per_cwt)
         rows.append(
             {"placed": _ts(placed), "sold": _ts(sold), "status": status, "priced_on": label,
              "pig_usd": pig + c.adder_usd_per_head, "hog_usd_per_cwt": hog,
-             "corn_usd_per_bu": corn_px, "revenue_usd": revenue, "cost_usd": cost,
+             "corn_usd_per_bu": corn_px, "sbm_usd_per_ton": sbm_px, "ddgs_usd_per_ton": ddgs_px,
+             "revenue_usd": revenue, "cost_usd": cost,
              "margin_usd": revenue - cost, "worth_usd": pig + c.adder_usd_per_head + revenue - cost}
         )  # fmt: skip
     return pd.DataFrame(rows)

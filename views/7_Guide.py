@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from hogproj import supply
+from hogproj.config import get_settings
 from hogproj.ui import INK, INK_2, LINE, MUTED, chart_title, hog_index, masthead, nass_data, rule
 
 idx, hog_source, _ = hog_index()
@@ -207,9 +208,12 @@ rows = [
     ),
     (
         "USDA AMS · My Market News",
-        "History for the reports above",
-        "Daily",
-        "Optional: add USDA_MMN_API_KEY to .env",
+        "History: weaned pigs (cash and formula) since 2020, Iowa corn and basis since 2020, "
+        "soybean meal and DDGS since 2022",
+        "Daily / weekly",
+        "Connected"
+        if get_settings().usda_mmn_api_key.strip()
+        else "Optional: add USDA_MMN_API_KEY to .env",
     ),
 ]
 head = "".join(
