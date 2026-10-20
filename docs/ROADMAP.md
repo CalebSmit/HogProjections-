@@ -84,9 +84,9 @@ Each phase ends with a usable app, pushed to the PR branch.
 Goal: a clean, repeatable base to build on overnight.
 
 - [x] Type checker back to 0 errors
-- [ ] `scripts/screenshots.py`: Playwright (installed Edge/Chrome) screenshots of every page at
+- [x] `scripts/screenshots.py`: Playwright (installed Edge/Chrome) screenshots of every page at
       1440 and 390 px into `outputs/shots/` (git-ignored)
-- [ ] Offline smoke test in pytest (forces `OFFLINE`, checks every page)
+- [x] Offline smoke test in pytest (forces `OFFLINE`, checks every page)
 
 **Gate:** standard gate.
 
@@ -95,16 +95,16 @@ Goal: a clean, repeatable base to build on overnight.
 ### Phase 1 — Crush history: what weaned pigs turned out to be worth
 Goal: the reference view of the past. Answers "was that a good price for the pig?"
 
-- [ ] Extend LM_HG201 history to Jan 2020 (chunked fetch, bundled sample) so every USDA weaned
+- [x] Extend LM_HG201 history to Jan 2020 (chunked fetch, bundled sample) so every USDA weaned
       pig week since Oct 2020 has a realized sale price
-- [ ] `crush.realized_value`: for each placement week, the pig price that would have broken
+- [x] `crush.realized_value`: for each placement week, the pig price that would have broken
       even given the hog price it actually sold at and the corn it actually ate
       (**"what the pig was worth"**) and the spread to what was paid
-- [ ] `crush.margin_rank`: percentile of any margin against all realized placements
-- [ ] Seasonality of realized margin by placement month (year × month grid, plus average)
-- [ ] New page **Crush history** (Markets → or Wean to finish tab): paid vs worth chart,
+- [x] `crush.margin_rank`: percentile of any margin against all realized placements
+- [x] Seasonality of realized margin by placement month (year × month grid, plus average)
+- [x] New page **Crush history** (Markets → or Wean to finish tab): paid vs worth chart,
       year × month heatmap, best/worst placement weeks, annual summary table, CSV download
-- [ ] Wean to finish hero gains the rank: "worse than 82% of placements since 2020"
+- [x] Wean to finish hero gains the rank: "worse than 82% of placements since 2020"
 
 **Phase tests:**
 - Realized value: margin at the realized value is $0 (property), hand-calculated value for

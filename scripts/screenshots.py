@@ -23,6 +23,7 @@ PAGES = {
     "herd": "Herd_flow",
     "costs": "Costs_and_returns",
     "w2f": "Wean_to_finish",
+    "history": "Crush_history",
     "scenarios": "Scenarios",
     "risk": "Risk",
     "market": "Market_prices",

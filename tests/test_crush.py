@@ -3,19 +3,25 @@
 from datetime import date
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 
 from hogproj.crush import (
+    MONTHS,
     CrushInputs,
+    annual_summary,
     breakeven_hog,
     breakeven_pig,
+    by_month,
     contract_expiry,
     contract_for,
     contract_label,
     contracts_needed,
     cost_table,
+    margin_rank,
     margin_usd,
+    month_average,
     placements,
 )
 from hogproj.data.feeder import merge, parse_report
@@ -148,3 +154,51 @@ def test_parse_corn():
     ]})  # fmt: skip
     assert list(df["month"]) == [pd.Timestamp("2026-08-01")]
     assert df["usd_per_bu"].iloc[0] == 4.44
+
+
+# --- History ------------------------------------------------------------------------------------
+def _history() -> pd.DataFrame:
+    """Two years of weekly placements with a fixed pig price, sold into a known index."""
+    weeks = pd.date_range("2024-01-05", "2025-06-27", freq="W-FRI")
+    pigs = pd.DataFrame({"week_ending": weeks, "cash_usd_per_head": 40.0})
+    days = pd.bdate_range("2024-01-01", "2026-01-30")
+    price = 80 + 10 * np.sin(2 * np.pi * np.array([d.dayofyear for d in days]) / 365)
+    idx = pd.DataFrame({"index_date": days, "lean_hog_index_usd_per_cwt_carcass": price})
+    return placements(pigs, idx, CrushInputs(), {})
+
+
+def test_worth_minus_paid_is_margin():
+    rows = _history()
+    assert len(rows) > 50
+    diff = rows["worth_usd"] - rows["pig_usd"] - rows["margin_usd"]
+    assert np.abs(diff.to_numpy()).max() < 1e-9
+
+
+def test_margin_rank():
+    hist = [-10.0, 0.0, 0.0, 10.0]
+    assert margin_rank(-20, hist) == 0
+    assert margin_rank(20, hist) == 100
+    assert margin_rank(0, hist) == pytest.approx(50)  # one below, two ties counted half
+    assert margin_rank(5, hist) == pytest.approx(75)
+    assert np.isnan(margin_rank(1, []))
+
+
+def test_by_month_matches_manual_pivot():
+    rows = _history()
+    grid = by_month(rows)
+    assert list(grid.columns) == MONTHS
+    sold = pd.DataFrame(rows[rows["status"] == "sold"])
+    placed = pd.Series(pd.to_datetime(sold["placed"]))
+    mar_2024 = sold[(placed.dt.year == 2024) & (placed.dt.month == 3)]
+    assert grid.loc[2024, "Mar"] == pytest.approx(mar_2024["margin_usd"].mean())
+    avg = month_average(rows)
+    assert avg["Mar"] == pytest.approx(sold[placed.dt.month == 3]["margin_usd"].mean())
+
+
+def test_annual_summary():
+    rows = _history()
+    s = annual_summary(rows).set_index("year")
+    sold = rows[(rows["status"] == "sold") & (rows["placed"].dt.year == 2024)]
+    assert s.loc[2024, "weeks"] == len(sold)
+    assert s.loc[2024, "profitable"] == pytest.approx((sold["margin_usd"] > 0).mean())
+    assert s.loc[2024, "worst_usd"] == pytest.approx(sold["margin_usd"].min())

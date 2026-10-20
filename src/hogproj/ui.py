@@ -8,7 +8,8 @@ Tokens here mirror .streamlit/config.toml; keep them in sync.
 
 import html
 from collections.abc import Sequence
-from datetime import date
+from dataclasses import dataclass
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Literal
 
@@ -19,14 +20,21 @@ import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 
 from hogproj.config import ROOT, get_settings
-from hogproj.crush import CrushInputs
+from hogproj.crush import (
+    Contract,
+    CrushInputs,
+    contract_for,
+    contracts_needed,
+    model_contract_prices,
+    placements,
+)
 from hogproj.data.ams import Source, load_hg201
 from hogproj.data.feeder import load as feeder_load
 from hogproj.data.nass import load as nass_load
 from hogproj.data.nass import load_corn
 from hogproj.finance import CostInputs
 from hogproj.herd import HerdInputs
-from hogproj.markets import lean_hog_index
+from hogproj.markets import lean_hog_index, seasonal_factors
 from hogproj.outlook import Plan
 
 # --- Tokens ---------------------------------------------------------------------------------
@@ -471,6 +479,47 @@ def crush_from_state() -> CrushInputs:
             v = ss[key] * scale
             upd[field] = int(v) if field == "days_on_feed" else float(v)
     return CrushInputs().model_copy(update=upd)
+
+
+def lh_key(k: Contract) -> str:
+    """Widget key for a lean hog contract price, e.g. w2f_lh_2027_04."""
+    return f"w2f_lh_{k[0]}_{k[1]:02d}"
+
+
+@dataclass
+class CrushBook:
+    """Everything the wean-to-finish pages share: inputs, contract prices and placements."""
+
+    c: CrushInputs
+    contracts: list[Contract]
+    model: dict[Contract, float]  # seasonal estimate per contract
+    futures: dict[Contract, float]  # the user's price where entered, else the estimate
+    user_set: list[Contract]  # contracts the user has priced
+    this_contract: Contract  # the contract a pig placed today sells into
+    hog: float  # its price
+    index_now: float
+    rows: pd.DataFrame  # crush.placements for every USDA week
+
+
+def crush_book() -> CrushBook:
+    ss = st.session_state
+    c = crush_from_state()
+    idx, _, _ = hog_index()
+    pigs, _, _ = weaned_pigs()
+    corn, _, _ = iowa_corn()
+    today = date.today()
+    index_now = float(idx["lean_hog_index_usd_per_cwt_carcass"].iloc[-1])
+    last_index = date.fromisoformat(str(idx["index_date"].iloc[-1])[:10])
+    contracts = contracts_needed(pigs.tail(40), c, today, last_index)
+    model = model_contract_prices(contracts, today, index_now, seasonal_factors(idx))
+    futures = {
+        k: float(model[k] if ss.get(lh_key(k)) is None else ss[lh_key(k)]) for k in contracts
+    }
+    user_set = [k for k in contracts if futures[k] != model[k]]
+    this = contract_for(today + timedelta(days=c.days_on_feed))
+    return CrushBook(c=c, contracts=contracts, model=model, futures=futures, user_set=user_set,
+                     this_contract=this, hog=futures.get(this, index_now), index_now=index_now,
+                     rows=placements(pigs, idx, c, futures, corn))  # fmt: skip
 
 
 def current_plan() -> Plan:

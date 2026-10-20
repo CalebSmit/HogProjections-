@@ -83,3 +83,12 @@ def test_wean_to_finish_follows_its_inputs():
     at.number_input(key="w2f_adder").set_value(10.0).run()
     assert not at.exception
     assert at.title[0].value != before  # $10 more per pig changes the margin in the headline
+
+
+def test_crush_history_follows_wean_to_finish_inputs():
+    at = app().switch_page("views/9_Crush_history.py").run()
+    before = at.title[0].value
+    at.session_state["w2f_adder"] = 10.0
+    at.run()
+    assert not at.exception
+    assert at.title[0].value != before  # a $10 adder lowers every past margin

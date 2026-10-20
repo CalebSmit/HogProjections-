@@ -62,6 +62,11 @@ page = st.navigation(
                 title="Wean to finish",
                 icon=":material/swap_horiz:",
             ),
+            st.Page(
+                "views/9_Crush_history.py",
+                title="Crush history",
+                icon=":material/history:",
+            ),
         ],
         "Decisions": [
             st.Page("views/4_Scenarios.py", title="Scenarios", icon=":material/compare_arrows:"),

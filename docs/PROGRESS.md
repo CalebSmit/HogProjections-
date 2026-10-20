@@ -169,3 +169,19 @@ Newest at the bottom.
   weekly brief, archive, polish) with a standard gate plus per-phase tests.
 - `scripts/screenshots.py`: every page at 1440 and 390 px into `outputs/shots/`.
 - Phone review found the sidebar covering the page (forced "expanded"); now "auto".
+
+## 2026-10-20 — Phase 1: crush history
+
+- LM_HG201 loader is incremental (saved copy + new days + a week of overlap) and reaches back to
+  Jan 2020; bundled sample now 2020→ (~540 KB). Index still matches CME 75.75 on Oct 12, 2026.
+- `crush.py`: `worth_usd` per placement (break-even pig price given realized hog and corn),
+  `margin_rank`, `by_month`, `month_average`, `annual_summary`. Shared `ui.crush_book()` so both
+  wean-to-finish pages use one set of contract prices and placements.
+- New **Crush history** page: paid vs worth, year × month heatmap, today's percentile in the
+  distribution, annual table, best/worst weeks, CSV. Wean to finish hero shows the percentile.
+- Findings on default inputs: 293 weeks since Sep 2020, avg +$3.26/pig, 57% profitable; Nov
+  placements best (+$10.94), Aug worst (−$11.50).
+- Data-source research saved to `docs/research/data-sources.md`: keyless AMS PDFs give Iowa cash
+  corn (2850), soybean meal (3511) and DDGS (3618) — feed prices no longer wait on the MMN key.
+  Yahoo futures rejected on terms of use.
+- Gate: ruff, pyright 0, 106 tests, desktop + phone screenshots reviewed.

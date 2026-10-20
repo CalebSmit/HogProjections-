@@ -17,6 +17,7 @@ from hogproj.config import CACHE_DIR, SAMPLE_DIR
 DATAMART_URL = "https://mpr.datamart.ams.usda.gov/services/v1.1/reports"
 HG201_SLUG = 2511
 HG201_FILE = "lm_hg201_barrows_gilts.csv"
+HISTORY_START = date(2020, 1, 1)  # covers every weaned pig week in the bundled sample
 
 # Producer-sold purchase types the index uses, plus the all-types row for context.
 KEEP_PURCHASE_TYPES = [
@@ -69,15 +70,44 @@ def _read(path: Path) -> pd.DataFrame:
     return pd.read_csv(path, parse_dates=["report_date", "slaughter_date"])
 
 
-def load_hg201(offline: bool, years: int = 3) -> tuple[pd.DataFrame, Source, str]:
-    """Return (data, source, note). Never raises for network problems."""
+def merge_hg201(old: pd.DataFrame, new: pd.DataFrame) -> pd.DataFrame:
+    """Saved rows plus newly fetched ones; a re-fetched day replaces the saved copy."""
+    both = pd.concat([f for f in (old, new) if not f.empty], ignore_index=True)
+    both = both.drop_duplicates(["slaughter_date", "purchase_type"], keep="last")
+    return both.sort_values(["slaughter_date", "purchase_type"]).reset_index(drop=True)
+
+
+def _fetch_range(start: date, end: date) -> pd.DataFrame:
+    """Fetch in one-year requests (USDA answers a year in ~2 s)."""
+    parts = []
+    while start <= end:
+        stop = min(end, start + timedelta(days=364))
+        parts.append(fetch_hg201(start, stop))
+        start = stop + timedelta(days=1)
+    parts = [p for p in parts if not p.empty]
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+
+
+def load_hg201(offline: bool, start: date = HISTORY_START) -> tuple[pd.DataFrame, Source, str]:
+    """Return (data, source, note). Never raises for network problems.
+
+    Incremental: starts from the saved copy (cache, else the bundled sample), fetches only the
+    days after it (plus a week of overlap for revisions) and any years before it back to
+    `start`, then saves the merged history.
+    """
     cache = CACHE_DIR / HG201_FILE
+    saved = _read(cache) if cache.exists() else _read(SAMPLE_DIR / HG201_FILE)
+    saved_source: Source = "cache" if cache.exists() else "sample"
     if not offline:
         try:
-            end = date.today()
-            df = fetch_hg201(end - timedelta(days=365 * years), end)
-            if df.empty:
+            first = date.fromisoformat(str(saved["report_date"].min())[:10])
+            last = date.fromisoformat(str(saved["report_date"].max())[:10])
+            new = _fetch_range(last - timedelta(days=7), date.today())
+            if first > start + timedelta(days=7):
+                new = merge_hg201(_fetch_range(start, first), new)
+            if new.empty:
                 raise ValueError("USDA returned no rows")
+            df = merge_hg201(saved, new)
             CACHE_DIR.mkdir(parents=True, exist_ok=True)
             df.to_csv(cache, index=False)
             return df, "live", "Live from USDA AMS (LM_HG201)."
@@ -85,10 +115,6 @@ def load_hg201(offline: bool, years: int = 3) -> tuple[pd.DataFrame, Source, str
             problem = f"Couldn't reach USDA ({type(e).__name__})."
     else:
         problem = "Offline mode."
-    if cache.exists():
-        df = _read(cache)
-        last = df["report_date"].max()
-        return df, "cache", f"{problem} Showing saved data through {last:%b %d, %Y}."
-    df = _read(SAMPLE_DIR / HG201_FILE)
-    last = df["report_date"].max()
-    return df, "sample", f"{problem} Showing bundled sample data through {last:%b %d, %Y}."
+    last = saved["report_date"].max()
+    where = "saved data" if saved_source == "cache" else "bundled sample data"
+    return saved, saved_source, f"{problem} Showing {where} through {last:%b %d, %Y}."

@@ -11,18 +11,14 @@ from hogproj.crush import (
     CrushInputs,
     breakeven_hog,
     breakeven_pig,
-    contract_for,
     contract_label,
-    contracts_needed,
     cost_table,
     cost_usd,
     feed_lines,
+    margin_rank,
     margin_usd,
-    model_contract_prices,
-    placements,
 )
 from hogproj.finance import CostInputs
-from hogproj.markets import seasonal_factors
 from hogproj.ui import (
     ACCENT,
     HISTORY,
@@ -36,11 +32,12 @@ from hogproj.ui import (
     chart,
     chart_title,
     chip,
-    crush_from_state,
+    crush_book,
     hero,
     hog_index,
     iowa_corn,
     latest_weaned_pig,
+    lh_key,
     masthead,
     md,
     projection_band,
@@ -69,9 +66,8 @@ d = CrushInputs()
 cd = CostInputs()
 
 # Contract prices: the user's futures where entered, else a seasonal estimate from the index.
-c0 = crush_from_state()
-contracts = contracts_needed(pigs.tail(40), c0, today, last_index)
-model = model_contract_prices(contracts, today, index_now, seasonal_factors(idx))
+book0 = crush_book()
+contracts, model = book0.contracts, book0.model
 
 
 def avg(df: pd.DataFrame, col: str) -> float:
@@ -82,17 +78,12 @@ def only(df: pd.DataFrame, mask: object) -> pd.DataFrame:
     return pd.DataFrame(df[mask])  # keeps pyright on DataFrame, not Series | ndarray
 
 
-def lh_key(k: tuple[int, int]) -> str:
-    return f"w2f_lh_{k[0]}_{k[1]:02d}"
-
-
 def cur(key: str, default: float) -> float:
     v = ss.get(key)
     return float(default if v is None else v)
 
 
-this_contract = contract_for(today + timedelta(days=c0.days_on_feed))
-user_set = [k for k in contracts if lh_key(k) in ss and float(ss[lh_key(k)]) != model[k]]
+this_contract = book0.this_contract
 
 # --- Masthead + assumptions -------------------------------------------------------------
 head = st.empty()
@@ -199,16 +190,14 @@ with assumption_bar("w2f"):
         b.number_input("Term interest", 0.0, 100.0, 0.0, 0.1, key="w2f_term_int")
 
 # --- Numbers ------------------------------------------------------------------------------
-c = crush_from_state()
-futures = {k: cur(lh_key(k), model[k]) for k in contracts}
-this_contract = contract_for(today + timedelta(days=c.days_on_feed))
-hog = futures.get(this_contract, index_now)
+book = crush_book()
+c, futures, this_contract, hog = book.c, book.futures, book.this_contract, book.hog
 m = margin_usd(c, hog)
 cost = cost_usd(c)
 be_pig = breakeven_pig(c, hog)
 be_hog = breakeven_hog(c)
 sold_date = today + timedelta(days=c.days_on_feed)
-rows = placements(pigs, idx, c, futures, corn_hist)
+rows = book.rows
 sold = only(rows, rows["status"] == "sold")
 on_feed = only(rows, rows["status"] == "on feed")
 year_ago = only(pigs, pigs["week_ending"] <= usda_week - pd.Timedelta(days=358))
@@ -217,7 +206,9 @@ pig_yoy = (
     if len(year_ago)
     else None
 )
-uses_model = len(user_set) == 0
+uses_model = len(book.user_set) == 0
+rank = margin_rank(m, sold["margin_usd"].to_numpy(dtype=float))
+first_sold = pd.Timestamp(str(sold["placed"].min()))
 
 with head.container():
     verb = "make" if m >= 0 else "lose"
@@ -247,7 +238,8 @@ with hero("w2f"):
             "per pig",
             f"{signed(hog - be_hog)}/cwt vs breakeven",
             tone_of(m),
-            f"Cost {usd(cost)} a pig · breakeven {usd(be_hog)}/cwt index",
+            f"Better than {rank:.0f}% of placements since {first_sold:%Y} · breakeven "
+            f"{usd(be_hog)}/cwt index",
         )
         on_feed_avg = avg(on_feed, "margin_usd")
         stat_strip(

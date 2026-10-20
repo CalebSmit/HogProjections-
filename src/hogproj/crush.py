@@ -11,7 +11,7 @@ the index (grid premiums, sorting losses), so realized and projected margins are
 Pure: DataFrames and models in, DataFrames and numbers out.
 """
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from datetime import date, timedelta
 from typing import Annotated, cast
 
@@ -212,9 +212,75 @@ def placements(
             {"placed": _ts(placed), "sold": _ts(sold), "status": status, "priced_on": label,
              "pig_usd": pig + c.adder_usd_per_head, "hog_usd_per_cwt": hog,
              "corn_usd_per_bu": corn_px, "revenue_usd": revenue, "cost_usd": cost,
-             "margin_usd": revenue - cost}
+             "margin_usd": revenue - cost, "worth_usd": pig + c.adder_usd_per_head + revenue - cost}
         )  # fmt: skip
     return pd.DataFrame(rows)
+
+
+# --- History ----------------------------------------------------------------------------------
+# `worth_usd` on each placement row is what the pig turned out to be worth: the price (including
+# your adder) at which that placement would have broken even, given the hog price it sold at and
+# the corn it ate. worth − paid = margin.
+
+MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
+def _sold(rows: pd.DataFrame) -> pd.DataFrame:
+    return pd.DataFrame(rows[rows["status"] == "sold"])
+
+
+def _year_month(df: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
+    months = pd.to_datetime(df["placed"]).to_numpy(dtype="datetime64[M]").astype(int)
+    return months // 12 + 1970, months % 12 + 1
+
+
+def margin_rank(value: float, history: Sequence[float] | np.ndarray) -> float:
+    """Percentile (0-100) of `value` among past margins: share below, ties counted half."""
+    h = np.asarray(history, dtype=float)
+    h = h[~np.isnan(h)]
+    if len(h) == 0:
+        return float("nan")
+    return float(((h < value).sum() + 0.5 * (h == value).sum()) / len(h) * 100)
+
+
+def by_month(rows: pd.DataFrame) -> pd.DataFrame:
+    """Average realized margin per pig by placement year (rows) and month (columns Jan..Dec)."""
+    sold = _sold(rows)
+    year, month = _year_month(sold)
+    grid = (
+        pd.DataFrame({"year": year, "month": month,
+                      "margin": sold["margin_usd"].to_numpy(dtype=float)})
+        .pivot_table(index="year", columns="month", values="margin", aggfunc="mean")
+        .reindex(columns=range(1, 13))
+    )  # fmt: skip
+    grid.columns = MONTHS
+    return grid
+
+
+def month_average(rows: pd.DataFrame) -> pd.Series:
+    """Average realized margin by placement month across all years (each week counts once)."""
+    sold = _sold(rows)
+    _, month = _year_month(sold)
+    m = sold["margin_usd"].to_numpy(dtype=float)
+    return pd.Series([float(m[month == k].mean()) if (month == k).any() else float("nan")
+                      for k in range(1, 13)], index=MONTHS)  # fmt: skip
+
+
+def annual_summary(rows: pd.DataFrame) -> pd.DataFrame:
+    """Per placement year: weeks, average paid / worth / margin, share of weeks that made money,
+    and the best and worst week's margin."""
+    sold = _sold(rows)
+    year, _ = _year_month(sold)
+    out = []
+    for y in sorted(set(year.tolist())):
+        part = pd.DataFrame(sold[year == y])
+        m = part["margin_usd"].to_numpy(dtype=float)
+        out.append({"year": int(y), "weeks": len(part),
+                    "paid_usd": float(part["pig_usd"].to_numpy(dtype=float).mean()),
+                    "worth_usd": float(part["worth_usd"].to_numpy(dtype=float).mean()),
+                    "margin_usd": float(m.mean()), "profitable": float((m > 0).mean()),
+                    "best_usd": float(m.max()), "worst_usd": float(m.min())})  # fmt: skip
+    return pd.DataFrame(out)
 
 
 def contracts_needed(
