@@ -1,0 +1,44 @@
+name: Refresh USDA data
+
+# Every Monday: pull the latest USDA reports into data/sample (what a fresh download ships with)
+# and fail loudly if a source stopped reading — GitHub emails the repo owner on failure.
+on:
+  schedule:
+    - cron: "30 14 * * 1"  # Mondays 14:30 UTC (morning in the Midwest)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Refresh data and check every source
+        id: refresh
+        env:
+          # Optional: add these as repository secrets to refresh keyed sources too.
+          USDA_MMN_API_KEY: ${{ secrets.USDA_MMN_API_KEY }}
+          NASS_API_KEY: ${{ secrets.NASS_API_KEY }}
+        run: uv run python scripts/refresh_data.py
+        continue-on-error: true
+      - name: Tests still pass on the new data
+        run: uv run pytest -q
+      - name: Commit refreshed data
+        run: |
+          git config user.name "hog-projections-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/sample
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "data: weekly USDA refresh"
+          git push
+      - name: Fail if a source stopped reading
+        if: steps.refresh.outcome == 'failure'
+        run: |
+          echo "::error::A USDA source didn't refresh. See the 'Refresh data' step log."
+          exit 1

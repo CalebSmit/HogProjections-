@@ -6927,3 +6927,7 @@ report_date,slaughter_date,purchase_type,head_count,avg_net_price_cwt_carcass,av
 2026-10-19,2026-10-16,Prod. Sold Negotiated,4549.0,73.09,220.77,281.76
 2026-10-19,2026-10-16,Prod. Sold Negotiated Formula,1554.0,,,
 2026-10-19,2026-10-16,Prod. Sold Swine or Pork Market Formula,162126.0,73.01,220.13,293.02
+2026-10-20,2026-10-19,Prod. Sold (All Purchase Types),233884.0,75.11,216.53,288.51
+2026-10-20,2026-10-19,Prod. Sold Negotiated,3902.0,70.23,215.37,286.38
+2026-10-20,2026-10-19,Prod. Sold Negotiated Formula,1407.0,,,
+2026-10-20,2026-10-19,Prod. Sold Swine or Pork Market Formula,124969.0,73.11,217.84,290.26
