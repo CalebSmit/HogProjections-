@@ -13,7 +13,9 @@ def day(d: object, fmt: str = "%b %d, %Y") -> str:
     import pandas as pd
 
     t = pd.Timestamp(str(d)) if not hasattr(d, "strftime") else d
-    return t.strftime(fmt.replace("%d", "\x00")).replace("\x00", str(t.day))  # type: ignore[union-attr]
+    # A plain-text marker: Linux's strftime stops at a NUL byte, so "\x00" cut the date short.
+    out = t.strftime(fmt.replace("%d", "@@DAY@@"))  # type: ignore[union-attr]
+    return out.replace("@@DAY@@", str(t.day))
 
 
 def article(phrase: str) -> str:
