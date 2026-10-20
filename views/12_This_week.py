@@ -40,6 +40,7 @@ from hogproj.ui import (
     hog_market,
     insight,
     iowa_corn,
+    margin_board,
     market_signals,
     mars_data,
     masthead,
@@ -245,6 +246,8 @@ with hero("week"):
                  "scorecard", "This week's scorecard and market signals",
                  "USDA AMS, EIA")  # fmt: skip
 
+fb = margin_board()
+fb_top = fb.loc[fb["rank"].idxmax()] if not fb.empty else None
 # --- Watch list: things to act on ------------------------------
 watch: list[tuple[Tone, str]] = []
 if len(on_feed):
@@ -255,6 +258,10 @@ if len(on_feed):
                             held, hrule, float(k_margin))  # fmt: skip
         if t == "caution":
             watch.append(("caution", f"{k_label}: {why}"))
+for r in fb.to_dict("records") if not fb.empty else []:
+    if r["rule_tone"] == "caution":
+        watch.append(("caution", f"Pigs not placed yet, selling into {r['contract']}: "
+                                 f"{r['rule_says']}"))  # fmt: skip
 if most > weaned.now:
     watch.append(("good", f"Weaned pigs at {usd(weaned.now)} are below the {usd(most)} one is "
                           "worth at today's contract prices."))  # fmt: skip
@@ -358,7 +365,18 @@ with b:
             card_tone,
             "Hedging",
             hedge_txt,
-            [(str(k), usd(float(v))) for k, v in by_k.items()][:3],
+            [(str(k), usd(float(v))) for k, v in by_k.items()][:3]
+            + (
+                [
+                    (
+                        "Best not yet placed",
+                        f"{fb_top['contract']} · {usd(fb_top['margin_usd'])} "
+                        f"({ordinal(fb_top['rank'])})",
+                    )
+                ]
+                if fb_top is not None
+                else []
+            ),
             "Ranks against every placement since 2020; enter hedges on the Hedging page.",
         )
     else:
