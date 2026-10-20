@@ -172,6 +172,14 @@ def cost_usd(c: CrushInputs, pig: float | None = None, corn: float | None = None
     return pig_cost + sum(feed_lines(c, corn).values()) + sum(other_lines(c).values())
 
 
+def operating_interest(c: CrushInputs, rate: float) -> float:
+    """$/pig to finance the pig for its whole time on feed and, on average, half of its other
+    costs (feed and the rest are spent as it grows), at an annual `rate` (0.08 = 8%)."""
+    pig = c.pig_usd_per_head + c.adder_usd_per_head
+    rest = sum(feed_lines(c).values()) + sum(other_lines(c).values()) - c.interest_usd
+    return (pig + rest / 2) * rate * c.days_on_feed / 365
+
+
 def cost_table(c: CrushInputs) -> pd.DataFrame:
     """Cost per pig by line: $/pig, $/cwt carcass and share of the total."""
     lines = {"Weaned pig": c.pig_usd_per_head + c.adder_usd_per_head, **feed_lines(c),

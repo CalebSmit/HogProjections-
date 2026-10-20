@@ -172,9 +172,10 @@ rows = [
     ),
     (
         "Iowa State University",
-        "Estimated Livestock Returns cost structure",
+        "Estimated Livestock Returns, farrow to finish",
         "Monthly",
-        "Latest month's budget sets the cost defaults (Costs & returns)",
+        "Other feed, non-feed, death loss and manure defaults follow the latest month until "
+        "you edit them (Costs & returns)",
     ),
     (
         "USDA AMS · Feeder Pig Report",
@@ -215,11 +216,43 @@ rows = [
     (
         "USDA AMS · My Market News",
         "History: weaned pigs (cash and formula) since 2020, Iowa corn and basis since 2020, "
-        "soybean meal and DDGS since 2022",
+        "soybean meal and DDGS since 2022; corn and basis in 11 states, feeder pig flows, hog "
+        "by-product (drop) value, retail pork features, all federally inspected slaughter",
         "Daily / weekly",
         "Connected"
         if get_settings().usda_mmn_api_key.strip()
         else "Optional: add USDA_MMN_API_KEY to .env",
+    ),
+    (
+        "USDA AMS · LM_HG218, LM_HG234",
+        "Hog prices by region and purchase type, hogs by state of origin, carcass weight "
+        "discounts, cull sow prices",
+        "Every business day",
+        "National view; cull sows on Sow farm; public, no key needed",
+    ),
+    (
+        "U.S. Energy Information Administration",
+        "Weekly on-highway diesel; Minnesota and Iowa propane (heating season)",
+        "Weekly, Mondays",
+        "Fuel charts on Costs & returns",
+    ),
+    (
+        "FRED (St. Louis Fed)",
+        "Bank prime loan rate",
+        "When the Fed moves rates",
+        "Operating interest hint on Wean to finish",
+    ),
+    (
+        "USDA WASDE archive (ESMIS)",
+        "Past WASDE hog price forecasts",
+        "Monthly",
+        "How far off USDA's forecasts have been (Hog market)",
+    ),
+    (
+        "Your Barchart or DTN export",
+        "Lean hog futures settlements",
+        "Whenever you upload one",
+        "Contract prices on Wean to finish and Hedging",
     ),
 ]
 head = "".join(

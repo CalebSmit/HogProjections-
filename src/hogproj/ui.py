@@ -743,6 +743,22 @@ def fuel_prices() -> tuple[pd.DataFrame, str, str]:
     return _eia(get_settings().offline)
 
 
+@st.cache_data(ttl=12 * 3600, show_spinner=False)
+def _fred(offline: bool) -> tuple[pd.DataFrame, str, str]:
+    from hogproj.data import fred
+
+    return fred.load(offline)
+
+
+def prime_rate() -> tuple[float, pd.Timestamp] | None:
+    """Latest bank prime rate (%, FRED) and its date."""
+    df = _fred(get_settings().offline)[0]
+    if df.empty:
+        return None
+    last = df.sort_values("date").iloc[-1]
+    return float(last["prime_pct"]), pd.Timestamp(str(last["date"]))
+
+
 def isu_data() -> tuple[pd.DataFrame, str, str]:
     """Iowa State Estimated Livestock Returns, farrow to finish, by sale month."""
     return _isu(get_settings().offline)
@@ -1419,7 +1435,7 @@ def warm_data() -> None:
     offline = get_settings().offline
     ctx = get_script_run_ctx()
     loaders = [_hg201, _cutout, _feeder, _feed, _nass, _corn, _wasde, _cold, _isu, _wasde_hist,
-               _eia,
+               _eia, _fred,
                *[lambda o, n=n: _mars(n, o) for n in [*mars.DATASETS, *mars.MULTI]],
                *[lambda o, n=n: _regional(n, o) for n in regional.DATASETS]]  # fmt: skip
 

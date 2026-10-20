@@ -15,14 +15,15 @@ browser on your own computer, on public USDA data.
 | Farm outlook | Is a farrow-to-finish operation making money at today's prices, and what moves it most? Excel report. |
 | Sow farm | What does a weaned pig cost to make, what does it sell for, and is finishing worth more than selling? |
 | Herd flow | How many pigs reach market each week, and when does a herd change show up? |
-| Costs & returns | What's our breakeven and cost per pig (Iowa State ELR format)? |
+| Costs & returns | What's our breakeven and cost per pig (Iowa State ELR format), and where are diesel and propane? |
 | Wean to finish | What does a weaned pig bought at the USDA price make when sold ~160 days later, and what's the most we can pay for one? |
 | Crush history | What have weaned pigs turned out to be worth since 2020, by season? How does today rank? |
 | Hedging | How much of the pigs on feed is locked in, what's open, and what does our hedge rule say? |
 | Scenarios | What would expanding, cheaper feed or better productivity do? |
 | Risk | What's the chance of a profit next year, and what would a price floor (LRP) do? |
 | Hog market | What's behind hog prices: cutout, packer spread, slaughter, weights, supply? |
-| Hog supply | How many hogs are coming, from USDA's quarterly Hogs and Pigs? |
+| National view | How do Iowa/Minnesota hog prices compare with other regions, where is corn cheapest, and where do pigs come from? |
+| Hog supply | How many hogs are coming (USDA Hogs and Pigs), and how many are packers killing now? |
 | Market archive | Every week since 2020 in one table, by year, ready to download. |
 
 No account is needed for hog prices, the pork cutout, weaned pig prices or Iowa feed prices:
