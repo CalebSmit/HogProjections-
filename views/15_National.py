@@ -18,6 +18,7 @@ from hogproj.ui import (
     SERIES,
     chart,
     chart_title,
+    ers_data,
     excel_button,
     hero,
     mars_data,
@@ -372,3 +373,48 @@ with right:
             "Hogs by state of origin",
             "USDA AMS LM_HG218",
         )
+
+# --- Pigs from Canada ---------------------------------------------------------------------------
+ht, ht_src, _ = ers_data("hog_trade")
+cp = nv.canada_pigs(ht)
+if cp is not None:
+    rule()
+    m = cp["monthly"]
+    this_y, last_y = cp["through"].year, cp["through"].year - 1
+    pct_ = cp["pigs_pct"]
+    chart_title(
+        f"{cp['pigs'] / 1e6:.2f}M weaned and feeder pigs came in from Canada through "
+        f"{cp['through']:%B}, {abs(pct_):.0%} {'more' if pct_ >= 0 else 'fewer'} than last year",
+        f"Live pigs under 23 kg imported per month, head · bars: {this_y}, dotted: {last_y}",
+    )
+    now_ = m[m.index.year == this_y]
+    prev_ = m[m.index.year == last_y]
+    fc = go.Figure()
+    fc.add_bar(
+        x=now_.index.month,
+        y=now_["pigs"],
+        name=str(this_y),
+        marker={"color": ACCENT, "cornerradius": 3},
+        hovertemplate=f"%{{x}}/{this_y}: %{{y:,.0f}} pigs<extra></extra>",
+    )
+    fc.add_scatter(x=prev_.index.month, y=prev_["pigs"], name=str(last_y), mode="lines+markers",
+                   line={"color": MUTED, "width": 1.6, "dash": "dot"},
+                   marker={"size": 8, "color": MUTED},
+                   hovertemplate=f"%{{x}}/{last_y}: %{{y:,.0f}} pigs<extra></extra>")  # fmt: skip
+    fc.update_xaxes(
+        tickmode="array",
+        tickvals=list(range(1, 13)),
+        ticktext=[f"{pd.Timestamp(2000, k, 1):%b}" for k in range(1, 13)],
+    )
+    fc.update_yaxes(tickformat="~s")
+    fc.update_layout(showlegend=False, bargap=0.35, hovermode="closest")
+    chart(fc, 270, on=PAGE)
+    sp_ = cp["slaughter_pct"]
+    source_note(
+        "USDA ERS Livestock and Meat International Trade" + (" (live)" if ht_src == "live"
+                                                             else " (saved)"),
+        f"slaughter hogs imported this year: {cp['slaughter'] / 1e6:.2f}M, "
+        + f"{sp_:+.0%}".replace("-", "−") + " vs last year; about two months behind",
+    )  # fmt: skip
+    excel_button({"Monthly": m.reset_index(), "By class and country": ht}, "live_hog_imports",
+                 "Live hog imports", "USDA ERS")  # fmt: skip

@@ -231,6 +231,18 @@ rows = [
         "National view; cull sows on Sow farm; public, no key needed",
     ),
     (
+        "USDA ERS · trade and price spreads",
+        "Pork exports by country, live hog imports (Canadian pigs), farm-to-retail pork values",
+        "Monthly, about two months behind",
+        "Demand section on Hog market; pigs from Canada on National view",
+    ),
+    (
+        "USDA AMS · weekly slaughter by class (AMS_3658)",
+        "Sows slaughtered each week",
+        "Weekly, about two weeks behind",
+        "Sow slaughter chart and signal (Hog supply, Hog market)",
+    ),
+    (
         "U.S. Energy Information Administration",
         "Weekly on-highway diesel; Minnesota and Iowa propane (heating season)",
         "Weekly, Mondays",

@@ -515,8 +515,14 @@ def market_signals() -> list:
     fi = hm.fi_vs_year_ago(mars_data("fi_slaughter")[0])
     if fi is not None and not is_current("Inspected slaughter", fi["end"]):
         fi = None  # stale (e.g. no key on this machine): fall back to LMR producer-sold head
+    sows = hm.sow_slaughter_vs_year_ago(mars_data("fi_weekly")[0])
+    if sows is not None and not is_current("Sow slaughter", sows["end"]):
+        sows = None
+    exports = hm.exports_ytd(ers_data("pork_trade")[0])
+    if exports is not None and not is_current("Pork exports", exports["through"]):
+        exports = None
     return hm.signals(hog_market(), supply.next_six_months(nass_data()[0])["pct"], wasde_now(),
-                      storage_now(), retail_now(), fi)  # fmt: skip
+                      storage_now(), retail_now(), fi, sows, exports)  # fmt: skip
 
 
 def retail_now() -> dict | None:
@@ -763,6 +769,18 @@ def prime_rate() -> tuple[float, pd.Timestamp] | None:
         return None
     last = df.sort_values("date").iloc[-1]
     return float(last["prime_pct"]), pd.Timestamp(str(last["date"]))
+
+
+@st.cache_data(ttl=24 * 3600, show_spinner=False)
+def _ers_trade(name: str, offline: bool) -> tuple[pd.DataFrame, str, str]:
+    from hogproj.data import ers_trade
+
+    return ers_trade.load(name, offline)
+
+
+def ers_data(name: str) -> tuple[pd.DataFrame, str, str]:
+    """USDA ERS monthly: "pork_trade", "hog_trade" (live hog imports) or "spreads"."""
+    return _ers_trade(name, get_settings().offline)
 
 
 def isu_data() -> tuple[pd.DataFrame, str, str]:
@@ -1573,6 +1591,7 @@ def warm_data() -> None:
     ctx = get_script_run_ctx()
     loaders = [_hg201, _cutout, _feeder, _feed, _nass, _corn, _wasde, _cold, _isu, _wasde_hist,
                _eia, _fred,
+               *[lambda o, n=n: _ers_trade(n, o) for n in ("pork_trade", "hog_trade", "spreads")],
                *[lambda o, n=n: _mars(n, o) for n in [*mars.DATASETS, *mars.MULTI]],
                *[lambda o, n=n: _regional(n, o) for n in regional.DATASETS]]  # fmt: skip
 
@@ -1633,6 +1652,14 @@ def data_status() -> list[Freshness]:
     fi, sfi, _ = mars_data("fi_slaughter")
     if not fi.empty:
         add("Inspected slaughter", fi["date"].max(), sfi)
+    fw, sfw, _ = mars_data("fi_weekly")
+    if not fw.empty:
+        add("Sow slaughter", fw["week_ending"].max(), sfw)
+    for name, label in (("pork_trade", "Pork exports"), ("spreads", "Pork price spreads"),
+                        ("hog_trade", "Live hog imports")):  # fmt: skip
+        ed, se, _ = ers_data(name)
+        if not ed.empty:
+            add(label, ed["month"].max(), se)
     fp, sf, _ = fuel_prices()
     dz = fp[fp["series"] == "diesel_us"]
     if not dz.empty:

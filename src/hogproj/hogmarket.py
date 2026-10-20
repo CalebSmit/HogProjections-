@@ -205,9 +205,67 @@ def fi_vs_year_ago(fi: pd.DataFrame | None, days: int = 28) -> dict | None:
             "head": float(x["head"].sum()), "end": _ts(d.max())}  # fmt: skip
 
 
+def sow_slaughter_vs_year_ago(fw: pd.DataFrame | None, weeks: int = 4) -> dict | None:
+    """Sows slaughtered over the last `weeks` reported weeks vs the same weeks a year earlier:
+    more culls than a year ago means the breeding herd is being cut (fewer pigs later)."""
+    if fw is None or fw.empty:
+        return None
+    sows = fw[fw["class"] == "Sows"].assign(week_ending=lambda x: pd.to_datetime(x["week_ending"]))
+    sows = sows.set_index("week_ending")["head"].sort_index()
+    last = sows.tail(weeks)
+    ago = sows.reindex(last.index - pd.Timedelta(days=364))
+    if len(last) < weeks or ago.isna().any() or ago.sum() == 0:
+        return None
+    return {"pct": float(last.sum() / ago.sum() - 1), "per_week": float(last.mean()),
+            "end": _ts(last.index[-1])}  # fmt: skip
+
+
+def exports_ytd(trade: pd.DataFrame | None, countries: int = 5) -> dict | None:
+    """Pork exports so far this year vs the same months last year, in total and for the
+    biggest buyers (carcass weight)."""
+    if trade is None or trade.empty:
+        return None
+    ex = trade[(trade["flow"] == "Exports") & (trade["commodity"] == "Pork")]
+    ex = ex.assign(month=pd.to_datetime(ex["month"]))
+    last = ex["month"].max()
+    this = ex[(ex["month"].dt.year == last.year) & (ex["month"] <= last)]
+    prev = ex[(ex["month"].dt.year == last.year - 1) & (ex["month"].dt.month <= last.month)]
+    a = this.groupby("country")["amount"].sum()
+    b = prev.groupby("country")["amount"].sum()
+    if "World total" not in a or not b.get("World total"):
+        return None
+    top = a.drop("World total").sort_values(ascending=False).head(countries)
+    by = pd.DataFrame({"ytd": top, "ytd_last_year": b.reindex(top.index)})
+    by["pct"] = by["ytd"] / by["ytd_last_year"] - 1
+    by["share"] = by["ytd"] / a["World total"]
+    return {"pct": float(a["World total"] / b["World total"] - 1), "through": _ts(last),
+            "total_mlb": float(a["World total"]) / 1000, "by_country": by}  # fmt: skip
+
+
+def farmer_share(spreads: pd.DataFrame | None) -> dict | None:
+    """Net farm value as a share of the retail pork dollar: latest month and a year earlier."""
+    if spreads is None or spreads.empty:
+        return None
+    w = spreads.pivot_table(index="month", columns="item", values="value").sort_index()
+    if not {"net_farm", "retail"} <= set(w.columns):
+        return None
+    share = (w["net_farm"] / w["retail"]).dropna()
+    last = share.index[-1]
+    ago = share.get(last - pd.DateOffset(years=1))
+    return {
+        "share": float(share.iloc[-1]),
+        "year_ago": None if ago is None else float(ago),
+        "month": _ts(last),
+        "retail": float(w["retail"].iloc[-1]),
+        "wholesale": float(w["wholesale"].iloc[-1]),
+        "net_farm": float(w["net_farm"].iloc[-1]),
+    }
+
+
 def signals(d: pd.DataFrame, supply_pct: float | None = None,
             wasde: dict | None = None, storage: dict | None = None,
-            retail: dict | None = None, fi: dict | None = None) -> list[Signal]:  # fmt: skip
+            retail: dict | None = None, fi: dict | None = None, sows: dict | None = None,
+            exports: dict | None = None) -> list[Signal]:  # fmt: skip
     out: list[Signal] = []
 
     # 1. Packer spread per head vs its own history.
@@ -322,6 +380,33 @@ def signals(d: pd.DataFrame, supply_pct: float | None = None,
                           read + f" ({wasde['report']} WASDE)", tone,
                           "1%+ more pork than a year ago = negative; 1%+ less = "
                           "supportive"))  # fmt: skip
+
+    # 9. Export demand: pork exports so far this year vs last year.
+    if exports is not None:
+        p = exports["pct"]
+        tone = "good" if p >= 0.03 else "bad" if p <= -0.03 else "neutral"
+        read = {"good": "Export buyers are taking more U.S. pork than last year.",
+                "bad": "Export buyers are taking less U.S. pork than last year.",
+                "neutral": "Pork exports are close to last year."}[tone]  # fmt: skip
+        out.append(Signal("Pork exports", f"{p:+.1%}".replace("-", "−") + " vs last year",
+                          read + f" (through {exports['through']:%B})", tone,
+                          "3%+ more than a year ago so far this year = supportive; 3%+ less = "
+                          "negative"))  # fmt: skip
+
+    # 10. Sow slaughter: is the breeding herd being cut?
+    if sows is not None:
+        p = sows["pct"]
+        tone = "good" if p >= 0.05 else "bad" if p <= -0.05 else "neutral"
+        read = {"good": "More sows are going to market than a year ago: the herd is being cut, "
+                        "so fewer pigs later.",
+                "bad": "Fewer sows are going to market than a year ago: the herd is being "
+                       "kept or grown, so more pigs later.",
+                "neutral": "Sow slaughter is close to last year."}[tone]  # fmt: skip
+        out.append(Signal("Sow slaughter", f"{p:+.1%}".replace("-", "−") + " vs last year",
+                          read + f" ({sows['per_week']:,.0f} a week, 4 weeks to "
+                          f"{sows['end']:%b %d})", tone,
+                          "5%+ more sows culled than a year ago = supportive later (herd "
+                          "shrinking); 5%+ fewer = negative later"))  # fmt: skip
     return out
 
 
