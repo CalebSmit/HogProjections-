@@ -22,7 +22,12 @@ def _dt(v: object) -> datetime:
 
 
 def build_report(
-    plan: Plan, weekly: pd.DataFrame, as_of: date, hog_index_note: str, verdict: str
+    plan: Plan,
+    weekly: pd.DataFrame,
+    as_of: date,
+    hog_index_note: str,
+    verdict: str,
+    extra: dict[str, pd.DataFrame] | None = None,
 ) -> bytes:
     """Workbook with Summary, Monthly, Costs and Weekly sheets for `plan`'s projection."""
     plan = synced(plan)
@@ -182,6 +187,8 @@ def build_report(
             else:
                 ww.write(i, j, float(v), f[fmt])
 
+    if extra:
+        _write_frames(wb, extra)
     wb.close()
     return buf.getvalue()
 
@@ -312,12 +319,8 @@ def nice_header(col: object) -> str:
     return (words[:1].upper() + words[1:] if words else s) + unit
 
 
-def tables_xlsx(frames: dict[str, pd.DataFrame], title: str, as_of: date,
-                source: str = "") -> bytes:  # fmt: skip
-    """One sheet per table with readable headers, number formats, frozen header row, filters
-    and widths; a small About sheet says what it is and where it came from."""
-    buf = io.BytesIO()
-    wb = xlsxwriter.Workbook(buf, {"in_memory": True, "nan_inf_to_errors": True})
+def _write_frames(wb: xlsxwriter.Workbook, frames: dict[str, pd.DataFrame]) -> None:
+    """One sheet per table: readable headers, number formats, frozen header, filter, widths."""
     head = wb.add_format({"bold": True, "bg_color": GREEN, "font_color": "white", "border": 1,
                           "border_color": GRID, "text_wrap": True, "valign": "top"})  # fmt: skip
     fmt = {
@@ -326,16 +329,6 @@ def tables_xlsx(frames: dict[str, pd.DataFrame], title: str, as_of: date,
         "num": wb.add_format({"num_format": "#,##0.##"}),
         "date": wb.add_format({"num_format": "mmm d, yyyy"}),
     }
-    about = wb.add_worksheet("About")
-    about.set_column(0, 0, 100)
-    about.write(0, 0, title, wb.add_format({"bold": True, "font_size": 14}))
-    who = get_settings().prepared_by.strip()
-    about.write(1, 0, f"Hog Projections · {as_of:%B %d, %Y}{' · ' + who if who else ''}")
-    if source:
-        about.write(2, 0, f"Source: {source}")
-    about.write(3, 0, "Projections are planning estimates, not financial advice.")
-    for i, name in enumerate(frames, start=5):
-        about.write(i, 0, f"• {name}")
     for name, df in frames.items():
         ws = wb.add_worksheet(name[:31])
         df = df.reset_index(drop=True)
@@ -362,5 +355,24 @@ def tables_xlsx(frames: dict[str, pd.DataFrame], title: str, as_of: date,
         ws.freeze_panes(1, 0)
         if len(df.columns):
             ws.autofilter(0, 0, max(len(df), 1), len(df.columns) - 1)
+
+
+def tables_xlsx(frames: dict[str, pd.DataFrame], title: str, as_of: date,
+                source: str = "") -> bytes:  # fmt: skip
+    """One sheet per table with readable headers, number formats, frozen header row, filters
+    and widths; a small About sheet says what it is and where it came from."""
+    buf = io.BytesIO()
+    wb = xlsxwriter.Workbook(buf, {"in_memory": True, "nan_inf_to_errors": True})
+    about = wb.add_worksheet("About")
+    about.set_column(0, 0, 100)
+    about.write(0, 0, title, wb.add_format({"bold": True, "font_size": 14}))
+    who = get_settings().prepared_by.strip()
+    about.write(1, 0, f"Hog Projections · {as_of:%B %d, %Y}{' · ' + who if who else ''}")
+    if source:
+        about.write(2, 0, f"Source: {source}")
+    about.write(3, 0, "Projections are planning estimates, not financial advice.")
+    for i, name in enumerate(frames, start=5):
+        about.write(i, 0, f"• {name}")
+    _write_frames(wb, frames)
     wb.close()
     return buf.getvalue()

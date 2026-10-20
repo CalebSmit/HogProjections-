@@ -153,9 +153,29 @@ with assumption_bar("overview"):
         help="Seasonal follows the usual summer high and winter low; Flat holds today's price.",
     )
     st.caption("More inputs on Herd flow and Costs & returns")
+
+
+def report_extras() -> dict[str, pd.DataFrame]:
+    """Market, wean-to-finish and sow farm sheets for the farm report (built on click)."""
+    from hogproj import hogmarket as hm
+    from hogproj import supply
+    from hogproj.sowfarm import cost_lines
+    from hogproj.ui import crush_book, hog_market, nass_data, sow_from_state, storage_now, wasde_now
+
+    sigs = hm.signals(hog_market(), supply.next_six_months(nass_data()[0])["pct"], wasde_now(),
+                      storage_now())  # fmt: skip
+    book = crush_book()
+    on_feed = book.rows[book.rows["status"] == "on feed"]
+    return {
+        "Market signals": pd.DataFrame([vars(x) for x in sigs]),
+        "Wean to finish on feed": on_feed,
+        "Sow farm cost": cost_lines(sow_from_state()).reset_index(names="line"),
+    }
+
+
 actions.download_button(
     "Export report",
-    build_report(plan, r, today, note, title),
+    lambda: build_report(plan, r, today, note, title, report_extras()),
     f"hog_outlook_{today:%Y-%m-%d}.xlsx",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     icon=":material/download:",
