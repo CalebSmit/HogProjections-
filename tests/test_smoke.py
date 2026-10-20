@@ -28,7 +28,8 @@ def test_app_renders():
     assert not at.exception
     # This week leads with the answer: what a pig placed today projects
     assert at.title[0].value.startswith("A pig placed today projects")
-    assert any("weekly brief" in str(b.proto.label) for b in at.get("download_button"))
+    labels = [str(b.proto.label) for b in at.get("download_button")]
+    assert "Weekly brief (PDF)" in labels and "Weekly brief (Excel)" in labels
     at.switch_page("views/0_Overview.py").run()
     assert not at.exception
     assert (

@@ -10,9 +10,10 @@ import streamlit as st
 from hogproj import hogmarket as hm
 from hogproj import national as nv
 from hogproj import scorecard as sc
-from hogproj import snapshots
+from hogproj import seasonal, snapshots
 from hogproj.book import hedge_rule
 from hogproj.brief import QUARTERLY_REPORTS, Move, calendar, move
+from hogproj.brief_pdf import Brief, build_pdf
 from hogproj.config import get_settings
 from hogproj.crush import annual_summary, breakeven_pig, contract_label, margin_rank, margin_usd
 from hogproj.data import feed
@@ -203,7 +204,7 @@ with action:
         },
     )  # fmt: skip
     st.download_button(
-        "Download weekly brief",
+        "Weekly brief (Excel)",
         brief,
         f"weekly_brief_{today:%Y-%m-%d}.xlsx",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -282,6 +283,35 @@ st.markdown("".join(
     unsafe_allow_html=True)  # fmt: skip
 
 st.space("medium")
+
+with action:  # the one-page PDF, now that the scorecard, board and watch list exist
+    pdf = lambda: build_pdf(Brief(  # noqa: E731 - built on click
+        as_of=today, headline=headline_txt, dek=dek_txt, scorecard=card,
+        index_weeks=sc_weeks(idx), board=fb,
+        decisions=[("Placing pigs", place_txt), ("Hedging", hedge_txt),
+                   ("Hog market", market_txt), ("Sow farm", sow_txt)],
+        watch=[(str(t), w) for t, w in watch],
+        signals=[(x.tone, x.name, x.value, x.read) for x in sigs],
+        sources="Data: USDA AMS (LMR, cutout, feeder pigs, Iowa grain and feedstuffs, "
+                "slaughter), USDA NASS, ERS and WASDE, U.S. EIA; Lean Hog Index for "
+                f"{hogs.as_of:%b %d}. Contract prices: "
+                + ("entered by the user." if book.user_set else f"{book.price_source.lower()}."),
+    ))  # fmt: skip
+    st.download_button(
+        "Weekly brief (PDF)",
+        pdf,
+        f"weekly_brief_{today:%Y-%m-%d}.pdf",
+        "application/pdf",
+        icon=":material/picture_as_pdf:",
+        width="stretch",
+        on_click="ignore",
+        type="primary",
+    )
+
+
+def sc_weeks(index: pd.DataFrame) -> pd.DataFrame:
+    return seasonal.by_week(index.set_index("index_date")["lean_hog_index_usd_per_cwt_carcass"])
+
 
 # --- Since last week --------------------------------------------------------------------------
 snap_now = {
