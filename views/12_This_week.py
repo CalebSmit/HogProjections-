@@ -13,6 +13,7 @@ from hogproj.crush import annual_summary, breakeven_pig, contract_label, margin_
 from hogproj.data import feed
 from hogproj.export import build_brief
 from hogproj.sowfarm import cost_per_weaned_pig
+from hogproj.text import ordinal
 from hogproj.ui import (
     Tone,
     chart_title,
@@ -209,7 +210,7 @@ with a:
         [
             ("USDA weaned pig", usd(weaned.now)),
             ("Most you can pay", usd(most)),
-            ("Vs history", f"{rank_today:.0f}th pct"),
+            ("Vs history", f"{ordinal(rank_today)} pct"),
         ],  # fmt: skip
         f"Contract prices: {book.price_source.lower()}." if not book.user_set else "",
     )

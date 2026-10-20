@@ -9,6 +9,7 @@ import streamlit as st
 
 from hogproj.book import Hedge, business_days_since, by_contract, hedge_rule, positions, what_if
 from hogproj.crush import contract_label, margin_rank
+from hogproj.text import ordinal
 from hogproj.ui import (
     ACCENT,
     HISTORY,
@@ -110,7 +111,8 @@ with assumption_bar("hedge"):
         st.number_input("Pigs placed per week", 0.0, 1_000_000.0, 1000.0, 100.0,
                         key="w2f_head_week", help="Used to size the book in dollars.")  # fmt: skip
     with st.popover(
-        f"Hedge rule · {cur('w2f_rule_trigger', 75):.0f}th pct → {cur('w2f_rule_target', 50):.0f}%"
+        f"Hedge rule · {ordinal(cur('w2f_rule_trigger', 75))} pct → "
+        f"{cur('w2f_rule_target', 50):.0f}%"
     ):
         st.caption("Your rule, not advice: when a contract's projected margin ranks at or above "
                    "the trigger against every placement since 2020, hedge the target "
@@ -157,7 +159,7 @@ with head.container():
     action = masthead(
         title,
         f"Each $1/cwt move in lean hogs changes the book by {usd_short(exposure)}. "
-        f"{best['label']} pigs have the best margin versus history ({best['rank']:.0f}th "
+        f"{best['label']} pigs have the best margin versus history ({ordinal(best['rank'])} "
         "percentile).",
         kicker="Hedging · pigs on feed",
         meta=[
@@ -219,7 +221,7 @@ with hero("hedge"):
                     marker={"color": [ACCENT if v >= 0 else "#c8453a"
                                       for v in summary["margin_usd_per_head"]],
                             "cornerradius": 3},
-                    text=[f"{r:.0f}th pct" for r in summary["rank"]], textposition="outside",
+                    text=[f"{ordinal(r)} pct" for r in summary["rank"]], textposition="outside",
                     textfont={"size": 11, "color": MUTED}, cliponaxis=False,
                     hovertemplate="%{x} with hedges: %{y:$,.2f}/pig<extra></extra>")  # fmt: skip
         fig.add_hline(y=0, line={"color": INK, "width": 1})
@@ -237,7 +239,7 @@ st.space("medium")
 
 chart_title(
     "What your rule says, contract by contract",
-    f"Trigger: {trigger:.0f}th percentile · target {target:.0%} hedged",
+    f"Trigger: {ordinal(trigger)} percentile · target {target:.0%} hedged",
 )
 rows = []
 for r in summary.to_dict("records"):
@@ -245,14 +247,14 @@ for r in summary.to_dict("records"):
     short = {"good": "In place", "caution": f"Hedge {target:.0%}", "neutral": "Wait"}[tone]
     rows.append([r["label"], f"{r['head']:,.0f}", usd(r["market_usd_per_cwt"]),
                  f"{r['hedged_share']:.0%}", usd(r["margin_usd_per_head"]),
-                 usd_short(r["margin_usd"]), f"{r['rank']:.0f}th", short])  # fmt: skip
+                 usd_short(r["margin_usd"]), f"{ordinal(r['rank'])}", short])  # fmt: skip
 table(["Contract", "Pigs", "Price $/cwt", "Hedged", "Margin/pig", "Total", "Rank", "Rule says"],
       rows,
       emphasis_col=3)  # fmt: skip
 source_note(
     "model",
     f"rank: open margin vs every placement since 2020; rule says hedge {target:.0%} at or above "
-    f"the {trigger:.0f}th percentile, otherwise wait",
+    f"the {ordinal(trigger)} percentile, otherwise wait",
 )
 
 rule()

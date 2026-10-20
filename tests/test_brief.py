@@ -56,3 +56,12 @@ def test_calendar_has_exact_expiries_in_order():
 def test_move_without_data_raises():
     with pytest.raises(ValueError):
         move("x", "", pd.Series([], dtype="datetime64[ns]"), np.array([], dtype=float))
+
+
+@pytest.mark.parametrize(("x", "s"), [(1, "1st"), (2, "2nd"), (3, "3rd"), (11, "11th"),
+                                      (12, "12th"), (21, "21st"), (31, "31st"), (22.6, "23rd"),
+                                      (100, "100th"), (0, "0th")])  # fmt: skip
+def test_ordinal(x, s):
+    from hogproj.text import ordinal
+
+    assert ordinal(x) == s

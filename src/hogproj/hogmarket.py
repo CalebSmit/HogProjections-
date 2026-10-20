@@ -16,6 +16,8 @@ from typing import Literal, cast
 import numpy as np
 import pandas as pd
 
+from hogproj.text import ordinal
+
 ALL_TYPES = "Prod. Sold (All Purchase Types)"
 Tone = Literal["good", "bad", "neutral"]
 
@@ -169,7 +171,7 @@ def signals(d: pd.DataFrame, supply_pct: float | None = None,
             "bad": "Packers' margins are thin, which limits what they'll pay for hogs.",
             "neutral": "Packers' margins are about normal.",
         }[tone]
-        out.append(Signal("Packer spread", f"{_fmt_usd(now)}/head", read + f" ({rank:.0f}th "
+        out.append(Signal("Packer spread", f"{_fmt_usd(now)}/head", read + f" ({ordinal(rank)} "
                           "percentile since 2020)", tone,
                           "Top 25% of history = supportive; bottom 25% = negative"))  # fmt: skip
 

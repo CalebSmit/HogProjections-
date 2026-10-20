@@ -20,6 +20,7 @@ import pandas as pd
 from pydantic import BaseModel, Field
 
 from hogproj.crush import Contract, CrushInputs, contract_for, contract_label, cost_usd
+from hogproj.text import ordinal
 
 
 class Hedge(BaseModel):
@@ -107,15 +108,15 @@ def hedge_rule(rank: float, trigger: float, target: float, current: float) -> tu
     hedge `target` share'. Returns (tone, sentence)."""
     if np.isnan(rank):
         return "neutral", "Not enough history to rank this margin."
-    where = "at the bottom of history" if rank < 1 else f"{rank:.0f}th"
+    where = "at the bottom of history" if rank < 1 else f"{ordinal(rank)}"
     if rank >= trigger:
         if current + 1e-9 >= target:
             return "good", f"Ranks {where}: your rule's {target:.0%} is in place."
         return "caution", (
-            f"Ranks {where}, above your {trigger:.0f}th trigger: rule says hedge "
+            f"Ranks {where}, above your {ordinal(trigger)} trigger: rule says hedge "
             f"{target:.0%} (now {current:.0%})."
         )
-    return "neutral", f"Ranks {where}, below your {trigger:.0f}th trigger: rule says wait."
+    return "neutral", f"Ranks {where}, below your {ordinal(trigger)} trigger: rule says wait."
 
 
 def business_days_since(day: date, today: date) -> int:

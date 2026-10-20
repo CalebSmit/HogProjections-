@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from hogproj.crush import MONTHS, annual_summary, by_month, margin_rank, margin_usd, month_average
+from hogproj.text import ordinal
 from hogproj.ui import (
     ACCENT,
     HISTORY,
@@ -81,7 +82,7 @@ with hero("history"):
                 ("Best week", usd(float(m.max())),
                  f"placed {placed.iloc[int(m.argmax())]:%b %d, %Y}",
                  "good"),
-                ("Today vs history", f"{rank:.0f}th", "percentile of a pig placed today",
+                ("Today vs history", f"{ordinal(rank)}", "percentile of a pig placed today",
                  tone_of(rank - 50)),
             ]
         )  # fmt: skip
@@ -157,7 +158,7 @@ with mid:
     )
 with right:
     chart_title(
-        f"A pig placed today ranks in the {rank:.0f}th percentile",
+        f"A pig placed today ranks in the {ordinal(rank)} percentile",
         f"Margin per pig across {len(m)} placement weeks · today at {usd(today_margin)}",
     )
     bins = np.arange(np.floor(m.min() / 5) * 5, np.ceil(m.max() / 5) * 5 + 5, 5)

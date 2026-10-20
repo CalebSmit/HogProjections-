@@ -261,6 +261,19 @@ p, li {{ line-height: 1.55; }}
 .hp-table {{ border: 0 !important; }}
 
 /* Legacy insight card (pages not yet migrated) */
+/* Print (or Save as PDF): just the report — no sidebar, toolbar, inputs or buttons. */
+@media print {{
+  [data-testid="stSidebar"], [data-testid="stHeader"], [data-testid="stToolbar"],
+  [data-testid="stDecoration"], [data-testid="stStatusWidget"], [data-testid="stPopover"],
+  [data-testid="stDownloadButton"], [data-testid="stExpander"], [data-testid="stPageLink"],
+  [data-testid="stSegmentedControl"], [data-testid="stSelectbox"],
+  [data-testid="stButtonGroup"] {{ display: none !important; }}
+  .stMain, [data-testid="stMain"] {{ margin-left: 0 !important; }}
+  [data-testid="stMainBlockContainer"] {{ padding: 0 12px !important; max-width: 100% !important; }}
+  body, .stApp {{ background: #fff !important; }}
+  .st-key-hero_main, [class*="st-key-hero_"], [class*="st-key-card_"], .hp-insight,
+  .js-plotly-plot {{ break-inside: avoid; page-break-inside: avoid; }}
+}}
 /* Vertical dividers between side-by-side columns: columns stack on phones, so hide them. */
 .hp-vrule {{ border-left: 1px solid var(--line); width: 1px; margin: 0 auto; }}
 @media (max-width: 640px) {{ .hp-vrule {{ display: none; }} }}
