@@ -398,3 +398,22 @@ stale unless someone keeps them up).
   refresh keeps every source current (10.0 #1).
 - Hedge rule: decided — users choose the rule type and numbers (no fixed policy).
 - Brief branding: decided — no Pipestone name or logo.
+
+## Phase 11 — One number per thing, and how far to trust it (plan, 2026-10-20)
+
+Inputs: a page-by-page audit of all 16 pages (online and offline), loader timings, and a
+backtest of the app's own seasonal hog price projection. Theme: wherever two pages show the
+same thing they must agree (or say why not), every estimate carries its honest error, and the
+first load is fast.
+
+| Step | What | Why |
+|---|---|---|
+| 11.0 Speed | Fetch the 11 state grain reports in parallel; cache report section names | First load waits ~20 s on state corn; everything else loads in 1–3 s |
+| 11.1 One number per thing | Same basis or a label for: feed per pig (3 values), packer spread / cutout / cull sows / weights (latest day vs 5-day average), crush margin by year (Archive vs Crush history), breakeven (farrow-to-finish vs wean-to-finish). "Least-bad on feed" vs "best to place"; $/pig everywhere; "28th percentile" not "Ranks 28th". Pigs on feed exclude pigs already sold; weekly count tied to Herd flow | The audit found the same measure with different values on different pages |
+| 11.2 How far to trust it | Backtest the seasonal projection (52 monthly starts since 2022): beats "no change" by 9–40%, typical miss $7–10/cwt, 8 in 10 within ~$14. Show the track record on Hog market and Wean to finish; use it to put a likely range on each margin ("Jul 2027 $1.14 a pig, likely −$29 to +$31") on the margin board and This week | A margin estimate without its error invites over-confidence; the range is what tells you whether to lock it in |
+| 11.3 Every section leads to $/pig | Diesel and propane as $/pig; exports, retail share and primal values tied to their signal or moved into a "detail" expander; cut duplicates (Costs repeating Farm outlook's headline, W2F's margin history vs Crush history); Guide last in the menu, Crush history under Decisions | "Data that doesn't lead to an answer" |
+| 11.4 Excel catch-up | Weekly brief workbook gets Scorecard and Forward board sheets; crush workbook gets the board | Excel lagged the dashboard |
+| 11.5 Polish | Grammar/format list from the audit (a 7% chance, zero-padded days, "Manitoba CAN", WASDE caption, redundant metrics); Guide's stale "Overview" name; Streamlit default-value warning; phone check of the last 3 pages; `python -m pytest` documented (the pytest.exe launcher is blocked by Windows Application Control here) | Finish |
+
+Each step: ruff, pyright, `uv run python -m pytest`, page text read-through, screenshots of
+changed pages, then merge.
