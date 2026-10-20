@@ -39,6 +39,9 @@ from hogproj.data.feeder import merge as feeder_merge
 from hogproj.data.nass import load as nass_load
 from hogproj.data.nass import load_corn
 from hogproj.finance import CostInputs
+from hogproj.freshness import Freshness
+from hogproj.freshness import check as check_fresh
+from hogproj.freshness import summary as fresh_summary
 from hogproj.herd import HerdInputs
 from hogproj.markets import lean_hog_index, seasonal_factors
 from hogproj.outlook import Plan
@@ -1053,9 +1056,14 @@ def chip(label: str, tone: Tone = "neutral", title: str = "") -> str:
 
 
 def data_chip() -> str:
-    """'Live USDA data · index Oct 15' or 'Saved data through …', for page headers."""
+    """'Live USDA data · index Oct 15', 'Saved data through …', or a warning when any source
+    is behind its publishing schedule — so old numbers never pass for current ones."""
     idx, source, note = hog_index()
     last = pd.Timestamp(idx["index_date"].iloc[-1])
+    current, why = fresh_summary(data_status())
+    if not current:
+        n = sum(f.behind for f in data_status())
+        return chip(f"{n} data source{'s' if n > 1 else ''} out of date", "bad", why)
     if source == "live":
         return chip(f"Live USDA data · index {last:%b %d}", "good", note)
     return chip(f"Saved data through {last:%b %d, %Y}", "caution", note)
@@ -1322,13 +1330,12 @@ def warm_data() -> None:
     st.session_state["_warm"] = True
 
 
-def data_status() -> list[tuple[str, str, str]]:
-    """(source, latest date, live/saved) for every dataset the app reads."""
-    out: list[tuple[str, str, str]] = []
+def data_status() -> list[Freshness]:
+    """Newest observation, live/saved and whether it's behind schedule, for every source."""
+    out: list[Freshness] = []
 
     def add(name: str, when: object, source: str) -> None:
-        ts = pd.Timestamp(str(when))
-        out.append((name, f"{ts:%b %d, %Y}", "live" if source == "live" else "saved"))
+        out.append(check_fresh(name, when, date.today(), "live" if source == "live" else "saved"))
 
     idx, s1, _ = hog_index()
     add("Lean Hog Index", idx["index_date"].max(), s1)
@@ -1351,6 +1358,12 @@ def data_status() -> list[tuple[str, str, str]]:
     if not nd.empty:
         inv = nd[(nd["series"] == "all_hogs") & (nd["kind"] == "actual")]
         add("Hogs and Pigs", inv["period_start"].max(), s5)
+    wd, s6, _ = wasde_data()
+    if not wd.empty:
+        add("USDA WASDE", pd.to_datetime("1 " + str(wd["report"].iloc[0])), s6)
+    cs, s7, _ = cold_storage()
+    if not cs.empty:
+        add("Cold storage", cs["month"].max(), s7)
     return out
 
 

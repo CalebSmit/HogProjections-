@@ -132,9 +132,10 @@ with st.sidebar:  # after the page so it sits below the page's own inputs
     with st.expander("Data status"):
         rows = "".join(
             f"<div style='display:flex;justify-content:space-between;gap:8px;font-size:12.5px;"
-            f"padding:3px 0'><span>{name}</span><span style='color:var(--muted)'>{when}"
-            f"{'' if how == 'live' else ' · saved'}</span></div>"
-            for name, when, how in data_status()
+            f"padding:3px 0'><span>{f.name}</span><span style='color:"
+            f"{'var(--neg)' if f.behind else 'var(--muted)'}'>{f.latest:%b %d, %Y}"
+            f"{' · behind' if f.behind else '' if f.source == 'live' else ' · saved'}</span></div>"
+            for f in data_status()
         )
         st.markdown(rows, unsafe_allow_html=True)
     mode = "Offline · saved data" if get_settings().offline else "Online"
