@@ -18,7 +18,7 @@ from hogproj.book import (
     what_if,
 )
 from hogproj.crush import contract_label, margin_rank
-from hogproj.text import ordinal
+from hogproj.text import day, ordinal
 from hogproj.ui import (
     ACCENT,
     HISTORY,
@@ -83,7 +83,8 @@ stale = asof is not None and business_days_since(asof, today) > 3
 head = st.empty()
 with assumption_bar("hedge"):
     with st.popover(
-        "Contract prices · " + (f"as of {asof:%b %d}" if asof else book.price_source.lower())
+        "Contract prices · "
+        + (f"as of {day(asof, '%b %d')}" if asof else book.price_source.lower())
     ):
         st.caption(
             "Lean hog futures, $/cwt. Shared with Wean to finish. Enter the latest settlements "
@@ -183,8 +184,8 @@ with head.container():
     action = masthead(
         title,
         f"Each $1/cwt move in lean hogs changes the book by {usd_short(exposure)}. "
-        f"{best['label']} pigs have the best margin versus history ({ordinal(best['rank'])} "
-        "percentile).",
+        f"Of pigs on feed, {best['label']} ones have the best margin versus history "
+        f"({ordinal(best['rank'])} percentile).",
         kicker="Hedging · pigs on feed",
         meta=[
             chip("Contract prices stale", "bad", "Prices are more than three business days old.")
@@ -192,7 +193,8 @@ with head.container():
             else chip(f"Contract prices: {book.price_source.lower()}", "caution",
                       "Enter today's futures under Contract prices.")
             if not book.user_set
-            else chip(f"Contract prices as of {asof:%b %d}" if asof else "Your contract prices",
+            else chip(f"Contract prices as of {day(asof, '%b %d')}" if asof
+                      else "Your contract prices",
                       "good")
         ],
     )  # fmt: skip
@@ -273,7 +275,7 @@ if not fb.empty:
     chart_title(
         f"Pigs placed {top['placed_from']:%b} {top['placed_from'].day}–{top['placed_to']:%b} "
         f"{top['placed_to'].day} sell into {top['contract']} for {usd(top['margin_usd'])} a pig, "
-        f"the best ahead ({ordinal(top['rank'])} percentile{moved})",
+        f"the best to place now ({ordinal(top['rank'])} percentile{moved})",
         "Pigs not placed yet · margin per pig at today's contract prices, ranked against every "
         "placement since 2020 · colour: rank (green high, red low)",
     )
@@ -297,11 +299,11 @@ if not fb.empty:
         if len(cols) == 1:
             st.caption("Earlier columns fill in as the app is used: it keeps one board a day.")
     with right:
-        table(["Contract", "Placed", "Hogs $/cwt", "Margin $/cwt", "Hog:corn", "Rule says"],
+        table(["Contract", "Placed", "Hogs $/cwt", "Margin/pig", "Hog:corn", "Rule says"],
               [[r["contract"],
                 f"{r['placed_from']:%b} {r['placed_from'].day}–{r['placed_to']:%b} "
                 f"{r['placed_to'].day}",
-                usd(r["hog_usd_per_cwt"]), usd(r["margin_usd_per_cwt"]),
+                usd(r["hog_usd_per_cwt"]), usd(r["margin_usd"]),
                 f"{r['hog_corn_ratio']:.1f}",
                 {"good": "In place", "caution": f"Hedge {hrule.target:.0%}",
                  "neutral": "Wait" if hrule.mode != "off" else "–"}[str(r["rule_tone"])]]

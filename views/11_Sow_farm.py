@@ -265,7 +265,7 @@ if not sows_raw.empty:
     with right:
         chart_title("What culls are worth", "At today's price, per sow sold")
         rows = [
-            ["Price", f"{usd(now_px)}/cwt live"],
+            ["Price, this week's average", f"{usd(now_px)}/cwt live"],
             ["Average weight", f"{wt:.0f} lb"],
             ["Value per sow", usd(now_px * wt / 100, 0)],
         ]

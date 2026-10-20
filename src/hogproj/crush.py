@@ -293,14 +293,19 @@ def placements(
     weeks = pd.to_datetime(pigs["week_ending"]).to_numpy(dtype="datetime64[D]")
     cash = pigs["cash_usd_per_head"].to_numpy(dtype=float)
     rows = []
+    today = np.datetime64(date.today(), "D")
     corn_m, sbm_m, ddgs_m = _monthly(corn), _monthly(sbm), _monthly(ddgs)
     for week, pig in zip(weeks, cash, strict=True):
         placed = week - np.timedelta64(4, "D")
         sold = placed + np.timedelta64(c.days_on_feed, "D")
-        if sold <= days.max():
+        # Sold once the sale date has passed. If USDA hasn't published the index for it yet,
+        # it's priced at the latest index (those pigs are gone and can't be hedged).
+        if sold <= max(days.max(), today):
             near = prices[
                 (days > sold - np.timedelta64(4, "D")) & (days <= sold + np.timedelta64(3, "D"))
             ]
+            if len(near) == 0 and sold > days.max():
+                near = prices[days > days.max() - np.timedelta64(7, "D")]
             if len(near) == 0 or sold < days.min():
                 continue
             hog, status, label = float(near.mean()), "sold", "Index"

@@ -154,7 +154,7 @@ def test_wasde_outlook_and_signal():
     assert o["pct"] == pytest.approx((6950 + 6720) / (7050 + 6755) - 1)  # -1.0%
     assert o["price_next_q"] == 60.0
     sig = next(s for s in hm.signals(_market(), wasde=o) if s.name == "USDA pork outlook")
-    assert sig.tone == "neutral"  # -0.98% is inside the ±1% band
+    assert sig.tone == "good"  # -0.98% shows as "−1.0%", so it is judged as shown (1% less)
 
 
 def test_wasde_outlook_missing_quarters():

@@ -280,7 +280,8 @@ def signals(d: pd.DataFrame, supply_pct: float | None = None,
             "bad": "Packers' margins are thin, which limits what they'll pay for hogs.",
             "neutral": "Packers' margins are about normal.",
         }[tone]
-        out.append(Signal("Packer spread", f"{_fmt_usd(now)}/head", read + f" ({ordinal(rank)} "
+        out.append(Signal("Packer spread", f"{_fmt_usd(now)}/head, 5-day avg",
+                          read + f" ({ordinal(rank)} "
                           "percentile since 2020)", tone,
                           "Top 25% of history = supportive; bottom 25% = negative"))  # fmt: skip
 
@@ -297,7 +298,8 @@ def signals(d: pd.DataFrame, supply_pct: float | None = None,
         read = {"good": "Pork demand is pulling the cutout higher.",
                 "bad": "The cutout is sliding; packers will push hog bids lower.",
                 "neutral": "The cutout is steady."}[tone]  # fmt: skip
-        out.append(Signal("Pork cutout", f"{_fmt_usd(now)}/cwt", read + f" ({pct:+.1%} in 4 "
+        out.append(Signal("Pork cutout", f"{_fmt_usd(now)}/cwt, 5-day avg",
+                          read + f" ({pct:+.1%} in 4 "
                           "weeks)".replace("-", "−"), tone,
                           "Up 3%+ in 4 weeks = supportive; down 3%+ = negative"))  # fmt: skip
 
@@ -368,7 +370,7 @@ def signals(d: pd.DataFrame, supply_pct: float | None = None,
 
     # 6. USDA's own pork production forecast (WASDE), next two quarters.
     if wasde is not None:
-        p = wasde["pct"]
+        p = round(wasde["pct"], 3)  # judge the number as shown, so "−1.0%" never reads "same"
         tone = "bad" if p >= 0.01 else "good" if p <= -0.01 else "neutral"
         q = " and ".join(f"Q{qq} {yy}" for yy, qq in wasde["quarters"])
         read = {

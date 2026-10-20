@@ -17,6 +17,7 @@ from hogproj.finance import (
 )
 from hogproj.herd import HerdInputs, pigs_sold_per_sow_yr, simulate
 from hogproj.markets import seasonal_factors, seasonal_price_path
+from hogproj.text import day
 from hogproj.ui import (
     ACCENT,
     INK,
@@ -106,7 +107,7 @@ with bar:
             latest_index,
             0.5,
             key="cost_hog",
-            help=f"Starts at the Lean Hog Index for {latest_date:%b %d, %Y} "
+            help=f"Starts at the Lean Hog Index for {day(latest_date, '%b %d, %Y')} "
             f"({'live' if idx_source == 'live' else 'saved'} USDA data).",
         )
     with st.popover(
@@ -276,6 +277,7 @@ with hero():
         f"Iowa State University Estimated Livestock Returns, farrow to finish "
         f"({isu_row['sale_month']:%B %Y}: cost {usd(isu_row['total_cost'])}, breakeven "
         f"{usd(isu_row['breakeven_carcass'])}/cwt carcass)",
+        "yours differs from Iowa State's by your market weight, herd and today's feed prices; "
         "feed bars in green; non-feed covers labor, vet, utilities, breeding herd, trucking, "
         "interest and buildings",
     )

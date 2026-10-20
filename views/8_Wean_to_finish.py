@@ -23,6 +23,7 @@ from hogproj.crush import (
     pig_seasonality,
 )
 from hogproj.finance import CostInputs
+from hogproj.text import day
 from hogproj.ui import (
     ACCENT,
     HISTORY,
@@ -111,7 +112,8 @@ with assumption_bar("w2f"):
             usda_pig,
             0.25,
             key="w2f_pig",
-            help=f"USDA early weaned 10-12 lb, cash composite, week ending {usda_week:%b %d, %Y}.",
+            help="USDA early weaned 10-12 lb, cash composite, week ending "
+            f"{day(usda_week, '%b %d, %Y')}.",
         )
         st.number_input(
             "Your adder ($/head)",
@@ -267,9 +269,9 @@ with head.container():
     action = masthead(
         f"A pig placed today would {verb} {usd(abs(m))}.",
         f"Bought at {usd(c.pig_usd_per_head + c.adder_usd_per_head)} and sold around "
-        f"{sold_date:%b %d} into {contract_label(this_contract)} hogs at {usd(hog)}/cwt. "
+        f"{day(sold_date, "%b %d")} into {contract_label(this_contract)} hogs at {usd(hog)}/cwt. "
         f"You could pay up to {usd(be_pig)} for the pig and still break even.",
-        kicker=f"Wean to finish · {today:%B %d, %Y}",
+        kicker=f"Wean to finish · {day(today, "%B %d, %Y")}",
         meta=[
             chip(f"Hog prices: {book.price_source.lower()}", "caution",
                  "Enter today's lean hog futures under Hog prices.")
@@ -302,15 +304,15 @@ with hero("w2f"):
             "per pig",
             f"{signed(hog - be_hog)}/cwt vs breakeven",
             tone_of(m),
-            f"Better than {rank:.0f}% of placements since {first_sold:%Y} · breakeven "
-            f"{usd(be_hog)}/cwt index",
+            f"Better than {rank:.0f}% of placements since {first_sold:%Y} · wean-to-finish "
+            f"breakeven {usd(be_hog)}/cwt index",
         )
         on_feed_avg = avg(on_feed, "margin_usd")
         stat_strip(
             [
                 ("Weaned pig", usd(c.pig_usd_per_head + c.adder_usd_per_head),
-                 f"USDA {usd(c.pig_usd_per_head)}"
-                 + (f" + {usd(c.adder_usd_per_head)}" if c.adder_usd_per_head else ""),
+                 (f"USDA {usd(c.pig_usd_per_head)} + {usd(c.adder_usd_per_head)} yours"
+                  if c.adder_usd_per_head else "USDA cash price, no adder"),
                  "neutral"),
                 ("Most you can pay", usd(be_pig), f"{signed(be_pig - c.pig_usd_per_head)} vs USDA",
                  tone_of(be_pig - c.pig_usd_per_head)),
@@ -427,7 +429,8 @@ with right:
     lines = t.drop(index="Total cost")
     feed = sum(feed_lines(c).values())
     chart_title(
-        f"Feed is {feed / cost:.0%} of the cost, the pig {lines.loc['Weaned pig', 'share']:.0%}",
+        f"Feed is {usd(feed)} a pig, {feed / cost:.0%} of the cost; the pig "
+        f"{lines.loc['Weaned pig', 'share']:.0%}",
         f"Cost per pig by line · total {usd(cost)}",
     )
     order = lines.iloc[::-1]

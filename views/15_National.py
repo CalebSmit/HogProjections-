@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from hogproj import national as nv
+from hogproj.text import day as fday
 from hogproj.ui import (
     ACCENT,
     HISTORY,
@@ -64,8 +65,9 @@ if len(snap):
 masthead(
     f"Iowa/Minnesota formula hogs bring {usd(neg.get('Iowa/Minnesota', np.nan))}, "
     f"{usd(abs(gap))} {'over' if gap >= 0 else 'under'} the Eastern Corn Belt.",
-    f"National pork market formula price {usd(nat)}/cwt over the last week of reports." + corn_line,
-    kicker=f"National view · {day:%B %d, %Y}",
+    f"The national pork market formula price averaged {usd(nat)}/cwt over the last week of "
+    "reports." + corn_line,
+    kicker=f"National view · {fday(day, '%B %d, %Y')}",
 )
 
 st.space("small")
@@ -299,7 +301,8 @@ with left:
         o = fl.dropna(subset=["origin_pct"]).sort_values("origin_pct", ascending=False).head(8)
         top = o.iloc[0]
         chart_title(
-            f"{top['state']} supplied {top['origin_pct']:.0f}% of feeder pigs sold this week",
+            f"{str(top['state']).replace(' CAN', ', Canada')} supplied "
+            f"{top['origin_pct']:.0f}% of feeder pigs sold this week",
             f"Share of USDA-reported feeder pigs by state of origin · week ending "
             f"{pd.Timestamp(fl['week_ending'].iloc[0]):%b %d} · tick: 52-week average",
         )

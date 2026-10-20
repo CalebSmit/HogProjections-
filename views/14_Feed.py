@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from hogproj.crush import corn_contract_for, feed_lines
+from hogproj.text import day
 from hogproj.ui import (
     ACCENT,
     HISTORY,
@@ -94,7 +95,7 @@ masthead(
         else ""
     )
     + f"Feed for a pig placed today costs about {usd(sum(feed_lines(c).values()))}.",
-    kicker=f"Feed prices · {now_day:%B %d, %Y}",
+    kicker=f"Feed prices · {day(now_day, '%B %d, %Y')}",
 )
 
 st.space("small")
@@ -293,7 +294,8 @@ if len(cm):
     peak = m.loc[m["feed"].idxmax()]
     chart_title(
         f"Feed per pig peaked at {usd(float(peak['feed']))} in "
-        f"{pd.Timestamp(peak['month']):%B %Y}; {usd(float(m['feed'].iloc[-1]))} now",
+        f"{pd.Timestamp(peak['month']):%B %Y}; {usd(float(m['feed'].iloc[-1]))} at this "
+        "month's average prices",
         "Wean-to-finish feed cost per pig at each month's Iowa prices, your ration",
     )
     ff = go.Figure(

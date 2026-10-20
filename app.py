@@ -85,7 +85,6 @@ page = st.navigation(
                 title="Farm outlook",
                 icon=":material/space_dashboard:",
             ),
-            st.Page("views/7_Guide.py", title="Guide", icon=":material/menu_book:"),
         ],
         "Your operation": [
             st.Page("views/1_Herd_flow.py", title="Herd flow", icon=":material/timeline:"),
@@ -117,6 +116,9 @@ page = st.navigation(
             st.Page("views/6_Hog_supply.py", title="Hog supply", icon=":material/inventory_2:"),
             st.Page("views/14_Feed.py", title="Feed prices", icon=":material/grass:"),
             st.Page("views/13_Archive.py", title="Market archive", icon=":material/table_view:"),
+        ],
+        "Help": [
+            st.Page("views/7_Guide.py", title="Guide", icon=":material/menu_book:"),
         ],
     },
     expanded=True,  # every page visible; the menu is the table of contents

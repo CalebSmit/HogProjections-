@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from hogproj.crush import MONTHS, annual_summary, by_month, margin_rank, margin_usd, month_average
-from hogproj.text import ordinal
+from hogproj.text import day, ordinal
 from hogproj.ui import (
     ACCENT,
     HISTORY,
@@ -81,7 +81,7 @@ with hero("history"):
                 ("Last 52 weeks", usd(float(last52.mean())) if len(last52) else "–",
                  "average margin sold", tone_of(float(last52.mean()) if len(last52) else 0)),
                 ("Best week", usd(float(m.max())),
-                 f"placed {placed.iloc[int(m.argmax())]:%b %d, %Y}",
+                 f"placed {day(placed.iloc[int(m.argmax())], "%b %d, %Y")}",
                  "good"),
                 ("Today vs history", f"{ordinal(rank)}", "percentile of a pig placed today",
                  tone_of(rank - 50)),

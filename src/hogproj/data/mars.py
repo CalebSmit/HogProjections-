@@ -13,6 +13,7 @@ free USDA_MMN_API_KEY (HTTP basic auth: key as user, empty password).
 The key never reaches logs or the UI: it is scrubbed from any error text.
 """
 
+import functools
 from datetime import date, timedelta
 from typing import Any, Literal
 
@@ -203,6 +204,7 @@ MULTI: dict[str, tuple[list[tuple[int, str | None, object]], Any, str, str, list
 }  # fmt: skip
 
 
+@functools.lru_cache(maxsize=64)
 def _detail_section(key: str, slug: int) -> str:
     with httpx.Client(auth=(key, ""), timeout=120, follow_redirects=True) as c:
         try:
@@ -220,12 +222,19 @@ DATASETS = {
 
 
 def _fetch_multi(name: str, key: str, since: date) -> pd.DataFrame:
+    """Every report of a dataset, side by side (the 11 state grain reports took ~20 s one after
+    another, ~3 s together)."""
+    from concurrent.futures import ThreadPoolExecutor
+
     sources, parser, _, _, _ = MULTI[name]
-    parts = []
-    for slug, section, tag in sources:
+
+    def one(src: tuple[int, str | None, object]) -> pd.DataFrame:
+        slug, section, tag = src
         sec = section or _detail_section(key, slug)
-        parts.append(parser(fetch(key, slug, sec, since, date.today()), tag))
-    parts = [p for p in parts if not p.empty]
+        return parser(fetch(key, slug, sec, since, date.today()), tag)
+
+    with ThreadPoolExecutor(max_workers=min(8, len(sources))) as pool:
+        parts = [p for p in pool.map(one, sources) if not p.empty]
     return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
 
 

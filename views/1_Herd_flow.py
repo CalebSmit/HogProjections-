@@ -8,6 +8,7 @@ import streamlit as st
 
 from hogproj import supply
 from hogproj.herd import HerdInputs, lags_weeks, pigs_sold_per_sow_yr, simulate
+from hogproj.text import day
 from hogproj.ui import (
     ACCENT,
     HISTORY,
@@ -145,8 +146,9 @@ yours_litter = inp.born_alive_per_litter * (1 - inp.prewean_mortality)
 with head.container():
     if change:
         masthead(
-            f"The {change:+,.0f}-sow change reaches market around {arrives:%B %d, %Y}.",
-            f"Sows bred from {bred:%b %d} take {to_market} weeks to become market hogs; after "
+            f"The {change:+,.0f}-sow change reaches market around {day(arrives, '%B %d, %Y')}.",
+            f"Sows bred from {day(bred, '%b %d')} take {to_market} weeks to become market hogs; "
+            "after "
             f"that the farm sells about {per_week_end:,.0f} a week instead of "
             f"{per_week_now:,.0f}.",
             kicker="Herd flow",
@@ -155,7 +157,7 @@ with head.container():
         masthead(
             f"{inp.sows_start:,.0f} sows sell about {per_week_now:,.0f} market hogs a week.",
             f"That's {first_year:,.0f} pigs over the next 12 months. A herd change bred today "
-            f"would first reach market around {arrives:%B %d, %Y}.",
+            f"would first reach market around {day(arrives, '%B %d, %Y')}.",
             kicker="Herd flow",
         )
 
