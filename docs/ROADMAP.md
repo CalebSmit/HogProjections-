@@ -280,6 +280,15 @@ CBOT corn and soybean settlements already come free in the Iowa grain report.
 | 15 | Iowa State Estimated Livestock Returns, monthly | ISU (public) | Keep cost defaults current automatically |
 | 16 | WASDE history | USDA ESMIS (public) | How accurate USDA's hog price forecasts have been — how much weight to give them |
 
+### Status (2026-10-20)
+Done: A1–A5 (National view), B7 drop value in the packer spread, B8 cull sows, B9 all
+federally inspected slaughter (AMS_3208, Dec 2023 on), C10 retail features, D1 futures import,
+E13 prime rate (FRED keyless CSV), E14 diesel and propane (EIA keyless XLS), E15 ISU cost
+defaults, E16 WASDE track record. Weekly refresh Action and staleness guard in place.
+Not done: A6 state feed ingredients (Iowa covers the ration today); C11 Mexico trade — AMS_3629's
+hog rows are breeding-stock exports in small numbers, little signal for market hogs; C12 FAS
+export sales — needs a free api.data.gov key from the user.
+
 ### Recommended order
 1. National view page (A1–A4): regional hog prices + state corn/basis map.
 2. Drop value and sow prices into the packer margin and sow farm (B7–B8).

@@ -53,11 +53,22 @@ returns 403 without a My Market News key.
 - **NASS Quick Stats** (in use): Hogs & Pigs, Iowa corn price received; candidates to confirm with
   `get_param_values`: commercial hog slaughter (head, live weight), pork and belly cold storage.
 - **My Market News / MARS**: history for every AMS report above.
-- **FRED** (prime rate), **EIA** (diesel; keyless XLS also exists), **FAS ESR** (weekly pork export sales).
+- **FAS ESR** (weekly pork export sales): needs a free api.data.gov key; not wired yet.
+
+## In use without a key (added Oct 2026)
+
+- **FRED** prime rate: `https://fred.stlouisfed.org/graph/fredgraph.csv?id=DPRIME` (no key for
+  the CSV download).
+- **EIA** weekly fuel: `https://www.eia.gov/dnav/pet/hist_xls/` diesel (EMD_EPD2D_PTE_NUS_DPGw),
+  Minnesota and Iowa residential propane (W_EPLLPA_PRS_SMN/SIA_DPGw), sheet "Data 1".
+- **ISU Estimated Livestock Returns** PDF (farrow to finish), monthly.
+- **WASDE history** from the ESMIS archive.
+- **LMR LM_HG218 / LM_HG234** (regional prices, state of origin, weight discounts, sows).
 
 ## Futures
 
 No free licensed source. CME blocks automated access; DataMine and Barchart are paid. Yahoo's
 unofficial chart endpoint works (`HEJ27.CME` etc.) but its terms prohibit automated/commercial
-use, so the app does **not** use it: contract prices are typed in with an as-of date. CBOT corn
+use, so the app does **not** use it: contract prices are typed in with an as-of date, or read
+from a Barchart / DTN ProphetX quote export the user uploads (`data/quotes.py`). CBOT corn
 and SBM settlements are printed in the AMS grain PDFs (2850, 3618) and can be read from there.

@@ -18,6 +18,7 @@ from hogproj.crush import (
     feed_lines,
     margin_rank,
     margin_usd,
+    operating_interest,
     pig_seasonality,
 )
 from hogproj.finance import CostInputs
@@ -49,6 +50,7 @@ from hogproj.ui import (
     mars_data,
     masthead,
     md,
+    prime_rate,
     projection_band,
     quote,
     ref_line,
@@ -227,7 +229,13 @@ with assumption_bar("w2f"):
         a.number_input("Mortality", 0.0, 100.0, d.mortality_usd, 0.25, key="w2f_mort")
         b.number_input("Overhead (G&A)", 0.0, 100.0, d.overhead_usd, 0.25, key="w2f_overhead")
         a.number_input("Freight out", 0.0, 100.0, d.freight_usd, 0.25, key="w2f_freight")
-        b.number_input("Operating interest", 0.0, 100.0, d.interest_usd, 0.25, key="w2f_interest")
+        pr = prime_rate()
+        b.number_input("Operating interest", 0.0, 100.0, d.interest_usd, 0.25, key="w2f_interest",
+                       help=None if pr is None else
+                       f"Prime rate is {pr[0]:.2f}% (FRED, {pr[1]:%b} {pr[1].day}). At prime + 1%, "
+                       f"carrying the pig for {book0.c.days_on_feed} days and half its feed and "
+                       f"other costs is about "
+                       f"{usd(operating_interest(book0.c, (pr[0] + 1) / 100))}/pig.")  # fmt: skip
         a.number_input("Other / sales premiums", -50.0, 100.0, d.other_usd, 0.25, key="w2f_other")
         st.caption("Debt payments per pig (optional)")
         a, b = st.columns(2)

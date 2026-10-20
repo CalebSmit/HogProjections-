@@ -396,3 +396,18 @@ Newest at the bottom.
   Data status marks it. Tests force a source overdue.
 - Roadmap Phase 9: verified catalog of further My Market News, LMR, FAS, FRED/EIA and ISU data,
   with a recommended order and a plan for keeping data current.
+
+## 2026-10-20 — Phase 9: national view, margins, demand, futures import, finance inputs
+
+- National view page (LM_HG218 keyless): regional hog prices by purchase type, purchase mix,
+  carcass weight discounts, corn and basis in 11 states (MMN), feeder pig and hog origins.
+- Packer spread includes hog by-product (drop) value (AMS_2835). Cull sow prices (LM_HG234)
+  on Sow farm. Retail pork feature activity (AMS_2868) is a market signal.
+- All federally inspected hog slaughter (AMS_3208) on Hog supply; the Slaughter signal uses it.
+- Futures import: Barchart / DTN quote boards, single-contract histories, Excel.
+- Iowa State farrow-to-finish costs set four cost defaults (live until edited). WASDE history
+  from ESMIS: forecast error by horizon on Hog market. EIA diesel and propane on Costs &
+  returns. FRED prime rate hint on Wean to finish operating interest.
+- Freshness guard covers every source; weekly GitHub Action refreshes keyless data (and MMN /
+  NASS too once their keys are added as repository secrets).
+- Not done and why: see ROADMAP Phase 9 Status.
