@@ -30,16 +30,18 @@ def test_cutout_offline_uses_sample(tmp_path, monkeypatch):
     assert "Offline" in note
 
 
-def _market(days: int = 800, weight_shift: float = 0.0, head_shift: float = 0.0,
-            cut_trend: float = 0.0) -> pd.DataFrame:  # fmt: skip
+def _market(
+    days: int = 800, weight_shift: float = 0.0, head_shift: float = 0.0, cut_trend: float = 0.0
+) -> pd.DataFrame:
     """Synthetic daily market: flat prices; the last 28 days can differ from a year earlier."""
     dates = pd.bdate_range("2024-01-01", periods=days)
     recent = dates > dates[-1] - pd.Timedelta(days=28)
     weight = np.where(recent, 215 + weight_shift, 215.0)
     head = np.where(recent, 250_000 * (1 + head_shift), 250_000.0)
     cutout = 90 + np.where(dates > dates[-1] - pd.Timedelta(days=14), cut_trend, 0.0)
-    df = pd.DataFrame({"date": dates, "index": 80.0, "cutout": cutout, "head": head,
-                       "weight_lb": weight})  # fmt: skip
+    df = pd.DataFrame(
+        {"date": dates, "index": 80.0, "cutout": cutout, "head": head, "weight_lb": weight}
+    )
     df["spread"] = df["cutout"] - df["index"]
     df["spread_per_head"] = df["spread"] * df["weight_lb"] / 100
     return df
@@ -47,23 +49,42 @@ def _market(days: int = 800, weight_shift: float = 0.0, head_shift: float = 0.0,
 
 def test_daily_spread_arithmetic():
     hg = pd.DataFrame(
-        {"slaughter_date": pd.to_datetime(["2026-10-15"]), "purchase_type": [hm.ALL_TYPES],
-         "head_count": [200_000.0], "avg_weight_lb_carcass": [220.0]}
-    )  # fmt: skip
-    idx = pd.DataFrame({"index_date": pd.to_datetime(["2026-10-15"]),
-                        "lean_hog_index_usd_per_cwt_carcass": [75.0]})  # fmt: skip
-    cut = pd.DataFrame({"date": pd.to_datetime(["2026-10-15"]), "carcass": [85.0],
-                        "belly": [90.0], "loin": [80.0], "ham": [70.0]})  # fmt: skip
+        {
+            "slaughter_date": pd.to_datetime(["2026-10-15"]),
+            "purchase_type": [hm.ALL_TYPES],
+            "head_count": [200_000.0],
+            "avg_weight_lb_carcass": [220.0],
+        }
+    )
+    idx = pd.DataFrame(
+        {"index_date": pd.to_datetime(["2026-10-15"]), "lean_hog_index_usd_per_cwt_carcass": [75.0]}
+    )
+    cut = pd.DataFrame(
+        {
+            "date": pd.to_datetime(["2026-10-15"]),
+            "carcass": [85.0],
+            "belly": [90.0],
+            "loin": [80.0],
+            "ham": [70.0],
+        }
+    )
     d = hm.daily(hg, idx, cut)
     assert d["spread"].iloc[0] == pytest.approx(10.0)
     assert d["spread_per_head"].iloc[0] == pytest.approx(22.0)  # $10/cwt × 220 lb
 
 
 def test_weekly_is_head_weighted():
-    d = pd.DataFrame({"date": pd.to_datetime(["2026-10-12", "2026-10-13"]), "index": [70.0, 80.0],
-                      "cutout": [80.0, 90.0], "spread": [10.0, 10.0],
-                      "spread_per_head": [21.0, 22.0], "head": [100.0, 300.0],
-                      "weight_lb": [200.0, 220.0]})  # fmt: skip
+    d = pd.DataFrame(
+        {
+            "date": pd.to_datetime(["2026-10-12", "2026-10-13"]),
+            "index": [70.0, 80.0],
+            "cutout": [80.0, 90.0],
+            "spread": [10.0, 10.0],
+            "spread_per_head": [21.0, 22.0],
+            "head": [100.0, 300.0],
+            "weight_lb": [200.0, 220.0],
+        }
+    )
     w = hm.weekly(d).iloc[0]
     assert w["head"] == 400
     assert w["weight_lb"] == pytest.approx((100 * 200 + 300 * 220) / 400)
@@ -137,8 +158,16 @@ def test_wasde_outlook_and_signal():
 
 
 def test_wasde_outlook_missing_quarters():
-    df = pd.DataFrame({"year": [2026], "quarter": [1], "series": ["pork_production_mlb"],
-                       "value": [7000.0], "projected": [False], "report": ["x"]})  # fmt: skip
+    df = pd.DataFrame(
+        {
+            "year": [2026],
+            "quarter": [1],
+            "series": ["pork_production_mlb"],
+            "value": [7000.0],
+            "projected": [False],
+            "report": ["x"],
+        }
+    )
     assert hm.wasde_outlook(df, pd.Timestamp("2026-10-20")) is None
 
 
@@ -154,12 +183,19 @@ def test_ers_parse_pork_cold_storage():
     from hogproj.data.ers import parse
 
     raw = pd.DataFrame(
-        {"commodity_desc": ["Pork", "Pork", "Beef", "Pork"],
-         "attribute_desc": ["Cold storage", "Cold storage", "Cold storage",
-                            "Commercial production"],
-         "year_id": [2026, 2009, 2026, 2026], "timeperiod_id": [9, 9, 9, 9],
-         "amount": [436.269, 530.1, 400.0, 2000.0]}
-    )  # fmt: skip
+        {
+            "commodity_desc": ["Pork", "Pork", "Beef", "Pork"],
+            "attribute_desc": [
+                "Cold storage",
+                "Cold storage",
+                "Cold storage",
+                "Commercial production",
+            ],
+            "year_id": [2026, 2009, 2026, 2026],
+            "timeperiod_id": [9, 9, 9, 9],
+            "amount": [436.269, 530.1, 400.0, 2000.0],
+        }
+    )
     df = parse(raw)
     assert list(df["month"]) == [pd.Timestamp("2026-09-01")]  # pre-2010 and other series dropped
     assert df["pork_stocks_mlb"].iloc[0] == pytest.approx(436.269)
@@ -181,15 +217,76 @@ def test_storage_signal(last, tone):
 def test_wasde_ratio_and_contract_prices():
     from datetime import date
 
-    w = pd.DataFrame({"year": [2026, 2026, 2027], "quarter": [2, 3, 1],
-                      "series": ["barrows_gilts_usd_cwt_live"] * 3, "value": [60.0, 64.0, 66.0],
-                      "projected": [False, False, True], "report": ["x"] * 3})  # fmt: skip
+    w = pd.DataFrame(
+        {
+            "year": [2026, 2026, 2027],
+            "quarter": [2, 3, 1],
+            "series": ["barrows_gilts_usd_cwt_live"] * 3,
+            "value": [60.0, 64.0, 66.0],
+            "projected": [False, False, True],
+            "report": ["x"] * 3,
+        }
+    )
     days = pd.bdate_range("2026-04-01", "2026-09-30")
     price = np.where(np.array([d.month for d in days]) <= 6, 81.0, 86.4)
     idx = pd.DataFrame({"index_date": days, "lean_hog_index_usd_per_cwt_carcass": price})
     r = hm.wasde_to_index_ratio(w, idx)
     assert r is not None
     assert r == pytest.approx((81 / 60 + 86.4 / 64) / 2)  # 1.35
-    got = hm.wasde_contract_prices([(2027, 2), (2027, 12)], [date(2027, 2, 12), date(2027, 12, 14)],
-                                   w, r)  # fmt: skip
+    got = hm.wasde_contract_prices(
+        [(2027, 2), (2027, 12)], [date(2027, 2, 12), date(2027, 12, 14)], w, r
+    )
     assert got == {(2027, 2): round(66 * r * 4) / 4}  # Dec 2027 past the horizon: left out
+
+
+def test_drop_value_adds_to_the_spread_and_backfills():
+    hg = pd.DataFrame(
+        {
+            "slaughter_date": pd.to_datetime(["2021-06-01", "2026-10-15"]),
+            "purchase_type": [hm.ALL_TYPES] * 2,
+            "head_count": [1.0, 1.0],
+            "avg_weight_lb_carcass": [200.0, 200.0],
+        }
+    )
+    idx = pd.DataFrame(
+        {
+            "index_date": pd.to_datetime(["2021-06-01", "2026-10-15"]),
+            "lean_hog_index_usd_per_cwt_carcass": [100.0, 75.0],
+        }
+    )
+    cut = pd.DataFrame(
+        {
+            "date": pd.to_datetime(["2021-06-01", "2026-10-15"]),
+            "carcass": [110.0, 80.0],
+            "belly": 0.0,
+            "loin": 0.0,
+            "ham": 0.0,
+        }
+    )
+    drop = pd.DataFrame(
+        {
+            "week_ending": pd.to_datetime(["2022-02-11", "2026-10-09"]),
+            "drop_usd_per_cwt_carcass": [8.0, 6.9],
+        }
+    )
+    d = hm.daily(hg, idx, cut, drop).set_index("date")
+    assert d.loc["2026-10-15", "spread"] == pytest.approx(80 + 6.9 - 75)
+    assert d.loc["2021-06-01", "drop"] == pytest.approx(8.0)  # before the series: first value
+
+
+@pytest.mark.parametrize(("now", "tone"), [(110, "good"), (90, "bad"), (102, "neutral")])
+def test_retail_signal(now, tone):
+    weeks = pd.date_range("2026-09-25", periods=4, freq="W-FRI")
+    retail = pd.DataFrame(
+        {
+            "week_ending": weeks,
+            "region": "NATIONAL",
+            "feature_rate": 0.9,
+            "activity_index": float(now),
+            "activity_index_last_year": 100.0,
+        }
+    )
+    r = hm.retail_vs_year_ago(retail)
+    assert r is not None
+    sig = next(s for s in hm.signals(_market(), retail=r) if s.name == "Retail features")
+    assert sig.tone == tone

@@ -1,8 +1,8 @@
 """The hog market behind the price: cutout, packer spread, slaughter, weights, and plain-rule
 signals. Pure: DataFrames in, DataFrames and dicts out.
 
-Packer spread (gross) = pork cutout − Lean Hog Index, both $/cwt carcass, so it's the wholesale
-value of a carcass minus what packers paid for it — before plant costs and by-product credit.
+Packer spread (gross) = pork cutout + by-product (drop) value − Lean Hog Index, all $/cwt
+carcass: what a packer gets for the whole hog minus what it paid, before plant costs.
 Per head = spread × average carcass weight / 100. It's a relative gauge: wide spreads mean
 packers can afford to bid more for hogs.
 
@@ -22,8 +22,15 @@ ALL_TYPES = "Prod. Sold (All Purchase Types)"
 Tone = Literal["good", "bad", "neutral"]
 
 
-def daily(hg201: pd.DataFrame, index: pd.DataFrame, cutout: pd.DataFrame) -> pd.DataFrame:
-    """One row per slaughter day: index, cutout, spread, producer-sold head and carcass weight."""
+def daily(hg201: pd.DataFrame, index: pd.DataFrame, cutout: pd.DataFrame,
+          drop: pd.DataFrame | None = None) -> pd.DataFrame:  # fmt: skip
+    """One row per slaughter day: index, cutout, by-product (drop) value, packer spread,
+    producer-sold head and carcass weight.
+
+    With `drop` (weekly, $/cwt carcass equivalent) the spread is cutout + drop − index: what a
+    packer gets for the whole hog minus what it paid. Days before the drop series starts use
+    its first value (it moves within a few dollars), so the history stays comparable.
+    """
     allp = pd.DataFrame(hg201[hg201["purchase_type"] == ALL_TYPES])
     vol = pd.DataFrame(
         {
@@ -49,7 +56,18 @@ def daily(hg201: pd.DataFrame, index: pd.DataFrame, cutout: pd.DataFrame) -> pd.
     )
     df = vol.merge(idx, on="date", how="outer").merge(cut, on="date", how="outer")
     df = df.sort_values("date").reset_index(drop=True)
-    df["spread"] = df["cutout"] - df["index"]
+    df["drop"] = 0.0
+    if drop is not None and not drop.empty:
+        dv = pd.DataFrame(
+            {
+                "date": pd.to_datetime(drop["week_ending"]).to_numpy(),
+                "drop": drop["drop_usd_per_cwt_carcass"].to_numpy(dtype=float),
+            }
+        )
+        dv = dv.dropna().sort_values("date")
+        df = pd.merge_asof(df.drop(columns="drop"), dv, on="date", direction="backward")
+        df["drop"] = df["drop"].fillna(float(dv["drop"].iloc[0]))
+    df["spread"] = df["cutout"] + df["drop"] - df["index"]
     df["spread_per_head"] = df["spread"] * df["weight_lb"] / 100
     return df
 
@@ -155,8 +173,22 @@ def storage_vs_normal(cs: pd.DataFrame, years: int = 5) -> dict | None:
     return {"month": last, "now": now, "avg": avg, "pct": now / avg - 1, "years": len(prior)}
 
 
+def retail_vs_year_ago(retail: pd.DataFrame, weeks: int = 4) -> dict | None:
+    """National grocery pork feature activity over the last `weeks` vs the same weeks a year
+    earlier (USDA's own last-year columns)."""
+    if retail is None or retail.empty:
+        return None
+    nat = retail[retail["region"] == "NATIONAL"].sort_values("week_ending").tail(weeks)
+    if nat.empty or nat["activity_index_last_year"].sum() == 0:
+        return None
+    pct = nat["activity_index"].sum() / nat["activity_index_last_year"].sum() - 1
+    return {"pct": float(pct), "feature_rate": float(nat["feature_rate"].iloc[-1]),
+            "week": _ts(nat["week_ending"].iloc[-1])}  # fmt: skip
+
+
 def signals(d: pd.DataFrame, supply_pct: float | None = None,
-            wasde: dict | None = None, storage: dict | None = None) -> list[Signal]:  # fmt: skip
+            wasde: dict | None = None, storage: dict | None = None,
+            retail: dict | None = None) -> list[Signal]:  # fmt: skip
     out: list[Signal] = []
 
     # 1. Packer spread per head vs its own history.
@@ -237,6 +269,20 @@ def signals(d: pd.DataFrame, supply_pct: float | None = None,
                           read + f" ({storage['month']:%B} stocks {storage['now']:,.0f}M lb)",
                           tone, "5%+ above the 5-year average for the month = negative; 5%+ "
                           "below = supportive"))  # fmt: skip
+
+    # 8. Retail demand: grocery pork features vs a year ago.
+    if retail is not None:
+        p = retail["pct"]
+        tone = "good" if p >= 0.05 else "bad" if p <= -0.05 else "neutral"
+        read = {
+            "good": "Grocers are featuring pork more than a year ago.",
+            "bad": "Grocers are featuring pork less than a year ago.",
+            "neutral": "Grocery pork features are close to last year.",
+        }[tone]
+        out.append(Signal("Retail features", f"{p:+.0%}".replace("-", "−") + " vs last year",
+                          read + f" ({retail['feature_rate']:.0%} of stores, last 4 weeks)",
+                          tone, "5%+ more feature activity than a year ago = supportive; 5%+ "
+                          "less = negative"))  # fmt: skip
 
     # 6. USDA's own pork production forecast (WASDE), next two quarters.
     if wasde is not None:

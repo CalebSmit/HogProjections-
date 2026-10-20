@@ -505,6 +505,21 @@ def storage_now() -> dict | None:
     return storage_vs_normal(cold_storage()[0])
 
 
+def market_signals() -> list:
+    """Every hog market signal with every input the app has (one place, so pages agree)."""
+    from hogproj import hogmarket as hm
+    from hogproj import supply
+
+    return hm.signals(hog_market(), supply.next_six_months(nass_data()[0])["pct"], wasde_now(),
+                      storage_now(), retail_now())  # fmt: skip
+
+
+def retail_now() -> dict | None:
+    from hogproj.hogmarket import retail_vs_year_ago
+
+    return retail_vs_year_ago(mars_data("retail")[0])
+
+
 def wasde_now() -> dict | None:
     """USDA's outlook for the next two quarters (see hogmarket.wasde_outlook)."""
     from hogproj.hogmarket import wasde_outlook
@@ -523,7 +538,8 @@ def hog_market() -> pd.DataFrame:
 
     raw, _, _ = _hg201(get_settings().offline)
     cut, _, _ = pork_cutout()
-    return daily(raw, lean_hog_index(raw), cut)
+    drop, _, _ = mars_data("drop")
+    return daily(raw, lean_hog_index(raw), cut, drop)
 
 
 def signal_list(items: Sequence[tuple[str, str, str, Tone, str]]) -> None:
@@ -1375,6 +1391,17 @@ def data_status() -> list[Freshness]:
     cs, s7, _ = cold_storage()
     if not cs.empty:
         add("Cold storage", cs["month"].max(), s7)
+    for name, label in (("prices", "Regional hog prices"), ("sows", "Sow prices")):
+        rd, sr, _ = regional_data(name)
+        if not rd.empty:
+            add(label, rd["date"].max(), sr)
+    for name, label, col in (("state_corn", "Corn by state", "date"),
+                             ("flows", "Feeder pig flows", "week_ending"),
+                             ("drop", "Hog by-product value", "week_ending"),
+                             ("retail", "Retail pork features", "week_ending")):  # fmt: skip
+        md_, sm, _ = mars_data(name)
+        if not md_.empty:
+            add(label, md_[col].max(), sm)
     return out
 
 

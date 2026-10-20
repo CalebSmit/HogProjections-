@@ -23,6 +23,12 @@ MAX_AGE_DAYS = {
     "Hogs and Pigs": 125,  # reference date (1st of Mar/Jun/Sep/Dec), released ~4 weeks later
     "USDA WASDE": 45,  # report month
     "Cold storage": 80,  # month of the stocks, released ~3-5 weeks after
+    "Regional hog prices": 5,
+    "Sow prices": 6,
+    "Corn by state": 6,
+    "Feeder pig flows": 10,
+    "Hog by-product value": 10,
+    "Retail pork features": 10,
 }
 
 

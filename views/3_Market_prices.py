@@ -26,6 +26,7 @@ from hogproj.ui import (
     hero,
     hog_index,
     hog_market,
+    market_signals,
     masthead,
     nass_data,
     pork_cutout,
@@ -61,7 +62,7 @@ week, month, year = value_days_ago(7), value_days_ago(30), value_days_ago(365)
 move_30 = latest - month if month is not None else 0.0
 last_year = values[(dates >= latest_date - pd.Timedelta(days=365)).to_numpy()]
 supply_pct = supply.next_six_months(nass_data()[0])["pct"]
-sigs = hm.signals(d, supply_pct, wasde_now(), storage_now())
+sigs = market_signals()
 tone, why = hm.overall(sigs)
 good = [s.name.lower() for s in sigs if s.tone == "good"]
 bad = [s.name.lower() for s in sigs if s.tone == "bad"]
@@ -189,7 +190,10 @@ with left:
     cf.update_xaxes(tickformat="%b %Y")
     cf.update_layout(showlegend=False, margin={"l": 4, "r": 64, "t": 8, "b": 4})
     chart(cf, 290, on=PAGE)
-    source_note("USDA AMS LM_PK602 (afternoon cutout) and LM_HG201", "gap = packer gross spread")
+    source_note(
+        "USDA AMS LM_PK602 (afternoon cutout) and LM_HG201",
+        "gap + by-products = packer gross spread",
+    )
 with mid:
     st.markdown(
         '<div class="hp-vrule" style="height:380px"></div>',
@@ -201,7 +205,7 @@ with right:
     now_sp = float(wk["spread_per_head"].iloc[-1])
     chart_title(
         f"Packers are grossing {usd(now_sp)} a head",
-        "Weekly packer gross spread per head · before plant costs and by-product credit",
+        "Weekly packer gross spread per head · cutout + by-products − hogs, before plant costs",
     )
     sf = go.Figure(
         go.Bar(

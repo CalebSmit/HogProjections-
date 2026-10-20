@@ -157,13 +157,10 @@ with assumption_bar("overview"):
 
 def report_extras() -> dict[str, pd.DataFrame]:
     """Market, wean-to-finish and sow farm sheets for the farm report (built on click)."""
-    from hogproj import hogmarket as hm
-    from hogproj import supply
     from hogproj.sowfarm import cost_lines
-    from hogproj.ui import crush_book, hog_market, nass_data, sow_from_state, storage_now, wasde_now
+    from hogproj.ui import crush_book, market_signals, sow_from_state
 
-    sigs = hm.signals(hog_market(), supply.next_six_months(nass_data()[0])["pct"], wasde_now(),
-                      storage_now())  # fmt: skip
+    sigs = market_signals()
     book = crush_book()
     on_feed = book.rows[book.rows["status"] == "on feed"]
     return {
