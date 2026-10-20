@@ -12,9 +12,11 @@ from hogproj.ui import (
     SAVED_PREFIXES,
     asset,
     data_status,
+    is_live,
     page_footer,
     saved_inputs,
     setup_page,
+    touched,
     warm_data,
 )
 
@@ -35,6 +37,7 @@ if upload is not None and ss.get("_io_loaded") != upload.file_id:
         for k, v in values.items():
             if str(k).startswith(SAVED_PREFIXES) and isinstance(v, (int, float, str, bool)):
                 ss[k] = v
+                touched().add(str(k))  # a loaded value is the user's, not a live default
         for k in DERIVED_KEYS:
             ss.pop(k, None)
         ss["_io_message"] = f"Loaded {len(values)} inputs from {upload.name}."
@@ -45,7 +48,7 @@ if upload is not None and ss.get("_io_loaded") != upload.file_id:
 # Streamlit drops a widget's value when its page isn't shown. Re-assigning the keyed inputs
 # on every run keeps them, so switching pages doesn't reset the user's assumptions.
 for key in [k for k in ss if str(k).startswith(SAVED_PREFIXES)]:
-    if key not in DERIVED_KEYS:
+    if key not in DERIVED_KEYS and not (is_live(str(key)) and key not in touched()):
         ss[key] = ss[key]
 
 page = st.navigation(

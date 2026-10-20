@@ -11,7 +11,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -574,6 +574,51 @@ W2F_KEYS = {
 SAVED_PREFIXES = ("herd_", "cost_", "scn_", "risk_", "mkt_", "w2f_", "sow_")
 DERIVED_KEYS = ("herd_inputs", "cost_inputs")
 
+# Inputs whose default is live data (USDA prices, the seasonal estimate). Until the user edits
+# one, it follows the latest default; only edited values are remembered, flagged as the user's
+# and saved to setup files. Otherwise a refresh would leave last week's default looking typed.
+LIVE_KEYS = {"cost_hog", "cost_corn", "cost_sbm", "w2f_pig", "w2f_ddgs", "w2f_corn_hedge_px",
+             "w2f_sbm_hedge_px"}  # fmt: skip
+TOUCHED = "_touched"
+
+
+def is_live(key: str) -> bool:
+    return (
+        key in LIVE_KEYS
+        or key.startswith("w2f_lh_")
+        or (key.startswith("w2f_hedge_") and key.endswith("_px"))
+    )
+
+
+def touched() -> set[str]:
+    ss = st.session_state
+    if TOUCHED not in ss:
+        ss[TOUCHED] = set()
+    return ss[TOUCHED]
+
+
+def _mark(key: str) -> None:
+    touched().add(key)
+
+
+def user_value(key: str, default: float) -> float:
+    """The user's value for an input, or `default` (live inputs the user hasn't edited)."""
+    ss = st.session_state
+    v = ss.get(key)
+    if v is None or (is_live(key) and key not in touched()):
+        return float(default)
+    return float(v)
+
+
+def live_number(target: Any, label: str, lo: float, hi: float, default: float,
+                step: float, key: str, **kw: object) -> float:  # fmt: skip
+    """`number_input` for a live-default input: shows the latest default until edited."""
+    if key not in touched():
+        st.session_state[key] = float(default)
+    v = target.number_input(label, lo, hi, None, step, key=key, on_change=_mark, args=(key,),
+                            **kw)  # fmt: skip
+    return float(default if v is None else v)
+
 
 def herd_from_state() -> HerdInputs:
     """HerdInputs from the saved widget values (defaults for anything not set yet)."""
@@ -594,7 +639,9 @@ def cost_from_state(herd: HerdInputs) -> CostInputs:
     upd: dict[str, float] = {"lean_hog_usd_per_cwt_carcass": latest_hog_index(),
                              "corn_usd_per_bu": feed_default("corn_cash_iowa"),
                              "sbm_usd_per_ton": feed_default("sbm_iowa")}  # fmt: skip
-    upd.update({field: float(ss[key]) for key, field in COST_KEYS.items() if key in ss})
+    base = CostInputs()
+    upd.update({field: user_value(key, upd[field] if field in upd else getattr(base, field))
+                for key, field in COST_KEYS.items() if key in ss})  # fmt: skip
     upd.update(weight_lb_live_market=herd.weight_lb_live_market, carcass_yield=herd.carcass_yield)
     return CostInputs().model_copy(update=upd)
 
@@ -609,6 +656,8 @@ def crush_from_state() -> CrushInputs:
                                    "ddgs_usd_per_ton": feed_default("ddgs_iowa")}  # fmt: skip
     for key, (field, scale) in W2F_KEYS.items():
         if key in ss and ss[key] is not None:
+            if is_live(key) and key not in touched():
+                continue  # keep the live default set above
             v = ss[key] * scale
             upd[field] = int(v) if field == "days_on_feed" else float(v)
     return CrushInputs().model_copy(update=upd)
@@ -635,7 +684,9 @@ def sow_from_state() -> SowInputs:
         "corn_usd_per_bu": feed_default("corn_cash_iowa"),
         "sbm_usd_per_ton": feed_default("sbm_iowa"),
     }  # fmt: skip
-    upd.update({f: float(ss[k]) for k, f in SOW_KEYS.items() if ss.get(k) is not None})
+    base = SowInputs()
+    upd.update({f: user_value(k, upd[f] if f in upd else getattr(base, f))
+                for k, f in SOW_KEYS.items() if ss.get(k) is not None})  # fmt: skip
     return SowInputs().model_copy(update=upd)
 
 
@@ -671,12 +722,10 @@ def crush_book() -> CrushBook:
     today = date.today()
     index_now = float(idx["lean_hog_index_usd_per_cwt_carcass"].iloc[-1])
     last_index = date.fromisoformat(str(idx["index_date"].iloc[-1])[:10])
-    contracts = contracts_needed(pigs.tail(40), c, today, last_index)
+    contracts = contracts_needed(pigs.tail(c.days_on_feed // 7 + 2), c, today, last_index)
     model = model_contract_prices(contracts, today, index_now, seasonal_factors(idx))
-    futures = {
-        k: float(model[k] if ss.get(lh_key(k)) is None else ss[lh_key(k)]) for k in contracts
-    }
-    user_set = [k for k in contracts if futures[k] != model[k]]
+    futures = {k: user_value(lh_key(k), model[k]) for k in contracts}
+    user_set = [k for k in contracts if lh_key(k) in touched()]
     this = contract_for(today + timedelta(days=c.days_on_feed))
     # Corn for pigs on feed: the CBOT curve over their months on feed plus your basis (the
     # workbook's approach), or today's cash for every month.
@@ -727,6 +776,7 @@ def saved_inputs() -> dict[str, object]:
         if str(k).startswith(SAVED_PREFIXES)
         and str(k) not in DERIVED_KEYS
         and isinstance(ss[k], (int, float, str, bool))
+        and not (is_live(str(k)) and str(k) not in touched())
     }
 
 

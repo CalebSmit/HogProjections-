@@ -39,6 +39,7 @@ from hogproj.ui import (
     iowa_corn,
     latest_weaned_pig,
     lh_key,
+    live_number,
     masthead,
     md,
     projection_band,
@@ -51,6 +52,7 @@ from hogproj.ui import (
     table,
     tone_of,
     usd,
+    user_value,
     wasde_now,
     weaned_pigs,
 )
@@ -81,8 +83,7 @@ def only(df: pd.DataFrame, mask: object) -> pd.DataFrame:
 
 
 def cur(key: str, default: float) -> float:
-    v = ss.get(key)
-    return float(default if v is None else v)
+    return user_value(key, default)
 
 
 this_contract = book0.this_contract
@@ -93,7 +94,8 @@ with assumption_bar("w2f"):
     with st.popover(
         md(f"Weaned pig · {usd(cur('w2f_pig', usda_pig))} + {usd(cur('w2f_adder', 0))}")
     ):
-        st.number_input(
+        live_number(
+            st,
             "Weaned pig price ($/head)",
             0.0,
             200.0,
@@ -128,7 +130,7 @@ with assumption_bar("w2f"):
             )
         cols = st.columns(2)
         for i, k in enumerate(contracts):
-            cols[i % 2].number_input(contract_label(k), 0.0, 250.0, model[k], 0.25, key=lh_key(k))
+            live_number(cols[i % 2], contract_label(k), 0.0, 250.0, model[k], 0.25, key=lh_key(k))
         st.number_input(
             "Your basis to the index ($/cwt)",
             -30.0,
@@ -164,12 +166,13 @@ with assumption_bar("w2f"):
     ):
         a, b = st.columns(2)
         shared = " Shared with Costs & returns."
-        a.number_input("Corn ($/bu)", 0.0, 20.0, feed_default("corn_cash_iowa"), 0.05,
+        live_number(a, "Corn ($/bu)", 0.0, 20.0, feed_default("corn_cash_iowa"), 0.05,
                        key="cost_corn",
                        help=feed_help("corn_cash_iowa") + shared + corn_note)  # fmt: skip
-        b.number_input("Soybean meal ($/ton)", 0.0, 1000.0, feed_default("sbm_iowa"), 5.0,
+        live_number(b, "Soybean meal ($/ton)", 0.0, 1000.0, feed_default("sbm_iowa"), 5.0,
                        key="cost_sbm", help=feed_help("sbm_iowa") + shared)  # fmt: skip
-        a.number_input(
+        live_number(
+            a,
             "DDGS ($/ton)",
             0.0,
             600.0,

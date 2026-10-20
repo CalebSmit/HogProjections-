@@ -35,6 +35,7 @@ from hogproj.ui import (
     hog_index,
     kv_table,
     latest_hog_index,
+    live_number,
     masthead,
     md,
     nass_data,
@@ -121,7 +122,8 @@ actions = masthead(
 _d = CostInputs()
 with assumption_bar("overview"):
     with st.popover(md(f"Hog price · {usd(hog)}/cwt")):
-        st.number_input(
+        live_number(
+            st,
             "Lean hog price ($/cwt carcass)",
             0.0,
             200.0,
@@ -131,7 +133,8 @@ with assumption_bar("overview"):
             help="Starts at the latest Lean Hog Index. Try the price you expect to average.",
         )
     with st.popover(md(f"Corn · {usd(plan.cost.corn_usd_per_bu)}/bu")):
-        st.number_input(
+        live_number(
+            st,
             "Corn ($/bu)",
             0.0,
             20.0,

@@ -33,6 +33,7 @@ from hogproj.ui import (
     herd_from_state,
     hero,
     hog_index,
+    live_number,
     masthead,
     md,
     quote,
@@ -44,6 +45,7 @@ from hogproj.ui import (
     tone_of,
     usd,
     usd_short,
+    user_value,
 )
 
 herd_inp: HerdInputs = herd_from_state()
@@ -56,8 +58,7 @@ corn0, sbm0 = feed_default("corn_cash_iowa"), feed_default("sbm_iowa")
 
 
 def cur(key: str, default: float) -> float:
-    """Current value of an input (for the chip labels, which render before the widgets)."""
-    return float(ss.get(key, default))
+    return user_value(key, default)
 
 
 # --- Masthead + assumptions -------------------------------------------------------------
@@ -72,7 +73,8 @@ with bar:
             f"{usd(cur('cost_hog', latest_index))}"
         ),
     ):
-        corn = st.number_input(
+        corn = live_number(
+            st,
             "Corn ($/bu)",
             0.0,
             20.0,
@@ -81,7 +83,8 @@ with bar:
             key="cost_corn",
             help=feed_help("corn_cash_iowa"),
         )
-        sbm = st.number_input(
+        sbm = live_number(
+            st,
             "Soybean meal ($/ton)",
             0.0,
             1000.0,
@@ -90,7 +93,8 @@ with bar:
             key="cost_sbm",
             help=feed_help("sbm_iowa"),
         )
-        hog = st.number_input(
+        hog = live_number(
+            st,
             "Lean hog price ($/cwt carcass)",
             0.0,
             200.0,

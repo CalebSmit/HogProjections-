@@ -24,6 +24,7 @@ from hogproj.ui import (
     end_tag,
     hero,
     lh_key,
+    live_number,
     masthead,
     md,
     quote,
@@ -34,6 +35,7 @@ from hogproj.ui import (
     tone_of,
     usd,
     usd_short,
+    user_value,
 )
 
 ss = st.session_state
@@ -49,8 +51,7 @@ def key(k: tuple[int, int], what: str) -> str:
 
 
 def cur(name: str, default: float) -> float:
-    v = ss.get(name)
-    return float(default if v is None else v)
+    return user_value(name, default)
 
 
 hedged_now = [k for k in book.contracts if cur(key(k, "pct"), 0) > 0]
@@ -70,7 +71,7 @@ with assumption_bar("hedge"):
         st.date_input("Prices as of", value=None, key="w2f_asof", format="MM/DD/YYYY")
         cols = st.columns(2)
         for i, k in enumerate(book.contracts):
-            cols[i % 2].number_input(contract_label(k), 0.0, 250.0, book.model[k], 0.25,
+            live_number(cols[i % 2], contract_label(k), 0.0, 250.0, book.model[k], 0.25,
                                      key=lh_key(k))  # fmt: skip
     with st.popover(
         md(
@@ -85,7 +86,7 @@ with assumption_bar("hedge"):
             a, b = st.columns([1, 1])
             a.number_input(f"{contract_label(k)} hedged (%)", 0.0, 100.0, 0.0, 5.0,
                            key=key(k, "pct"))  # fmt: skip
-            b.number_input(f"{contract_label(k)} price ($/cwt)", 0.0, 250.0, book.futures[k],
+            live_number(b, f"{contract_label(k)} price ($/cwt)", 0.0, 250.0, book.futures[k],
                            0.25, key=key(k, "px"))  # fmt: skip
     with st.popover(
         f"Feed hedges · corn {cur('w2f_corn_hedge_pct', 0):.0f}% · SBM "
@@ -93,10 +94,10 @@ with assumption_bar("hedge"):
     ):
         a, b = st.columns(2)
         a.number_input("Corn hedged (%)", 0.0, 100.0, 0.0, 5.0, key="w2f_corn_hedge_pct")
-        b.number_input("Corn price ($/bu)", 0.0, 20.0, c.corn_usd_per_bu, 0.05,
+        live_number(b, "Corn price ($/bu)", 0.0, 20.0, c.corn_usd_per_bu, 0.05,
                        key="w2f_corn_hedge_px")  # fmt: skip
         a.number_input("SBM hedged (%)", 0.0, 100.0, 0.0, 5.0, key="w2f_sbm_hedge_pct")
-        b.number_input("SBM price ($/ton)", 0.0, 1000.0, c.sbm_usd_per_ton, 5.0,
+        live_number(b, "SBM price ($/ton)", 0.0, 1000.0, c.sbm_usd_per_ton, 5.0,
                        key="w2f_sbm_hedge_px")  # fmt: skip
     with st.popover(f"Pigs placed · {cur('w2f_head_week', 1000):,.0f}/week"):
         st.number_input("Pigs placed per week", 0.0, 1_000_000.0, 1000.0, 100.0,

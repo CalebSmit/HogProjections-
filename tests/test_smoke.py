@@ -74,6 +74,7 @@ def test_saved_inputs_drive_every_page_without_visiting_them():
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=60)
     at.session_state["herd_sows"] = 2400
     at.session_state["cost_hog"] = 95.0
+    at.session_state["_touched"] = {"cost_hog"}  # what loading a setup file marks
     at.run()
     at.switch_page("views/0_Overview.py").run()
     assert not at.exception
@@ -117,3 +118,23 @@ def test_sow_farm_follows_herd_productivity():
     at.run()
     assert not at.exception
     assert at.title[0].value != before
+
+
+def test_untouched_live_defaults_are_not_treated_as_typed():
+    # Review finding: a stored seasonal estimate that drifts from today's model must not flip the
+    # pages to "the contract prices you entered", nor be saved to a setup file.
+    at = app().switch_page("views/8_Wean_to_finish.py").run()
+    lh = [str(w.key) for w in at.number_input if str(w.key).startswith("w2f_lh_")]
+    assert lh
+    at.session_state[lh[0]] = float(at.session_state[lh[0]]) + 0.25  # a stale default
+    at.switch_page("views/12_This_week.py").run()
+    assert not at.exception
+    assert "seasonal estimates" in " ".join(m.value for m in at.markdown)
+
+
+def test_edited_live_input_counts_as_the_users():
+    at = app().switch_page("views/8_Wean_to_finish.py").run()
+    w = next(w for w in at.number_input if str(w.key).startswith("w2f_lh_"))
+    w.set_value(99.0).run()
+    assert not at.exception
+    assert "Hog prices: your futures" in " ".join(m.value for m in at.markdown)

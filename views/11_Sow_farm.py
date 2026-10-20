@@ -29,6 +29,7 @@ from hogproj.ui import (
     tone_of,
     usd,
     usd_short,
+    user_value,
     weaned_pigs,
 )
 
@@ -39,8 +40,7 @@ corn_hist, _, _ = iowa_corn()
 
 
 def cur(key: str, default: float) -> float:
-    v = ss.get(key)
-    return float(default if v is None else v)
+    return user_value(key, default)
 
 
 head = st.empty()
