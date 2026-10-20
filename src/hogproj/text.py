@@ -12,10 +12,9 @@ def day(d: object, fmt: str = "%b %d, %Y") -> str:
     """A date without a zero-padded day on any platform: "Aug 3, 2027", not "Aug 03, 2027"."""
     import pandas as pd
 
-    t = pd.Timestamp(str(d)) if not hasattr(d, "strftime") else d
+    t = pd.Timestamp(d if hasattr(d, "strftime") else str(d))  # type: ignore[arg-type]
     # A plain-text marker: Linux's strftime stops at a NUL byte, so "\x00" cut the date short.
-    out = t.strftime(fmt.replace("%d", "@@DAY@@"))  # type: ignore[union-attr]
-    return out.replace("@@DAY@@", str(t.day))
+    return t.strftime(fmt.replace("%d", "@@DAY@@")).replace("@@DAY@@", str(t.day))
 
 
 def article(phrase: str) -> str:
