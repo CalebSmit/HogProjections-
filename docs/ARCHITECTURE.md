@@ -49,6 +49,8 @@ flowchart LR
 | `src/hogproj/data/ams.py` | Keyless LMR datamart client (LM_HG201); live → `data/cache` → `data/sample` | done |
 | `src/hogproj/herd.py` | Weekly cohort herd flow; pipeline starts in steady state | done |
 | `src/hogproj/finance.py` | ISU ELR line-item cost per pig, breakeven, sensitivity, weekly returns | done |
+| `src/hogproj/data/nass.py` | NASS Quick Stats client (Hogs and Pigs); key never logged; live → cache → sample | done |
+| `src/hogproj/supply.py` | Forward supply outlook from weight classes, pig crop and farrowing intentions | done |
 | `src/hogproj/markets.py` | Lean Hog Index from HG201, monthly seasonal factors | done |
 | `src/hogproj/outlook.py` | Whole-farm `Plan` (herd + cost + price path): projection, 12-month summary, monthly rollup, profit drivers | done |
 | `src/hogproj/ui.py` | Design system (tokens, CSS, Plotly template, components) + cached data load and number formatting; see `docs/DESIGN.md` | done |

@@ -48,6 +48,7 @@ page = st.navigation(
             st.Page(
                 "views/3_Market_prices.py", title="Market prices", icon=":material/show_chart:"
             ),
+            st.Page("views/6_Hog_supply.py", title="Hog supply", icon=":material/inventory_2:"),
         ],
     }
 )

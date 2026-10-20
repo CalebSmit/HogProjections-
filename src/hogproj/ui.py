@@ -20,6 +20,7 @@ from streamlit.delta_generator import DeltaGenerator
 
 from hogproj.config import ROOT, get_settings
 from hogproj.data.ams import Source, load_hg201
+from hogproj.data.nass import load as nass_load
 from hogproj.finance import CostInputs
 from hogproj.herd import HerdInputs
 from hogproj.markets import lean_hog_index
@@ -328,6 +329,17 @@ def hog_index() -> tuple[pd.DataFrame, Source, str]:
     return lean_hog_index(raw), source, note
 
 
+@st.cache_data(ttl=6 * 3600, show_spinner="Loading USDA Hogs and Pigs…")
+def _nass(offline: bool) -> tuple[pd.DataFrame, str, str]:
+    # The key is read here rather than passed in, so it never becomes part of a cache key.
+    return nass_load(get_settings().nass_api_key.strip(), offline)
+
+
+def nass_data() -> tuple[pd.DataFrame, str, str]:
+    """Quarterly Hogs and Pigs data (live, cached or sample) and a note on where it came from."""
+    return _nass(get_settings().offline)
+
+
 def latest_hog_index() -> float:
     idx, _, _ = hog_index()
     return round(float(idx["lean_hog_index_usd_per_cwt_carcass"].iloc[-1]), 2)
@@ -526,16 +538,18 @@ def end_tag(fig: go.Figure, x: object, y: float, text: str, color: str) -> None:
     )
 
 
-def ref_line(fig: go.Figure, y: float, label: str, color: str = REFERENCE) -> None:
-    """Dotted reference line (breakeven, floor) with its label at the right edge."""
+def ref_line(
+    fig: go.Figure, y: float, label: str, color: str = REFERENCE, side: str = "right"
+) -> None:
+    """Dotted reference line (breakeven, floor) with its label at one edge."""
     fig.add_hline(y=y, line={"color": color, "width": 1.25, "dash": "dot"})
     fig.add_annotation(
-        x=1,
+        x=1 if side == "right" else 0,
         xref="paper",
         y=y,
         text=label,
         showarrow=False,
-        xanchor="right",
+        xanchor=side,
         yanchor="bottom",
         font={"size": 11, "color": color, "family": SANS},
     )
@@ -596,7 +610,8 @@ def page_footer() -> None:
     left = (f"Prepared by {_safe(who)} · " if who else "Prepared ") + f"{date.today():%B %d, %Y}"
     _html(
         f'<div class="hp-footer"><span>{left}</span>'
-        "<span>Data: USDA AMS LM_HG201 · Iowa State University Estimated Livestock Returns · "
+        "<span>Data: USDA AMS LM_HG201 · USDA NASS Hogs and Pigs · Iowa State University "
+        "Estimated Livestock Returns · "
         "Projections, not financial advice</span></div>"
     )
 

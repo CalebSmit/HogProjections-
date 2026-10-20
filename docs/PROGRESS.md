@@ -123,3 +123,14 @@ Newest at the bottom.
   lower layouts; footer with preparer/date/sources (`PREPARED_BY`); consistency fixes (timing
   chip 42 vs 41 weeks, wrapped labels, axis overrun, clipped chart labels).
 - **Verified:** ruff, pyright, 72 tests; tall-viewport screenshots of all pages at 1440/1280.
+
+## 2026-10-19 (cont.) — NASS Hogs and Pigs: supply outlook
+- **Done:** NASS key verified (loaded via settings, never printed; error text scrubbed). `data/nass.py`
+  client + bundled 2010-2026 sample; `supply.py` outlook by marketing window (weight classes,
+  pig crop, farrowing intentions vs a year ago); new Hog supply page; U.S. pigs-per-litter
+  benchmark on Herd flow; footer credits NASS.
+- **Findings (Sep 1, 2026 report):** market hogs −1.5% y/y across all weight classes; Jun–Aug
+  pig crop −1.5%; Sep–Nov farrowing intentions −1.8%, Dec–Feb +2.1%; breeding herd 5.87M,
+  smallest September herd since 2013; U.S. pigs per litter 11.96 vs the app's default 12.10.
+- **Verified:** ruff, pyright, 79 tests; screenshots of Hog supply and Herd flow.
+- **Next:** My Market News key → corn/SBM cash prices and feed-quantity calibration.

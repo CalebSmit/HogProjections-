@@ -1,0 +1,1212 @@
+{
+"data": [
+{
+"short_desc": "HOGS - INVENTORY",
+"Value": "73,570,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - INVENTORY",
+"Value": "73,129,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - INVENTORY",
+"Value": "74,301,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - INVENTORY",
+"Value": "75,414,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "YEAR",
+"year": 2025,
+"load_time": "2026-04-30 15:00:00.000"
+},
+{
+"short_desc": "HOGS - INVENTORY",
+"Value": "73,997,400",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2025,
+"load_time": "2026-03-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS - INVENTORY",
+"Value": "73,697,400",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2025,
+"load_time": "2026-06-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS - INVENTORY",
+"Value": "75,438,400",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - INVENTORY",
+"Value": "75,204,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF DEC",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.82",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JAN",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.99",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FEB",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.81",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.87",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR THRU MAY",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.88",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "APR",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.93",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAY",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.96",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.96",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN THRU AUG",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.96",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUL",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.95",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "AUG",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.9",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC THRU FEB",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.79",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MARKETING YEAR",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.56",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JAN",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.69",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FEB",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.71",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.75",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR THRU MAY",
+"year": 2025,
+"load_time": "2026-06-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.73",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "APR",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.82",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAY",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.75",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.82",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN THRU AUG",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.84",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUL",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.87",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "AUG",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.82",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "SEP",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.93",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "SEP THRU NOV",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.95",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "OCT",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "12.03",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "NOV",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.65",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC THRU FEB",
+"year": 2025,
+"load_time": "2026-03-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS - LITTER RATE, MEASURED IN PIGS / LITTER",
+"Value": "11.88",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "10,982,420",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JAN",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "10,682,370",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FEB",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,256,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "33,379,400",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR THRU MAY",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,095,940",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "APR",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,027,160",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAY",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,833,670",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "34,508,400",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN THRU AUG",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,377,420",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUL",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,297,310",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "AUG",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "32,558,400",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC THRU FEB",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "136,235,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MARKETING YEAR",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "10,978,480",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JAN",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "10,804,240",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FEB",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,251,130",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "33,513,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR THRU MAY",
+"year": 2025,
+"load_time": "2026-06-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,119,010",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "APR",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,143,160",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAY",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,849,500",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "35,044,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN THRU AUG",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,651,590",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUL",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,543,210",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "AUG",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,481,340",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "SEP",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "34,688,400",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "SEP THRU NOV",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,584,440",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "OCT",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "11,622,620",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "NOV",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "32,989,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC THRU FEB",
+"year": 2025,
+"load_time": "2026-03-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS - PIG CROP, MEASURED IN HEAD",
+"Value": "10,893,610",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, BREEDING - INVENTORY",
+"Value": "5,891,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, BREEDING - INVENTORY",
+"Value": "5,879,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, BREEDING - INVENTORY",
+"Value": "5,874,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, BREEDING - INVENTORY",
+"Value": "5,980,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2025,
+"load_time": "2026-03-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS, BREEDING - INVENTORY",
+"Value": "5,949,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2025,
+"load_time": "2026-06-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS, BREEDING - INVENTORY",
+"Value": "5,936,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, BREEDING - INVENTORY",
+"Value": "5,902,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF DEC",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET - INVENTORY",
+"Value": "67,679,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET - INVENTORY",
+"Value": "67,250,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET - INVENTORY",
+"Value": "68,427,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET - INVENTORY",
+"Value": "68,017,100",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2025,
+"load_time": "2026-03-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET - INVENTORY",
+"Value": "67,748,100",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2025,
+"load_time": "2026-06-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET - INVENTORY",
+"Value": "69,502,100",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET - INVENTORY",
+"Value": "69,302,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF DEC",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 120 TO 179 LBS - INVENTORY",
+"Value": "15,933,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 120 TO 179 LBS - INVENTORY",
+"Value": "14,480,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 120 TO 179 LBS - INVENTORY",
+"Value": "14,142,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 120 TO 179 LBS - INVENTORY",
+"Value": "15,864,900",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2025,
+"load_time": "2026-03-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 120 TO 179 LBS - INVENTORY",
+"Value": "14,825,400",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2025,
+"load_time": "2026-06-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 120 TO 179 LBS - INVENTORY",
+"Value": "14,358,400",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 120 TO 179 LBS - INVENTORY",
+"Value": "14,892,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF DEC",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 50 TO 119 LBS - INVENTORY",
+"Value": "18,843,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 50 TO 119 LBS - INVENTORY",
+"Value": "18,801,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 50 TO 119 LBS - INVENTORY",
+"Value": "19,976,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 50 TO 119 LBS - INVENTORY",
+"Value": "18,771,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2025,
+"load_time": "2026-03-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 50 TO 119 LBS - INVENTORY",
+"Value": "19,165,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2025,
+"load_time": "2026-06-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 50 TO 119 LBS - INVENTORY",
+"Value": "20,282,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, 50 TO 119 LBS - INVENTORY",
+"Value": "19,087,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF DEC",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, GE 180 LBS - INVENTORY",
+"Value": "12,587,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, GE 180 LBS - INVENTORY",
+"Value": "12,863,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, GE 180 LBS - INVENTORY",
+"Value": "12,443,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, GE 180 LBS - INVENTORY",
+"Value": "12,569,200",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2025,
+"load_time": "2026-03-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, GE 180 LBS - INVENTORY",
+"Value": "12,660,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2025,
+"load_time": "2026-06-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, GE 180 LBS - INVENTORY",
+"Value": "12,649,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, GE 180 LBS - INVENTORY",
+"Value": "13,747,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF DEC",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, LT 50 LBS - INVENTORY",
+"Value": "20,316,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, LT 50 LBS - INVENTORY",
+"Value": "21,106,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, LT 50 LBS - INVENTORY",
+"Value": "21,866,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, LT 50 LBS - INVENTORY",
+"Value": "20,811,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF MAR",
+"year": 2025,
+"load_time": "2026-03-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, LT 50 LBS - INVENTORY",
+"Value": "21,096,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF JUN",
+"year": 2025,
+"load_time": "2026-06-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, LT 50 LBS - INVENTORY",
+"Value": "22,211,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF SEP",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, MARKET, LT 50 LBS - INVENTORY",
+"Value": "21,576,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FIRST OF DEC",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,795,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC THRU FEB - SEP FORECAST",
+"year": 2027,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "929,140",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JAN",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "890,940",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FEB",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "953,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,811,100",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR THRU MAY",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,910,200",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR THRU MAY - DEC FORECAST",
+"year": 2026,
+"load_time": "2025-12-23 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,855,900",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR THRU MAY - MAR FORECAST",
+"year": 2026,
+"load_time": "2026-03-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "933,890",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "APR",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "924,210",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAY",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "989,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,886,400",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN THRU AUG",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,900,400",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN THRU AUG - JUN FORECAST",
+"year": 2026,
+"load_time": "2026-06-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,904,100",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN THRU AUG - MAR FORECAST",
+"year": 2026,
+"load_time": "2026-03-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "951,400",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUL",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "945,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "AUG",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,890,800",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "SEP THRU NOV - JUN FORECAST",
+"year": 2026,
+"load_time": "2026-06-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,854,800",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "SEP THRU NOV - SEP FORECAST",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,737,100",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC THRU FEB",
+"year": 2026,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,885,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC THRU FEB - DEC FORECAST",
+"year": 2026,
+"load_time": "2025-12-23 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,823,600",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC THRU FEB - SEP FORECAST",
+"year": 2026,
+"load_time": "2025-09-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "11,556,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MARKETING YEAR",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "949,950",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JAN",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "924,170",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "FEB",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "961,180",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,852,200",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR THRU MAY",
+"year": 2025,
+"load_time": "2026-06-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,952,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR THRU MAY - DEC FORECAST",
+"year": 2025,
+"load_time": "2024-12-23 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,912,700",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAR THRU MAY - MAR FORECAST",
+"year": 2025,
+"load_time": "2025-03-27 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "948,180",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "APR",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "942,840",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "MAY",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "1,008,510",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,965,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN THRU AUG",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,973,500",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN THRU AUG - JUN FORECAST",
+"year": 2025,
+"load_time": "2025-06-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,961,200",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUN THRU AUG - MAR FORECAST",
+"year": 2025,
+"load_time": "2025-03-27 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "984,160",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "JUL",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "972,630",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "AUG",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "971,420",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "SEP",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,907,200",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "SEP THRU NOV",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,946,200",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "SEP THRU NOV - JUN FORECAST",
+"year": 2025,
+"load_time": "2025-06-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,855,100",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "SEP THRU NOV - SEP FORECAST",
+"year": 2025,
+"load_time": "2025-09-25 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "969,540",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "OCT",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "966,240",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "NOV",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,831,300",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC THRU FEB",
+"year": 2025,
+"load_time": "2026-03-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,930,000",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC THRU FEB - DEC FORECAST",
+"year": 2025,
+"load_time": "2024-12-23 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "2,933,200",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC THRU FEB - SEP FORECAST",
+"year": 2025,
+"load_time": "2024-09-26 15:00:00.000"
+},
+{
+"short_desc": "HOGS, SOWS - FARROWED, MEASURED IN HEAD",
+"Value": "917,020",
+"agg_level_desc": "NATIONAL",
+"reference_period_desc": "DEC",
+"year": 2025,
+"load_time": "2026-09-24 15:00:00.000"
+}
+]
+}

@@ -43,7 +43,10 @@ Phase 1 (2026-10-19) because every candidate idea in the PRD needs them.
 - [ ] Corn / SBM cash prices from My Market News NW_GR110/NW_GR116 (needs the owner's free
   `USDA_MMN_API_KEY`). Also calibrates corn bu/pig and SBM lb/pig against ISU's history
   (ISU publishes $/head, not quantities; current values are [VERIFY] estimates)
-- [ ] NASS Hogs & Pigs inventory (needs `NASS_API_KEY`)
+- [x] NASS Hogs & Pigs (Quick Stats, `NASS_API_KEY`): `data/nass.py` (live → cache → sample),
+  `supply.py` forward supply outlook by marketing window, Hog supply page, U.S. pigs-per-litter
+  benchmark on Herd flow. verify: `tests/test_supply.py` (fixture parse, outlook maths, key
+  scrubbed from errors, no-key fallback)
 
 ## Decision support (added 2026-10-19 for Pipestone users)
 - [x] Overview dashboard: plain-English verdict, headline cards, 12-month price vs breakeven,

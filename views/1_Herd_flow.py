@@ -6,6 +6,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from hogproj import supply
 from hogproj.herd import HerdInputs, lags_weeks, pigs_sold_per_sow_yr, simulate
 from hogproj.ui import (
     ACCENT,
@@ -18,6 +19,7 @@ from hogproj.ui import (
     end_tag,
     hero,
     masthead,
+    nass_data,
     quote,
     source_note,
     stat_strip,
@@ -134,6 +136,11 @@ change = inp.sows_target - inp.sows_start
 bred = date.today() + timedelta(weeks=inp.change_week)
 arrives = bred + timedelta(weeks=to_market)
 
+# National benchmark from the quarterly USDA Hogs and Pigs report (NASS pigs saved per litter).
+us = supply.history(nass_data()[0], "pigs_per_litter")
+us_litter, us_period = float(us["value"].iloc[-1]), pd.Timestamp(us["period_start"].iloc[-1])
+yours_litter = inp.born_alive_per_litter * (1 - inp.prewean_mortality)
+
 with head.container():
     if change:
         masthead(
@@ -165,12 +172,13 @@ with hero():
             ("Weaned / sow / yr", f"{weaned_per_sow_yr:.1f}",
              f"{inp.litters_per_sow_yr:.2f} litters × {inp.born_alive_per_litter:.1f} born",
              "neutral"),
-            ("Sold / sow / yr", f"{pigs_sold_per_sow_yr(inp):.1f}", "after nursery and finishing"
-             " losses", "neutral"),
+            ("Sold / sow / yr", f"{pigs_sold_per_sow_yr(inp):.1f}", "after losses", "neutral"),
             ("Per week, end", f"{per_week_end:,.0f}", f"{per_week_end - per_week_now:+,.0f} vs now"
              if change else "steady", "neutral"),
             ("Breeding to market", f"{to_market} wk", f"{lag['gestation']} + {lag['lactation']}"
              f" + {lag['wean_to_market']}", "neutral"),
+            ("U.S. pigs / litter", f"{us_litter:.2f}", f"yours {yours_litter:.2f} · "
+             f"{us_period:%b}–{us_period + pd.DateOffset(months=2):%b}", "neutral"),
         ]
     )  # fmt: skip
     st.space("small")
