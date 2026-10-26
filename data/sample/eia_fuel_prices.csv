@@ -924,6 +924,7 @@ date,series,usd_per_gal
 2026-03-30,propane_mn,2.056
 2026-10-05,propane_mn,1.901
 2026-10-12,propane_mn,1.964
+2026-10-19,propane_mn,2.014
 2015-01-05,propane_ia,1.565
 2015-01-12,propane_ia,1.558
 2015-01-19,propane_ia,1.553
@@ -1233,3 +1234,4 @@ date,series,usd_per_gal
 2026-03-30,propane_ia,1.66
 2026-10-05,propane_ia,1.633
 2026-10-12,propane_ia,1.667
+2026-10-19,propane_ia,1.704
