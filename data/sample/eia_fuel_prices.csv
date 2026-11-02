@@ -615,6 +615,7 @@ date,series,usd_per_gal
 2026-10-05,diesel_us,6.199
 2026-10-12,diesel_us,6.179
 2026-10-19,diesel_us,6.276
+2026-10-26,diesel_us,6.352
 2015-01-05,propane_mn,1.844
 2015-01-12,propane_mn,1.839
 2015-01-19,propane_mn,1.821
@@ -925,6 +926,7 @@ date,series,usd_per_gal
 2026-10-05,propane_mn,1.901
 2026-10-12,propane_mn,1.964
 2026-10-19,propane_mn,2.014
+2026-10-26,propane_mn,2.05
 2015-01-05,propane_ia,1.565
 2015-01-12,propane_ia,1.558
 2015-01-19,propane_ia,1.553
@@ -1234,4 +1236,5 @@ date,series,usd_per_gal
 2026-03-30,propane_ia,1.66
 2026-10-05,propane_ia,1.633
 2026-10-12,propane_ia,1.667
-2026-10-19,propane_ia,1.704
+2026-10-19,propane_ia,1.706
+2026-10-26,propane_ia,1.746
