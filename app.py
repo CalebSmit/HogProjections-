@@ -1,13 +1,21 @@
 """Streamlit entry point. Run with: uv run streamlit run app.py"""
 
 import json
+import sys
 from datetime import date
+from pathlib import Path
 
 import streamlit as st
 
-from hogproj import __version__
-from hogproj.config import get_settings
-from hogproj.ui import (
+# Hosted copies (Streamlit Community Cloud) may install the dependencies without installing
+# this package itself; put src/ on the path so `hogproj` imports either way.
+_SRC = str(Path(__file__).resolve().parent / "src")
+if _SRC not in sys.path:
+    sys.path.insert(0, _SRC)
+
+from hogproj import __version__  # noqa: E402
+from hogproj.config import get_settings  # noqa: E402
+from hogproj.ui import (  # noqa: E402
     DERIVED_KEYS,
     SAVED_PREFIXES,
     asset,
