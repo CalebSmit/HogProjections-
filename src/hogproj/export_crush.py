@@ -1,4 +1,4 @@
-"""The wean pig crush as a live Excel workbook, laid out like the workbook Pipestone staff use:
+"""The wean pig crush as a live Excel workbook, laid out like the workbook the client's staff use:
 one column per placement week, inputs in their own sheet, every margin a formula.
 
 Sheets: Read me · Inputs (named cells) · Contracts (futures, hedges → effective price) ·

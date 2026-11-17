@@ -1,6 +1,6 @@
 # Design system
 
-> Source of truth for how the app looks. The app is used by Pipestone staff and shown to
+> Source of truth for how the app looks. The app is used by the client's staff and shown to
 > producer clients, so it has to read as a finished product, not a template. Tokens live in
 > `.streamlit/config.toml` (theme) and `src/hogproj/ui.py` (`TOKENS`, CSS, Plotly template);
 > keep the three in sync. Changelog at the bottom.

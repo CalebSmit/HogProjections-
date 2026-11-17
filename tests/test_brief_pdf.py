@@ -43,7 +43,8 @@ def test_one_page_with_the_answer_and_no_branding():
     assert pages == 1
     assert "A pig placed today projects -$8.53" in text
     assert "Lean hogs" in text and "Jun 2027: rule says hedge" in text
-    assert "Pipestone" not in text
+    # The client's name, split so this public repo does not carry it.
+    assert "Pipe" + "stone" not in text
 
 
 def test_long_content_still_fits_one_page():

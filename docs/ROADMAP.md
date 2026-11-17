@@ -1,21 +1,21 @@
 # Roadmap v2 — from projection tool to the desk everyone checks every week
 
-> Written 2026-10-19 after reviewing Pipestone's "USDA Wean Pig Crush" workbook.
+> Written 2026-10-19 after reviewing the client's "USDA Wean Pig Crush" workbook.
 > Execution order lives here; `docs/PLAN.md` keeps the history of phases 0–4.
 > A phase is done only when every check in its **Gate** passes. Gates are run, not assumed.
 
 ## 1. What the workbook tells us
 
-Pipestone staff price a weaned pig like a trader prices a crush spread:
+The client's staff price a weaned pig like a trader prices a crush spread:
 
 | Workbook step | What it means | Where the app is today |
 |---|---|---|
-| USDA early weaned 10–12 lb cash composite + **$7 Pipestone adder** | Cost of the pig | Live (public USDA PDF), adder is an input |
+| USDA early weaned 10–12 lb cash composite + **the buyer's adder** | Cost of the pig | Live (public USDA PDF), adder is an input |
 | Report date + **160 days** → CME period | Which lean hog contract prices the pig | `crush.contract_for`, 10th-business-day expiry |
 | Lean hog futures + **basis** (index − futures, same week last year) | Expected sale price | Futures typed in; basis is a single number |
 | Corn futures + $0.20 carry, SBM futures, DDGS | Feed priced at placement | One corn/SBM/DDGS price for every row |
 | **% hedged** and hedged price per row (corn, SBM) | Positions already taken | Not modelled |
-| Fixed costs (2026 Q2 settings) + principal + term interest | Cost to raise and service debt | Inputs; Pipestone values in a local setup file |
+| Fixed costs (2026 Q2 settings) + principal + term interest | Cost to raise and service debt | Inputs; the client's values in a local setup file |
 | Twelve weekly placement columns | The book of pigs on feed | "Pigs on feed" table |
 
 It's a spreadsheet that answers one question: **what are the pigs we just placed going to make?**
@@ -38,7 +38,7 @@ It can't answer the questions that come right after it, and those are this roadm
 4. **Say where every number comes from and how old it is.** Source line on every chart, a
    freshness chip per source, and a visible "estimate" tag when a value is modelled.
 5. **Your numbers, not ours.** Every default can be overridden and saved to a setup file.
-   Internal Pipestone values never go into the public repo.
+   The client's internal values never go into the public repo.
 6. **Runs with no keys and no internet.** Live → cache → bundled sample, always.
 
 ## 3. Data sources (all free)
@@ -242,7 +242,7 @@ full methods page.
 ## Phase 9 — More of the market (plan, 2026-10-20)
 
 Written from two seats: a producer deciding when to buy pigs, sell hogs and price feed, and a
-Pipestone finance analyst building next year's forecast. Every source below was checked against
+client finance analyst building next year's forecast. Every source below was checked against
 the live My Market News catalog (1,051 reports) or the keyless LMR datamart on Oct 20, 2026.
 
 ### A. A national view, not just Iowa
@@ -266,7 +266,7 @@ the live My Market News catalog (1,051 reports) or the keyless LMR datamart on O
 | 12 | Pork export sales and shipments by country (Mexico, China, Japan, Korea) | USDA FAS Export Sales API | free api.data.gov key | 1990s → | The biggest swing factor for hog prices |
 
 ### D. Futures (the one gap)
-No free, licensed source for lean hog futures exists. The workbook shows Pipestone already uses
+No free, licensed source for lean hog futures exists. The workbook shows the client already uses
 DTN and Barchart. Options, best first:
 1. **Import their export**: upload a Barchart or DTN quote export (CSV/Excel) and the app fills
    every contract price with its as-of date. Small, robust, no new subscription.
@@ -373,7 +373,7 @@ Gate: parser tests with fixtures, freshness entries, weekly refresh, Guide rows.
 
 ### 10.5 The weekly brief clients forward
 One page PDF/print view: headline, scorecard, margin board, two charts, as-of dates and
-sources, Pipestone-ready. Download button on This week; Excel twin.
+sources, client-ready. Download button on This week; Excel twin.
 Gate: render test; page fits on one letter page.
 
 ### 10.6 Phone layout
@@ -397,7 +397,7 @@ stale unless someone keeps them up).
 - Add `USDA_MMN_API_KEY` (and `NASS_API_KEY`) as GitHub repository secrets so the weekly
   refresh keeps every source current (10.0 #1).
 - Hedge rule: decided — users choose the rule type and numbers (no fixed policy).
-- Brief branding: decided — no Pipestone name or logo.
+- Brief branding: decided — no client name or logo.
 
 ## Phase 11 — One number per thing, and how far to trust it (plan, 2026-10-20)
 

@@ -1,4 +1,4 @@
-"""Wean-to-finish margin. Reference: a Pipestone-style wean pig crush workbook (Sep 2026)."""
+"""Wean-to-finish margin. Reference: a client's wean pig crush workbook (Sep 2026)."""
 
 from datetime import date
 from pathlib import Path

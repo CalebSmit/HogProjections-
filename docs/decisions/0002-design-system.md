@@ -1,7 +1,7 @@
 # ADR 0002: A small in-app design system on top of Streamlit theming
 
 - **Status:** accepted (2026-10-19)
-- **Context:** The app is used by Pipestone staff and shown to producer clients. Feedback on the
+- **Context:** The app is used by the client's staff and shown to producer clients. Feedback on the
   first version: "it looks like it was made by an AI, not premium." Default Streamlit + Plotly,
   emoji navigation and coloured callout boxes were the main tells.
 - **Decision:**

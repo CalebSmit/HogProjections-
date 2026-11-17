@@ -10,7 +10,7 @@ _TBD from the idea._ Research context (`docs/research/domain.md` §6):
 - No free tool connects USDA inventory → slaughter → price outlook → farm P&L.
 
 ## 2. Users
-**Confirmed (2026-10-19):** people at Pipestone, and possibly their producer clients. So the app
+**Confirmed (2026-10-19):** people at the client, and possibly their producer clients. So the app
 must explain decisions in plain English and look polished enough to show a client.
 
 Earlier candidates:
@@ -61,7 +61,7 @@ _TBD._ Default bar:
 
 ## Changelog
 - 2026-10-17: Draft skeleton created from research, before the product idea.
-- 2026-10-19: Users confirmed: Pipestone staff and their clients. Added an Overview dashboard
+- 2026-10-19: Users confirmed: the client's staff and their clients. Added an Overview dashboard
   (verdict, 12-month outlook, profit drivers).
 - 2026-10-19: F1 (herd flow) and F2 (cost/breakeven) built ahead of the idea; scope otherwise
   unchanged. Default prices now track Oct 2026 markets (corn $5.25, Lean Hog Index $75.75).

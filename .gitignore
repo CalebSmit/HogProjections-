@@ -22,5 +22,5 @@ outputs/
 .DS_Store
 Thumbs.db
 
-# Private reference files from Pipestone (local only, never commit)
+# Private reference files from the client (local only, never commit)
 reference/

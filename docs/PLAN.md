@@ -48,7 +48,7 @@ Phase 1 (2026-10-19) because every candidate idea in the PRD needs them.
   benchmark on Herd flow. verify: `tests/test_supply.py` (fixture parse, outlook maths, key
   scrubbed from errors, no-key fallback)
 
-## Decision support (added 2026-10-19 for Pipestone users)
+## Decision support (added 2026-10-19 for the client's users)
 - [x] Overview dashboard: plain-English verdict, headline cards, 12-month price vs breakeven,
   profit by month, profit-driver tornado. verify: smoke test through the router; screenshot
 - [x] Cost per pig responds to sow productivity (ISU farrow-to-wean $43.91/weaned pig spread
@@ -79,6 +79,6 @@ Phase 1 (2026-10-19) because every candidate idea in the PRD needs them.
   candidate feature). Phase 2 done; Phase 3 done except the ISU ELR reconciliation.
 - 2026-10-19: Started Phase 4 with the keyless LMR datamart (hog prices); grain and inventory
   wait on the owner's free API keys.
-- 2026-10-19: Premium redesign (ADR 0002) across all pages before sharing with Pipestone.
+- 2026-10-19: Premium redesign (ADR 0002) across all pages before sharing with the client.
 - 2026-10-19: Phase 3 closed: cost model switched from the CIH shortcut to ISU's line items,
   which reproduce ISU's 2026 months to the cent.

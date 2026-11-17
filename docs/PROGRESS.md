@@ -91,7 +91,7 @@ Newest at the bottom.
 
 ## 2026-10-19 (cont.) — Premium redesign
 - **Why:** owner feedback that the app "looks made by an AI, not premium"; it will be used by
-  Pipestone and shown to clients.
+  the client and shown to clients.
 - **Done:** research brief (Stripe/Linear/Carbon/Datawrapper/NN/g + Streamlit 1.66 theming) →
   design system (ADR 0002, `docs/DESIGN.md`): Inter + system fallback, neutral palette with one
   navy accent, CVD-checked profit/loss colours, Material-icon nav, logo, page header with data
@@ -147,9 +147,9 @@ Newest at the bottom.
 - **Verified:** ruff, pyright, 81 tests (incl. inputs-drive-pages test); interaction test
   (Overview price change → Costs page, no Streamlit warnings); screenshots.
 
-## 2026-10-19 (cont.) — Wean to finish (from Pipestone's wean pig crush workbook)
+## 2026-10-19 (cont.) — Wean to finish (from the client's wean pig crush workbook)
 
-- The user shared a Pipestone "USDA Wean Pig Crush" workbook showing how staff use this kind of
+- The user shared the client's "USDA Wean Pig Crush" workbook showing how staff use this kind of
   tool. Kept it in `reference/` (git-ignored: the repo is public and it holds internal costs and
   licensed futures data). Its USDA weaned pig series (public) became `data/sample/`.
 - New `crush.py` reproduces the workbook's margin to the cent (Sep 14 placement: −$12.39 before,
@@ -339,7 +339,7 @@ Newest at the bottom.
 
 ## 2026-10-20 — Live Excel crush workbook
 
-- `export_crush.build_crush_workbook`: the wean pig crush as Pipestone's workbook does it, but
+- `export_crush.build_crush_workbook`: the wean pig crush as the client's workbook does it, but
   live — Inputs (named cells), Contracts (futures, hedged share, hedge price → effective), Crush
   (one column per placement on feed + a pig placed today; pig cost, delivered corn after hedge,
   feed, revenue at contract + basis, non-feed, margin, debt, head, totals, chart), History (sold

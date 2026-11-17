@@ -91,7 +91,7 @@ Longer write-ups go in `docs/PROGRESS.md`.
   Year-ago comparisons use 364 days so weekdays match.
 - A % change across zero (margins) is meaningless: show the $ change instead.
 - Run `scripts/screenshots.py` (all pages × 1440/390 px) before every commit that touches views.
-- Never put Pipestone's internal numbers or licensed futures data in the public repo; they live
+- Never put the client's internal numbers or licensed futures data in the public repo; they live
   in the git-ignored `reference/` folder (incl. a loadable setup JSON).
 - Inputs whose default is live data must use `ui.live_number` and be read with `user_value`;
   a plain keyed `number_input` stores its default and it goes stale after a refresh.
