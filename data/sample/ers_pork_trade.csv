@@ -105,7 +105,7 @@ month,flow,country,commodity,amount
 2015-02-01,Exports,Haiti,Pork,77.39272620072
 2015-02-01,Exports,Dominican Republic,Pork,4917.88507640955
 2015-02-01,Exports,Anguilla,Pork,1.87373028402
-2015-02-01,Exports,British Virgin Islands,Pork,48.3947887686637
+2015-02-01,Exports,British Virgin Islands,Pork,48.3947887686638
 2015-02-01,Exports,St. Kitts-Nevis,Pork,14.57843776074
 2015-02-01,Exports,Antigua & Barbuda,Pork,102.48002383374
 2015-02-01,Exports,St. Lucia,Pork,153.48629070306
@@ -173,7 +173,7 @@ month,flow,country,commodity,amount
 2015-02-01,Imports,Spain,Pork,247.69117767492
 2015-02-01,Imports,Italy,Pork,1689.18450205935
 2015-02-01,Imports,Australia,Pork,0.179034266590124
-2015-02-01,Imports,World total,Pork,84811.8267737017
+2015-02-01,Imports,World total,Pork,84811.8267737018
 2015-03-01,Exports,Canada,Pork,51095.8435841737
 2015-03-01,Exports,Mexico,Pork,135058.965368281
 2015-03-01,Exports,Guatemala,Pork,2718.75402611946
@@ -273,13 +273,13 @@ month,flow,country,commodity,amount
 2015-04-01,Exports,Nicaragua,Pork,206.476160165193
 2015-04-01,Exports,Costa Rica,Pork,795.173304178762
 2015-04-01,Exports,Panama,Pork,2351.28345072215
-2015-04-01,Exports,Bermuda,Pork,76.1319569582976
+2015-04-01,Exports,Bermuda,Pork,76.1319569582977
 2015-04-01,Exports,Bahamas,Pork,1003.87187670653
 2015-04-01,Exports,Jamaica,Pork,116.146765464417
 2015-04-01,Exports,Turks and Caicos Islands,Pork,45.2136260917152
 2015-04-01,Exports,Cayman Islands,Pork,114.278173349592
 2015-04-01,Exports,Haiti,Pork,356.74033572828
-2015-04-01,Exports,Dominican Republic,Pork,7457.26864333056
+2015-04-01,Exports,Dominican Republic,Pork,7457.26864333055
 2015-04-01,Exports,British Virgin Islands,Pork,52.0245597249
 2015-04-01,Exports,St. Kitts-Nevis,Pork,27.01828195038
 2015-04-01,Exports,Antigua & Barbuda,Pork,88.8673207401
@@ -404,7 +404,7 @@ month,flow,country,commodity,amount
 2015-05-01,Exports,Malaysia,Pork,57.15894799314
 2015-05-01,Exports,Singapore,Pork,1220.30448587712
 2015-05-01,Exports,Indonesia,Pork,288.7340522472
-2015-05-01,Exports,Philippines,Pork,5470.16711745093
+2015-05-01,Exports,Philippines,Pork,5470.16711745094
 2015-05-01,Exports,China,Pork,28962.8184539597
 2015-05-01,Exports,South Korea,Pork,48906.4769818453
 2015-05-01,Exports,Hong Kong,Pork,10960.623693175
@@ -442,7 +442,7 @@ month,flow,country,commodity,amount
 2015-05-01,Imports,Australia,Pork,0.0077984067550536
 2015-05-01,Imports,New Zealand,Pork,0.5417577034836
 2015-05-01,Imports,World total,Pork,82042.9169494169
-2015-06-01,Exports,Canada,Pork,40127.9788765024
+2015-06-01,Exports,Canada,Pork,40127.9788765025
 2015-06-01,Exports,Mexico,Pork,135889.463910292
 2015-06-01,Exports,Guatemala,Pork,2838.75806112192
 2015-06-01,Exports,Belize,Pork,303.02028940806
@@ -558,7 +558,7 @@ month,flow,country,commodity,amount
 2015-07-01,Exports,St. Vincent and The Grenadines,Pork,47.11550587128
 2015-07-01,Exports,Grenada,Pork,21.51801461502
 2015-07-01,Exports,Barbados,Pork,266.49058471686
-2015-07-01,Exports,Trinidad and Tobago,Pork,1077.62609927793
+2015-07-01,Exports,Trinidad and Tobago,Pork,1077.62609927792
 2015-07-01,Exports,Sint Maarten,Pork,29.19031963722
 2015-07-01,Exports,Curaçao,Pork,119.20117780872
 2015-07-01,Exports,Aruba,Pork,67.7651198805
@@ -641,7 +641,7 @@ month,flow,country,commodity,amount
 2015-08-01,Exports,Bahamas,Pork,885.107969059683
 2015-08-01,Exports,Jamaica,Pork,10.0774373931
 2015-08-01,Exports,Turks and Caicos Islands,Pork,33.841945589079
-2015-08-01,Exports,Cayman Islands,Pork,67.9515867541444
+2015-08-01,Exports,Cayman Islands,Pork,67.9515867541445
 2015-08-01,Exports,Haiti,Pork,101.900338122022
 2015-08-01,Exports,Dominican Republic,Pork,3585.49345700273
 2015-08-01,Exports,British Virgin Islands,Pork,58.5684529406411
@@ -1002,7 +1002,7 @@ month,flow,country,commodity,amount
 2015-11-01,Imports,Croatia,Pork,1.25050188125056
 2015-11-01,Imports,Australia,Pork,0.0442574541930024
 2015-11-01,Imports,New Zealand,Pork,0.0152677247339988
-2015-11-01,Imports,World total,Pork,98856.8347085196
+2015-11-01,Imports,World total,Pork,98856.8347085197
 2015-12-01,Exports,Canada,Pork,45170.4421152543
 2015-12-01,Exports,Mexico,Pork,148362.931649513
 2015-12-01,Exports,Guatemala,Pork,2982.3957762417
@@ -1123,7 +1123,7 @@ month,flow,country,commodity,amount
 2016-01-01,Exports,Haiti,Pork,124.46835046002
 2016-01-01,Exports,Dominican Republic,Pork,6035.59128403901
 2016-01-01,Exports,Anguilla,Pork,1.24664760234
-2016-01-01,Exports,British Virgin Islands,Pork,55.1109442580412
+2016-01-01,Exports,British Virgin Islands,Pork,55.1109442580411
 2016-01-01,Exports,St. Kitts-Nevis,Pork,15.75965218212
 2016-01-01,Exports,Antigua & Barbuda,Pork,105.42775777128
 2016-01-01,Exports,Dominica,Pork,87.75746993286
@@ -1291,7 +1291,7 @@ month,flow,country,commodity,amount
 2016-03-01,Exports,Nicaragua,Pork,1571.12680044726
 2016-03-01,Exports,Costa Rica,Pork,1087.37528119794
 2016-03-01,Exports,Panama,Pork,1458.29015451262
-2016-03-01,Exports,Bermuda,Pork,67.622923370874
+2016-03-01,Exports,Bermuda,Pork,67.6229233708741
 2016-03-01,Exports,Bahamas,Pork,1234.7062403255
 2016-03-01,Exports,Jamaica,Pork,6.60447431028
 2016-03-01,Exports,Turks and Caicos Islands,Pork,121.84308658242
@@ -1355,7 +1355,7 @@ month,flow,country,commodity,amount
 2016-03-01,Exports,Kenya,Pork,2.0178905166
 2016-03-01,Exports,French Southern & Antarctic Lands,Pork,9.73210540302
 2016-03-01,Exports,Republic of South Africa,Pork,44.2311107238
-2016-03-01,Exports,World total,Pork,452628.189521306
+2016-03-01,Exports,World total,Pork,452628.189521307
 2016-03-01,Imports,Canada,Pork,68426.1006610687
 2016-03-01,Imports,Mexico,Pork,2392.67057153816
 2016-03-01,Imports,Honduras,Pork,53.997806646
@@ -1377,7 +1377,7 @@ month,flow,country,commodity,amount
 2016-03-01,Imports,Australia,Pork,0.226093961573626
 2016-03-01,Imports,New Zealand,Pork,0.12872958275436
 2016-03-01,Imports,World total,Pork,99879.5518088411
-2016-04-01,Exports,Canada,Pork,41167.3034255833
+2016-04-01,Exports,Canada,Pork,41167.3034255832
 2016-04-01,Exports,Mexico,Pork,115542.045922774
 2016-04-01,Exports,Guatemala,Pork,3433.38442999524
 2016-04-01,Exports,Belize,Pork,267.860671327239
@@ -1495,7 +1495,7 @@ month,flow,country,commodity,amount
 2016-05-01,Exports,Sint Maarten,Pork,27.68110155468
 2016-05-01,Exports,Curaçao,Pork,137.80042721928
 2016-05-01,Exports,Aruba,Pork,292.78947646242
-2016-05-01,Exports,Colombia,Pork,7167.08341584791
+2016-05-01,Exports,Colombia,Pork,7167.0834158479
 2016-05-01,Exports,Guyana,Pork,11.813466987
 2016-05-01,Exports,Suriname,Pork,0.340614099
 2016-05-01,Exports,Ecuador,Pork,215.4184657884
@@ -1844,7 +1844,7 @@ month,flow,country,commodity,amount
 2016-08-01,Imports,Australia,Pork,0.243415998061513
 2016-08-01,Imports,New Zealand,Pork,0.87153406702614
 2016-08-01,Imports,Central African Republic,Pork,41.54610159
-2016-08-01,Imports,World total,Pork,90195.6821907988
+2016-08-01,Imports,World total,Pork,90195.6821907987
 2016-09-01,Exports,Canada,Pork,50455.7912699167
 2016-09-01,Exports,Mexico,Pork,144077.827222296
 2016-09-01,Exports,Guatemala,Pork,3135.75915926826
@@ -1857,7 +1857,7 @@ month,flow,country,commodity,amount
 2016-09-01,Exports,Bermuda,Pork,42.8003170203256
 2016-09-01,Exports,Bahamas,Pork,1223.4513427508
 2016-09-01,Exports,Jamaica,Pork,79.4333174454994
-2016-09-01,Exports,Turks and Caicos Islands,Pork,89.3099776092294
+2016-09-01,Exports,Turks and Caicos Islands,Pork,89.3099776092293
 2016-09-01,Exports,Cayman Islands,Pork,93.7996113096
 2016-09-01,Exports,Haiti,Pork,115.25816726928
 2016-09-01,Exports,Dominican Republic,Pork,5392.04646506868
@@ -1902,7 +1902,7 @@ month,flow,country,commodity,amount
 2016-09-01,Exports,Philippines,Pork,9278.09331451783
 2016-09-01,Exports,China,Pork,30008.4345568514
 2016-09-01,Exports,South Korea,Pork,19929.9449638094
-2016-09-01,Exports,Hong Kong,Pork,8964.32743723716
+2016-09-01,Exports,Hong Kong,Pork,8964.32743723717
 2016-09-01,Exports,Taiwan,Pork,1153.00414440666
 2016-09-01,Exports,Japan,Pork,94989.0699369952
 2016-09-01,Exports,Australia,Pork,13003.6039545384
@@ -2050,7 +2050,7 @@ month,flow,country,commodity,amount
 2016-11-01,Exports,Bahamas,Pork,2051.65714631601
 2016-11-01,Exports,Jamaica,Pork,6.9262609374
 2016-11-01,Exports,Turks and Caicos Islands,Pork,117.80842990644
-2016-11-01,Exports,Cayman Islands,Pork,96.9457471726747
+2016-11-01,Exports,Cayman Islands,Pork,96.9457471726748
 2016-11-01,Exports,Haiti,Pork,71.00016015708
 2016-11-01,Exports,Dominican Republic,Pork,6547.3252169472
 2016-11-01,Exports,Anguilla,Pork,6.9929507529
@@ -2218,7 +2218,7 @@ month,flow,country,commodity,amount
 2016-12-01,Imports,"Germany, Fed. Republic",Pork,75.3189264702
 2016-12-01,Imports,Hungary,Pork,38.01773635632
 2016-12-01,Imports,Lithuania,Pork,21.133514862966
-2016-12-01,Imports,Poland,Pork,5447.42511660843
+2016-12-01,Imports,Poland,Pork,5447.42511660842
 2016-12-01,Imports,Spain,Pork,1470.8130161445
 2016-12-01,Imports,Italy,Pork,1872.5813756896
 2016-12-01,Imports,Croatia,Pork,32.972326632
@@ -2296,7 +2296,7 @@ month,flow,country,commodity,amount
 2017-01-01,Exports,Equatorial Guinea,Pork,18.88734941352
 2017-01-01,Exports,French Southern & Antarctic Lands,Pork,7.22048978952
 2017-01-01,Exports,World total,Pork,457377.361310254
-2017-01-01,Imports,Canada,Pork,61191.9320668776
+2017-01-01,Imports,Canada,Pork,61191.9320668775
 2017-01-01,Imports,Mexico,Pork,2814.6744935429
 2017-01-01,Imports,Chile,Pork,211.822286382
 2017-01-01,Imports,Brazil,Pork,1016.23153401
@@ -2649,7 +2649,7 @@ month,flow,country,commodity,amount
 2017-05-01,Exports,Singapore,Pork,4076.65534237416
 2017-05-01,Exports,Philippines,Pork,9263.65820160328
 2017-05-01,Exports,China,Pork,48358.0456132862
-2017-05-01,Exports,South Korea,Pork,48412.1561083701
+2017-05-01,Exports,South Korea,Pork,48412.15610837
 2017-05-01,Exports,Hong Kong,Pork,12180.2876922686
 2017-05-01,Exports,Taiwan,Pork,3874.73734237338
 2017-05-01,Exports,Japan,Pork,111097.438270104
@@ -2947,7 +2947,7 @@ month,flow,country,commodity,amount
 2017-08-01,Exports,South Korea,Pork,23948.8652463694
 2017-08-01,Exports,Hong Kong,Pork,8871.29844132924
 2017-08-01,Exports,Taiwan,Pork,2171.63212457688
-2017-08-01,Exports,Japan,Pork,99526.9411966271
+2017-08-01,Exports,Japan,Pork,99526.9411966272
 2017-08-01,Exports,Australia,Pork,14223.1561792967
 2017-08-01,Exports,New Zealand,Pork,2207.00208786498
 2017-08-01,Exports,Cook Islands,Pork,43.46211652398
@@ -3050,7 +3050,7 @@ month,flow,country,commodity,amount
 2017-09-01,Exports,South Korea,Pork,27596.8460339707
 2017-09-01,Exports,Hong Kong,Pork,11501.6172746668
 2017-09-01,Exports,Taiwan,Pork,1788.92438406696
-2017-09-01,Exports,Japan,Pork,91774.5382888476
+2017-09-01,Exports,Japan,Pork,91774.5382888475
 2017-09-01,Exports,Australia,Pork,9806.80044351042
 2017-09-01,Exports,New Zealand,Pork,2082.52763060202
 2017-09-01,Exports,Cook Islands,Pork,26.94447120582
@@ -3099,7 +3099,7 @@ month,flow,country,commodity,amount
 2017-10-01,Exports,Bahamas,Pork,1484.30076126318
 2017-10-01,Exports,Jamaica,Pork,142.32298879008
 2017-10-01,Exports,Turks and Caicos Islands,Pork,70.9873953957
-2017-10-01,Exports,Cayman Islands,Pork,133.281182855019
+2017-10-01,Exports,Cayman Islands,Pork,133.281182855018
 2017-10-01,Exports,Haiti,Pork,321.67436776776
 2017-10-01,Exports,Dominican Republic,Pork,5918.19748105178
 2017-10-01,Exports,Anguilla,Pork,18.87599561022
@@ -3183,14 +3183,14 @@ month,flow,country,commodity,amount
 2017-10-01,Imports,Australia,Pork,0.0210616816709376
 2017-10-01,Imports,New Zealand,Pork,55.5720517103281
 2017-10-01,Imports,World total,Pork,97116.5460679105
-2017-11-01,Exports,Canada,Pork,45893.8362374169
+2017-11-01,Exports,Canada,Pork,45893.836237417
 2017-11-01,Exports,Mexico,Pork,161840.46243602
 2017-11-01,Exports,Guatemala,Pork,4404.1882505985
 2017-11-01,Exports,Belize,Pork,695.00285262576
 2017-11-01,Exports,El Salvador,Pork,2524.54995440424
 2017-11-01,Exports,Honduras,Pork,8722.80160581837
 2017-11-01,Exports,Nicaragua,Pork,2392.27261235802
-2017-11-01,Exports,Costa Rica,Pork,1016.08999893989
+2017-11-01,Exports,Costa Rica,Pork,1016.08999893988
 2017-11-01,Exports,Panama,Pork,3595.0417749878
 2017-11-01,Exports,Bermuda,Pork,51.96906938916
 2017-11-01,Exports,Bahamas,Pork,1837.49465540062
@@ -3334,7 +3334,7 @@ month,flow,country,commodity,amount
 2017-12-01,Exports,Indonesia,Pork,118.57418331192
 2017-12-01,Exports,Philippines,Pork,6261.83925937017
 2017-12-01,Exports,China,Pork,25188.0688102491
-2017-12-01,Exports,South Korea,Pork,58909.7864298459
+2017-12-01,Exports,South Korea,Pork,58909.786429846
 2017-12-01,Exports,Hong Kong,Pork,16391.6440940234
 2017-12-01,Exports,Taiwan,Pork,2272.40017124274
 2017-12-01,Exports,Japan,Pork,99258.3875266427
@@ -3618,7 +3618,7 @@ month,flow,country,commodity,amount
 2018-03-01,Exports,Vietnam,Pork,1125.49074844752
 2018-03-01,Exports,Singapore,Pork,702.5327831592
 2018-03-01,Exports,Indonesia,Pork,198.67211298396
-2018-03-01,Exports,Philippines,Pork,6717.8597784794
+2018-03-01,Exports,Philippines,Pork,6717.85977847941
 2018-03-01,Exports,China,Pork,41814.8010295911
 2018-03-01,Exports,South Korea,Pork,87343.5406442332
 2018-03-01,Exports,Hong Kong,Pork,5555.98245435912
@@ -3739,7 +3739,7 @@ month,flow,country,commodity,amount
 2018-04-01,Imports,Mexico,Pork,3444.62323391294
 2018-04-01,Imports,Chile,Pork,281.43560702376
 2018-04-01,Imports,Brazil,Pork,1415.673766458
-2018-04-01,Imports,Denmark,Pork,8467.51076768235
+2018-04-01,Imports,Denmark,Pork,8467.51076768236
 2018-04-01,Imports,United Kingdom,Pork,1778.955788862
 2018-04-01,Imports,Ireland,Pork,955.600019766
 2018-04-01,Imports,Netherlands,Pork,1456.40567636762
@@ -3868,7 +3868,7 @@ month,flow,country,commodity,amount
 2018-06-01,Exports,Turks and Caicos Islands,Pork,85.85882742024
 2018-06-01,Exports,Cayman Islands,Pork,78.49814571774
 2018-06-01,Exports,Haiti,Pork,115.17844813776
-2018-06-01,Exports,Dominican Republic,Pork,8907.97345590828
+2018-06-01,Exports,Dominican Republic,Pork,8907.97345590827
 2018-06-01,Exports,Anguilla,Pork,5.09666718582
 2018-06-01,Exports,British Virgin Islands,Pork,65.3404766049
 2018-06-01,Exports,St. Kitts-Nevis,Pork,35.67018871206
@@ -4023,7 +4023,7 @@ month,flow,country,commodity,amount
 2018-07-01,Exports,French Southern & Antarctic Lands,Pork,4.93248898548
 2018-07-01,Exports,Namibia,Pork,21.69030582432
 2018-07-01,Exports,World total,Pork,428162.992584342
-2018-07-01,Imports,Canada,Pork,49231.916909646
+2018-07-01,Imports,Canada,Pork,49231.9169096459
 2018-07-01,Imports,Mexico,Pork,3480.79404484786
 2018-07-01,Imports,Chile,Pork,136.62042534
 2018-07-01,Imports,Brazil,Pork,1124.48206751463
@@ -4041,7 +4041,7 @@ month,flow,country,commodity,amount
 2018-07-01,Imports,Australia,Pork,0.180689682857821
 2018-07-01,Imports,New Zealand,Pork,1.34864493213966
 2018-07-01,Imports,Algeria,Pork,55.20373488
-2018-07-01,Imports,World total,Pork,86324.6062592751
+2018-07-01,Imports,World total,Pork,86324.606259275
 2018-08-01,Exports,Canada,Pork,48927.9246965984
 2018-08-01,Exports,Mexico,Pork,141032.697180545
 2018-08-01,Exports,Guatemala,Pork,3903.20287048188
@@ -4194,7 +4194,7 @@ month,flow,country,commodity,amount
 2018-09-01,Exports,South Korea,Pork,37471.1314386364
 2018-09-01,Exports,Hong Kong,Pork,4036.67827026156
 2018-09-01,Exports,Taiwan,Pork,5408.71469683902
-2018-09-01,Exports,Japan,Pork,92644.0519201104
+2018-09-01,Exports,Japan,Pork,92644.0519201105
 2018-09-01,Exports,Australia,Pork,15178.6882305664
 2018-09-01,Exports,New Zealand,Pork,2034.95323266144
 2018-09-01,Exports,Cook Islands,Pork,33.61038833124
@@ -4287,7 +4287,7 @@ month,flow,country,commodity,amount
 2018-10-01,Exports,South Korea,Pork,58997.3510174
 2018-10-01,Exports,Hong Kong,Pork,4293.122150016
 2018-10-01,Exports,Taiwan,Pork,3834.2006490123
-2018-10-01,Exports,Japan,Pork,110023.995957437
+2018-10-01,Exports,Japan,Pork,110023.995957438
 2018-10-01,Exports,Australia,Pork,15432.0848156538
 2018-10-01,Exports,New Zealand,Pork,1404.38976149052
 2018-10-01,Exports,Cook Islands,Pork,9.36834277302
@@ -4301,7 +4301,7 @@ month,flow,country,commodity,amount
 2018-10-01,Exports,Sierra Leone,Pork,6.37457632812
 2018-10-01,Exports,Nigeria,Pork,36.75543593778
 2018-10-01,Exports,Djibouti,Pork,14.04908597232
-2018-10-01,Exports,World total,Pork,502886.538769315
+2018-10-01,Exports,World total,Pork,502886.538769316
 2018-10-01,Imports,Canada,Pork,52876.4721153714
 2018-10-01,Imports,Mexico,Pork,5037.45824089798
 2018-10-01,Imports,Chile,Pork,109.507983984
@@ -4330,7 +4330,7 @@ month,flow,country,commodity,amount
 2018-11-01,Exports,Honduras,Pork,8324.53632250075
 2018-11-01,Exports,Nicaragua,Pork,1961.74285076448
 2018-11-01,Exports,Costa Rica,Pork,1350.06880135176
-2018-11-01,Exports,Panama,Pork,4820.44024419683
+2018-11-01,Exports,Panama,Pork,4820.44024419682
 2018-11-01,Exports,Bermuda,Pork,70.4489493651602
 2018-11-01,Exports,Bahamas,Pork,1455.7771634112
 2018-11-01,Exports,Jamaica,Pork,80.1288391669359
@@ -4400,7 +4400,7 @@ month,flow,country,commodity,amount
 2018-11-01,Exports,French Southern & Antarctic Lands,Pork,7.27234249896
 2018-11-01,Exports,Republic of South Africa,Pork,5.81757857982
 2018-11-01,Exports,World total,Pork,513262.522163516
-2018-11-01,Imports,Canada,Pork,49123.6534652466
+2018-11-01,Imports,Canada,Pork,49123.6534652465
 2018-11-01,Imports,Mexico,Pork,3795.55958615944
 2018-11-01,Imports,Chile,Pork,433.095787278
 2018-11-01,Imports,Brazil,Pork,2119.190692878
@@ -4497,7 +4497,7 @@ month,flow,country,commodity,amount
 2018-12-01,Exports,Egypt,Pork,6.48158868
 2018-12-01,Exports,French Southern & Antarctic Lands,Pork,5.35379224968
 2018-12-01,Exports,World total,Pork,525963.757352929
-2018-12-01,Imports,Canada,Pork,45609.3819735028
+2018-12-01,Imports,Canada,Pork,45609.3819735027
 2018-12-01,Imports,Mexico,Pork,4448.97114870271
 2018-12-01,Imports,Chile,Pork,394.126888806
 2018-12-01,Imports,Brazil,Pork,2379.71446792263
@@ -4590,11 +4590,11 @@ month,flow,country,commodity,amount
 2019-01-01,Exports,French Southern & Antarctic Lands,Pork,2.53106037954
 2019-01-01,Exports,World total,Pork,477755.486877841
 2019-01-01,Imports,Canada,Pork,46887.9409210008
-2019-01-01,Imports,Mexico,Pork,4628.94449119648
+2019-01-01,Imports,Mexico,Pork,4628.94449119647
 2019-01-01,Imports,Chile,Pork,372.210741504
 2019-01-01,Imports,Brazil,Pork,1792.52001208863
 2019-01-01,Imports,Finland,Pork,145.150107858
-2019-01-01,Imports,Denmark,Pork,6918.65135033515
+2019-01-01,Imports,Denmark,Pork,6918.65135033516
 2019-01-01,Imports,United Kingdom,Pork,1887.711996744
 2019-01-01,Imports,Ireland,Pork,1260.973236096
 2019-01-01,Imports,Netherlands,Pork,926.78311900314
@@ -4663,7 +4663,7 @@ month,flow,country,commodity,amount
 2019-02-01,Exports,Malaysia,Pork,76.215987162
 2019-02-01,Exports,Singapore,Pork,967.91847746832
 2019-02-01,Exports,Indonesia,Pork,68.86773952758
-2019-02-01,Exports,Philippines,Pork,7882.50488303851
+2019-02-01,Exports,Philippines,Pork,7882.5048830385
 2019-02-01,Exports,China,Pork,29937.6987749645
 2019-02-01,Exports,South Korea,Pork,59007.8367728338
 2019-02-01,Exports,Hong Kong,Pork,2143.54777561218
@@ -4705,7 +4705,7 @@ month,flow,country,commodity,amount
 2019-02-01,Imports,South Korea,Pork,0.0248910783383808
 2019-02-01,Imports,Australia,Pork,0.273363076687378
 2019-02-01,Imports,New Zealand,Pork,0.33847430832324
-2019-02-01,Imports,World total,Pork,82277.5599103177
+2019-02-01,Imports,World total,Pork,82277.5599103178
 2019-03-01,Exports,Canada,Pork,55037.4909624595
 2019-03-01,Exports,Mexico,Pork,128421.202525152
 2019-03-01,Exports,Guatemala,Pork,3668.80883606518
@@ -4735,7 +4735,7 @@ month,flow,country,commodity,amount
 2019-03-01,Exports,Sint Maarten,Pork,81.2152982403
 2019-03-01,Exports,Curaçao,Pork,349.8597325125
 2019-03-01,Exports,Aruba,Pork,314.46971244427
-2019-03-01,Exports,Colombia,Pork,28753.5075065442
+2019-03-01,Exports,Colombia,Pork,28753.5075065443
 2019-03-01,Exports,Venezuela,Pork,11.41769324556
 2019-03-01,Exports,Guyana,Pork,26.73900043542
 2019-03-01,Exports,Ecuador,Pork,65.02534793622
@@ -4886,7 +4886,7 @@ month,flow,country,commodity,amount
 2019-04-01,Exports,Liberia,Pork,23.84973307332
 2019-04-01,Exports,French Southern & Antarctic Lands,Pork,2.10327552666
 2019-04-01,Exports,World total,Pork,524650.449657814
-2019-04-01,Imports,Canada,Pork,41516.6623017309
+2019-04-01,Imports,Canada,Pork,41516.6623017308
 2019-04-01,Imports,Mexico,Pork,4290.4397223336
 2019-04-01,Imports,Chile,Pork,309.75450572304
 2019-04-01,Imports,Brazil,Pork,1991.587171518
@@ -4990,7 +4990,7 @@ month,flow,country,commodity,amount
 2019-05-01,Exports,French Southern & Antarctic Lands,Pork,9.06774256332
 2019-05-01,Exports,World total,Pork,511300.93817608
 2019-05-01,Imports,Canada,Pork,42809.3966118612
-2019-05-01,Imports,Mexico,Pork,4777.07473704854
+2019-05-01,Imports,Mexico,Pork,4777.07473704855
 2019-05-01,Imports,Chile,Pork,301.329939582
 2019-05-01,Imports,Brazil,Pork,2370.760109298
 2019-05-01,Imports,Finland,Pork,54.436526424
@@ -5008,7 +5008,7 @@ month,flow,country,commodity,amount
 2019-05-01,Imports,Croatia,Pork,1.25050188125056
 2019-05-01,Imports,Australia,Pork,0.228517251652242
 2019-05-01,Imports,New Zealand,Pork,0.274778055119327
-2019-05-01,Imports,World total,Pork,75353.3556137346
+2019-05-01,Imports,World total,Pork,75353.3556137347
 2019-06-01,Exports,Canada,Pork,43008.2062567716
 2019-06-01,Exports,Mexico,Pork,133821.099664883
 2019-06-01,Exports,Guatemala,Pork,3632.6031790041
@@ -5185,7 +5185,7 @@ month,flow,country,commodity,amount
 2019-07-01,Exports,Nigeria,Pork,25.45485221286
 2019-07-01,Exports,Somalia,Pork,4.16977795836
 2019-07-01,Exports,French Southern & Antarctic Lands,Pork,1.85247772794
-2019-07-01,Exports,World total,Pork,541363.748313285
+2019-07-01,Exports,World total,Pork,541363.748313286
 2019-07-01,Imports,Canada,Pork,48795.6679692066
 2019-07-01,Imports,Mexico,Pork,3080.98621866795
 2019-07-01,Imports,Chile,Pork,436.42697112
@@ -5218,7 +5218,7 @@ month,flow,country,commodity,amount
 2019-08-01,Exports,Costa Rica,Pork,1275.27981317659
 2019-08-01,Exports,Panama,Pork,4516.5735969858
 2019-08-01,Exports,Bermuda,Pork,128.7739551798
-2019-08-01,Exports,Bahamas,Pork,1427.66167754485
+2019-08-01,Exports,Bahamas,Pork,1427.66167754484
 2019-08-01,Exports,Jamaica,Pork,5.69361268476
 2019-08-01,Exports,Turks and Caicos Islands,Pork,94.89438250236
 2019-08-01,Exports,Cayman Islands,Pork,132.709242937192
@@ -5243,7 +5243,7 @@ month,flow,country,commodity,amount
 2019-08-01,Exports,Ecuador,Pork,134.9784228744
 2019-08-01,Exports,Peru,Pork,596.20415070006
 2019-08-01,Exports,Bolivia,Pork,2.47338746802
-2019-08-01,Exports,Chile,Pork,9450.24747323767
+2019-08-01,Exports,Chile,Pork,9450.24747323766
 2019-08-01,Exports,Paraguay,Pork,58.89495554082
 2019-08-01,Exports,Uruguay,Pork,70.01412092136
 2019-08-01,Exports,Denmark,Pork,14.50639071378
@@ -5266,7 +5266,7 @@ month,flow,country,commodity,amount
 2019-08-01,Exports,Singapore,Pork,674.63573887962
 2019-08-01,Exports,Indonesia,Pork,215.25219319716
 2019-08-01,Exports,Philippines,Pork,11846.618709853
-2019-08-01,Exports,China,Pork,93242.9922492209
+2019-08-01,Exports,China,Pork,93242.992249221
 2019-08-01,Exports,South Korea,Pork,42407.2008184293
 2019-08-01,Exports,Hong Kong,Pork,3703.6181321748
 2019-08-01,Exports,Taiwan,Pork,3478.11360892128
@@ -5305,7 +5305,7 @@ month,flow,country,commodity,amount
 2019-08-01,Imports,Croatia,Pork,12.1107801307135
 2019-08-01,Imports,Australia,Pork,0.0741247537216284
 2019-08-01,Imports,New Zealand,Pork,0.0038992033775268
-2019-08-01,Imports,World total,Pork,78892.0940793524
+2019-08-01,Imports,World total,Pork,78892.0940793525
 2019-09-01,Exports,Canada,Pork,50438.9972960094
 2019-09-01,Exports,Mexico,Pork,125941.450584665
 2019-09-01,Exports,Guatemala,Pork,4609.65811151476
@@ -5467,7 +5467,7 @@ month,flow,country,commodity,amount
 2019-10-01,Exports,Philippines,Pork,9942.25885461431
 2019-10-01,Exports,China,Pork,94828.9877479615
 2019-10-01,Exports,South Korea,Pork,47254.5086552456
-2019-10-01,Exports,Hong Kong,Pork,7068.64373837861
+2019-10-01,Exports,Hong Kong,Pork,7068.6437383786
 2019-10-01,Exports,Taiwan,Pork,1623.3031924893
 2019-10-01,Exports,Japan,Pork,92717.0884234703
 2019-10-01,Exports,Australia,Pork,26420.8302261364
@@ -5486,7 +5486,7 @@ month,flow,country,commodity,amount
 2019-10-01,Exports,French Southern & Antarctic Lands,Pork,5.17230776664
 2019-10-01,Exports,World total,Pork,521246.205145271
 2019-10-01,Imports,Canada,Pork,55182.2403112127
-2019-10-01,Imports,Mexico,Pork,3951.51032460938
+2019-10-01,Imports,Mexico,Pork,3951.51032460939
 2019-10-01,Imports,Chile,Pork,237.171030138
 2019-10-01,Imports,Brazil,Pork,622.901902428631
 2019-10-01,Imports,Finland,Pork,53.667113346
@@ -5504,7 +5504,7 @@ month,flow,country,commodity,amount
 2019-10-01,Imports,Hong Kong,Pork,0.000299171614644
 2019-10-01,Imports,Australia,Pork,0.234381015299264
 2019-10-01,Imports,New Zealand,Pork,1.08528489258174
-2019-10-01,Imports,World total,Pork,81972.813711644
+2019-10-01,Imports,World total,Pork,81972.8137116441
 2019-11-01,Exports,Canada,Pork,53098.5519882955
 2019-11-01,Exports,Mexico,Pork,128755.099698947
 2019-11-01,Exports,Guatemala,Pork,4686.9246286947
@@ -5535,7 +5535,7 @@ month,flow,country,commodity,amount
 2019-11-01,Exports,Sint Maarten,Pork,168.17211560142
 2019-11-01,Exports,Curaçao,Pork,377.6099710131
 2019-11-01,Exports,Aruba,Pork,645.775243822124
-2019-11-01,Exports,Colombia,Pork,29211.249811425
+2019-11-01,Exports,Colombia,Pork,29211.2498114249
 2019-11-01,Exports,Venezuela,Pork,16.7718823272
 2019-11-01,Exports,Guyana,Pork,51.84082652742
 2019-11-01,Exports,Suriname,Pork,15.069693681
@@ -5594,7 +5594,7 @@ month,flow,country,commodity,amount
 2019-11-01,Imports,France,Pork,7.36634758104
 2019-11-01,Imports,"Germany, Fed. Republic",Pork,230.4578459169
 2019-11-01,Imports,Hungary,Pork,56.38426586856
-2019-11-01,Imports,Lithuania,Pork,49.3054706502479
+2019-11-01,Imports,Lithuania,Pork,49.3054706502478
 2019-11-01,Imports,Poland,Pork,6919.01615267604
 2019-11-01,Imports,Spain,Pork,841.606587080746
 2019-11-01,Imports,San Marino,Pork,1.663180448144
@@ -5603,7 +5603,7 @@ month,flow,country,commodity,amount
 2019-11-01,Imports,Australia,Pork,0.10119978484691
 2019-11-01,Imports,New Zealand,Pork,0.94658490484818
 2019-11-01,Imports,World total,Pork,75365.2285676336
-2019-12-01,Exports,Canada,Pork,44322.4055097318
+2019-12-01,Exports,Canada,Pork,44322.4055097319
 2019-12-01,Exports,Mexico,Pork,149652.37797442
 2019-12-01,Exports,Guatemala,Pork,2762.612930511
 2019-12-01,Exports,Belize,Pork,735.24262749588
@@ -5699,7 +5699,7 @@ month,flow,country,commodity,amount
 2019-12-01,Imports,Australia,Pork,0.260309221901744
 2019-12-01,Imports,New Zealand,Pork,0.43340616278688
 2019-12-01,Imports,World total,Pork,69976.0146941806
-2020-01-01,Exports,Canada,Pork,47073.6037733921
+2020-01-01,Exports,Canada,Pork,47073.6037733922
 2020-01-01,Exports,Mexico,Pork,155533.393972177
 2020-01-01,Exports,Guatemala,Pork,3545.23462084954
 2020-01-01,Exports,Belize,Pork,310.3050659751
@@ -5760,7 +5760,7 @@ month,flow,country,commodity,amount
 2020-01-01,Exports,South Korea,Pork,49903.4634008576
 2020-01-01,Exports,Hong Kong,Pork,5636.92936191714
 2020-01-01,Exports,Taiwan,Pork,2004.1118495622
-2020-01-01,Exports,Japan,Pork,97558.2674331729
+2020-01-01,Exports,Japan,Pork,97558.2674331728
 2020-01-01,Exports,Australia,Pork,32501.3835036001
 2020-01-01,Exports,New Zealand,Pork,3422.35362586446
 2020-01-01,Exports,Cook Islands,Pork,75.8021796126
@@ -5775,7 +5775,7 @@ month,flow,country,commodity,amount
 2020-01-01,Exports,Gabon,Pork,91.876519539
 2020-01-01,Exports,Congo (Brazzaville),Pork,58.73113008
 2020-01-01,Exports,French Southern & Antarctic Lands,Pork,4.19358787596
-2020-01-01,Exports,World total,Pork,662913.596422899
+2020-01-01,Exports,World total,Pork,662913.5964229
 2020-01-01,Imports,Canada,Pork,46457.8328414544
 2020-01-01,Imports,Mexico,Pork,4088.39687258421
 2020-01-01,Imports,Chile,Pork,181.718172972
@@ -5795,7 +5795,7 @@ month,flow,country,commodity,amount
 2020-01-01,Imports,China,Pork,12.23318292336
 2020-01-01,Imports,Australia,Pork,0.267289892910104
 2020-01-01,Imports,New Zealand,Pork,0.478590783769741
-2020-01-01,Imports,World total,Pork,70458.9191299976
+2020-01-01,Imports,World total,Pork,70458.9191299975
 2020-02-01,Exports,Canada,Pork,47201.0252028957
 2020-02-01,Exports,Mexico,Pork,138212.741120952
 2020-02-01,Exports,Guatemala,Pork,3822.30369299016
@@ -5851,7 +5851,7 @@ month,flow,country,commodity,amount
 2020-02-01,Exports,Malaysia,Pork,125.77198754106
 2020-02-01,Exports,Singapore,Pork,903.6692667072
 2020-02-01,Exports,Indonesia,Pork,145.8357453
-2020-02-01,Exports,Philippines,Pork,5734.07799336461
+2020-02-01,Exports,Philippines,Pork,5734.07799336462
 2020-02-01,Exports,China,Pork,191393.000443578
 2020-02-01,Exports,South Korea,Pork,52228.3575619877
 2020-02-01,Exports,Hong Kong,Pork,5493.22464833478
@@ -5983,7 +5983,7 @@ month,flow,country,commodity,amount
 2020-03-01,Imports,Poland,Pork,6274.92511124215
 2020-03-01,Imports,Spain,Pork,1268.64324831132
 2020-03-01,Imports,San Marino,Pork,0.8573981965432
-2020-03-01,Imports,Italy,Pork,2485.16698975073
+2020-03-01,Imports,Italy,Pork,2485.16698975074
 2020-03-01,Imports,Croatia,Pork,3.690413714097
 2020-03-01,Imports,Vietnam,Pork,0.07853254884405
 2020-03-01,Imports,South Korea,Pork,0.0124455391691904
@@ -5991,7 +5991,7 @@ month,flow,country,commodity,amount
 2020-03-01,Imports,New Zealand,Pork,0.1354394258709
 2020-03-01,Imports,World total,Pork,70868.4447712945
 2020-04-01,Exports,Canada,Pork,36045.0335760427
-2020-04-01,Exports,Mexico,Pork,98894.074988628
+2020-04-01,Exports,Mexico,Pork,98894.0749886281
 2020-04-01,Exports,Guatemala,Pork,3492.04536228726
 2020-04-01,Exports,Belize,Pork,420.61998570354
 2020-04-01,Exports,El Salvador,Pork,1808.06998290156
@@ -6084,7 +6084,7 @@ month,flow,country,commodity,amount
 2020-04-01,Imports,Australia,Pork,0.174446968498916
 2020-04-01,Imports,New Zealand,Pork,0.2708788517418
 2020-04-01,Imports,World total,Pork,58021.9857718074
-2020-05-01,Exports,Canada,Pork,38943.3161634463
+2020-05-01,Exports,Canada,Pork,38943.3161634464
 2020-05-01,Exports,Mexico,Pork,84979.3175262114
 2020-05-01,Exports,Guatemala,Pork,2295.75673037466
 2020-05-01,Exports,Belize,Pork,265.20315160752
@@ -6487,7 +6487,7 @@ month,flow,country,commodity,amount
 2020-09-01,Exports,South Korea,Pork,28143.0434539624
 2020-09-01,Exports,Hong Kong,Pork,5387.80729637934
 2020-09-01,Exports,Taiwan,Pork,8344.58783415768
-2020-09-01,Exports,Japan,Pork,95004.9510638496
+2020-09-01,Exports,Japan,Pork,95004.9510638495
 2020-09-01,Exports,Australia,Pork,18716.6724504946
 2020-09-01,Exports,New Zealand,Pork,2734.46054691138
 2020-09-01,Exports,Cook Islands,Pork,6.3940651866
@@ -6819,7 +6819,7 @@ month,flow,country,commodity,amount
 2020-12-01,Imports,New Zealand,Pork,0.80170199607252
 2020-12-01,Imports,World total,Pork,77656.1009388938
 2021-01-01,Exports,Canada,Pork,45288.1756404034
-2021-01-01,Exports,Mexico,Pork,146528.498313829
+2021-01-01,Exports,Mexico,Pork,146528.498313828
 2021-01-01,Exports,Guatemala,Pork,6857.1618007473
 2021-01-01,Exports,Belize,Pork,145.73512635192
 2021-01-01,Exports,El Salvador,Pork,2543.9014208412
@@ -6996,7 +6996,7 @@ month,flow,country,commodity,amount
 2021-02-01,Imports,Hungary,Pork,756.24753838662
 2021-02-01,Imports,Lithuania,Pork,29.95781469408
 2021-02-01,Imports,Poland,Pork,5613.05833931349
-2021-02-01,Imports,Spain,Pork,527.805336867823
+2021-02-01,Imports,Spain,Pork,527.805336867822
 2021-02-01,Imports,San Marino,Pork,1.7864852055064
 2021-02-01,Imports,Italy,Pork,3123.40516814897
 2021-02-01,Imports,Croatia,Pork,3.764967526503
@@ -7186,7 +7186,7 @@ month,flow,country,commodity,amount
 2021-04-01,Imports,Croatia,Pork,13.6649786066705
 2021-04-01,Imports,Australia,Pork,0.317730227139083
 2021-04-01,Imports,New Zealand,Pork,0.951726671765807
-2021-04-01,Imports,World total,Pork,87793.9510058284
+2021-04-01,Imports,World total,Pork,87793.9510058285
 2021-05-01,Exports,Canada,Pork,46754.4953100436
 2021-05-01,Exports,Mexico,Pork,165289.26839218
 2021-05-01,Exports,Guatemala,Pork,5692.83050692062
@@ -7303,7 +7303,7 @@ month,flow,country,commodity,amount
 2021-06-01,Exports,Jamaica,Pork,50.25109564944
 2021-06-01,Exports,Turks and Caicos Islands,Pork,102.08100929796
 2021-06-01,Exports,Cayman Islands,Pork,116.548069963115
-2021-06-01,Exports,Haiti,Pork,59.7610797090583
+2021-06-01,Exports,Haiti,Pork,59.7610797090584
 2021-06-01,Exports,Dominican Republic,Pork,10221.5797461956
 2021-06-01,Exports,Anguilla,Pork,2.1004536105
 2021-06-01,Exports,British Virgin Islands,Pork,43.99056441738
@@ -7372,7 +7372,7 @@ month,flow,country,commodity,amount
 2021-06-01,Imports,"Germany, Fed. Republic",Pork,295.72676049168
 2021-06-01,Imports,Hungary,Pork,2335.99185349236
 2021-06-01,Imports,Lithuania,Pork,47.11010454738
-2021-06-01,Imports,Poland,Pork,9312.6155112023
+2021-06-01,Imports,Poland,Pork,9312.61551120231
 2021-06-01,Imports,Spain,Pork,1653.70777383168
 2021-06-01,Imports,San Marino,Pork,11.2261539090584
 2021-06-01,Imports,Italy,Pork,4293.04535759551
@@ -7482,7 +7482,7 @@ month,flow,country,commodity,amount
 2021-08-01,Exports,Bahamas,Pork,1043.37993275082
 2021-08-01,Exports,Jamaica,Pork,3.30005457936
 2021-08-01,Exports,Turks and Caicos Islands,Pork,134.5419077184
-2021-08-01,Exports,Cayman Islands,Pork,83.9421512760298
+2021-08-01,Exports,Cayman Islands,Pork,83.9421512760297
 2021-08-01,Exports,Haiti,Pork,44.30615605668
 2021-08-01,Exports,Dominican Republic,Pork,14630.9838219912
 2021-08-01,Exports,Anguilla,Pork,2.814199983
@@ -7564,7 +7564,7 @@ month,flow,country,commodity,amount
 2021-08-01,Imports,Australia,Pork,0.55444478103257
 2021-08-01,Imports,New Zealand,Pork,0.2708788517418
 2021-08-01,Imports,World total,Pork,109375.921395774
-2021-09-01,Exports,Canada,Pork,56918.1442627843
+2021-09-01,Exports,Canada,Pork,56918.1442627844
 2021-09-01,Exports,Mexico,Pork,189168.674458083
 2021-09-01,Exports,Guatemala,Pork,8830.36550757438
 2021-09-01,Exports,Belize,Pork,344.93895006984
@@ -7824,7 +7824,7 @@ month,flow,country,commodity,amount
 2021-11-01,Exports,Equatorial Guinea,Pork,1.6250268762
 2021-11-01,Exports,Gabon,Pork,96.05231611542
 2021-11-01,Exports,Angola,Pork,55.62001160604
-2021-11-01,Exports,World total,Pork,578739.583646936
+2021-11-01,Exports,World total,Pork,578739.583646935
 2021-11-01,Imports,Canada,Pork,80834.1839221193
 2021-11-01,Imports,Mexico,Pork,12322.1836849079
 2021-11-01,Imports,Chile,Pork,384.587489412
@@ -7919,7 +7919,7 @@ month,flow,country,commodity,amount
 2021-12-01,Exports,Gabon,Pork,22.27397949882
 2021-12-01,Exports,British Indian Ocean Territory,Pork,1.31324923296
 2021-12-01,Exports,World total,Pork,531871.595508462
-2021-12-01,Imports,Canada,Pork,70595.8558857191
+2021-12-01,Imports,Canada,Pork,70595.8558857192
 2021-12-01,Imports,Mexico,Pork,11230.418494334
 2021-12-01,Imports,Chile,Pork,639.168419484
 2021-12-01,Imports,Brazil,Pork,3917.35689600294
@@ -8146,7 +8146,7 @@ month,flow,country,commodity,amount
 2022-03-01,Exports,St. Vincent and The Grenadines,Pork,83.16310382352
 2022-03-01,Exports,Grenada,Pork,42.77908053594
 2022-03-01,Exports,Barbados,Pork,201.2404314753
-2022-03-01,Exports,Trinidad and Tobago,Pork,670.641868967274
+2022-03-01,Exports,Trinidad and Tobago,Pork,670.641868967275
 2022-03-01,Exports,Sint Maarten,Pork,123.45405325033
 2022-03-01,Exports,Curaçao,Pork,185.90153668195
 2022-03-01,Exports,Aruba,Pork,155.899536391567
@@ -8392,7 +8392,7 @@ month,flow,country,commodity,amount
 2022-05-01,Exports,Gabon,Pork,98.50070316996
 2022-05-01,Exports,Angola,Pork,22.27397949882
 2022-05-01,Exports,World total,Pork,550579.984373926
-2022-05-01,Imports,Canada,Pork,72795.9642060427
+2022-05-01,Imports,Canada,Pork,72795.9642060426
 2022-05-01,Imports,Mexico,Pork,10023.5083607165
 2022-05-01,Imports,Barbados,Pork,38.19507615
 2022-05-01,Imports,Chile,Pork,757.206085986
@@ -8471,7 +8471,7 @@ month,flow,country,commodity,amount
 2022-06-01,Exports,South Korea,Pork,50032.6437560569
 2022-06-01,Exports,Hong Kong,Pork,2229.86741312286
 2022-06-01,Exports,Taiwan,Pork,652.4778327291
-2022-06-01,Exports,Japan,Pork,98618.9819780164
+2022-06-01,Exports,Japan,Pork,98618.9819780163
 2022-06-01,Exports,Australia,Pork,12396.6988552512
 2022-06-01,Exports,New Zealand,Pork,1094.78181903804
 2022-06-01,Exports,Cook Islands,Pork,59.83974629892
@@ -8485,7 +8485,7 @@ month,flow,country,commodity,amount
 2022-06-01,Exports,Angola,Pork,55.62001160604
 2022-06-01,Exports,Djibouti,Pork,1.10949806772
 2022-06-01,Exports,World total,Pork,533351.611435614
-2022-06-01,Imports,Canada,Pork,71124.874687045
+2022-06-01,Imports,Canada,Pork,71124.8746870451
 2022-06-01,Imports,Mexico,Pork,8427.58365273578
 2022-06-01,Imports,Barbados,Pork,64.721088054
 2022-06-01,Imports,Chile,Pork,859.454249724
@@ -8597,7 +8597,7 @@ month,flow,country,commodity,amount
 2022-07-01,Imports,New Zealand,Pork,0.52502379180113
 2022-07-01,Imports,World total,Pork,103330.109490643
 2022-08-01,Exports,Canada,Pork,40407.2825157261
-2022-08-01,Exports,Mexico,Pork,195257.895714002
+2022-08-01,Exports,Mexico,Pork,195257.895714003
 2022-08-01,Exports,Guatemala,Pork,3621.74252759928
 2022-08-01,Exports,Belize,Pork,278.9263503558
 2022-08-01,Exports,El Salvador,Pork,2519.57967819768
@@ -8746,7 +8746,7 @@ month,flow,country,commodity,amount
 2022-09-01,Exports,Philippines,Pork,9904.33574307034
 2022-09-01,Exports,China,Pork,55449.7640592878
 2022-09-01,Exports,South Korea,Pork,37466.8723293946
-2022-09-01,Exports,Hong Kong,Pork,1705.33240751542
+2022-09-01,Exports,Hong Kong,Pork,1705.33240751543
 2022-09-01,Exports,Taiwan,Pork,632.04801953328
 2022-09-01,Exports,Japan,Pork,94855.5770104706
 2022-09-01,Exports,Australia,Pork,8256.9411244341
@@ -8790,7 +8790,7 @@ month,flow,country,commodity,amount
 2022-10-01,Exports,Honduras,Pork,9766.3824249516
 2022-10-01,Exports,Nicaragua,Pork,3170.52503408214
 2022-10-01,Exports,Costa Rica,Pork,3247.19486472906
-2022-10-01,Exports,Panama,Pork,2099.50687235519
+2022-10-01,Exports,Panama,Pork,2099.5068723552
 2022-10-01,Exports,Bermuda,Pork,106.823461013443
 2022-10-01,Exports,Bahamas,Pork,1133.90835226001
 2022-10-01,Exports,Cuba,Pork,19.8422593866
@@ -9078,7 +9078,7 @@ month,flow,country,commodity,amount
 2023-01-01,Exports,Honduras,Pork,13059.3336681352
 2023-01-01,Exports,Nicaragua,Pork,1559.1799979217
 2023-01-01,Exports,Costa Rica,Pork,3337.6297158036
-2023-01-01,Exports,Panama,Pork,901.258862732359
+2023-01-01,Exports,Panama,Pork,901.258862732358
 2023-01-01,Exports,Bermuda,Pork,75.56652756702
 2023-01-01,Exports,Bahamas,Pork,1101.132629541
 2023-01-01,Exports,Cuba,Pork,48.60867430566
@@ -9128,7 +9128,7 @@ month,flow,country,commodity,amount
 2023-01-01,Exports,Singapore,Pork,818.47552965192
 2023-01-01,Exports,Indonesia,Pork,104.31071989632
 2023-01-01,Exports,Philippines,Pork,5552.41851683297
-2023-01-01,Exports,China,Pork,54790.42156276
+2023-01-01,Exports,China,Pork,54790.4215627599
 2023-01-01,Exports,South Korea,Pork,41527.5698240689
 2023-01-01,Exports,Hong Kong,Pork,2043.16776446454
 2023-01-01,Exports,Taiwan,Pork,608.6230509807
@@ -9145,9 +9145,9 @@ month,flow,country,commodity,amount
 2023-01-01,Exports,Egypt,Pork,43.31742718212
 2023-01-01,Exports,Seychelles,Pork,1.83045355416
 2023-01-01,Exports,Republic of South Africa,Pork,75.51956911842
-2023-01-01,Exports,World total,Pork,552827.893234705
-2023-01-01,Imports,Canada,Pork,67214.1995006427
-2023-01-01,Imports,Mexico,Pork,7447.25430765154
+2023-01-01,Exports,World total,Pork,552827.893234706
+2023-01-01,Imports,Canada,Pork,67214.1995006426
+2023-01-01,Imports,Mexico,Pork,7447.25430765153
 2023-01-01,Imports,Chile,Pork,624.333518046
 2023-01-01,Imports,Brazil,Pork,2935.90532457063
 2023-01-01,Imports,Finland,Pork,55.111140756
@@ -9503,7 +9503,7 @@ month,flow,country,commodity,amount
 2023-05-01,Exports,Malaysia,Pork,2514.02676448896
 2023-05-01,Exports,Singapore,Pork,844.03814378814
 2023-05-01,Exports,Indonesia,Pork,204.4800132732
-2023-05-01,Exports,Philippines,Pork,9538.70103927315
+2023-05-01,Exports,Philippines,Pork,9538.70103927316
 2023-05-01,Exports,Macao (Macau),Pork,35.16083284518
 2023-05-01,Exports,China,Pork,52492.1952368671
 2023-05-01,Exports,South Korea,Pork,65597.2094665062
@@ -9709,7 +9709,7 @@ month,flow,country,commodity,amount
 2023-07-01,Exports,Gabon,Pork,66.82193849646
 2023-07-01,Exports,Djibouti,Pork,0.37394798364
 2023-07-01,Exports,World total,Pork,504663.947498944
-2023-07-01,Imports,Canada,Pork,63210.0639020105
+2023-07-01,Imports,Canada,Pork,63210.0639020106
 2023-07-01,Imports,Mexico,Pork,7581.85051392893
 2023-07-01,Imports,Chile,Pork,307.19202948
 2023-07-01,Imports,Brazil,Pork,4644.47414683863
@@ -9902,7 +9902,7 @@ month,flow,country,commodity,amount
 2023-09-01,Exports,British Indian Ocean Territory,Pork,1.05253063524
 2023-09-01,Exports,Republic of South Africa,Pork,79.38001656396
 2023-09-01,Exports,World total,Pork,512308.417418019
-2023-09-01,Imports,Canada,Pork,60269.4509451894
+2023-09-01,Imports,Canada,Pork,60269.4509451895
 2023-09-01,Imports,Mexico,Pork,6919.15034447221
 2023-09-01,Imports,Chile,Pork,191.279618586
 2023-09-01,Imports,Brazil,Pork,5165.310296412
@@ -9975,7 +9975,7 @@ month,flow,country,commodity,amount
 2023-10-01,Exports,Thailand,Pork,20.95378570656
 2023-10-01,Exports,Vietnam,Pork,1321.8519986973
 2023-10-01,Exports,Malaysia,Pork,390.63258498222
-2023-10-01,Exports,Singapore,Pork,838.413484305079
+2023-10-01,Exports,Singapore,Pork,838.41348430508
 2023-10-01,Exports,Indonesia,Pork,726.27497477136
 2023-10-01,Exports,Philippines,Pork,5153.92137282215
 2023-10-01,Exports,Macao (Macau),Pork,57.3458558463
@@ -10008,7 +10008,7 @@ month,flow,country,commodity,amount
 2023-10-01,Imports,Mexico,Pork,8924.60426363295
 2023-10-01,Imports,Chile,Pork,420.372913716
 2023-10-01,Imports,Brazil,Pork,6926.34839452551
-2023-10-01,Imports,Denmark,Pork,7991.81834284028
+2023-10-01,Imports,Denmark,Pork,7991.81834284029
 2023-10-01,Imports,United Kingdom,Pork,1618.366713138
 2023-10-01,Imports,Ireland,Pork,836.008094754
 2023-10-01,Imports,Netherlands,Pork,966.589834514682
@@ -10039,7 +10039,7 @@ month,flow,country,commodity,amount
 2023-11-01,Exports,Turks and Caicos Islands,Pork,270.92912814324
 2023-11-01,Exports,Cayman Islands,Pork,280.323651232411
 2023-11-01,Exports,Haiti,Pork,193.46250301308
-2023-11-01,Exports,Dominican Republic,Pork,28735.8618562496
+2023-11-01,Exports,Dominican Republic,Pork,28735.8618562495
 2023-11-01,Exports,Anguilla,Pork,25.59067897428
 2023-11-01,Exports,British Virgin Islands,Pork,106.11445343184
 2023-11-01,Exports,St. Kitts-Nevis,Pork,179.51882001858
@@ -10049,13 +10049,13 @@ month,flow,country,commodity,amount
 2023-11-01,Exports,St. Lucia,Pork,462.10711365504
 2023-11-01,Exports,St. Vincent and The Grenadines,Pork,202.07710757052
 2023-11-01,Exports,Grenada,Pork,101.15550898236
-2023-11-01,Exports,Barbados,Pork,280.976133783032
+2023-11-01,Exports,Barbados,Pork,280.976133783031
 2023-11-01,Exports,Trinidad and Tobago,Pork,468.81939398112
 2023-11-01,Exports,Sint Maarten,Pork,200.220915980451
 2023-11-01,Exports,Curaçao,Pork,313.01077650948
 2023-11-01,Exports,Aruba,Pork,314.96515186626
 2023-11-01,Exports,Guadeloupe,Pork,5.34744293832
-2023-11-01,Exports,Colombia,Pork,33890.9264366475
+2023-11-01,Exports,Colombia,Pork,33890.9264366476
 2023-11-01,Exports,Venezuela,Pork,113.42568546288
 2023-11-01,Exports,Guyana,Pork,211.84810250562
 2023-11-01,Exports,Suriname,Pork,6.63066521964
@@ -10279,13 +10279,13 @@ month,flow,country,commodity,amount
 2024-01-01,Exports,Sierra Leone,Pork,20.56257553266
 2024-01-01,Exports,Gabon,Pork,82.45877118696
 2024-01-01,Exports,Republic of South Africa,Pork,64.77051567924
-2024-01-01,Exports,World total,Pork,588407.827929144
+2024-01-01,Exports,World total,Pork,588407.827929145
 2024-01-01,Imports,Canada,Pork,61821.5366258465
 2024-01-01,Imports,Mexico,Pork,7325.93109952784
 2024-01-01,Imports,Chile,Pork,674.84581731
 2024-01-01,Imports,Brazil,Pork,7754.056815204
 2024-01-01,Imports,Finland,Pork,39.328251858
-2024-01-01,Imports,Denmark,Pork,7077.62661043579
+2024-01-01,Imports,Denmark,Pork,7077.62661043578
 2024-01-01,Imports,United Kingdom,Pork,650.70520641
 2024-01-01,Imports,Ireland,Pork,1013.504416596
 2024-01-01,Imports,Netherlands,Pork,802.21772108268
@@ -10445,7 +10445,7 @@ month,flow,country,commodity,amount
 2024-03-01,Exports,Indonesia,Pork,65.30412238812
 2024-03-01,Exports,Philippines,Pork,5457.17974836587
 2024-03-01,Exports,China,Pork,35366.7472737113
-2024-03-01,Exports,South Korea,Pork,85361.7479468745
+2024-03-01,Exports,South Korea,Pork,85361.7479468746
 2024-03-01,Exports,Hong Kong,Pork,1758.47798104524
 2024-03-01,Exports,Taiwan,Pork,2326.42057526424
 2024-03-01,Exports,Japan,Pork,101695.702638805
@@ -10585,7 +10585,7 @@ month,flow,country,commodity,amount
 2024-04-01,Imports,South Korea,Pork,0.0124455391691904
 2024-04-01,Imports,New Zealand,Pork,0.2708788517418
 2024-04-01,Imports,World total,Pork,97991.806103617
-2024-05-01,Exports,Canada,Pork,40689.4752027866
+2024-05-01,Exports,Canada,Pork,40689.4752027865
 2024-05-01,Exports,Mexico,Pork,210323.660846783
 2024-05-01,Exports,Guatemala,Pork,6089.6671848117
 2024-05-01,Exports,Belize,Pork,576.91899929286
@@ -10846,7 +10846,7 @@ month,flow,country,commodity,amount
 2024-07-01,Exports,Congo (Brazzaville),Pork,121.377668832
 2024-07-01,Exports,Djibouti,Pork,2.58615388332
 2024-07-01,Exports,World total,Pork,567259.432697784
-2024-07-01,Imports,Canada,Pork,56920.209305896
+2024-07-01,Imports,Canada,Pork,56920.2093058959
 2024-07-01,Imports,Mexico,Pork,6852.32880693497
 2024-07-01,Imports,Chile,Pork,318.596539086
 2024-07-01,Imports,Brazil,Pork,6367.35116453184
@@ -10952,7 +10952,7 @@ month,flow,country,commodity,amount
 2024-08-01,Imports,Poland,Pork,4264.68242379599
 2024-08-01,Imports,Spain,Pork,3662.5675193793
 2024-08-01,Imports,Italy,Pork,4490.23012556514
-2024-08-01,Imports,World total,Pork,93024.647768595
+2024-08-01,Imports,World total,Pork,93024.6477685949
 2024-09-01,Exports,Canada,Pork,49229.8137453062
 2024-09-01,Exports,Mexico,Pork,207454.635949454
 2024-09-01,Exports,Guatemala,Pork,7695.96147516971
@@ -11106,7 +11106,7 @@ month,flow,country,commodity,amount
 2024-10-01,Exports,Indonesia,Pork,321.6319728867
 2024-10-01,Exports,Philippines,Pork,6554.5930531547
 2024-10-01,Exports,Macao (Macau),Pork,55.84212727254
-2024-10-01,Exports,China,Pork,52189.5996678873
+2024-10-01,Exports,China,Pork,52189.5996678874
 2024-10-01,Exports,South Korea,Pork,34725.859822269
 2024-10-01,Exports,Hong Kong,Pork,1684.40750996742
 2024-10-01,Exports,Taiwan,Pork,970.57310691096
@@ -11142,7 +11142,7 @@ month,flow,country,commodity,amount
 2024-10-01,Imports,Italy,Pork,5966.50249348535
 2024-10-01,Imports,Australia,Pork,0.0042083473793256
 2024-10-01,Imports,New Zealand,Pork,0.1354394258709
-2024-10-01,Imports,World total,Pork,94657.1764361395
+2024-10-01,Imports,World total,Pork,94657.1764361394
 2024-11-01,Exports,Canada,Pork,56145.3347759461
 2024-11-01,Exports,Mexico,Pork,229639.904239746
 2024-11-01,Exports,Guatemala,Pork,10819.125814537
@@ -11196,7 +11196,7 @@ month,flow,country,commodity,amount
 2024-11-01,Exports,Vietnam,Pork,903.905227818738
 2024-11-01,Exports,Cambodia,Pork,1.0767373848
 2024-11-01,Exports,Malaysia,Pork,1912.77607970736
-2024-11-01,Exports,Singapore,Pork,648.34667808369
+2024-11-01,Exports,Singapore,Pork,648.346678083691
 2024-11-01,Exports,Indonesia,Pork,293.47337225304
 2024-11-01,Exports,Philippines,Pork,3785.73273289883
 2024-11-01,Exports,China,Pork,48769.8734664301
@@ -11228,7 +11228,7 @@ month,flow,country,commodity,amount
 2024-11-01,Imports,Mexico,Pork,7817.32150636318
 2024-11-01,Imports,Chile,Pork,328.471041024
 2024-11-01,Imports,Brazil,Pork,6383.89976251365
-2024-11-01,Imports,Denmark,Pork,5193.29209500399
+2024-11-01,Imports,Denmark,Pork,5193.29209500398
 2024-11-01,Imports,United Kingdom,Pork,861.160627152
 2024-11-01,Imports,Ireland,Pork,571.90099302
 2024-11-01,Imports,Netherlands,Pork,1092.83959465498
@@ -11242,7 +11242,7 @@ month,flow,country,commodity,amount
 2024-11-01,Imports,Australia,Pork,0.148239535056102
 2024-11-01,Imports,World total,Pork,95117.1912789482
 2024-12-01,Exports,Canada,Pork,45503.7516711765
-2024-12-01,Exports,Mexico,Pork,248664.958703409
+2024-12-01,Exports,Mexico,Pork,248664.95870341
 2024-12-01,Exports,Guatemala,Pork,9160.38269778114
 2024-12-01,Exports,Belize,Pork,519.5475036927
 2024-12-01,Exports,El Salvador,Pork,4842.27726419808
@@ -11321,7 +11321,7 @@ month,flow,country,commodity,amount
 2024-12-01,Exports,Mauritius,Pork,2.3819838399
 2024-12-01,Exports,Republic of South Africa,Pork,79.38001656396
 2024-12-01,Exports,World total,Pork,646982.731449624
-2024-12-01,Imports,Canada,Pork,58529.5799286338
+2024-12-01,Imports,Canada,Pork,58529.5799286339
 2024-12-01,Imports,Mexico,Pork,8728.85474704082
 2024-12-01,Imports,Chile,Pork,473.07881187
 2024-12-01,Imports,Brazil,Pork,5993.08018667094
@@ -11340,7 +11340,7 @@ month,flow,country,commodity,amount
 2024-12-01,Imports,Italy,Pork,5075.6932976627
 2024-12-01,Imports,South Korea,Pork,0.0124455391691904
 2024-12-01,Imports,New Zealand,Pork,1.13946103066094
-2024-12-01,Imports,World total,Pork,95513.0761723454
+2024-12-01,Imports,World total,Pork,95513.0761723453
 2025-01-01,Exports,Canada,Pork,37963.1256521145
 2025-01-01,Exports,Mexico,Pork,240075.835411401
 2025-01-01,Exports,Guatemala,Pork,9521.20092282282
@@ -11422,7 +11422,7 @@ month,flow,country,commodity,amount
 2025-01-01,Exports,Namibia,Pork,6.38112405546
 2025-01-01,Exports,World total,Pork,576618.32109124
 2025-01-01,Imports,Canada,Pork,58781.7078264244
-2025-01-01,Imports,Mexico,Pork,7706.43526201834
+2025-01-01,Imports,Mexico,Pork,7706.43526201833
 2025-01-01,Imports,Chile,Pork,652.20434937
 2025-01-01,Imports,Brazil,Pork,7941.39467980404
 2025-01-01,Imports,Finland,Pork,54.945794106
@@ -11449,7 +11449,7 @@ month,flow,country,commodity,amount
 2025-02-01,Exports,Honduras,Pork,14696.9245748821
 2025-02-01,Exports,Nicaragua,Pork,4111.4711077839
 2025-02-01,Exports,Costa Rica,Pork,4537.74795512346
-2025-02-01,Exports,Panama,Pork,1715.76785954223
+2025-02-01,Exports,Panama,Pork,1715.76785954222
 2025-02-01,Exports,Bermuda,Pork,127.17613333908
 2025-02-01,Exports,Bahamas,Pork,969.65719670106
 2025-02-01,Exports,Cuba,Pork,4272.647825502
@@ -11501,7 +11501,7 @@ month,flow,country,commodity,amount
 2025-02-01,Exports,South Korea,Pork,55773.303144944
 2025-02-01,Exports,Hong Kong,Pork,1379.07746013618
 2025-02-01,Exports,Taiwan,Pork,1205.7806345571
-2025-02-01,Exports,Japan,Pork,70851.8746487107
+2025-02-01,Exports,Japan,Pork,70851.8746487106
 2025-02-01,Exports,Australia,Pork,22487.0972651816
 2025-02-01,Exports,New Zealand,Pork,2372.72616915138
 2025-02-01,Exports,Cook Islands,Pork,29.62434357036
@@ -11611,7 +11611,7 @@ month,flow,country,commodity,amount
 2025-03-01,Exports,Republic of South Africa,Pork,1.04932582033104
 2025-03-01,Exports,Namibia,Pork,5.86259696106
 2025-03-01,Exports,World total,Pork,641064.019459955
-2025-03-01,Imports,Canada,Pork,58235.3404323657
+2025-03-01,Imports,Canada,Pork,58235.3404323656
 2025-03-01,Imports,Mexico,Pork,7744.10300635784
 2025-03-01,Imports,Chile,Pork,464.81147937
 2025-03-01,Imports,Brazil,Pork,6001.89862171847
@@ -11725,7 +11725,7 @@ month,flow,country,commodity,amount
 2025-04-01,Imports,Spain,Pork,4110.65184820248
 2025-04-01,Imports,Italy,Pork,6533.83407610125
 2025-04-01,Imports,Australia,Pork,0.34980142422892
-2025-04-01,Imports,World total,Pork,94623.759341525
+2025-04-01,Imports,World total,Pork,94623.7593415249
 2025-05-01,Exports,Canada,Pork,34734.9262328769
 2025-05-01,Exports,Mexico,Pork,218382.145194449
 2025-05-01,Exports,Guatemala,Pork,9686.89078837578
@@ -11788,7 +11788,7 @@ month,flow,country,commodity,amount
 2025-05-01,Exports,South Korea,Pork,65362.0727072263
 2025-05-01,Exports,Hong Kong,Pork,2136.26952472626
 2025-05-01,Exports,Taiwan,Pork,1539.50345997084
-2025-05-01,Exports,Japan,Pork,93770.3392866715
+2025-05-01,Exports,Japan,Pork,93770.3392866714
 2025-05-01,Exports,Australia,Pork,20321.5115148557
 2025-05-01,Exports,New Zealand,Pork,2261.91291666606
 2025-05-01,Exports,Cook Islands,Pork,8.337880404
@@ -11816,7 +11816,7 @@ month,flow,country,commodity,amount
 2025-05-01,Imports,France,Pork,0.052442041938
 2025-05-01,Imports,"Germany, Fed. Republic",Pork,66.76768274904
 2025-05-01,Imports,Lithuania,Pork,121.33276068186
-2025-05-01,Imports,Poland,Pork,5920.70004112895
+2025-05-01,Imports,Poland,Pork,5920.70004112894
 2025-05-01,Imports,Spain,Pork,2868.83858507652
 2025-05-01,Imports,Italy,Pork,3901.54632361119
 2025-05-01,Imports,Croatia,Pork,8.46177054982506
@@ -12016,7 +12016,7 @@ month,flow,country,commodity,amount
 2025-07-01,Imports,South Korea,Pork,0.0124455391691904
 2025-07-01,Imports,Australia,Pork,0.435693594793212
 2025-07-01,Imports,New Zealand,Pork,0.2708788517418
-2025-07-01,Imports,World total,Pork,96478.8219993934
+2025-07-01,Imports,World total,Pork,96478.8219993935
 2025-08-01,Exports,Canada,Pork,39003.2772620389
 2025-08-01,Exports,Mexico,Pork,224896.125653257
 2025-08-01,Exports,Guatemala,Pork,7862.11686959706
@@ -12098,7 +12098,7 @@ month,flow,country,commodity,amount
 2025-08-01,Exports,Congo (Kinshasa),Pork,155.18867776524
 2025-08-01,Exports,World total,Pork,542692.793912644
 2025-08-01,Imports,Canada,Pork,51726.1567998696
-2025-08-01,Imports,Mexico,Pork,6930.0105167402
+2025-08-01,Imports,Mexico,Pork,6930.01051674019
 2025-08-01,Imports,Chile,Pork,106.035704334
 2025-08-01,Imports,Brazil,Pork,1562.89859998776
 2025-08-01,Imports,Finland,Pork,50.721738354
@@ -12114,7 +12114,7 @@ month,flow,country,commodity,amount
 2025-08-01,Imports,Australia,Pork,0.447939686219306
 2025-08-01,Imports,World total,Pork,81148.1023034995
 2025-09-01,Exports,Canada,Pork,45959.479514301
-2025-09-01,Exports,Mexico,Pork,234045.82339801
+2025-09-01,Exports,Mexico,Pork,234045.823398011
 2025-09-01,Exports,Guatemala,Pork,10136.1379891653
 2025-09-01,Exports,Belize,Pork,267.743597834532
 2025-09-01,Exports,El Salvador,Pork,3285.49192669278
@@ -12195,7 +12195,7 @@ month,flow,country,commodity,amount
 2025-09-01,Imports,Netherlands,Pork,1155.171221694
 2025-09-01,Imports,France,Pork,19.6326475993648
 2025-09-01,Imports,Lithuania,Pork,107.0403505794
-2025-09-01,Imports,Poland,Pork,4049.34231943444
+2025-09-01,Imports,Poland,Pork,4049.34231943445
 2025-09-01,Imports,Spain,Pork,2543.39673877296
 2025-09-01,Imports,Italy,Pork,4596.09470603217
 2025-09-01,Imports,Croatia,Pork,8.95031609152455
@@ -12255,12 +12255,12 @@ month,flow,country,commodity,amount
 2025-10-01,Exports,Malaysia,Pork,711.03393786852
 2025-10-01,Exports,Singapore,Pork,930.51777071736
 2025-10-01,Exports,Indonesia,Pork,406.57092177744
-2025-10-01,Exports,Philippines,Pork,9712.65221590377
+2025-10-01,Exports,Philippines,Pork,9712.65221590378
 2025-10-01,Exports,China,Pork,26684.3603352698
 2025-10-01,Exports,South Korea,Pork,39610.239348049
 2025-10-01,Exports,Hong Kong,Pork,2110.7825952633
 2025-10-01,Exports,Taiwan,Pork,668.3405289435
-2025-10-01,Exports,Japan,Pork,82736.4474725493
+2025-10-01,Exports,Japan,Pork,82736.4474725494
 2025-10-01,Exports,Australia,Pork,9973.63854233964
 2025-10-01,Exports,New Zealand,Pork,1980.68604325326
 2025-10-01,Exports,Cook Islands,Pork,42.1467508539
@@ -12277,7 +12277,7 @@ month,flow,country,commodity,amount
 2025-10-01,Exports,Congo (Brazzaville),Pork,79.38001656396
 2025-10-01,Exports,Djibouti,Pork,3.23431275132
 2025-10-01,Exports,Republic of South Africa,Pork,77.77906416
-2025-10-01,Exports,World total,Pork,632582.299493679
+2025-10-01,Exports,World total,Pork,632582.299493678
 2025-10-01,Imports,Canada,Pork,67454.2251867736
 2025-10-01,Imports,Mexico,Pork,9829.96188461835
 2025-10-01,Imports,Chile,Pork,284.014838394
@@ -12447,7 +12447,7 @@ month,flow,country,commodity,amount
 2025-12-01,Exports,Philippines,Pork,3721.01551106838
 2025-12-01,Exports,Macao (Macau),Pork,43.48279587834
 2025-12-01,Exports,China,Pork,22619.39325833
-2025-12-01,Exports,South Korea,Pork,59145.4425539767
+2025-12-01,Exports,South Korea,Pork,59145.4425539766
 2025-12-01,Exports,Hong Kong,Pork,1835.73796877636
 2025-12-01,Exports,Taiwan,Pork,3161.10984309162
 2025-12-01,Exports,Japan,Pork,74053.0030199576
@@ -12561,7 +12561,7 @@ month,flow,country,commodity,amount
 2026-01-01,Exports,Mauritius,Pork,7.1945634348
 2026-01-01,Exports,World total,Pork,589971.967719936
 2026-01-01,Imports,Canada,Pork,57961.1093964951
-2026-01-01,Imports,Mexico,Pork,7581.54346988985
+2026-01-01,Imports,Mexico,Pork,7581.54346988986
 2026-01-01,Imports,Chile,Pork,420.214180932
 2026-01-01,Imports,Brazil,Pork,2298.14841455136
 2026-01-01,Imports,Finland,Pork,55.069252938
@@ -12848,7 +12848,7 @@ month,flow,country,commodity,amount
 2026-04-01,Imports,Netherlands,Pork,1160.08311951
 2026-04-01,Imports,France,Pork,20.977199994868
 2026-04-01,Imports,Lithuania,Pork,86.47312329432
-2026-04-01,Imports,Poland,Pork,7497.46223159514
+2026-04-01,Imports,Poland,Pork,7497.46223159515
 2026-04-01,Imports,Spain,Pork,7790.98381482582
 2026-04-01,Imports,Italy,Pork,3607.22912510586
 2026-04-01,Imports,Croatia,Pork,9.93117574706691
@@ -13230,14 +13230,106 @@ month,flow,country,commodity,amount
 2026-08-01,Imports,Mexico,Pork,9494.2285556932
 2026-08-01,Imports,Chile,Pork,607.49955356328
 2026-08-01,Imports,Brazil,Pork,2348.70401259144
-2026-08-01,Imports,Denmark,Pork,6569.06060699706
+2026-08-01,Imports,Denmark,Pork,6569.06060699707
 2026-08-01,Imports,United Kingdom,Pork,780.53539599
 2026-08-01,Imports,Ireland,Pork,309.806711172
 2026-08-01,Imports,Netherlands,Pork,1094.89244697
 2026-08-01,Imports,France,Pork,15.9946100557886
 2026-08-01,Imports,"Germany, Fed. Republic",Pork,86.8199985198
 2026-08-01,Imports,Poland,Pork,6880.47739160515
-2026-08-01,Imports,Spain,Pork,9371.62293808082
+2026-08-01,Imports,Spain,Pork,9371.62293808081
 2026-08-01,Imports,Italy,Pork,4028.98838585739
 2026-08-01,Imports,Australia,Pork,0.346879514792563
 2026-08-01,Imports,World total,Pork,99550.7671611199
+2026-09-01,Exports,Canada,Pork,47291.4217635553
+2026-09-01,Exports,Mexico,Pork,208274.990649053
+2026-09-01,Exports,Guatemala,Pork,11268.5195261822
+2026-09-01,Exports,Belize,Pork,254.35568384226
+2026-09-01,Exports,El Salvador,Pork,3634.96745972934
+2026-09-01,Exports,Honduras,Pork,16634.8245048552
+2026-09-01,Exports,Nicaragua,Pork,3538.7391927321
+2026-09-01,Exports,Costa Rica,Pork,5164.78409723304
+2026-09-01,Exports,Panama,Pork,5826.369510045
+2026-09-01,Exports,Bermuda,Pork,106.077828189854
+2026-09-01,Exports,Bahamas,Pork,1469.41658652348
+2026-09-01,Exports,Cuba,Pork,7311.05815250286
+2026-09-01,Exports,Jamaica,Pork,108.3313772226
+2026-09-01,Exports,Turks and Caicos Islands,Pork,154.07774669322
+2026-09-01,Exports,Cayman Islands,Pork,121.09252302252
+2026-09-01,Exports,Haiti,Pork,60.6177353565
+2026-09-01,Exports,Dominican Republic,Pork,19687.5163290796
+2026-09-01,Exports,Anguilla,Pork,4.89426084
+2026-09-01,Exports,British Virgin Islands,Pork,50.2142343696
+2026-09-01,Exports,St. Kitts-Nevis,Pork,27.87781997574
+2026-09-01,Exports,Antigua & Barbuda,Pork,177.5666492838
+2026-09-01,Exports,Montserrat,Pork,2.22199442136
+2026-09-01,Exports,Dominica,Pork,6.63586812756
+2026-09-01,Exports,St. Lucia,Pork,411.58085913378
+2026-09-01,Exports,St. Vincent and The Grenadines,Pork,72.15952677444
+2026-09-01,Exports,Grenada,Pork,4.41442665846693
+2026-09-01,Exports,Barbados,Pork,282.00550181076
+2026-09-01,Exports,Trinidad and Tobago,Pork,707.58485084196
+2026-09-01,Exports,Sint Maarten,Pork,146.025640801779
+2026-09-01,Exports,Curaçao,Pork,611.71479082728
+2026-09-01,Exports,Aruba,Pork,313.0216012035
+2026-09-01,Exports,Colombia,Pork,33516.3533985781
+2026-09-01,Exports,Venezuela,Pork,128.02015082556
+2026-09-01,Exports,Guyana,Pork,150.48774022842
+2026-09-01,Exports,Suriname,Pork,16.3812114369105
+2026-09-01,Exports,Ecuador,Pork,98.7816161052
+2026-09-01,Exports,Peru,Pork,598.2939559863
+2026-09-01,Exports,Chile,Pork,760.9755486816
+2026-09-01,Exports,Paraguay,Pork,47.97347861502
+2026-09-01,Exports,Argentina,Pork,144.8005650399
+2026-09-01,Exports,United Kingdom,Pork,217.9411045119
+2026-09-01,Exports,Netherlands,Pork,15.79616072244
+2026-09-01,Exports,Belgium,Pork,97.61358532338
+2026-09-01,Exports,"Germany, Fed. Republic",Pork,59.88339781452
+2026-09-01,Exports,Spain,Pork,10.77314995764
+2026-09-01,Exports,Italy,Pork,1.72132476516
+2026-09-01,Exports,Macedonia (Skopje),Pork,56.35573805988
+2026-09-01,Exports,Israel,Pork,1.39878856656
+2026-09-01,Exports,Jordan,Pork,2.95957275768
+2026-09-01,Exports,Saudi Arabia,Pork,50.34183789096
+2026-09-01,Exports,United Arab Emirates,Pork,11.86011678852
+2026-09-01,Exports,Sri Lanka,Pork,2.87134378524
+2026-09-01,Exports,Thailand,Pork,20.32123556232
+2026-09-01,Exports,Vietnam,Pork,223.22176944984
+2026-09-01,Exports,Singapore,Pork,375.24778467876
+2026-09-01,Exports,Indonesia,Pork,45.07601005908
+2026-09-01,Exports,Philippines,Pork,4891.41617765251
+2026-09-01,Exports,Macao (Macau),Pork,47.70413994528
+2026-09-01,Exports,China,Pork,18920.3882315515
+2026-09-01,Exports,South Korea,Pork,36038.2073207386
+2026-09-01,Exports,Hong Kong,Pork,961.38073706598
+2026-09-01,Exports,Taiwan,Pork,828.79399836828
+2026-09-01,Exports,Japan,Pork,71891.8994425275
+2026-09-01,Exports,Australia,Pork,8659.3952012274
+2026-09-01,Exports,New Zealand,Pork,1036.46363670486
+2026-09-01,Exports,Western Samoa,Pork,7.14614993568
+2026-09-01,Exports,French Polynesia,Pork,15.11854810452
+2026-09-01,Exports,Marshall Islands,Pork,122.46827328918
+2026-09-01,Exports,"Micronesia, Federated States",Pork,454.93960093218
+2026-09-01,Exports,Palau,Pork,43.22516375142
+2026-09-01,Exports,Tonga,Pork,8.81820139914
+2026-09-01,Exports,Senegal,Pork,20.579044059
+2026-09-01,Exports,Gabon,Pork,178.36683888492
+2026-09-01,Exports,Republic of South Africa,Pork,2.30028054858
+2026-09-01,Exports,World total,Pork,514509.140263765
+2026-09-01,Imports,Canada,Pork,58159.933216085
+2026-09-01,Imports,Mexico,Pork,8774.98815547029
+2026-09-01,Imports,Chile,Pork,308.43614176704
+2026-09-01,Imports,Brazil,Pork,1702.64032915536
+2026-09-01,Imports,Denmark,Pork,4103.46062219758
+2026-09-01,Imports,United Kingdom,Pork,663.895459836
+2026-09-01,Imports,Ireland,Pork,310.81863267
+2026-09-01,Imports,Netherlands,Pork,663.9219153
+2026-09-01,Imports,France,Pork,0.25770767821674
+2026-09-01,Imports,"Germany, Fed. Republic",Pork,68.99891453658
+2026-09-01,Imports,Poland,Pork,3123.14633120092
+2026-09-01,Imports,Spain,Pork,5423.1472327158
+2026-09-01,Imports,Italy,Pork,3145.59044090582
+2026-09-01,Imports,Croatia,Pork,2.00766857044716
+2026-09-01,Imports,Australia,Pork,0.0161153776421568
+2026-09-01,Imports,New Zealand,Pork,0.534475776169703
+2026-09-01,Imports,World total,Pork,86451.7933592429

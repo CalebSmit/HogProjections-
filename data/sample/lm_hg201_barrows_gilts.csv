@@ -6971,3 +6971,39 @@ report_date,slaughter_date,purchase_type,head_count,avg_net_price_cwt_carcass,av
 2026-11-03,2026-11-02,Prod. Sold Negotiated,4825.0,62.37,215.15,289.2
 2026-11-03,2026-11-02,Prod. Sold Negotiated Formula,1649.0,,,
 2026-11-03,2026-11-02,Prod. Sold Swine or Pork Market Formula,128223.0,64.51,218.13,291.03
+2026-11-04,2026-11-03,Prod. Sold (All Purchase Types),225618.0,67.36,219.91,293.15
+2026-11-04,2026-11-03,Prod. Sold Negotiated,4028.0,57.6,225.98,298.7
+2026-11-04,2026-11-03,Prod. Sold Negotiated Formula,996.0,,,
+2026-11-04,2026-11-03,Prod. Sold Swine or Pork Market Formula,123898.0,63.6,220.64,293.95
+2026-11-05,2026-11-04,Prod. Sold (All Purchase Types),236348.0,66.23,220.08,292.77
+2026-11-05,2026-11-04,Prod. Sold Negotiated,3218.0,54.16,224.09,291.18
+2026-11-05,2026-11-04,Prod. Sold Negotiated Formula,1121.0,,,
+2026-11-05,2026-11-04,Prod. Sold Swine or Pork Market Formula,126143.0,62.54,220.51,293.11
+2026-11-06,2026-11-05,Prod. Sold (All Purchase Types),241760.0,64.88,221.2,294.46
+2026-11-06,2026-11-05,Prod. Sold Negotiated,4529.0,56.2,226.15,291.27
+2026-11-06,2026-11-05,Prod. Sold Negotiated Formula,957.0,,,
+2026-11-06,2026-11-05,Prod. Sold Swine or Pork Market Formula,128377.0,61.01,221.09,294.29
+2026-11-09,2026-11-06,Prod. Sold (All Purchase Types),344251.0,63.71,222.22,296.27
+2026-11-09,2026-11-06,Prod. Sold Negotiated,11090.0,52.2,220.81,294.33
+2026-11-09,2026-11-06,Prod. Sold Negotiated Formula,930.0,,,
+2026-11-09,2026-11-06,Prod. Sold Swine or Pork Market Formula,178900.0,60.37,221.59,295.17
+2026-11-10,2026-11-09,Prod. Sold (All Purchase Types),234349.0,63.85,218.15,291.36
+2026-11-10,2026-11-09,Prod. Sold Negotiated,6147.0,47.7,223.07,292.43
+2026-11-10,2026-11-09,Prod. Sold Negotiated Formula,677.0,,,
+2026-11-10,2026-11-09,Prod. Sold Swine or Pork Market Formula,128871.0,60.74,217.57,290.58
+2026-11-11,2026-11-10,Prod. Sold (All Purchase Types),216503.0,63.83,218.57,290.55
+2026-11-11,2026-11-10,Prod. Sold Negotiated,3605.0,41.66,225.18,295.39
+2026-11-11,2026-11-10,Prod. Sold Negotiated Formula,1706.0,,,
+2026-11-11,2026-11-10,Prod. Sold Swine or Pork Market Formula,121618.0,59.95,219.07,291.48
+2026-11-12,2026-11-11,Prod. Sold (All Purchase Types),216683.0,62.92,220.03,293.08
+2026-11-12,2026-11-11,Prod. Sold Negotiated,3067.0,42.33,226.4,310.43
+2026-11-12,2026-11-11,Prod. Sold Negotiated Formula,749.0,,,
+2026-11-12,2026-11-11,Prod. Sold Swine or Pork Market Formula,120280.0,58.56,220.63,294.04
+2026-11-13,2026-11-12,Prod. Sold (All Purchase Types),232174.0,62.39,220.45,293.83
+2026-11-13,2026-11-12,Prod. Sold Negotiated,5353.0,42.97,216.88,286.43
+2026-11-13,2026-11-12,Prod. Sold Negotiated Formula,785.0,,,
+2026-11-13,2026-11-12,Prod. Sold Swine or Pork Market Formula,131033.0,57.94,221.14,294.18
+2026-11-16,2026-11-13,Prod. Sold (All Purchase Types),364645.0,61.98,221.74,296.02
+2026-11-16,2026-11-13,Prod. Sold Negotiated,15123.0,44.68,217.37,291.4
+2026-11-16,2026-11-13,Prod. Sold Negotiated Formula,484.0,,,
+2026-11-16,2026-11-13,Prod. Sold Swine or Pork Market Formula,195216.0,57.96,221.84,295.8
