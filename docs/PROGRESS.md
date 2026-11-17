@@ -436,3 +436,12 @@ Newest at the bottom.
   months out, 35% better than no change, 8 in 10 within ~$13; likely margin ranges everywhere.
 - Diesel and propane as $/pig; Excel brief gains Scorecard and Forward board; crush workbook
   gains a Forward board sheet; widget default warning fixed; `python -m pytest` documented.
+
+## 2026-11-16 — Iowa State renamed a row; five pages crashed
+
+- ISU's November issue prints "Complete feeds and other ingredients" (was "&"). `isu.parse`
+  skipped the row without an error, `load` cached the table without `complete_other`, and
+  Costs & returns, Scenarios, Risk, Hog supply and the overview raised a KeyError. The Monday
+  refresh had failed on it since 2026-11-09.
+- `parse` reads both spellings and now raises if any expected row is missing, so a future
+  rename falls back to the saved figures with a notice instead of breaking pages.

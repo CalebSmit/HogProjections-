@@ -23,6 +23,9 @@ ROWS = {  # PDF label -> column
     "Soybean meal, $/hd": "sbm",
     "Dried distiller grain, $/hd": "ddgs",
     "Complete feeds & other ingredients, $/hd": "complete_other",
+    # ISU's November 2026 issue spells it "and". The row was skipped without an error, the
+    # saved copy was overwritten without the column, and five pages crashed on a KeyError.
+    "Complete feeds and other ingredients, $/hd": "complete_other",
     "Feed processing, $/hd": "processing",
     "Variable costs, $/hd": "variable",
     "Operating interest, $/hd": "interest",
@@ -51,6 +54,11 @@ def parse(text: str) -> pd.DataFrame:
     n = min((len(v) for v in data.values()), default=0)
     if n == 0:
         raise ValueError("No values found")
+    # A renamed row must fail here, so `load` keeps the saved figures instead of caching a
+    # table with a column missing.
+    missing = sorted(set(ROWS.values()) - set(data))
+    if missing:
+        raise ValueError(f"ISU report is missing rows: {', '.join(missing)}")
     df = pd.DataFrame({"sale_month": months[:n], **{k: v[:n] for k, v in data.items()}})
     return df
 

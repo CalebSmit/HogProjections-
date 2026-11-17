@@ -97,3 +97,5 @@ Longer write-ups go in `docs/PROGRESS.md`.
   a plain keyed `number_input` stores its default and it goes stale after a refresh.
 - Excel formulas written with cached values look right until Excel recalculates. Every exported
   formula sheet needs the `formulas` recalculation test (tests/test_export_crush.py).
+- A parser that maps report labels to columns must raise when a label is missing. ISU renamed
+  one row (Nov 2026); the column vanished without an error and five pages crashed.

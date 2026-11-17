@@ -29,3 +29,14 @@ def test_defaults_structure_matches_the_cost_model():
 def test_rejects_other_text():
     with pytest.raises(ValueError):
         parse("Estimated Returns to Cattle Feeding")
+
+
+def test_reads_the_row_iowa_state_renamed_in_november_2026():
+    renamed = TEXT.replace("Complete feeds & other", "Complete feeds and other")
+    assert renamed != TEXT
+    pd.testing.assert_frame_equal(parse(renamed), parse(TEXT))
+
+
+def test_a_renamed_row_is_an_error_not_a_missing_column():
+    with pytest.raises(ValueError, match="complete_other"):
+        parse(TEXT.replace("Complete feeds & other", "Complete feed, other"))
